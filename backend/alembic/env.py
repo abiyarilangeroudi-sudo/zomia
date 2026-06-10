@@ -6,6 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from app.core.config import get_settings
 from app.core.database import Base
 from app.modules.identity import models  # noqa: F401
+from app.modules.loyalty import models as loyalty_models  # noqa: F401
 
 config = context.config
 
@@ -46,4 +47,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

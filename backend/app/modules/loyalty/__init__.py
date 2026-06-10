@@ -1,0 +1,2 @@
+"""Loyalty foundation module."""
+

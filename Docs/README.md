@@ -44,7 +44,7 @@ Sprint 1 کامل شده و به عنوان baseline امن ثبت شده است
 - Alembic migration اولیه
 - تست‌های API
 
-Sprint 2 در مرحله طراحی مفهومی است و هنوز implementation آن شروع نشده است.
+Sprint 2 پیاده‌سازی و با PostgreSQL واقعی smoke test شده است.
 
 تأیید شده:
 
@@ -53,3 +53,13 @@ Sprint 2 در مرحله طراحی مفهومی است و هنوز implementati
 - API با دیتابیس واقعی smoke test شد
 - OpenAPI روی backend در حال اجرا بررسی شد
 - Git baseline commit ساخته شد
+
+Sprint 2:
+
+- Mission API اضافه شد
+- Action چندآیتمی اضافه شد
+- Points Ledger اضافه شد
+- Idempotency برای Action Registration اضافه شد
+- Basic Audit اضافه شد
+- Migration روی PostgreSQL واقعی اجرا شد
+- API با دیتابیس واقعی smoke test شد

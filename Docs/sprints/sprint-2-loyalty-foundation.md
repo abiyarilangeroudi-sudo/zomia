@@ -514,11 +514,41 @@ Before implementation, confirm:
 
 Sprint 2 وقتی بسته می‌شود که:
 
-- Migration روی PostgreSQL واقعی اجرا شود
-- تست‌ها پاس شوند
-- OpenAPI endpointهای Sprint 2 را نشان دهد
-- Staff بتواند Action ثبت کند
-- Staff بتواند Action چند آیتمی ثبت کند
-- Points Ledger برای هر Action Item ساخته شود
-- duplicate request با idempotency کنترل شود
-- Audit Eventهای پایه ثبت شوند
+- [x] Migration روی PostgreSQL واقعی اجرا شود
+- [x] تست‌ها پاس شوند
+- [x] OpenAPI endpointهای Sprint 2 را نشان دهد
+- [x] Staff بتواند Action ثبت کند
+- [x] Staff بتواند Action چند آیتمی ثبت کند
+- [x] Points Ledger برای هر Action Item ساخته شود
+- [x] duplicate request با idempotency کنترل شود
+- [x] Audit Eventهای پایه ثبت شوند
+
+## Implementation Notes
+
+پیاده‌سازی Sprint 2 اضافه کرد:
+
+- `backend/app/modules/loyalty/models.py`
+- `backend/app/modules/loyalty/schemas.py`
+- `backend/app/modules/loyalty/repository.py`
+- `backend/app/modules/loyalty/service.py`
+- `backend/app/modules/loyalty/router.py`
+- `backend/alembic/versions/0002_loyalty_foundation.py`
+- `backend/app/tests/test_loyalty.py`
+
+## Verification Notes
+
+- Tests: `10 passed`
+- Lint: `All checks passed`
+- PostgreSQL migration: `0002_loyalty_foundation`
+- OpenAPI includes:
+  - `POST /api/v1/owner/missions`
+  - `GET /api/v1/owner/missions`
+  - `POST /api/v1/staff/actions`
+  - `GET /api/v1/customers/me/points`
+- Live smoke test:
+  - Created 2 Missions
+  - Registered 1 multi-item Action
+  - Created 2 Action Items
+  - Created 2 Points Ledger entries
+  - Idempotency replay returned the same Action
+  - Customer earned/progress points stayed `7`
