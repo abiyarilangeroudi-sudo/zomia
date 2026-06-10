@@ -43,7 +43,7 @@ Mission
 ```text
 Action recorded
 -> Load active individual campaigns for business
--> Match mission
+-> Match action items to campaign missions
 -> Sum customer progress
 -> If threshold reached, create reward
 ```

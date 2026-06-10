@@ -56,8 +56,7 @@ make backend-run
 اگر پورت `8000` از قبل اشغال بود، backend را روی پورت دیگری اجرا کنید:
 
 ```bash
-cd backend
-.venv/bin/fastapi dev app/main.py --host 127.0.0.1 --port 8010
+PORT=8010 make backend-run
 ```
 
 ## Verification

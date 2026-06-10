@@ -38,14 +38,15 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 
 - Mission
 - Action
+- Action Item
 - Points Ledger
 - Idempotency Key
 - Basic Audit Events
 
 معیار خروج:
 
-- Staff بتواند برای Customer یک Action ثبت کند
-- Points به صورت append-only ثبت شود
+- Staff بتواند برای Customer یک Action چندآیتمی ثبت کند
+- Points earned/progress به صورت append-only ثبت شود
 - ثبت duplicate action جلوگیری شود
 
 ## Sprint 3: Individual Campaign
@@ -119,7 +120,7 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 - Staff Login
 - Customer QR Display
 - Staff Scan/Service Panel
-- Basic Campaign and Mission Management
+- Basic Mission and Campaign Management
 
 معیار خروج:
 
@@ -142,4 +143,3 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 - Gamification
 - Marketplace
 - Production Observability
-

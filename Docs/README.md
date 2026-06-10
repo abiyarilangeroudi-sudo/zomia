@@ -31,7 +31,7 @@ Customer QR
 
 ## وضعیت فعلی
 
-Sprint 1 در حال تکمیل است.
+Sprint 1 کامل شده و به عنوان baseline امن ثبت شده است.
 
 انجام شده:
 
@@ -44,7 +44,7 @@ Sprint 1 در حال تکمیل است.
 - Alembic migration اولیه
 - تست‌های API
 
-Sprint 1 به عنوان baseline امن ثبت شده است.
+Sprint 2 در مرحله طراحی مفهومی است و هنوز implementation آن شروع نشده است.
 
 تأیید شده:
 

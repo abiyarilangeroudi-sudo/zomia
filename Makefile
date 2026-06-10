@@ -10,7 +10,7 @@ backend-lint:
 	cd backend && .venv/bin/ruff check app alembic
 
 backend-run:
-	cd backend && .venv/bin/fastapi dev app/main.py
+	cd backend && .venv/bin/fastapi dev app/main.py --host 127.0.0.1 --port $${PORT:-8000}
 
 db-up:
 	docker compose up -d postgres
@@ -28,4 +28,3 @@ migration-sql:
 	cd backend && .venv/bin/alembic upgrade head --sql
 
 verify: backend-test backend-lint migration-sql
-

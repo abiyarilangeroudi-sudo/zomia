@@ -62,7 +62,8 @@ Zomia فعلاً یک پروژه local MVP است. بنابراین نباید �
 
 ## پیامدها
 
-- قدم بعدی Sprint 1 ساخت Docker Compose و اجرای migration روی PostgreSQL واقعی است.
+- Sprint 1 با Docker Compose و PostgreSQL واقعی بسته شده است.
+- قدم بعدی طراحی و اجرای Sprint 2 است.
 - Flutter تا بعد از core backend وارد implementation نمی‌شود.
 - تمام Sprintهای backend باید تست و migration قابل اجرا داشته باشند.
 

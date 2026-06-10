@@ -30,7 +30,7 @@ Campaign و Reward فقط وقتی معنی دارند که سیستم قبلا�
 - Basic Audit Event model
 - Owner API برای ساخت و دیدن Missionها
 - Staff API برای ثبت Action
-- Customer API برای دیدن point balance
+- Customer API برای دیدن earned/progress points
 - تست‌های role access، idempotency و ledger
 - Alembic migration
 
@@ -238,7 +238,7 @@ Notes:
 - `action_id` به `loyalty_actions.id` وصل است
 - `action_item_id` به `loyalty_action_items.id` وصل است
 - این جدول append-only است
-- این جدول Wallet نیست و deduction ندارد
+- این جدول کیف پول نیست و deduction ندارد
 
 ### audit_events
 
@@ -352,9 +352,9 @@ GET /api/v1/customers/me/points?business_id=uuid
 Rules:
 
 - فقط Customer مجاز است
-- balance از `sum(points)` محاسبه شود
+- total earned/progress points از `sum(points)` محاسبه شود
 - در Sprint 2 نیاز به aggregate table نداریم
-- این balance فقط earned/progress points است، نه کیف پول قابل خرج کردن
+- این عدد فقط earned/progress points است، نه کیف پول قابل خرج کردن
 
 ## Service Flow
 
@@ -449,7 +449,7 @@ Sprint 2 must include tests for:
 - Multi-item action returns total points granted
 - Duplicate idempotency key returns previous result
 - Duplicate idempotency key does not create extra points
-- Customer can read own point balance
+- Customer can read own earned/progress points
 - Customer cannot register action
 - Staff cannot register action for another business
 - Inactive Mission cannot be used in Action Item
