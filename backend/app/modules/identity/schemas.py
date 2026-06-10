@@ -95,3 +95,18 @@ class StaffRead(BaseModel):
     is_active: bool
     created_at: datetime
     user: UserRead
+
+
+class StaffContextBusinessRead(BaseModel):
+    id: uuid.UUID
+    name: str
+    slug: str
+    status: BusinessStatus
+    timezone: str
+    currency_code: str
+    staff_membership_id: uuid.UUID
+
+
+class StaffContextRead(BaseModel):
+    staff: UserRead
+    businesses: list[StaffContextBusinessRead]

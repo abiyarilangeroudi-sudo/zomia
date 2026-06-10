@@ -30,6 +30,7 @@ Customer QR
 - [Sprint 4: Reward Engine](./sprints/sprint-4-reward-engine.md)
 - [Sprint 5: QR Staff Workflow](./sprints/sprint-5-qr-staff-workflow.md)
 - [Sprint 5.5: Staff Panel API Contract](./sprints/sprint-5-5-staff-panel-contract.md)
+- [Sprint 5.6: Staff Context Endpoint](./sprints/sprint-5-6-staff-context.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 
@@ -120,3 +121,12 @@ Sprint 5.5:
 - endpoint مخصوص Staff برای دیدن Missionهای قابل ثبت اضافه شد
 - `recent_actions` در Staff Service Summary typed شد
 - تست‌های Staff Panel API Contract اضافه شد
+
+Sprint 5.6 پیاده‌سازی شده است.
+
+Sprint 5.6:
+
+- endpoint مخصوص Staff Context اضافه شد
+- Flutter بعد از login می‌تواند Businessهای Staff را دریافت کند
+- response برای چند Business آینده به صورت آرایه طراحی شد
+- تست‌های Staff Context اضافه شد

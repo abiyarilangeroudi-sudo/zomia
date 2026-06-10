@@ -52,3 +52,12 @@ class IdentityRepository:
                 .options(selectinload(StaffMember.user))
             )
         )
+
+    def list_active_staff_memberships(self, user_id: uuid.UUID) -> list[StaffMember]:
+        return list(
+            self.db.scalars(
+                select(StaffMember)
+                .where(StaffMember.user_id == user_id, StaffMember.is_active.is_(True))
+                .options(selectinload(StaffMember.business))
+            )
+        )

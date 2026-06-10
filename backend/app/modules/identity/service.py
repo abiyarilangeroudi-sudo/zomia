@@ -7,7 +7,15 @@ from app.core.config import Settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.modules.identity.models import Business, StaffMember, User, UserRole
 from app.modules.identity.repository import IdentityRepository
-from app.modules.identity.schemas import BusinessCreate, OwnerRegister, StaffCreate, UserCreate
+from app.modules.identity.schemas import (
+    BusinessCreate,
+    OwnerRegister,
+    StaffContextBusinessRead,
+    StaffContextRead,
+    StaffCreate,
+    UserCreate,
+    UserRead,
+)
 
 
 class IdentityService:
@@ -46,6 +54,25 @@ class IdentityService:
         staff_user = self._create_user(payload, UserRole.STAFF)
         return self.repository.add_staff_member(
             StaffMember(business_id=business.id, user_id=staff_user.id)
+        )
+
+    def get_staff_context(self, staff: User) -> StaffContextRead:
+        self._require_role(staff, UserRole.STAFF)
+        memberships = self.repository.list_active_staff_memberships(staff.id)
+        return StaffContextRead(
+            staff=UserRead.model_validate(staff),
+            businesses=[
+                StaffContextBusinessRead(
+                    id=membership.business.id,
+                    name=membership.business.name,
+                    slug=membership.business.slug,
+                    status=membership.business.status,
+                    timezone=membership.business.timezone,
+                    currency_code=membership.business.currency_code,
+                    staff_membership_id=membership.id,
+                )
+                for membership in memberships
+            ],
         )
 
     def authenticate(self, *, email: str, password: str) -> str:

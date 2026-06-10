@@ -14,6 +14,7 @@ from app.modules.identity.schemas import (
     BusinessRead,
     LoginRequest,
     OwnerRegister,
+    StaffContextRead,
     StaffCreate,
     StaffRead,
     TokenResponse,
@@ -57,6 +58,14 @@ def login(payload: LoginRequest, service: IdentityService = Depends(get_identity
 @router.get("/auth/me", response_model=UserRead)
 def me(current_user: User = Depends(get_current_user)) -> User:
     return current_user
+
+
+@router.get("/staff/me/context", response_model=StaffContextRead)
+def staff_context(
+    current_user: User = Depends(get_current_user),
+    service: IdentityService = Depends(get_identity_service),
+) -> StaffContextRead:
+    return service.get_staff_context(current_user)
 
 
 @router.post("/owner/businesses", response_model=BusinessRead, status_code=status.HTTP_201_CREATED)
