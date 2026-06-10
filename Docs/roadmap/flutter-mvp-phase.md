@@ -28,6 +28,23 @@ Flutter MVP باید از Staff Service Panel شروع شود.
 - Owner dashboard و Customer app برای MVP لازم هستند، اما می‌توانند بعد از اثبات Staff loop کامل‌تر شوند
 - شروع با یک اپ بزرگ چندنقشی ریسک دوباره‌کاری را بالا می‌برد
 
+## Language Rule
+
+Frontend UI باید به زبان انگلیسی باشد.
+
+این قانون شامل همه متن‌های قابل مشاهده در Flutter است:
+
+- screen titles
+- buttons
+- labels
+- validation messages
+- empty states
+- loading states
+- error messages
+- snackbars/dialogs
+
+Docs داخلی پروژه می‌توانند فارسی بمانند، اما محصول نهایی در frontend انگلیسی است.
+
 ## محدوده Flutter MVP
 
 ### داخل فاز اول Flutter

@@ -69,6 +69,8 @@ MVP به کوچک‌ترین UI عملی برای تست workflow واقعی ن�
 
 Owner و Customer UI در فاز Flutter اضافه می‌شوند، اما شروع MVP frontend با Staff workflow است.
 
+Frontend نهایی به زبان انگلیسی ساخته می‌شود. متن‌های قابل مشاهده در Flutter، شامل عنوان‌ها، دکمه‌ها، labelها، پیام‌های خطا و empty stateها، باید انگلیسی باشند.
+
 ## خارج از MVP
 
 - Group Campaign execution
