@@ -58,6 +58,8 @@ Staff selects active reward
 -> Audit event is recorded
 ```
 
+Reward Use باعث کم شدن Point نمی‌شود. Points در Zomia progress/earned points هستند، نه wallet credit.
+
 ## Future Group Campaign Workflow
 
 این workflow عمداً خارج از MVP است:
@@ -80,4 +82,3 @@ Business club creates shared campaign
 -> Campaign evaluates cross-network activity
 -> Rewards are issued based on shared rules
 ```
-

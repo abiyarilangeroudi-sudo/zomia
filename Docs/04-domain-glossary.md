@@ -44,7 +44,26 @@
 
 ### Action
 
-ثبت انجام یک Mission برای یک Customer. در MVP، Staff بعد از scan کردن QR مشتری Action را ثبت می‌کند.
+ثبت یک عملیات واقعی برای یک Customer. یک Action می‌تواند چند Mission را همزمان ثبت کند.
+
+مثال:
+
+```text
+Ali bought 2 coffees and 1 cake
+```
+
+این یک Action است، اما چند Action Item دارد.
+
+### Action Item
+
+یک ردیف داخل Action که به یک Mission وصل است.
+
+مثال:
+
+```text
+Buy Coffee x 2
+Buy Cake x 1
+```
 
 ### Point
 
@@ -52,7 +71,7 @@
 
 ### Points Ledger
 
-دفتر append-only برای تغییرات امتیاز. برای audit، analytics و اصلاحات آینده ضروری است.
+دفتر append-only برای امتیازهای کسب‌شده. این ledger کیف پول یا credit economy نیست و Reward Use باعث کم شدن Point نمی‌شود.
 
 ### Campaign
 
@@ -117,9 +136,8 @@ active -> expired
 
 ### Action Registration
 
-ثبت اینکه مشتری یک Mission را انجام داده است.
+ثبت یک عملیات برای Customer. این عملیات می‌تواند یک یا چند Mission را شامل شود.
 
 ### Idempotency
 
 مکانیزمی برای جلوگیری از ثبت دوباره یک Action وقتی request تکرار می‌شود.
-
