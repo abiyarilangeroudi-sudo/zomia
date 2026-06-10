@@ -1,10 +1,18 @@
-from uuid import uuid4
+from datetime import UTC, datetime, timedelta
+from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.modules.loyalty.models import AuditEvent, LoyaltyAction, PointsLedgerEntry
+from app.modules.loyalty.models import (
+    AuditEvent,
+    CampaignCompletion,
+    GeneratedReward,
+    LoyaltyAction,
+    PointsLedgerEntry,
+    RewardUsage,
+)
 
 
 def register_owner(client: TestClient, email: str, business_name: str = "Zomia Cafe") -> tuple[str, str]:
@@ -78,6 +86,75 @@ def create_mission(
             "mission_type": mission_type,
             "point_value": point_value,
         },
+        headers=auth(owner_token),
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+def create_campaign(
+    client: TestClient,
+    owner_token: str,
+    business_id: str,
+    *,
+    mission_ids: list[str],
+    threshold_points: int = 5,
+    starts_at: datetime | None = None,
+    ends_at: datetime | None = None,
+) -> dict:
+    starts_at = starts_at or datetime.now(UTC) - timedelta(days=1)
+    ends_at = ends_at or datetime.now(UTC) + timedelta(days=30)
+    response = client.post(
+        "/api/v1/owner/campaigns",
+        json={
+            "creator_business_id": business_id,
+            "name": "Coffee Lover",
+            "description": "Reach the threshold",
+            "threshold_points": threshold_points,
+            "starts_at": starts_at.isoformat(),
+            "ends_at": ends_at.isoformat(),
+            "mission_ids": mission_ids,
+        },
+        headers=auth(owner_token),
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+def create_reward_template(
+    client: TestClient,
+    owner_token: str,
+    business_id: str,
+    campaign_id: str,
+    *,
+    reward_type: str = "gift",
+    name: str = "Free Coffee",
+    gift_name: str | None = "Free coffee",
+    discount_percent: int | None = None,
+    discount_amount_minor: int | None = None,
+    currency_code: str | None = None,
+    valid_days: int = 30,
+) -> dict:
+    payload = {
+        "business_id": business_id,
+        "campaign_id": campaign_id,
+        "name": name,
+        "description": f"{name} reward",
+        "reward_type": reward_type,
+        "valid_days": valid_days,
+    }
+    if gift_name is not None:
+        payload["gift_name"] = gift_name
+    if discount_percent is not None:
+        payload["discount_percent"] = discount_percent
+    if discount_amount_minor is not None:
+        payload["discount_amount_minor"] = discount_amount_minor
+    if currency_code is not None:
+        payload["currency_code"] = currency_code
+
+    response = client.post(
+        "/api/v1/owner/reward-templates",
+        json=payload,
         headers=auth(owner_token),
     )
     assert response.status_code == 201
@@ -261,3 +338,620 @@ def test_inactive_or_foreign_mission_cannot_be_used_in_action(client: TestClient
     )
     assert response.status_code == 404
 
+
+def test_owner_creates_and_lists_campaigns(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=10,
+    )
+
+    assert campaign["name"] == "Coffee Lover"
+    assert campaign["campaign_type"] == "individual"
+    assert campaign["scope_type"] == "single_business"
+    assert campaign["participation_mode"] == "automatic"
+    assert campaign["progress_metric"] == "points"
+    assert campaign["threshold_points"] == 10
+
+    response = client.get(
+        f"/api/v1/owner/campaigns?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()] == [campaign["id"]]
+
+
+def test_owner_cannot_create_campaign_with_foreign_mission(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
+    other_owner_token, other_business_id = register_owner(client, "other@example.com", "Other Cafe")
+    foreign_mission = create_mission(
+        client, other_owner_token, other_business_id, name="Foreign Mission"
+    )
+
+    response = client.post(
+        "/api/v1/owner/campaigns",
+        json={
+            "creator_business_id": business_id,
+            "name": "Invalid Campaign",
+            "threshold_points": 5,
+            "starts_at": (datetime.now(UTC) - timedelta(days=1)).isoformat(),
+            "ends_at": (datetime.now(UTC) + timedelta(days=10)).isoformat(),
+            "mission_ids": [foreign_mission["id"]],
+        },
+        headers=auth(owner_token),
+    )
+
+    assert response.status_code == 404
+
+
+def test_action_below_threshold_updates_campaign_progress_without_completion(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "campaign-below-threshold",
+            "items": [{"mission_id": mission["id"], "quantity": 2}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 0
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["progress_points"] == 2
+    assert progress.json()["is_completed"] is False
+
+
+def test_action_reaching_threshold_creates_campaign_completion(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Cake", point_value=5)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "campaign-complete-1",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 201
+    completion = db_session.scalar(select(CampaignCompletion))
+    assert completion is not None
+    assert completion.progress_points == 5
+    assert completion.reward_generated_at is None
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["progress_points"] == 5
+    assert progress.json()["is_completed"] is True
+
+    audit_events = db_session.scalars(select(AuditEvent)).all()
+    assert "campaign_completed" in {event.event_type.value for event in audit_events}
+
+
+def test_idempotency_replay_does_not_duplicate_campaign_completion(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=3)
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=3,
+    )
+    payload = {
+        "business_id": business_id,
+        "customer_id": customer_id,
+        "idempotency_key": "campaign-idempotent-1",
+        "items": [{"mission_id": mission["id"], "quantity": 1}],
+    }
+
+    first = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+    second = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+
+    assert first.status_code == 201
+    assert second.status_code == 201
+    assert second.json()["idempotency_replayed"] is True
+    assert db_session.query(CampaignCompletion).count() == 1
+
+
+def test_action_outside_campaign_window_does_not_count_for_progress(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+        starts_at=datetime.now(UTC) + timedelta(days=1),
+        ends_at=datetime.now(UTC) + timedelta(days=30),
+    )
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "campaign-window-1",
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 0
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["progress_points"] == 0
+    assert progress.json()["is_completed"] is False
+
+
+def test_non_repeatable_campaign_creates_only_one_completion(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+
+    for index in range(2):
+        response = client.post(
+            "/api/v1/staff/actions",
+            json={
+                "business_id": business_id,
+                "customer_id": customer_id,
+                "idempotency_key": f"non-repeatable-{index}",
+                "items": [{"mission_id": mission["id"], "quantity": 1}],
+            },
+            headers=auth(staff_token),
+        )
+        assert response.status_code == 201
+
+    assert db_session.query(CampaignCompletion).count() == 1
+
+
+def test_owner_creates_reward_templates_for_all_mvp_types(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    first_mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    first_campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[first_mission["id"]]
+    )
+    gift = create_reward_template(
+        client,
+        owner_token,
+        business_id,
+        first_campaign["id"],
+        reward_type="gift",
+        gift_name="Free coffee",
+    )
+    assert gift["reward_type"] == "gift"
+    assert gift["issuer_business_id"] == business_id
+    assert gift["redeem_scope"] == "issuer_business_only"
+    assert gift["settlement_policy"] == "issuer_pays"
+
+    second_mission = create_mission(client, owner_token, business_id, name="Buy Cake")
+    second_campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[second_mission["id"]]
+    )
+    percentage = create_reward_template(
+        client,
+        owner_token,
+        business_id,
+        second_campaign["id"],
+        reward_type="percentage_discount",
+        name="Ten Percent Off",
+        gift_name=None,
+        discount_percent=10,
+    )
+    assert percentage["reward_type"] == "percentage_discount"
+    assert percentage["discount_percent"] == 10
+
+    third_mission = create_mission(client, owner_token, business_id, name="Visit")
+    third_campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[third_mission["id"]]
+    )
+    fixed = create_reward_template(
+        client,
+        owner_token,
+        business_id,
+        third_campaign["id"],
+        reward_type="fixed_discount",
+        name="Five Euro Off",
+        gift_name=None,
+        discount_amount_minor=500,
+        currency_code="eur",
+    )
+    assert fixed["reward_type"] == "fixed_discount"
+    assert fixed["discount_amount_minor"] == 500
+    assert fixed["currency_code"] == "EUR"
+
+
+def test_owner_cannot_create_reward_template_for_foreign_campaign(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
+    other_owner_token, other_business_id = register_owner(client, "other@example.com", "Other Cafe")
+    other_mission = create_mission(client, other_owner_token, other_business_id, name="Other Visit")
+    other_campaign = create_campaign(
+        client, other_owner_token, other_business_id, mission_ids=[other_mission["id"]]
+    )
+
+    response = client.post(
+        "/api/v1/owner/reward-templates",
+        json={
+            "business_id": business_id,
+            "campaign_id": other_campaign["id"],
+            "name": "Invalid Reward",
+            "reward_type": "gift",
+            "gift_name": "Nope",
+            "valid_days": 30,
+        },
+        headers=auth(owner_token),
+    )
+
+    assert response.status_code == 404
+
+
+def test_campaign_completion_generates_reward_when_template_exists(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+    template = create_reward_template(client, owner_token, business_id, campaign["id"])
+
+    action = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "reward-generation-1",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert action.status_code == 201
+    reward = db_session.scalar(select(GeneratedReward))
+    assert reward is not None
+    assert str(reward.reward_template_id) == template["id"]
+    assert reward.status.value == "active"
+    assert reward.gift_name == "Free coffee"
+    assert reward.issuer_business_id == reward.business_id
+    assert reward.source_type.value == "individual_campaign_completion"
+
+    completion = db_session.scalar(select(CampaignCompletion))
+    assert completion is not None
+    assert reward.source_id == completion.id
+    assert completion.reward_generated_at is not None
+
+    rewards_response = client.get(
+        f"/api/v1/customers/me/rewards?business_id={business_id}",
+        headers=auth(customer_token),
+    )
+    assert rewards_response.status_code == 200
+    assert [item["id"] for item in rewards_response.json()] == [str(reward.id)]
+
+
+def test_campaign_completion_without_template_does_not_generate_reward(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5)
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "completion-no-template",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 1
+    assert db_session.query(GeneratedReward).count() == 0
+
+
+def test_idempotency_replay_does_not_duplicate_generated_reward(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    payload = {
+        "business_id": business_id,
+        "customer_id": customer_id,
+        "idempotency_key": "reward-idempotent-1",
+        "items": [{"mission_id": mission["id"], "quantity": 1}],
+    }
+
+    first = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+    second = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+
+    assert first.status_code == 201
+    assert second.status_code == 201
+    assert second.json()["idempotency_replayed"] is True
+    assert db_session.query(GeneratedReward).count() == 1
+
+
+def test_staff_uses_reward_without_creating_points_entry(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
+    campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "reward-use-source-action",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    reward = db_session.scalar(select(GeneratedReward))
+    assert reward is not None
+    points_before = db_session.query(PointsLedgerEntry).count()
+
+    response = client.post(
+        f"/api/v1/staff/rewards/{reward.id}/use",
+        json={
+            "business_id": business_id,
+            "idempotency_key": "use-reward-1",
+            "note": "Used at checkout",
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["idempotency_replayed"] is False
+    assert body["reward"]["status"] == "used"
+    assert body["usage"]["redeemed_business_id"] == business_id
+    assert body["usage"]["issuer_business_id"] == business_id
+    assert body["usage"]["settlement_status"] == "not_required"
+    assert db_session.query(RewardUsage).count() == 1
+    assert db_session.query(PointsLedgerEntry).count() == points_before
+
+    action = db_session.scalar(
+        select(LoyaltyAction).where(LoyaltyAction.id == UUID(body["usage"]["action_id"]))
+    )
+    assert action is not None
+    assert action.action_type.value == "reward_use"
+    assert action.items == []
+
+
+def test_reward_use_idempotency_replay_returns_existing_usage(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "reward-use-replay-source",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    rewards = client.get(
+        f"/api/v1/customers/me/rewards?business_id={business_id}",
+        headers=auth(login(client, "customer@example.com")),
+    )
+    reward_id = rewards.json()[0]["id"]
+    payload = {"business_id": business_id, "idempotency_key": "use-reward-replay"}
+
+    first = client.post(
+        f"/api/v1/staff/rewards/{reward_id}/use", json=payload, headers=auth(staff_token)
+    )
+    second = client.post(
+        f"/api/v1/staff/rewards/{reward_id}/use", json=payload, headers=auth(staff_token)
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert second.json()["idempotency_replayed"] is True
+    assert second.json()["usage"]["id"] == first.json()["usage"]["id"]
+
+
+def test_staff_cannot_use_reward_from_another_business(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
+    other_owner_token, other_business_id = register_owner(client, "other@example.com", "Other Cafe")
+    other_staff_token, _ = create_staff(
+        client, other_owner_token, other_business_id, "other-staff@example.com"
+    )
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "foreign-use-source",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    reward = db_session.scalar(select(GeneratedReward))
+    assert reward is not None
+
+    response = client.post(
+        f"/api/v1/staff/rewards/{reward.id}/use",
+        json={"business_id": other_business_id, "idempotency_key": "foreign-use-1"},
+        headers=auth(other_staff_token),
+    )
+
+    assert response.status_code == 403
+
+
+def test_used_reward_cannot_be_used_twice_with_new_idempotency_key(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "used-twice-source",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    reward = db_session.scalar(select(GeneratedReward))
+    assert reward is not None
+
+    first = client.post(
+        f"/api/v1/staff/rewards/{reward.id}/use",
+        json={"business_id": business_id, "idempotency_key": "used-once"},
+        headers=auth(staff_token),
+    )
+    second = client.post(
+        f"/api/v1/staff/rewards/{reward.id}/use",
+        json={"business_id": business_id, "idempotency_key": "used-twice"},
+        headers=auth(staff_token),
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 400
+
+
+def test_staff_cannot_use_expired_reward(client: TestClient, db_session: Session) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "expired-source",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    reward = db_session.scalar(select(GeneratedReward))
+    assert reward is not None
+    reward.expires_at = datetime.now(UTC) - timedelta(days=1)
+    db_session.flush()
+
+    response = client.post(
+        f"/api/v1/staff/rewards/{reward.id}/use",
+        json={"business_id": business_id, "idempotency_key": "expired-use"},
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 400
+    db_session.refresh(reward)
+    assert reward.status.value == "expired"

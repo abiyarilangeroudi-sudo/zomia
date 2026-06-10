@@ -370,7 +370,7 @@ Action and Action Items created
 
 ## Tests
 
-Sprint 3 must include tests for:
+Sprint 3 includes tests for:
 
 - Owner creates individual campaign with mission
 - Owner cannot use another owner’s mission
@@ -384,28 +384,68 @@ Sprint 3 must include tests for:
 
 ## Migration Requirements
 
-Migration must create:
+Migration `0003_individual_campaign` creates:
 
 - `campaigns`
 - `campaign_missions`
 - `campaign_completions`
 
-Migration must include:
+Migration includes:
 
 - Foreign keys
 - Indexes for lookup fields
 - Unique constraint on `campaign_id + mission_id`
 - Unique constraint for non-repeatable MVP completion: `campaign_id + customer_id`
 
+It also extends `audit_event_type` with:
+
+- `campaign_created`
+- `campaign_completed`
+
+## Implementation Result
+
+Implemented files:
+
+- `backend/app/modules/loyalty/models.py`
+- `backend/app/modules/loyalty/schemas.py`
+- `backend/app/modules/loyalty/repository.py`
+- `backend/app/modules/loyalty/service.py`
+- `backend/app/modules/loyalty/router.py`
+- `backend/alembic/versions/0003_individual_campaign.py`
+- `backend/app/tests/test_loyalty.py`
+
+Implemented API endpoints:
+
+- `POST /api/v1/owner/campaigns`
+- `GET /api/v1/owner/campaigns?business_id=uuid`
+- `GET /api/v1/customers/me/campaigns/{campaign_id}/progress`
+
+Verification performed:
+
+- `pytest`: 17 tests passed
+- `ruff check`: passed
+- `alembic upgrade head --sql`: generated successfully
+- `alembic upgrade head`: applied on local PostgreSQL
+- `alembic current`: `0003_individual_campaign (head)`
+- Live PostgreSQL smoke test: passed
+
+Smoke test confirmed:
+
+- Owner can create Missions and an Individual Campaign
+- Staff can register a multi-item Action
+- Points Ledger records progress points
+- Campaign Completion is created when threshold is reached
+- Idempotency replay does not create duplicate completion
+- `reward_generated_at` remains `null`
+
 ## Exit Criteria
 
-Sprint 3 وقتی بسته می‌شود که:
+Sprint 3 بسته شده است:
 
-- Migration روی PostgreSQL واقعی اجرا شود
-- تست‌ها پاس شوند
-- OpenAPI endpointهای Sprint 3 را نشان دهد
-- Owner بتواند Campaign بسازد
-- Action بتواند Campaign Evaluation را trigger کند
-- Threshold completion ثبت شود
-- Reward ساخته نشود
-
+- Migration روی PostgreSQL واقعی اجرا شد
+- تست‌ها پاس شدند
+- OpenAPI endpointهای Sprint 3 را نشان می‌دهد
+- Owner می‌تواند Campaign بسازد
+- Action می‌تواند Campaign Evaluation را trigger کند
+- Threshold completion ثبت می‌شود
+- Reward ساخته نمی‌شود

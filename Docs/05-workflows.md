@@ -45,7 +45,8 @@ Action recorded
 -> Load active individual campaigns for business
 -> Match action items to campaign missions
 -> Sum customer progress
--> If threshold reached, create reward
+-> If threshold reached, create campaign completion
+-> Reward engine generates reward from completion
 ```
 
 ## Reward Use Workflow
@@ -60,6 +61,18 @@ Staff selects active reward
 ```
 
 Reward Use باعث کم شدن Point نمی‌شود. Points در Zomia progress/earned points هستند، نه wallet credit.
+
+## Reward Generation Workflow
+
+```text
+Campaign completion created
+-> Load active reward template for campaign
+-> Create generated reward for customer
+-> Mark completion reward_generated_at
+-> Record audit event
+```
+
+اگر Campaign هنوز Reward Template نداشته باشد، completion باقی می‌ماند و reward ساخته نمی‌شود.
 
 ## Future Group Campaign Workflow
 
@@ -81,5 +94,7 @@ Fans group joins campaign
 Business club creates shared campaign
 -> Customers earn across partner businesses
 -> Campaign evaluates cross-network activity
--> Rewards are issued based on shared rules
+-> Rewards are issued with issuer and redeem scope
+-> Staff uses reward only in allowed business scope
+-> Settlement engine calculates business payable/receivable amounts
 ```
