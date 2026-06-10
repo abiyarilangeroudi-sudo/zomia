@@ -167,6 +167,18 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 - دریافت Staff Context
 - انتخاب Business اگر لازم بود
 
+### FB: Branding Integration
+
+شامل:
+
+- اعمال logo
+- app icons
+- color palette
+- typography
+- UI tokens/components
+
+این مرحله بعد از F1 و قبل از F2 انجام می‌شود تا Staff Service Panel با design system نهایی ساخته شود.
+
 ### F2: Staff Service Panel Without Camera
 
 شامل:

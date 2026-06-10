@@ -1,14 +1,110 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import 'package:zomia_frontend/app/zomia_app.dart';
+import 'package:zomia_frontend/core/storage/secure_token_store.dart';
+import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
+import 'package:zomia_frontend/features/staff_context/domain/staff_context.dart';
 
 void main() {
-  testWidgets('renders the Zomia app shell', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: ZomiaApp()));
+  testWidgets('renders the staff login screen when signed out', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(_MemoryTokenStore()),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
 
     expect(find.text('Zomia'), findsOneWidget);
-    expect(find.text('Staff Service'), findsOneWidget);
-    expect(find.text('Sign in'), findsOneWidget);
+    expect(find.text('Sign in to Staff Service'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNWidgets(2));
   });
+
+  testWidgets('signs in and renders staff context', (tester) async {
+    final tokenStore = _MemoryTokenStore();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'staff@example.com',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(find.text('Staff Service'), findsOneWidget);
+    expect(find.text('Zomia Cafe'), findsOneWidget);
+    expect(find.text('Signed in as Staff One'), findsOneWidget);
+  });
+}
+
+class _MemoryTokenStore implements TokenStore {
+  String? _token;
+
+  @override
+  Future<void> clear() async {
+    _token = null;
+  }
+
+  @override
+  Future<String?> readAccessToken() async {
+    return _token;
+  }
+
+  @override
+  Future<void> writeAccessToken(String token) async {
+    _token = token;
+  }
+}
+
+class _FakeAuthRepository extends AuthRepository {
+  _FakeAuthRepository() : super(Dio());
+
+  @override
+  Future<String> login({
+    required String email,
+    required String password,
+  }) async {
+    return 'access-token';
+  }
+
+  @override
+  Future<StaffContext> getStaffContext() async {
+    return const StaffContext(
+      staff: StaffUser(
+        id: 'staff-id',
+        email: 'staff@example.com',
+        fullName: 'Staff One',
+        role: 'staff',
+        isActive: true,
+      ),
+      businesses: [
+        StaffBusiness(
+          id: 'business-id',
+          name: 'Zomia Cafe',
+          slug: 'zomia-cafe',
+          status: 'active',
+          timezone: 'Europe/Berlin',
+          currencyCode: 'EUR',
+          staffMembershipId: 'membership-id',
+        ),
+      ],
+    );
+  }
 }

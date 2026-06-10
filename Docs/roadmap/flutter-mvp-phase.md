@@ -76,7 +76,7 @@ Docs داخلی پروژه می‌توانند فارسی بمانند، اما 
 - Group/Cross Campaign UI
 - Offline-first behavior
 - Push notification
-- Production branding کامل
+- Advanced production polish
 
 ## Flutter App Shape
 
@@ -347,6 +347,25 @@ frontend/
 
 - Staff بعد از login وارد Service Panel شود
 
+### FB: Branding Integration
+
+هدف:
+
+- اعمال design system آماده قبل از گسترش UI.
+
+شامل:
+
+- logo
+- app icons
+- color palette
+- typography
+- reusable UI tokens/components
+- basic branded empty/loading/error states
+
+خروجی:
+
+- UIهای بعدی از ابتدا با برند نهایی ساخته شوند
+
 ### F2: Staff Service Panel Without Camera
 
 هدف:
@@ -412,7 +431,8 @@ Backend برای شروع Flutter کافی است اگر:
 
 ```text
 F0 completed
-Ready for Flutter F1/F2
+F1 completed
+Ready for Branding Integration
 ```
 
 ## ریسک‌ها

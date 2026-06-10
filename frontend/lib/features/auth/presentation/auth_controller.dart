@@ -1,0 +1,65 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/storage/secure_token_store.dart';
+import '../../staff_context/domain/staff_context.dart';
+import '../data/auth_repository.dart';
+import '../domain/auth_state.dart';
+
+final authControllerProvider = AsyncNotifierProvider<AuthController, AuthState>(
+  AuthController.new,
+);
+
+class AuthController extends AsyncNotifier<AuthState> {
+  @override
+  Future<AuthState> build() async {
+    final token = await ref.read(secureTokenStoreProvider).readAccessToken();
+    if (token == null) {
+      return const AuthState.unauthenticated();
+    }
+
+    try {
+      final context = await ref.read(authRepositoryProvider).getStaffContext();
+      return AuthState.authenticated(
+        context: context,
+        selectedBusiness: _defaultBusiness(context),
+      );
+    } catch (_) {
+      await ref.read(secureTokenStoreProvider).clear();
+      return const AuthState.unauthenticated();
+    }
+  }
+
+  Future<void> signIn({required String email, required String password}) async {
+    state = const AsyncLoading<AuthState>();
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(authRepositoryProvider);
+      final token = await repository.login(email: email, password: password);
+      await ref.read(secureTokenStoreProvider).writeAccessToken(token);
+      final context = await repository.getStaffContext();
+      return AuthState.authenticated(
+        context: context,
+        selectedBusiness: _defaultBusiness(context),
+      );
+    });
+  }
+
+  Future<void> signOut() async {
+    await ref.read(secureTokenStoreProvider).clear();
+    state = const AsyncData(AuthState.unauthenticated());
+  }
+
+  void selectBusiness(StaffBusiness business) {
+    final value = state.asData?.value;
+    if (value == null || !value.isAuthenticated) {
+      return;
+    }
+    state = AsyncData(value.copyWith(selectedBusiness: business));
+  }
+
+  StaffBusiness? _defaultBusiness(StaffContext context) {
+    if (context.businesses.length == 1) {
+      return context.businesses.first;
+    }
+    return null;
+  }
+}
