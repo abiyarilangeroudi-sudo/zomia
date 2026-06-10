@@ -15,6 +15,8 @@ from app.modules.qr.schemas import (
     RegisterActionByQrRequest,
     RegisterActionByQrResponse,
     ResolveQrRequest,
+    StaffRecentActionRead,
+    StaffServiceMissionRead,
     StaffServiceSummary,
     UseRewardByQrRequest,
     UseRewardByQrResponse,
@@ -57,6 +59,12 @@ class QrService:
             raw_token=payload.token,
         )
         return self._service_summary(business_id=payload.business_id, customer=customer)
+
+    def list_service_missions(
+        self, staff: User, business_id: uuid.UUID
+    ) -> list[StaffServiceMissionRead]:
+        missions = self.loyalty_service.list_staff_missions(staff, business_id)
+        return [StaffServiceMissionRead.model_validate(mission) for mission in missions]
 
     def register_action_by_qr(
         self, staff: User, payload: RegisterActionByQrRequest
@@ -150,12 +158,12 @@ class QrService:
             if reward.status.value == "active"
         ]
         recent_actions = [
-            {
-                "id": str(action.id),
-                "action_type": action.action_type.value,
-                "occurred_at": action.occurred_at.isoformat(),
-                "created_at": action.created_at.isoformat(),
-            }
+            StaffRecentActionRead(
+                id=action.id,
+                action_type=action.action_type.value,
+                occurred_at=action.occurred_at,
+                created_at=action.created_at,
+            )
             for action in self.repository.list_recent_actions(
                 business_id=business_id, customer_id=customer.id
             )

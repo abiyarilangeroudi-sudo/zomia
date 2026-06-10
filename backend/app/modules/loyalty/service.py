@@ -81,6 +81,17 @@ class LoyaltyService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
         return self.repository.list_business_missions(business_id)
 
+    def list_staff_missions(self, staff: User, business_id) -> list[Mission]:
+        self._require_role(staff, UserRole.STAFF)
+        if self.repository.get_staff_membership(
+            business_id=business_id, staff_user_id=staff.id
+        ) is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Staff does not belong to this business",
+            )
+        return self.repository.list_business_missions(business_id)
+
     def create_campaign(self, owner: User, payload: CampaignCreate) -> Campaign:
         self._require_role(owner, UserRole.OWNER)
         business = self.repository.get_owner_business(

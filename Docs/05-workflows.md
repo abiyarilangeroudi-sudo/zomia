@@ -24,6 +24,7 @@ Scan customer QR
 -> Resolve customer
 -> Show customer summary
 -> Show active rewards
+-> Load service missions
 -> Register action
 -> Return updated points and rewards
 ```

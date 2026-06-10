@@ -96,6 +96,38 @@ def test_staff_cannot_resolve_qr_for_another_business(client: TestClient) -> Non
     create_staff(client, other_owner_token, other_business_id, "other-staff@example.com")
 
 
+def test_staff_lists_service_missions_for_own_business(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
+    other_owner_token, other_business_id = register_owner(client, "other@example.com", "Other Cafe")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    coffee = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    cake = create_mission(client, owner_token, business_id, name="Buy Cake", point_value=5)
+    create_mission(client, other_owner_token, other_business_id, name="Other Visit", point_value=2)
+
+    response = client.get(
+        f"/api/v1/staff/service/missions?business_id={business_id}",
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert {mission["id"] for mission in body} == {coffee["id"], cake["id"]}
+    assert {mission["point_value"] for mission in body} == {1, 5}
+
+
+def test_staff_cannot_list_service_missions_for_another_business(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
+    _, other_business_id = register_owner(client, "other@example.com", "Other Cafe")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+
+    response = client.get(
+        f"/api/v1/staff/service/missions?business_id={other_business_id}",
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 403
+
+
 def test_expired_qr_cannot_be_resolved(
     client: TestClient, db_session: Session
 ) -> None:
@@ -148,6 +180,7 @@ def test_staff_registers_action_using_qr_and_gets_updated_summary(
     assert body["action"]["points_granted"] == 5
     assert body["summary"]["points"] == 5
     assert len(body["summary"]["active_rewards"]) == 1
+    assert body["summary"]["recent_actions"][0]["action_type"] == "mission_progress"
     assert db_session.query(PointsLedgerEntry).count() == 1
     assert db_session.query(GeneratedReward).count() == 1
 

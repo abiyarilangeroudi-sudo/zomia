@@ -7,6 +7,7 @@ from app.modules.identity.schemas import UserRead
 from app.modules.loyalty.schemas import (
     ActionItemCreate,
     GeneratedRewardRead,
+    MissionRead,
     RegisterActionResponse,
     UseRewardResponse,
 )
@@ -23,12 +24,23 @@ class ResolveQrRequest(BaseModel):
     token: str = Field(min_length=24, max_length=256)
 
 
+class StaffRecentActionRead(BaseModel):
+    id: uuid.UUID
+    action_type: str
+    occurred_at: datetime
+    created_at: datetime
+
+
 class StaffServiceSummary(BaseModel):
     business_id: uuid.UUID
     customer: UserRead
     points: int
     active_rewards: list[GeneratedRewardRead]
-    recent_actions: list[dict] = Field(default_factory=list)
+    recent_actions: list[StaffRecentActionRead] = Field(default_factory=list)
+
+
+class StaffServiceMissionRead(MissionRead):
+    pass
 
 
 class RegisterActionByQrRequest(BaseModel):

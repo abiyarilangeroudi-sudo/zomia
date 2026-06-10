@@ -29,6 +29,7 @@ Customer QR
 - [Sprint 3: Individual Campaign](./sprints/sprint-3-individual-campaign.md)
 - [Sprint 4: Reward Engine](./sprints/sprint-4-reward-engine.md)
 - [Sprint 5: QR Staff Workflow](./sprints/sprint-5-qr-staff-workflow.md)
+- [Sprint 5.5: Staff Panel API Contract](./sprints/sprint-5-5-staff-panel-contract.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 
@@ -110,3 +111,12 @@ Sprint 5:
 - Reward Use با QR همچنان Points Ledger را تغییر نمی‌دهد
 - Migration روی PostgreSQL واقعی اجرا شد
 - تست‌های QR Staff Workflow پاس شدند
+
+Sprint 5.5 پیاده‌سازی شده است.
+
+Sprint 5.5:
+
+- قرارداد API برای Staff Service Panel روشن‌تر شد
+- endpoint مخصوص Staff برای دیدن Missionهای قابل ثبت اضافه شد
+- `recent_actions` در Staff Service Summary typed شد
+- تست‌های Staff Panel API Contract اضافه شد
