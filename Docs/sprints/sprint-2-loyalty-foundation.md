@@ -82,7 +82,17 @@ Action
 
 Action یک envelope عملیاتی است. Missionها داخل Action Itemها می‌آیند.
 
-در آینده یک Action می‌تواند از نوع `reward_use` هم باشد؛ یعنی عملیات فقط مصرف Reward را ثبت کند و هیچ Point جدیدی نسازد.
+در آینده یک Action می‌تواند Reward Usage هم داشته باشد. Reward Usage مصرف پاداش را ثبت می‌کند، اما Mission نیست و هیچ Point جدیدی نمی‌سازد.
+
+مدل مفهومی آینده:
+
+```text
+Action
+  Action Items   -> Mission / earned points
+  Reward Usages  -> Reward use / no points
+```
+
+در Sprint 2 فقط Action Items پیاده‌سازی می‌شوند. Reward Usage در Sprint 4 و همراه Reward Engine می‌آید.
 
 Action باید بعداً قابل audit باشد. در MVP آن را edit نمی‌کنیم؛ اگر correction لازم شد، در آینده با action اصلاحی حل می‌شود.
 
@@ -194,7 +204,7 @@ Notes:
 - `customer_id` به `users.id` وصل است و باید role آن `customer` باشد
 - `staff_id` به `users.id` وصل است و باید role آن `staff` باشد
 - `action_type` در Sprint 2 مقدار `mission_progress` دارد
-- در آینده `action_type` می‌تواند `reward_use` هم باشد
+- در آینده `action_type` می‌تواند `reward_use` یا `service_operation` هم باشد
 - ترکیب `business_id + idempotency_key` باید unique باشد
 
 ### loyalty_action_items
@@ -239,6 +249,26 @@ Notes:
 - `action_item_id` به `loyalty_action_items.id` وصل است
 - این جدول append-only است
 - این جدول کیف پول نیست و deduction ندارد
+
+### future_reward_usages
+
+این جدول در Sprint 2 ساخته نمی‌شود. این فقط قرارداد مفهومی برای Sprint 4 است.
+
+```text
+id
+action_id
+reward_id
+used_by_staff_id
+used_at
+created_at
+```
+
+Notes:
+
+- Reward Usage به Action وصل می‌شود
+- Reward Usage به Mission وصل نمی‌شود
+- Reward Usage هیچ Points Ledger entry نمی‌سازد
+- Reward Usage فقط وضعیت Reward را به `used` تغییر می‌دهد و Audit Event ایجاد می‌کند
 
 ### audit_events
 
@@ -387,6 +417,7 @@ Start transaction
 - Mission is independent from Campaign
 - Campaigns depend on Missions, Actions and Points Ledger
 - Reward Use does not deduct Points
+- Reward Use is recorded as Reward Usage, not as Action Item
 - Zomia does not have Wallet/Credit Economy
 
 ## Future Campaign Compatibility

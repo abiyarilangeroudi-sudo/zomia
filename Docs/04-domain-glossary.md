@@ -54,6 +54,8 @@ Ali bought 2 coffees and 1 cake
 
 این یک Action است، اما چند Action Item دارد.
 
+در آینده Action می‌تواند Reward Usage هم داشته باشد. Reward Usage مصرف پاداش را ثبت می‌کند و Point ایجاد یا کم نمی‌کند.
+
 ### Action Item
 
 یک ردیف داخل Action که به یک Mission وصل است.
@@ -64,6 +66,10 @@ Ali bought 2 coffees and 1 cake
 Buy Coffee x 2
 Buy Cake x 1
 ```
+
+### Reward Usage
+
+ثبت مصرف یک Reward داخل یک Action. Reward Usage به Mission وصل نیست و Points Ledger entry نمی‌سازد.
 
 ### Point
 

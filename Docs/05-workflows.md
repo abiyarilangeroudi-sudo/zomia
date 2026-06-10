@@ -54,6 +54,7 @@ Action recorded
 Staff selects active reward
 -> System verifies staff belongs to business
 -> System verifies reward belongs to customer and business
+-> System records Reward Usage under the Action
 -> Reward status changes to used
 -> Audit event is recorded
 ```
