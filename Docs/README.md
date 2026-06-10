@@ -25,6 +25,7 @@ Customer QR
 - [Roadmap](./06-roadmap.md)
 - [Local Development](./07-local-development.md)
 - [Sprint 1: Identity Engine](./sprints/sprint-1-identity.md)
+- [Sprint 2: Loyalty Foundation](./sprints/sprint-2-loyalty-foundation.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 
