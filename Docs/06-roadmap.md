@@ -61,12 +61,14 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 - Campaign Type Enum
 - Individual Campaign Rules
 - Customer Progress Evaluation
+- Campaign Completion
 
 معیار خروج:
 
 - Action بتواند Campaign Evaluation را trigger کند
 - threshold قابل رسیدن باشد
-- سیستم تشخیص دهد چه زمانی Reward باید ساخته شود
+- سیستم Campaign Completion ثبت کند
+- Reward واقعی هنوز ساخته نشود
 
 ## Sprint 4: Reward Engine
 
