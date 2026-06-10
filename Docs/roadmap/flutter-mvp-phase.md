@@ -411,7 +411,8 @@ Backend برای شروع Flutter کافی است اگر:
 وضعیت فعلی:
 
 ```text
-Ready for Flutter F0/F1/F2
+F0 completed
+Ready for Flutter F1/F2
 ```
 
 ## ریسک‌ها

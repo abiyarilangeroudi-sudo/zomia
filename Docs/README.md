@@ -32,6 +32,7 @@ Customer QR
 - [Sprint 5: QR Staff Workflow](./sprints/sprint-5-qr-staff-workflow.md)
 - [Sprint 5.5: Staff Panel API Contract](./sprints/sprint-5-5-staff-panel-contract.md)
 - [Sprint 5.6: Staff Context Endpoint](./sprints/sprint-5-6-staff-context.md)
+- [Flutter F0: Project Setup](./sprints/flutter-f0-project-setup.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 
@@ -131,3 +132,13 @@ Sprint 5.6:
 - Flutter بعد از login می‌تواند Businessهای Staff را دریافت کند
 - response برای چند Business آینده به صورت آرایه طراحی شد
 - تست‌های Staff Context اضافه شد
+
+Flutter F0 پیاده‌سازی شده است.
+
+Flutter F0:
+
+- پروژه Flutter در `frontend/` ساخته شد
+- dependencyهای پایه اضافه شد
+- app shell و theme و router پایه ساخته شد
+- API config و Dio client و secure token storage آماده شد
+- `flutter analyze`, `flutter test` و `flutter build web` پاس شدند
