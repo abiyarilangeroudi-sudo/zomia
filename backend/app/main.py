@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.modules.identity.router import router as identity_router
 from app.modules.loyalty.router import router as loyalty_router
+from app.modules.qr.router import router as qr_router
 
 
 def create_app() -> FastAPI:
@@ -13,6 +14,7 @@ def create_app() -> FastAPI:
 
     app.include_router(identity_router, prefix="/api/v1")
     app.include_router(loyalty_router, prefix="/api/v1")
+    app.include_router(qr_router, prefix="/api/v1")
     return app
 
 

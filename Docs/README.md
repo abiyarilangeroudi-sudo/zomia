@@ -28,6 +28,7 @@ Customer QR
 - [Sprint 2: Loyalty Foundation](./sprints/sprint-2-loyalty-foundation.md)
 - [Sprint 3: Individual Campaign](./sprints/sprint-3-individual-campaign.md)
 - [Sprint 4: Reward Engine](./sprints/sprint-4-reward-engine.md)
+- [Sprint 5: QR Staff Workflow](./sprints/sprint-5-qr-staff-workflow.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 
@@ -94,3 +95,18 @@ Sprint 4:
 - Reward Usage محل مصرف را با `redeemed_business_id` ثبت می‌کند
 - Migration روی PostgreSQL واقعی اجرا شد
 - تست‌های Reward Engine و idempotency پاس شدند
+
+Sprint 5 پیاده‌سازی و با PostgreSQL واقعی smoke test شده است.
+
+Sprint 5:
+
+- Customer QR Token اضافه شد
+- QR Token خام در database ذخیره نمی‌شود و فقط `token_hash` ذخیره می‌شود
+- Customer می‌تواند QR خودش را issue/rotate کند
+- Staff می‌تواند QR را برای Business خودش resolve کند
+- Staff Service Summary شامل customer، points، active rewards و recent actions است
+- Staff می‌تواند Action را با QR ثبت کند
+- Staff می‌تواند Reward را با QR use کند
+- Reward Use با QR همچنان Points Ledger را تغییر نمی‌دهد
+- Migration روی PostgreSQL واقعی اجرا شد
+- تست‌های QR Staff Workflow پاس شدند

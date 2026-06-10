@@ -228,6 +228,14 @@ Reward Engine به Points Ledger امتیاز منفی اضافه نمی‌کن�
 
 عملیات staff برای resolve کردن token مشتری و باز کردن صفحه service.
 
+### Customer QR Token
+
+توکن تصادفی و قابل rotate/revoke که Customer آن را به صورت QR نمایش می‌دهد.
+
+QR Token جای JWT نیست و فقط برای resolve کردن Customer در Staff Workflow استفاده می‌شود.
+
+در database فقط `token_hash` ذخیره می‌شود، نه token خام.
+
 ### Action Registration
 
 ثبت یک عملیات برای Customer. این عملیات می‌تواند یک یا چند Mission را شامل شود.
