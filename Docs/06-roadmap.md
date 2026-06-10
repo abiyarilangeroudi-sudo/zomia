@@ -109,29 +109,108 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 
 - Staff بتواند workflow اصلی MVP را از QR تا Reward Use کامل کند
 
-## Sprint 6: Minimal UI
+## Sprint 5.5: Staff Panel API Contract
+
+هدف:
+
+- آماده‌سازی API contract برای Staff Service Panel.
+
+شامل:
+
+- endpoint مخصوص Staff برای service missions
+- typed کردن Staff Service Summary
+- مستندسازی نیازهای Staff Panel
+
+معیار خروج:
+
+- Flutter برای ساخت Staff Service Panel نیاز به endpoint owner-scoped نداشته باشد
+
+## Sprint 5.6: Staff Context Endpoint
+
+هدف:
+
+- آماده کردن backend برای شروع Flutter.
+
+شامل:
+
+- `GET /api/v1/staff/me/context`
+- برگرداندن Staff و Businessهای فعال او
+- طراحی response به شکل چند Business برای آینده
+
+معیار خروج:
+
+- Flutter بعد از login بتواند Business context را بدون hard-code دریافت کند
+
+## Phase 6: Flutter MVP
 
 هدف:
 
 - شروع Frontend بعد از تکمیل core backend.
 
+این فاز خودش به Sprintهای کوچک‌تر تقسیم می‌شود.
+
+### F0: Flutter Project Setup
+
 شامل:
 
-- Flutter project setup
-- Owner Login
+- ساخت پروژه Flutter
+- تنظیم lint
+- تنظیم config برای API base URL
+- app shell اولیه
+
+### F1: Auth And Staff Context
+
+شامل:
+
 - Staff Login
-- Customer QR Display
-- Staff Scan/Service Panel
-- Basic Mission and Campaign Management
+- ذخیره JWT
+- دریافت Staff Context
+- انتخاب Business اگر لازم بود
 
-معیار خروج:
+### F2: Staff Service Panel Without Camera
 
-- یک کاربر غیرتوسعه‌دهنده بتواند workflow اصلی را اجرا کند
+شامل:
+
+- manual QR token input
+- resolve customer
+- نمایش customer summary
+- دریافت service missions
+- ثبت Action
+- use reward
+
+### F3: QR Camera Scan
+
+شامل:
+
+- اضافه کردن camera scan
+- حفظ manual input به عنوان fallback
+
+### F4: Customer QR Minimal Screen
+
+شامل:
+
+- Customer login
+- issue/rotate QR
+- نمایش QR
+- نمایش points/rewards پایه
+
+### F5: Owner Minimal Setup Screens
+
+شامل:
+
+- مدیریت حداقلی Mission
+- مدیریت حداقلی Campaign
+- مدیریت حداقلی Reward Template
+
+معیار خروج فاز Flutter:
+
+- یک کاربر غیرتوسعه‌دهنده بتواند workflow اصلی را از UI اجرا کند
 
 تصمیم Frontend:
 
 - Frontend اصلی Zomia با Flutter ساخته می‌شود.
 - قبل از تکمیل core backend، Flutter را شروع نمی‌کنیم تا همزمان دو سطح ناپایدار نسازیم.
+- جزئیات فاز Flutter در [Flutter MVP Phase](./roadmap/flutter-mvp-phase.md) ثبت شده است.
 
 ## Post-MVP
 

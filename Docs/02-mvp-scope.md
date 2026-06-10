@@ -58,6 +58,17 @@ MVP باید کوچک باشد، اما معماری نهایی را خراب ن
 
 MVP به کوچک‌ترین UI عملی برای تست workflow واقعی نیاز دارد. اگر Flutter سریع آماده شود، Flutter؛ اگر نه، یک UI ساده‌تر برای validation اولیه قابل قبول است.
 
+برای شروع Flutter، محدوده UI به صورت Staff-first تعریف می‌شود:
+
+- Staff Login
+- Staff Context
+- Staff Service Panel
+- QR input/scan
+- Action Registration
+- Reward Use
+
+Owner و Customer UI در فاز Flutter اضافه می‌شوند، اما شروع MVP frontend با Staff workflow است.
+
 ## خارج از MVP
 
 - Group Campaign execution
@@ -83,4 +94,3 @@ MVP وقتی کامل است که:
 - APIهای اصلی تست داشته باشند
 - Migrationها روی PostgreSQL اجرا شوند
 - OpenAPI قابل استفاده باشد
-
