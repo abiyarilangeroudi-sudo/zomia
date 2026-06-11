@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/presentation/auth_controller.dart';
+import '../../staff_service/presentation/staff_service_panel.dart';
 import '../domain/staff_context.dart';
 
 class StaffHomeScreen extends ConsumerWidget {
@@ -35,29 +36,19 @@ class StaffHomeScreen extends ConsumerWidget {
         children: [
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(business.name, style: textTheme.headlineSmall),
                   const SizedBox(height: 8),
                   Text('Signed in as ${staff.fullName}'),
-                  const SizedBox(height: 16),
-                  const Text('Staff context is ready.'),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.qr_code_scanner),
-              title: const Text('Service Panel'),
-              subtitle: const Text('QR workflow starts in F2.'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: null,
-            ),
-          ),
+          StaffServicePanel(business: business),
         ],
       ),
     );

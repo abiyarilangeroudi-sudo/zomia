@@ -72,8 +72,8 @@ frontend/web/icons/
 تصمیم MVP:
 
 - `frontend/zomia_Branding/web/favicon.png` به‌روزرسانی شده و به‌عنوان icon اصلی web استفاده می‌شود.
-- آیکن‌های 192/512 موجود نهایی نیستند و فعلاً placeholder محسوب می‌شوند.
-- جایگزینی کامل app iconهای platform-specific بعد از دریافت package نهایی برندینگ انجام می‌شود.
+- آیکن‌های 192/512 و maskable به‌روزرسانی شده‌اند و برای web app استفاده می‌شوند.
+- جایگزینی کامل app iconهای platform-specific native بعد از دریافت package نهایی برندینگ انجام می‌شود.
 
 ## Dependencies مورد نیاز
 
@@ -322,5 +322,5 @@ frontend/lib/app/theme.dart
 
 - فونت به‌صورت local font از brand package اصلی اضافه شده است؛ Google Fonts وارد MVP نمی‌شود.
 - dark mode در MVP فعال نمی‌شود و فقط tokenهایش آماده می‌ماند.
-- `favicon.png` به‌روزرسانی‌شده icon اصلی فعلی است؛ آیکن‌های 192/512 هنوز placeholder هستند.
+- `favicon.png` و web app iconهای 192/512 به‌روزرسانی شده‌اند و در MVP استفاده می‌شوند.
 - Template فعلاً به‌عنوان reference محلی باقی می‌ماند و بعد از production می‌تواند حذف یا ignore شود.

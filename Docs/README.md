@@ -35,6 +35,7 @@ Customer QR
 - [Sprint 5.6: Staff Context Endpoint](./sprints/sprint-5-6-staff-context.md)
 - [Flutter F0: Project Setup](./sprints/flutter-f0-project-setup.md)
 - [Flutter F1: Auth And Staff Context](./sprints/flutter-f1-auth-staff-context.md)
+- [Flutter F2: Staff Service Panel MVP](./sprints/flutter-f2-staff-service-panel.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 

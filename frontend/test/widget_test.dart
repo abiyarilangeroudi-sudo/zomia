@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
+import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
+import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
 import 'package:zomia_frontend/features/staff_context/domain/staff_context.dart';
 
 void main() {
@@ -14,6 +16,9 @@ void main() {
       ProviderScope(
         overrides: [
           secureTokenStoreProvider.overrideWithValue(_MemoryTokenStore()),
+          staffServiceRepositoryProvider.overrideWithValue(
+            _FakeStaffServiceRepository(),
+          ),
         ],
         child: const ZomiaApp(),
       ),
@@ -33,6 +38,9 @@ void main() {
         overrides: [
           secureTokenStoreProvider.overrideWithValue(tokenStore),
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          staffServiceRepositoryProvider.overrideWithValue(
+            _FakeStaffServiceRepository(),
+          ),
         ],
         child: const ZomiaApp(),
       ),
@@ -51,6 +59,8 @@ void main() {
     expect(find.text('Staff Service'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsOneWidget);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
+    expect(find.text('Customer QR'), findsOneWidget);
+    expect(find.text('Buy Coffee'), findsOneWidget);
   });
 }
 
@@ -70,6 +80,26 @@ class _MemoryTokenStore implements TokenStore {
   @override
   Future<void> writeAccessToken(String token) async {
     _token = token;
+  }
+}
+
+class _FakeStaffServiceRepository extends StaffServiceRepository {
+  _FakeStaffServiceRepository() : super(Dio());
+
+  @override
+  Future<List<StaffServiceMission>> listMissions({
+    required String businessId,
+  }) async {
+    return const [
+      StaffServiceMission(
+        id: 'mission-coffee',
+        name: 'Buy Coffee',
+        description: null,
+        missionType: 'purchase',
+        pointValue: 1,
+        isActive: true,
+      ),
+    ];
   }
 }
 
