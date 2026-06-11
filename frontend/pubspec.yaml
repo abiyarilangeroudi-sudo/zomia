@@ -28,3 +28,14 @@ flutter:
   uses-material-design: true
   assets:
     - assets/brand/
+  fonts:
+    - family: Sofia Sans
+      fonts:
+        - asset: assets/fonts/sofia_sans/sofia-sans-latin-400-normal.ttf
+          weight: 400
+        - asset: assets/fonts/sofia_sans/sofia-sans-latin-500-normal.ttf
+          weight: 500
+        - asset: assets/fonts/sofia_sans/sofia-sans-latin-600-normal.ttf
+          weight: 600
+        - asset: assets/fonts/sofia_sans/sofia-sans-latin-700-normal.ttf
+          weight: 700

@@ -83,7 +83,7 @@ frontend/web/icons/
 flutter_svg: ^2.0.7
 ```
 
-`google_fonts` فعلاً وارد MVP نمی‌شود. مسیر درست‌تر برای production این است که فایل رسمی فونت از brand package اصلی به‌صورت local asset اضافه شود. تا قبل از دریافت فایل رسمی، theme پروژه با font family `Sofia Sans` آماده می‌شود تا بعداً فقط asset فونت به `pubspec.yaml` اضافه شود.
+`google_fonts` وارد MVP نمی‌شود. فایل رسمی Sofia Sans از brand package به‌صورت local asset در پروژه اصلی ثبت می‌شود.
 
 فعلاً این موارد از Template وارد MVP نمی‌شوند مگر وقتی feature مربوطه برسد:
 
@@ -146,8 +146,7 @@ Template از `Sofia Sans` استفاده می‌کند.
 تصمیم MVP:
 
 - عدم وابستگی runtime به Google Fonts
-- آماده کردن theme با font family `Sofia Sans`
-- اضافه کردن فایل local font بعد از دریافت brand package نهایی
+- استفاده از فایل local font با font family `Sofia Sans`
 - تعریف typography در theme مرکزی پروژه
 - نگه داشتن متن‌های قابل مشاهده frontend به زبان انگلیسی
 
@@ -314,14 +313,14 @@ frontend/lib/app/theme.dart
 
 - logo رسمی Zomia را در Login screen نشان دهد
 - رنگ‌های اصلی Zomia را در theme داشته باشد
-- theme را برای Sofia Sans آماده کند و بعد از دریافت فایل رسمی فونت، آن را به‌صورت local asset استفاده کند
+- فونت Sofia Sans را از asset local استفاده کند
 - فرم‌ها و buttonها ظاهر consistent داشته باشند
 - همچنان فقط متن انگلیسی در UI نشان دهد
 - بدون تغییر در backend contract کار کند
 
 ## تصمیم‌های نهایی‌شده
 
-- فونت باید در production به‌صورت local font از brand package اصلی اضافه شود؛ Google Fonts وارد MVP نمی‌شود.
+- فونت به‌صورت local font از brand package اصلی اضافه شده است؛ Google Fonts وارد MVP نمی‌شود.
 - dark mode در MVP فعال نمی‌شود و فقط tokenهایش آماده می‌ماند.
 - `favicon.png` به‌روزرسانی‌شده icon اصلی فعلی است؛ آیکن‌های 192/512 هنوز placeholder هستند.
 - Template فعلاً به‌عنوان reference محلی باقی می‌ماند و بعد از production می‌تواند حذف یا ignore شود.
