@@ -25,6 +25,7 @@ Customer QR
 - [Roadmap](./06-roadmap.md)
 - [Local Development](./07-local-development.md)
 - [Flutter MVP Phase](./roadmap/flutter-mvp-phase.md)
+- [Flutter Branding Extraction](./roadmap/flutter-branding-extraction.md)
 - [Sprint 1: Identity Engine](./sprints/sprint-1-identity.md)
 - [Sprint 2: Loyalty Foundation](./sprints/sprint-2-loyalty-foundation.md)
 - [Sprint 3: Individual Campaign](./sprints/sprint-3-individual-campaign.md)
