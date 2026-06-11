@@ -20,7 +20,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Zomia'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Sign in to Staff Service'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });

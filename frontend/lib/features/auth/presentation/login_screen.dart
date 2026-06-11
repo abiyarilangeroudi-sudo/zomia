@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../app/brand/brand_assets.dart';
+import '../../../app/brand/brand_colors.dart';
 import 'auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -36,18 +39,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
+            constraints: const BoxConstraints(maxWidth: 530),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: BrandColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: BrandColors.line),
+                boxShadow: const [
+                  BoxShadow(
+                    blurRadius: 4,
+                    color: Color(0x2C000000),
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(28),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Zomia', style: textTheme.headlineMedium),
-                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: SvgPicture.asset(
+                          BrandAssets.logo,
+                          width: 180,
+                          height: 80,
+                          semanticsLabel: 'Zomia',
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text('Welcome back', style: textTheme.headlineMedium),
+                      const SizedBox(height: 12),
                       Text(
                         'Sign in to Staff Service',
                         style: textTheme.bodyLarge,

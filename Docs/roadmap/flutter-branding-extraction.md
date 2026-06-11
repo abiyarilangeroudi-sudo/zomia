@@ -12,6 +12,8 @@ Template یک پروژه کامل قدیمی Flutter است، نه یک بسته
 frontend/zomia_Branding/
 ```
 
+این پوشه فعلاً به‌عنوان reference محلی باقی می‌ماند، اما بخشی از کد اصلی Flutter MVP نیست. برای جلوگیری از تحلیل و commit تصادفی، از analyzer و git پروژه اصلی کنار گذاشته می‌شود.
+
 ## چیزهایی که نباید منتقل شوند
 
 این موارد artifact یا معماری قدیمی هستند و نباید وارد پروژه اصلی شوند:
@@ -67,14 +69,21 @@ frontend/web/favicon.png
 frontend/web/icons/
 ```
 
+تصمیم MVP:
+
+- `frontend/zomia_Branding/web/favicon.png` به‌روزرسانی شده و به‌عنوان icon اصلی web استفاده می‌شود.
+- آیکن‌های 192/512 موجود نهایی نیستند و فعلاً placeholder محسوب می‌شوند.
+- جایگزینی کامل app iconهای platform-specific بعد از دریافت package نهایی برندینگ انجام می‌شود.
+
 ## Dependencies مورد نیاز
 
-برای Branding Integration فقط این dependencyها لازم هستند:
+برای Branding Integration فقط این dependency لازم است:
 
 ```yaml
 flutter_svg: ^2.0.7
-google_fonts: ^6.1.0
 ```
+
+`google_fonts` فعلاً وارد MVP نمی‌شود. مسیر درست‌تر برای production این است که فایل رسمی فونت از brand package اصلی به‌صورت local asset اضافه شود. تا قبل از دریافت فایل رسمی، theme پروژه با font family `Sofia Sans` آماده می‌شود تا بعداً فقط asset فونت به `pubspec.yaml` اضافه شود.
 
 فعلاً این موارد از Template وارد MVP نمی‌شوند مگر وقتی feature مربوطه برسد:
 
@@ -118,7 +127,7 @@ info: #1C4494
 
 ### Dark Theme
 
-Dark theme در Template وجود دارد، اما برای MVP فقط به‌عنوان آمادگی معماری نگه داشته می‌شود. پیاده‌سازی فعال dark mode لازم نیست مگر بعداً تصمیم بگیریم.
+Dark theme در Template وجود دارد، اما برای MVP فقط tokenهایش آماده می‌ماند. پیاده‌سازی فعال dark mode در MVP انجام نمی‌شود.
 
 ```text
 primary: #FFAA00
@@ -134,9 +143,11 @@ line: #22282F
 
 Template از `Sofia Sans` استفاده می‌کند.
 
-نیاز پیشنهادی MVP:
+تصمیم MVP:
 
-- استفاده از `GoogleFonts.sofiaSans`
+- عدم وابستگی runtime به Google Fonts
+- آماده کردن theme با font family `Sofia Sans`
+- اضافه کردن فایل local font بعد از دریافت brand package نهایی
 - تعریف typography در theme مرکزی پروژه
 - نگه داشتن متن‌های قابل مشاهده frontend به زبان انگلیسی
 
@@ -290,7 +301,7 @@ frontend/lib/app/theme.dart
 ## ترتیب پیاده‌سازی پیشنهادی
 
 1. فقط logo و web icons لازم را به پروژه فعلی منتقل کنیم.
-2. `flutter_svg` و `google_fonts` را اضافه کنیم.
+2. `flutter_svg` را اضافه کنیم.
 3. color/spacing/typography tokens را در theme فعلی تعریف کنیم.
 4. Login screen فعلی F1 را با برند Zomia هماهنگ کنیم.
 5. Auth و Staff Context logic فعلی را دست‌نخورده نگه داریم.
@@ -303,14 +314,14 @@ frontend/lib/app/theme.dart
 
 - logo رسمی Zomia را در Login screen نشان دهد
 - رنگ‌های اصلی Zomia را در theme داشته باشد
-- فونت Sofia Sans را استفاده کند
+- theme را برای Sofia Sans آماده کند و بعد از دریافت فایل رسمی فونت، آن را به‌صورت local asset استفاده کند
 - فرم‌ها و buttonها ظاهر consistent داشته باشند
 - همچنان فقط متن انگلیسی در UI نشان دهد
 - بدون تغییر در backend contract کار کند
 
-## تصمیم‌های باز
+## تصمیم‌های نهایی‌شده
 
-- آیا فونت باید از Google Fonts load شود یا فایل local font بعداً از brand package اصلی اضافه می‌شود؟
-- آیا dark mode در MVP فعال باشد یا فقط tokenهایش آماده بماند؟
-- آیا app iconهای موجود نهایی هستند یا فقط placeholder برندینگ قبلی‌اند؟
-- آیا Template باید بعداً از repo حذف/ignore شود یا به‌عنوان reference محلی باقی بماند؟
+- فونت باید در production به‌صورت local font از brand package اصلی اضافه شود؛ Google Fonts وارد MVP نمی‌شود.
+- dark mode در MVP فعال نمی‌شود و فقط tokenهایش آماده می‌ماند.
+- `favicon.png` به‌روزرسانی‌شده icon اصلی فعلی است؛ آیکن‌های 192/512 هنوز placeholder هستند.
+- Template فعلاً به‌عنوان reference محلی باقی می‌ماند و بعد از production می‌تواند حذف یا ignore شود.
