@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../brand/brand_colors.dart';
+
 class ZomiaPrimaryButton extends StatelessWidget {
   const ZomiaPrimaryButton({
     super.key,
@@ -16,6 +18,10 @@ class ZomiaPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+      color: Colors.white,
+      fontWeight: FontWeight.w700,
+    );
     final child = isLoading
         ? const SizedBox.square(
             dimension: 18,
@@ -29,10 +35,17 @@ class ZomiaPrimaryButton extends StatelessWidget {
                 Icon(icon, size: 18),
                 const SizedBox(width: 8),
               ],
-              Text(label),
+              Text(label, style: textStyle),
             ],
           );
-    return FilledButton(onPressed: isLoading ? null : onPressed, child: child);
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: FilledButton(
+        onPressed: isLoading ? null : onPressed,
+        child: child,
+      ),
+    );
   }
 }
 
@@ -50,14 +63,22 @@ class ZomiaSecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+      color: BrandColors.orange,
+      fontWeight: FontWeight.w700,
+    );
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
-        Text(label),
+        Text(label, style: textStyle),
       ],
     );
-    return OutlinedButton(onPressed: onPressed, child: child);
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton(onPressed: onPressed, child: child),
+    );
   }
 }

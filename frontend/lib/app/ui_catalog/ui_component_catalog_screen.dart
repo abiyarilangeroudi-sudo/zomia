@@ -21,6 +21,8 @@ class UiComponentCatalogScreen extends StatelessWidget {
           const SizedBox(height: 16),
           const _CatalogSection(title: 'Brand Palette', child: _PaletteGrid()),
           const SizedBox(height: 16),
+          const _CatalogSection(title: 'Typography', child: _TypographyScale()),
+          const SizedBox(height: 16),
           _CatalogSection(title: 'Navigation', child: _NavigationExamples()),
           const SizedBox(height: 16),
           const _CatalogSection(title: 'Surface', child: _SurfaceExamples()),
@@ -148,6 +150,61 @@ class _PaletteSwatch extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _TypographyScale extends StatelessWidget {
+  const _TypographyScale();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _TypeSample('H0', 'Major page headline', textTheme.displaySmall),
+        _TypeSample('H1', 'Dashboard title', textTheme.headlineMedium),
+        _TypeSample('H2', 'Section title', textTheme.headlineSmall),
+        _TypeSample('H3', 'Card title', textTheme.titleLarge),
+        _TypeSample('H4', 'Compact title', textTheme.titleMedium),
+        _TypeSample('Title', 'Component label', textTheme.labelLarge),
+        _TypeSample('Subtitle', 'Supporting context', textTheme.bodyLarge),
+        _TypeSample('P1', 'Primary paragraph text', textTheme.bodyMedium),
+        _TypeSample('P2', 'Secondary paragraph text', textTheme.bodySmall),
+      ],
+    );
+  }
+}
+
+class _TypeSample extends StatelessWidget {
+  const _TypeSample(this.token, this.text, this.style);
+
+  final String token;
+  final String text;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          SizedBox(
+            width: 72,
+            child: Text(
+              token,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: BrandColors.teal,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(child: Text(text, style: style)),
+        ],
       ),
     );
   }

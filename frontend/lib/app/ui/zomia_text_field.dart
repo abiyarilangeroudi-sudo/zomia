@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ZomiaTextField extends StatelessWidget {
+class ZomiaTextField extends StatefulWidget {
   const ZomiaTextField({
     super.key,
     this.controller,
@@ -31,22 +31,44 @@ class ZomiaTextField extends StatelessWidget {
   final bool enabled;
 
   @override
+  State<ZomiaTextField> createState() => _ZomiaTextFieldState();
+}
+
+class _ZomiaTextFieldState extends State<ZomiaTextField> {
+  late bool _isObscured = widget.obscureText;
+
+  @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      enabled: enabled,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      obscureText: obscureText,
-      maxLines: maxLines,
-      validator: validator,
-      onFieldSubmitted: onSubmitted,
+    final hasVisibilityToggle = widget.obscureText && widget.suffixIcon == null;
+    final field = TextFormField(
+      controller: widget.controller,
+      enabled: widget.enabled,
+      keyboardType: widget.keyboardType,
+      textInputAction: widget.textInputAction,
+      obscureText: _isObscured,
+      maxLines: widget.maxLines,
+      validator: widget.validator,
+      onFieldSubmitted: widget.onSubmitted,
       decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
+        labelText: widget.label,
+        hintText: widget.hint,
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: hasVisibilityToggle
+            ? IconButton(
+                tooltip: _isObscured ? 'Show password' : 'Hide password',
+                onPressed: () => setState(() => _isObscured = !_isObscured),
+                icon: Icon(
+                  _isObscured
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+              )
+            : widget.suffixIcon,
       ),
     );
+    if (widget.maxLines > 1) {
+      return field;
+    }
+    return SizedBox(height: 52, child: field);
   }
 }
