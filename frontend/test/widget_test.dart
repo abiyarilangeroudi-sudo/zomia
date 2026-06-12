@@ -32,7 +32,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.1 (2)'), findsOneWidget);
+    expect(find.text('Version 1.0.2 (3)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -69,6 +69,7 @@ void main() {
     expect(find.text('Zomia Cafe'), findsOneWidget);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
     expect(find.text('Customer QR'), findsOneWidget);
+    expect(find.text('Scan with camera'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsOneWidget);
   });
 
@@ -100,9 +101,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(await tokenStore.readAccessToken(), 'access-token');
-    expect(find.text('My QR'), findsOneWidget);
     expect(find.text('Customer QR'), findsOneWidget);
-    expect(find.text('Rotate QR'), findsOneWidget);
+    expect(find.text('Ready to Scan'), findsOneWidget);
+    expect(find.text('Refresh QR token'), findsOneWidget);
     expect(find.text('qr-token'), findsOneWidget);
   });
 }

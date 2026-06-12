@@ -35,7 +35,7 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
     final token = _token;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My QR'),
+        title: const Text('Customer QR'),
         actions: [
           IconButton(
             tooltip: 'Sign out',
@@ -60,6 +60,13 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(widget.user.email),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Show this QR to staff to collect points or use available rewards.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: BrandColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -72,8 +79,15 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Customer QR',
+                    'Ready to Scan',
                     style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Keep this screen open during service.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: BrandColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   if (_isLoading)
@@ -91,7 +105,7 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.refresh),
-                    label: const Text('Rotate QR'),
+                    label: const Text('Refresh QR token'),
                   ),
                 ],
               ),
@@ -179,12 +193,33 @@ class _QrTokenView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        SelectableText(
-          token.token,
-          textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: BrandColors.textSecondary),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: BrandColors.background,
+            border: Border.all(color: BrandColors.line),
+            borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                Text(
+                  'Manual fallback token',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: BrandColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                SelectableText(
+                  token.token,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: BrandColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 8),
         Text('Expires ${_formatDateTime(token.expiresAt)}'),

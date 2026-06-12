@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../app/brand/brand_colors.dart';
 import '../../../app/brand/brand_spacing.dart';
@@ -62,6 +63,7 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
         _QrResolveCard(
           controller: _qrTokenController,
           isLoading: _isResolving,
+          onScan: _scanQr,
           onResolve: _resolveQr,
         ),
         const SizedBox(height: 16),
@@ -162,6 +164,23 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
         _isResolving = false;
       });
     }
+  }
+
+  Future<void> _scanQr() async {
+    final token = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const _QrScannerSheet(),
+    );
+
+    if (!mounted || token == null || token.trim().isEmpty) {
+      return;
+    }
+
+    _qrTokenController.text = token.trim();
+    await _resolveQr();
   }
 
   Future<void> _submitAction() async {
@@ -289,11 +308,13 @@ class _QrResolveCard extends StatelessWidget {
   const _QrResolveCard({
     required this.controller,
     required this.isLoading,
+    required this.onScan,
     required this.onResolve,
   });
 
   final TextEditingController controller;
   final bool isLoading;
+  final VoidCallback onScan;
   final VoidCallback onResolve;
 
   @override
@@ -305,6 +326,19 @@ class _QrResolveCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Customer QR', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 4),
+            Text(
+              'Scan the customer QR code. Manual token entry remains available as a fallback.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: BrandColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: isLoading ? null : onScan,
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text('Scan with camera'),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
@@ -312,7 +346,7 @@ class _QrResolveCard extends StatelessWidget {
               maxLines: 3,
               textInputAction: TextInputAction.done,
               decoration: const InputDecoration(
-                labelText: 'QR token',
+                labelText: 'Manual token fallback',
                 hintText: 'Paste or type customer QR token',
                 prefixIcon: Icon(Icons.qr_code_2),
               ),
@@ -336,6 +370,90 @@ class _QrResolveCard extends StatelessWidget {
   }
 }
 
+class _QrScannerSheet extends StatefulWidget {
+  const _QrScannerSheet();
+
+  @override
+  State<_QrScannerSheet> createState() => _QrScannerSheetState();
+}
+
+class _QrScannerSheetState extends State<_QrScannerSheet> {
+  bool _hasResult = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(BrandSpacing.screenPadding),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: BrandColors.surface,
+          borderRadius: BorderRadius.circular(BrandSpacing.cardRadius),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(BrandSpacing.cardPadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Scan Customer QR',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+                child: SizedBox(
+                  height: MediaQuery.sizeOf(context).height * 0.55,
+                  child: MobileScanner(
+                    fit: BoxFit.cover,
+                    onDetect: _handleDetection,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Allow camera access, then place the customer QR inside the frame.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: BrandColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleDetection(BarcodeCapture capture) {
+    if (_hasResult) {
+      return;
+    }
+
+    for (final barcode in capture.barcodes) {
+      final rawValue = barcode.rawValue?.trim();
+      if (rawValue == null || rawValue.isEmpty) {
+        continue;
+      }
+
+      _hasResult = true;
+      Navigator.of(context).pop(rawValue);
+      return;
+    }
+  }
+}
+
 class _CustomerSummaryCard extends StatelessWidget {
   const _CustomerSummaryCard({required this.summary});
 
@@ -351,7 +469,7 @@ class _CustomerSummaryCard extends StatelessWidget {
             ? const _EmptyPanelState(
                 icon: Icons.person_search,
                 title: 'No customer loaded',
-                message: 'Resolve a customer QR token to start service.',
+                message: 'Scan a customer QR to start the service session.',
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +537,10 @@ class _MissionCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
-                Text('$selectedPoints pts selected'),
+                Chip(
+                  avatar: const Icon(Icons.stars, size: 16),
+                  label: Text('$selectedPoints pts'),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -429,7 +550,7 @@ class _MissionCard extends StatelessWidget {
               const _EmptyPanelState(
                 icon: Icons.task_alt,
                 title: 'No missions',
-                message: 'This business has no active service missions yet.',
+                message: 'No active missions are available for this business.',
               )
             else
               ...missions.map(
@@ -554,7 +675,7 @@ class _RewardsCard extends StatelessWidget {
               const _EmptyPanelState(
                 icon: Icons.redeem,
                 title: 'No active rewards',
-                message: 'Rewards will appear here after campaign completion.',
+                message: 'Available rewards will appear after customer lookup.',
               )
             else
               ...rewards.map(

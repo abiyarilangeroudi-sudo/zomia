@@ -36,6 +36,7 @@ Customer QR
 - [Flutter F0: Project Setup](./sprints/flutter-f0-project-setup.md)
 - [Flutter F1: Auth And Staff Context](./sprints/flutter-f1-auth-staff-context.md)
 - [Flutter F2: Staff Service Panel MVP](./sprints/flutter-f2-staff-service-panel.md)
+- [Flutter F2.5: Staff And Customer QR UX Polish](./sprints/flutter-f2-5-staff-customer-ux-polish.md)
 - [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
@@ -157,3 +158,20 @@ Flutter F1:
 - Business selection برای چند Business آماده شد
 - Sign out اضافه شد
 - `flutter analyze`, `flutter test` و `flutter build web` پاس شدند
+
+Flutter F2 و F3 پیاده‌سازی شده‌اند.
+
+Flutter F2/F3:
+
+- Staff Service Panel به backend وصل شد
+- Customer QR Display اضافه شد
+- Customer QR rotate اضافه شد
+- Staff می‌تواند Customer QR را resolve کند
+- Staff می‌تواند Action ثبت کند و Reward فعال را use کند
+
+Flutter F2.5:
+
+- Staff camera QR scan اضافه شد
+- manual token input به‌عنوان fallback باقی ماند
+- Customer QR و Staff QR entry polish اولیه شدند
+- نسخه Flutter برای تشخیص build جدید در Login افزایش یافت

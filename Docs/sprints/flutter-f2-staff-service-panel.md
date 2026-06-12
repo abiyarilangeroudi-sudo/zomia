@@ -5,7 +5,7 @@
 هدف F2 این است که Staff بعد از login بتواند workflow اصلی MVP را از داخل Flutter اجرا کند:
 
 ```text
-Manual QR Token
+Camera QR Scan / Manual QR Token
 -> Resolve Customer
 -> Customer Summary
 -> Select Missions
@@ -15,7 +15,7 @@ Manual QR Token
 -> See Recent Actions
 ```
 
-Camera scan در این Sprint وارد نمی‌شود. manual token input برای MVP کافی است و بعداً به‌عنوان fallback کنار camera scan باقی می‌ماند.
+F2 ابتدا با manual token input ساخته شد. در F2.5 camera scan اضافه شد و manual token input به‌عنوان fallback باقی ماند.
 
 ## Scope
 
@@ -33,10 +33,11 @@ Camera scan در این Sprint وارد نمی‌شود. manual token input بر
 - Use Reward
 - نمایش Recent Actions
 - استفاده از brand colors, spacing, logo/font foundation موجود
+- camera QR scan در ادامه F2.5 اضافه شد
+- manual token fallback برای تست و شرایط بدون camera باقی می‌ماند
 
 خارج از F2:
 
-- camera QR scan
 - offline mode
 - Owner dashboard
 - Customer app
@@ -71,8 +72,9 @@ POST /api/v1/staff/service/rewards/{reward_id}/use
 - Branding is applied first to avoid rework.
 - The panel uses local Sofia Sans, Zomia colors, and shared brand spacing.
 - Idempotency keys are generated client-side per Staff action submission.
-- Manual QR token input is accepted for F2, but Staff camera scan is a required follow-up.
-- UI/UX polish is still needed before production readiness.
+- Staff can scan the Customer QR with camera where browser permissions allow it.
+- Manual QR token input remains available as fallback.
+- F2.5 adds first-pass UX polish, but deeper production UI/UX polish is still expected later.
 - If a campaign is not repeatable, registering the same qualifying action again will not generate another reward for the same customer.
 
 ## Verification

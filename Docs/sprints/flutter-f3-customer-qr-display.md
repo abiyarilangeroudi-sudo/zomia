@@ -30,7 +30,6 @@ Customer Login
 
 خارج از F3:
 
-- camera scan
 - Customer points/rewards dashboard کامل
 - Customer profile
 - Push notification
@@ -64,8 +63,9 @@ POST /api/v1/customers/me/qr-token/rotate
 
 - Frontend UI remains English.
 - Customer QR uses the existing Zomia branding foundation.
-- The raw token remains visible for local MVP testing and manual Staff input.
-- Customer QR screen requires UX polish before production readiness.
+- The raw token remains visible for local MVP testing and manual Staff fallback input.
+- F2.5 adds first-pass polish for Customer QR clarity and Staff scan handoff.
+- Customer QR screen will still need deeper production UI/UX polish later.
 
 ## Verification
 

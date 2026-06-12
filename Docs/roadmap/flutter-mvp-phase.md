@@ -107,6 +107,7 @@ App Start
       -> Staff Shell
          -> Business Select
          -> Service Panel
+      -> Customer QR
 ```
 
 برای نقش‌های دیگر:
@@ -204,11 +205,11 @@ show Business Select
 
 ### 4. QR Resolve
 
-در MVP می‌توانیم با manual token input شروع کنیم.
+در F2 ابتدا با manual token input شروع شد.
 
-بعد از پایدار شدن app:
+در F2.5:
 
-- QR camera scan اضافه شود
+- QR camera scan اضافه شد
 - manual input به عنوان fallback باقی بماند
 
 ### 5. Register Action
