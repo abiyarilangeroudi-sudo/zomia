@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/app_version.dart';
 import '../../../app/brand/brand_assets.dart';
@@ -74,7 +75,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 24),
                       Text('Welcome back', style: textTheme.headlineMedium),
                       const SizedBox(height: 12),
-                      Text(AppVersion.label, style: textTheme.bodyLarge),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () => context.push('/ui-catalog'),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            AppVersion.label,
+                            style: textTheme.bodyLarge?.copyWith(
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       TextFormField(
                         controller: _emailController,

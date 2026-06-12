@@ -185,6 +185,8 @@ frontend/lib/app/brand/
 
 - ساخت `frontend/lib/app/ui/`
 - ساخت componentهای پایه
+- ساخت صفحه موقت `UI Component Catalog`
+- لینک موقت catalog از روی version label در Login
 - به‌روزرسانی theme/tokens فقط در صورت نیاز
 - اضافه کردن doc usage کوتاه
 
@@ -194,23 +196,51 @@ frontend/lib/app/brand/
 - استفاده از `ZomiaBanner`
 - حفظ version label
 - password visibility
+- آماده‌سازی مسیر آینده برای `Customer Register`
 
-### F7.3 Customer QR Recovery
+### F7.3 Customer Dashboard Recovery
 
 - استفاده از `ZomiaQrCard`
 - استفاده از `ZomiaProgressCard`
 - استفاده از `ZomiaRewardCard`
+- QR و Campaign Progress به عنوان بخش‌های Customer Dashboard دیده می‌شوند، نه صفحه‌های جدا از هم
 
-### F7.4 Staff Service Panel Recovery
+### F7.4 Staff Dashboard Recovery
 
 - component split
 - confirmation dialog استاندارد
 - کاهش visual clutter
+- Service Panel و QR Scan بخش‌های Staff Dashboard هستند
 
-### F7.5 Owner Setup Recovery
+### F7.5 Owner Dashboard Recovery
 
 - setup sections استاندارد
 - list/form consistency
+- Staff/Mission/Campaign/Reward Template بخش‌های Owner Dashboard هستند
+
+## Temporary UI Catalog
+
+برای ارزیابی بصری قبل از پیاده‌سازی recovery، یک صفحه موقت catalog ساخته می‌شود:
+
+```text
+/ui-catalog
+```
+
+دسترسی موقت:
+
+```text
+Login -> click version label
+```
+
+این صفحه بعداً می‌تواند حذف شود، اما تا زمان تثبیت design system باید محل مرور همه componentهای رسمی باشد.
+
+## Register Direction
+
+بعد از UI recovery باید مسیر ثبت‌نام روشن شود:
+
+- Customer می‌تواند خودش register کند.
+- Owner register صفحه جداگانه دارد.
+- Staff از طریق Owner ساخته می‌شود و self-register ندارد.
 
 ## Review Checklist
 
@@ -224,4 +254,3 @@ frontend/lib/app/brand/
 - آیا frontend UI همچنان English است؟
 - آیا نسخه Flutter افزایش یافته است؟
 - آیا widget tests پاس شده‌اند؟
-

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:zomia_frontend/app/router.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
@@ -18,6 +19,16 @@ import 'package:zomia_frontend/features/staff_service/domain/staff_service_model
 import 'package:zomia_frontend/features/staff_context/domain/staff_context.dart';
 
 void main() {
+  setUp(() {
+    appRouter.go('/');
+  });
+
+  Future<void> pumpAppFrames(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+
   test('normalizes raw and deep-link QR token inputs', () {
     expect(normalizeQrTokenInput('raw-token'), 'raw-token');
     expect(normalizeQrTokenInput('zomia://customer/raw-token'), 'raw-token');
@@ -45,8 +56,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.9 (10)'), findsOneWidget);
+    expect(find.text('Version 1.0.10 (11)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
+  });
+
+  testWidgets('opens the temporary UI component catalog from version label', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(_MemoryTokenStore()),
+          staffServiceRepositoryProvider.overrideWithValue(
+            _FakeStaffServiceRepository(),
+          ),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.text('Version 1.0.10 (11)'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('UI Component Catalog'), findsOneWidget);
+    expect(find.text('Zomia Design System'), findsOneWidget);
+    expect(find.text('ZomiaCard / normal'), findsOneWidget);
+    expect(find.text('ZomiaProgressCard / active'), findsOneWidget);
   });
 
   testWidgets('signs in and renders staff context', (tester) async {
@@ -67,7 +106,7 @@ void main() {
         child: const ZomiaApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     await tester.enterText(
       find.byType(TextFormField).at(0),
@@ -75,7 +114,7 @@ void main() {
     );
     await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(find.text('Staff Service'), findsOneWidget);
@@ -103,7 +142,7 @@ void main() {
         child: const ZomiaApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     await tester.enterText(
       find.byType(TextFormField).at(0),
@@ -111,7 +150,7 @@ void main() {
     );
     await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(find.text('Customer QR'), findsOneWidget);
@@ -125,7 +164,7 @@ void main() {
     expect(find.text('Free Coffee'), findsOneWidget);
 
     await tester.drag(find.byType(ListView), const Offset(0, -500));
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     expect(find.text('Ready to Scan'), findsOneWidget);
     expect(find.text('Refresh QR token'), findsOneWidget);
@@ -149,7 +188,7 @@ void main() {
         child: const ZomiaApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     await tester.enterText(
       find.byType(TextFormField).at(0),
@@ -157,7 +196,7 @@ void main() {
     );
     await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(find.text('Owner Setup'), findsOneWidget);
@@ -167,19 +206,19 @@ void main() {
     expect(find.text('Setup Staff · setup-staff@example.com'), findsOneWidget);
 
     await tester.drag(find.byType(ListView), const Offset(0, -500));
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     expect(find.text('Create mission'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsWidgets);
 
     await tester.drag(find.byType(ListView), const Offset(0, -500));
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     expect(find.text('Create campaign'), findsOneWidget);
     expect(find.text('Coffee Reward · 10 pts'), findsOneWidget);
 
     await tester.drag(find.byType(ListView), const Offset(0, -600));
-    await tester.pumpAndSettle();
+    await pumpAppFrames(tester);
 
     expect(find.text('Create gift reward'), findsOneWidget);
     expect(find.text('Free Coffee · Free coffee'), findsOneWidget);

@@ -189,6 +189,22 @@ frontend/lib/app/ui/
 Docs/sprints/flutter-f7-ui-branding-recovery.md
 ```
 
+F7 naming:
+
+```text
+F7.1 Design System Foundation
+F7.2 Login Recovery
+F7.3 Customer Dashboard Recovery
+F7.4 Staff Dashboard Recovery
+F7.5 Owner Dashboard Recovery
+```
+
+Register direction:
+
+- Customer self-register لازم است.
+- Owner register صفحه جداگانه خواهد داشت.
+- Staff از داخل Owner Dashboard ساخته می‌شود.
+
 ### برای Owner Management آماده اما اولویت دوم
 
 ```text
