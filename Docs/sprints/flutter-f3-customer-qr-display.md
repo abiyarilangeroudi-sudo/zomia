@@ -65,6 +65,7 @@ POST /api/v1/customers/me/qr-token/rotate
 - Frontend UI remains English.
 - Customer QR uses the existing Zomia branding foundation.
 - The raw token remains visible for local MVP testing and manual Staff input.
+- Customer QR screen requires UX polish before production readiness.
 
 ## Verification
 

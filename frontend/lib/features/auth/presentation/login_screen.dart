@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../app/app_version.dart';
 import '../../../app/brand/brand_assets.dart';
 import '../../../app/brand/brand_colors.dart';
 import 'auth_controller.dart';
@@ -73,7 +74,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 24),
                       Text('Welcome back', style: textTheme.headlineMedium),
                       const SizedBox(height: 12),
-                      Text('Sign in to Zomia', style: textTheme.bodyLarge),
+                      Text(AppVersion.label, style: textTheme.bodyLarge),
                       const SizedBox(height: 24),
                       TextFormField(
                         controller: _emailController,

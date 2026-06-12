@@ -71,6 +71,9 @@ POST /api/v1/staff/service/rewards/{reward_id}/use
 - Branding is applied first to avoid rework.
 - The panel uses local Sofia Sans, Zomia colors, and shared brand spacing.
 - Idempotency keys are generated client-side per Staff action submission.
+- Manual QR token input is accepted for F2, but Staff camera scan is a required follow-up.
+- UI/UX polish is still needed before production readiness.
+- If a campaign is not repeatable, registering the same qualifying action again will not generate another reward for the same customer.
 
 ## Verification
 

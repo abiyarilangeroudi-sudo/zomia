@@ -32,7 +32,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Sign in to Zomia'), findsOneWidget);
+    expect(find.text('Version 1.0.1 (2)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
