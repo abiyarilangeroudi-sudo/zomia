@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/brand/brand_colors.dart';
-import '../../../app/brand/brand_spacing.dart';
+import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/owner_setup_repository.dart';
@@ -45,6 +45,20 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
   String? _success;
   bool _isLoading = true;
   bool _isSaving = false;
+  int _selectedIndex = 0;
+
+  static const _tabs = [
+    NavItem(
+      label: 'Home',
+      icon: Icons.dashboard_outlined,
+      activeIcon: Icons.dashboard_rounded,
+    ),
+    NavItem(
+      label: 'Profile',
+      icon: Icons.person_outline_rounded,
+      activeIcon: Icons.person_rounded,
+    ),
+  ];
 
   @override
   void initState() {
@@ -70,83 +84,113 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Owner Setup'),
+      appBar: AppTopBar(
+        title: 'Owner Dashboard',
+        variant: AppTopBarVariant.business,
+        onMenu: () {},
         actions: [
           IconButton(
             tooltip: 'Sign out',
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout_rounded),
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(BrandSpacing.screenPadding),
-        children: [
-          _OwnerHeader(user: widget.user),
-          const SizedBox(height: 16),
-          if (_error != null) _MessageBanner(message: _error!, isError: true),
-          if (_success != null)
-            _MessageBanner(message: _success!, isError: false),
-          if (_error != null || _success != null) const SizedBox(height: 16),
-          if (_isLoading)
-            const Center(child: CircularProgressIndicator())
-          else if (_businesses.isEmpty)
-            const _EmptyState(
-              title: 'No business found',
-              message: 'Create the owner business from the backend for now.',
-            )
-          else ...[
-            _BusinessPicker(
-              businesses: _businesses,
-              selectedBusiness: _selectedBusiness,
-              onChanged: _selectBusiness,
-            ),
-            const SizedBox(height: 16),
-            _StaffSetupCard(
-              emailController: _staffEmailController,
-              fullNameController: _staffNameController,
-              passwordController: _staffPasswordController,
-              staffMembers: _staffForSelectedBusiness,
-              isSaving: _isSaving,
-              onCreate: _createStaff,
-            ),
-            const SizedBox(height: 16),
-            _MissionSetupCard(
-              controller: _missionNameController,
-              pointsController: _missionPointsController,
-              missions: _missions,
-              isSaving: _isSaving,
-              onCreate: _createMission,
-            ),
-            const SizedBox(height: 16),
-            _CampaignSetupCard(
-              controller: _campaignNameController,
-              thresholdController: _campaignThresholdController,
-              missions: _missions,
-              campaigns: _campaigns,
-              selectedMissionIds: _selectedMissionIds,
-              isSaving: _isSaving,
-              onMissionToggled: _toggleMission,
-              onCreate: _createCampaign,
-            ),
-            const SizedBox(height: 16),
-            _RewardTemplateSetupCard(
-              rewardNameController: _rewardNameController,
-              giftNameController: _giftNameController,
-              validDaysController: _validDaysController,
-              campaigns: _campaigns,
-              rewardTemplates: _rewardTemplates,
-              selectedCampaignId: _selectedCampaignId,
-              isSaving: _isSaving,
-              onCampaignChanged: (value) =>
-                  setState(() => _selectedCampaignId = value),
-              onCreate: _createRewardTemplate,
+      body: SafeArea(
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            _DashboardScroll(child: _buildHomeView()),
+            _DashboardScroll(
+              child: _OwnerProfileCard(
+                user: widget.user,
+                selectedBusiness: _selectedBusiness,
+                onSignOut: () =>
+                    ref.read(authControllerProvider.notifier).signOut(),
+              ),
             ),
           ],
-        ],
+        ),
       ),
+      bottomNavigationBar: BottomNavBar(
+        items: _tabs,
+        selectedIndex: _selectedIndex,
+        onChanged: (index) => setState(() => _selectedIndex = index),
+      ),
+    );
+  }
+
+  Widget _buildHomeView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _OwnerHeader(user: widget.user, selectedBusiness: _selectedBusiness),
+        const SizedBox(height: 16),
+        if (_error != null)
+          InlineBanner(message: _error!, tone: BannerTone.error),
+        if (_success != null)
+          InlineBanner(message: _success!, tone: BannerTone.success),
+        if (_error != null || _success != null) const SizedBox(height: 16),
+        if (_isLoading)
+          const AppCard(child: LoadingState(label: 'Loading owner setup'))
+        else if (_businesses.isEmpty)
+          const AppCard(
+            child: EmptyStateView(
+              icon: Icons.store_outlined,
+              title: 'No business found',
+              message: 'Create the owner business from the backend for now.',
+            ),
+          )
+        else ...[
+          _BusinessPicker(
+            businesses: _businesses,
+            selectedBusiness: _selectedBusiness,
+            onChanged: _selectBusiness,
+          ),
+          const SizedBox(height: 16),
+          _StaffSetupCard(
+            emailController: _staffEmailController,
+            fullNameController: _staffNameController,
+            passwordController: _staffPasswordController,
+            staffMembers: _staffForSelectedBusiness,
+            isSaving: _isSaving,
+            onCreate: _createStaff,
+          ),
+          const SizedBox(height: 16),
+          _MissionSetupCard(
+            controller: _missionNameController,
+            pointsController: _missionPointsController,
+            missions: _missions,
+            isSaving: _isSaving,
+            onCreate: _createMission,
+          ),
+          const SizedBox(height: 16),
+          _CampaignSetupCard(
+            controller: _campaignNameController,
+            thresholdController: _campaignThresholdController,
+            missions: _missions,
+            campaigns: _campaigns,
+            selectedMissionIds: _selectedMissionIds,
+            isSaving: _isSaving,
+            onMissionToggled: _toggleMission,
+            onCreate: _createCampaign,
+          ),
+          const SizedBox(height: 16),
+          _RewardTemplateSetupCard(
+            rewardNameController: _rewardNameController,
+            giftNameController: _giftNameController,
+            validDaysController: _validDaysController,
+            campaigns: _campaigns,
+            rewardTemplates: _rewardTemplates,
+            selectedCampaignId: _selectedCampaignId,
+            isSaving: _isSaving,
+            onCampaignChanged: (value) =>
+                setState(() => _selectedCampaignId = value),
+            onCreate: _createRewardTemplate,
+          ),
+        ],
+      ],
     );
   }
 
@@ -367,27 +411,115 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
   }
 }
 
-class _OwnerHeader extends StatelessWidget {
-  const _OwnerHeader({required this.user});
+class _DashboardScroll extends StatelessWidget {
+  const _DashboardScroll({required this.child});
 
-  final CurrentUser user;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Minimal Setup',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 4),
-            Text('Signed in as ${user.fullName}'),
-          ],
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760),
+            child: child,
+          ),
         ),
+      ],
+    );
+  }
+}
+
+class _OwnerHeader extends StatelessWidget {
+  const _OwnerHeader({required this.user, required this.selectedBusiness});
+
+  final CurrentUser user;
+  final OwnerBusiness? selectedBusiness;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Owner Setup', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 4),
+          Text('Signed in as ${user.fullName}'),
+          if (selectedBusiness != null) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                MetricPill(
+                  icon: Icons.storefront_rounded,
+                  label: selectedBusiness!.name,
+                  color: BrandColors.teal,
+                ),
+                MetricPill(
+                  icon: Icons.payments_rounded,
+                  label: selectedBusiness!.currencyCode,
+                  color: BrandColors.orange,
+                ),
+                MetricPill(
+                  icon: Icons.verified_rounded,
+                  label: selectedBusiness!.status,
+                  color: BrandColors.purple,
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _OwnerProfileCard extends StatelessWidget {
+  const _OwnerProfileCard({
+    required this.user,
+    required this.selectedBusiness,
+    required this.onSignOut,
+  });
+
+  final CurrentUser user;
+  final OwnerBusiness? selectedBusiness;
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(
+            title: 'Profile',
+            subtitle: 'Owner context for the current setup session.',
+          ),
+          const SizedBox(height: 12),
+          AppListRow(
+            title: user.fullName,
+            subtitle: user.email,
+            leadingIcon: Icons.person_rounded,
+          ),
+          if (selectedBusiness != null) ...[
+            const SizedBox(height: 12),
+            AppListRow(
+              title: selectedBusiness!.name,
+              subtitle:
+                  '${selectedBusiness!.currencyCode} · ${selectedBusiness!.status}',
+              leadingIcon: Icons.storefront_rounded,
+            ),
+          ],
+          const SizedBox(height: 16),
+          SecondaryButton(
+            label: 'Sign out',
+            icon: Icons.logout_rounded,
+            onPressed: onSignOut,
+          ),
+        ],
       ),
     );
   }
@@ -406,29 +538,108 @@ class _BusinessPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: DropdownButtonFormField<String>(
-          initialValue: selectedBusiness?.id,
-          decoration: const InputDecoration(labelText: 'Business'),
-          items: businesses
-              .map(
-                (business) => DropdownMenuItem(
-                  value: business.id,
-                  child: Text(business.name),
-                ),
-              )
-              .toList(),
-          onChanged: (value) {
-            onChanged(
-              businesses.where((business) => business.id == value).firstOrNull,
-            );
-          },
-        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Business'),
+          const SizedBox(height: 12),
+          SelectField<String>(
+            label: 'Business',
+            value: selectedBusiness?.id,
+            options: businesses
+                .map(
+                  (business) => SelectFieldOption(
+                    value: business.id,
+                    label: business.name,
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              onChanged(
+                businesses
+                    .where((business) => business.id == value)
+                    .firstOrNull,
+              );
+            },
+          ),
+        ],
       ),
     );
   }
+}
+
+class _SetupCard extends StatelessWidget {
+  const _SetupCard({
+    required this.title,
+    this.subtitle,
+    required this.children,
+  });
+
+  final String title;
+  final String? subtitle;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionHeader(title: title, subtitle: subtitle),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+class _SimpleList extends StatelessWidget {
+  const _SimpleList({
+    required this.emptyTitle,
+    required this.emptyMessage,
+    required this.items,
+    required this.leadingIcon,
+  });
+
+  final String emptyTitle;
+  final String emptyMessage;
+  final List<_SimpleListItem> items;
+  final IconData leadingIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return EmptyStateView(
+        icon: leadingIcon,
+        title: emptyTitle,
+        message: emptyMessage,
+      );
+    }
+
+    return Column(
+      children: items
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AppListRow(
+                title: item.title,
+                subtitle: item.subtitle,
+                leadingIcon: leadingIcon,
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _SimpleListItem {
+  const _SimpleListItem({required this.title, this.subtitle});
+
+  final String title;
+  final String? subtitle;
 }
 
 class _StaffSetupCard extends StatelessWidget {
@@ -452,36 +663,44 @@ class _StaffSetupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SetupCard(
       title: 'Staff',
+      subtitle: 'Create staff access for the selected business.',
       children: [
-        TextField(
+        AppTextField(
           controller: emailController,
+          label: 'Staff email',
+          hint: 'staff@example.com',
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(labelText: 'Staff email'),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: fullNameController,
-          decoration: const InputDecoration(labelText: 'Staff name'),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: passwordController,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'Temporary password'),
         ),
         const SizedBox(height: 12),
-        FilledButton.icon(
+        AppTextField(
+          controller: fullNameController,
+          label: 'Staff name',
+          hint: 'Staff One',
+        ),
+        const SizedBox(height: 12),
+        AppTextField(
+          controller: passwordController,
+          label: 'Temporary password',
+          obscureText: true,
+        ),
+        const SizedBox(height: 12),
+        PrimaryButton(
+          label: 'Create Staff',
+          icon: Icons.person_add_alt_1_rounded,
           onPressed: isSaving ? null : onCreate,
-          icon: const Icon(Icons.person_add_alt_1),
-          label: const Text('Create staff'),
+          isLoading: isSaving,
         ),
         const SizedBox(height: 12),
         _SimpleList(
-          emptyText: 'No staff yet',
-          children: staffMembers
+          emptyTitle: 'No staff yet',
+          emptyMessage: 'Created staff users will appear here.',
+          leadingIcon: Icons.person_rounded,
+          items: staffMembers
               .map(
-                (staffMember) =>
-                    '${staffMember.user.fullName} · ${staffMember.user.email}',
+                (staffMember) => _SimpleListItem(
+                  title: staffMember.user.fullName,
+                  subtitle: staffMember.user.email,
+                ),
               )
               .toList(),
         ),
@@ -509,28 +728,39 @@ class _MissionSetupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SetupCard(
       title: 'Missions',
+      subtitle: 'Define customer actions that can grant points.',
       children: [
-        TextField(
+        AppTextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Mission name'),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: pointsController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Point value'),
+          label: 'Mission name',
+          hint: 'Buy Coffee',
         ),
         const SizedBox(height: 12),
-        FilledButton.icon(
+        AppTextField(
+          controller: pointsController,
+          label: 'Point value',
+          hint: '1',
+          keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 12),
+        PrimaryButton(
+          label: 'Create Mission',
+          icon: Icons.add_task_rounded,
           onPressed: isSaving ? null : onCreate,
-          icon: const Icon(Icons.add_task),
-          label: const Text('Create mission'),
+          isLoading: isSaving,
         ),
         const SizedBox(height: 12),
         _SimpleList(
-          emptyText: 'No missions yet',
-          children: missions
-              .map((mission) => '${mission.name} · ${mission.pointValue} pts')
+          emptyTitle: 'No missions yet',
+          emptyMessage: 'Created missions will appear here.',
+          leadingIcon: Icons.task_alt_rounded,
+          items: missions
+              .map(
+                (mission) => _SimpleListItem(
+                  title: mission.name,
+                  subtitle: '${mission.pointValue} pts',
+                ),
+              )
               .toList(),
         ),
       ],
@@ -563,52 +793,63 @@ class _CampaignSetupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SetupCard(
       title: 'Campaigns',
+      subtitle: 'Connect missions to a points threshold.',
       children: [
-        TextField(
+        AppTextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Campaign name'),
+          label: 'Campaign name',
+          hint: 'Coffee Reward',
         ),
-        const SizedBox(height: 8),
-        TextField(
+        const SizedBox(height: 12),
+        AppTextField(
           controller: thresholdController,
+          label: 'Threshold points',
+          hint: '10',
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Threshold points'),
         ),
+        const SizedBox(height: 12),
+        const SectionHeader(title: 'Included missions'),
         const SizedBox(height: 8),
-        Text(
-          'Included missions',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        const SizedBox(height: 4),
         if (missions.isEmpty)
-          const Text('No missions available')
+          const EmptyStateView(
+            icon: Icons.task_alt_rounded,
+            title: 'No missions available',
+            message: 'Create a mission before creating a campaign.',
+          )
         else
           ...missions.map(
-            (mission) => CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              value: selectedMissionIds.contains(mission.id),
-              onChanged: (selected) =>
-                  onMissionToggled(mission.id, selected ?? false),
-              title: Text(mission.name),
-              subtitle: Text('${mission.pointValue} pts'),
+            (mission) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: CheckboxRow(
+                title: mission.name,
+                subtitle: '${mission.pointValue} pts',
+                value: selectedMissionIds.contains(mission.id),
+                onChanged: (selected) =>
+                    onMissionToggled(mission.id, selected ?? false),
+              ),
             ),
           ),
         const SizedBox(height: 12),
-        FilledButton.icon(
+        PrimaryButton(
+          label: 'Create Campaign',
+          icon: Icons.flag_rounded,
           onPressed: isSaving || missions.isEmpty || selectedMissionIds.isEmpty
               ? null
               : onCreate,
-          icon: const Icon(Icons.flag),
-          label: const Text('Create campaign'),
+          isLoading: isSaving,
         ),
         const SizedBox(height: 12),
         _SimpleList(
-          emptyText: 'No campaigns yet',
-          children: campaigns
+          emptyTitle: 'No campaigns yet',
+          emptyMessage: 'Created campaigns will appear here.',
+          leadingIcon: Icons.campaign_rounded,
+          items: campaigns
               .map(
-                (campaign) =>
-                    '${campaign.name} · ${campaign.thresholdPoints} pts',
+                (campaign) => _SimpleListItem(
+                  title: campaign.name,
+                  subtitle:
+                      '${campaign.thresholdPoints} pts · ${campaign.status}',
+                ),
               )
               .toList(),
         ),
@@ -644,156 +885,61 @@ class _RewardTemplateSetupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SetupCard(
       title: 'Reward Templates',
+      subtitle: 'Create the gift reward issued after campaign completion.',
       children: [
-        TextField(
+        AppTextField(
           controller: rewardNameController,
-          decoration: const InputDecoration(labelText: 'Reward name'),
+          label: 'Reward name',
+          hint: 'Free Coffee',
         ),
-        const SizedBox(height: 8),
-        TextField(
+        const SizedBox(height: 12),
+        AppTextField(
           controller: giftNameController,
-          decoration: const InputDecoration(labelText: 'Gift name'),
+          label: 'Gift name',
+          hint: 'Free coffee',
         ),
-        const SizedBox(height: 8),
-        TextField(
+        const SizedBox(height: 12),
+        AppTextField(
           controller: validDaysController,
+          label: 'Valid days',
+          hint: '30',
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Valid days'),
         ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: selectedCampaignId,
-          decoration: const InputDecoration(labelText: 'Campaign'),
-          items: campaigns
+        const SizedBox(height: 12),
+        SelectField<String>(
+          label: 'Campaign',
+          value: selectedCampaignId,
+          options: campaigns
               .map(
-                (campaign) => DropdownMenuItem(
-                  value: campaign.id,
-                  child: Text(campaign.name),
-                ),
+                (campaign) =>
+                    SelectFieldOption(value: campaign.id, label: campaign.name),
               )
               .toList(),
           onChanged: onCampaignChanged,
         ),
         const SizedBox(height: 12),
-        FilledButton.icon(
+        PrimaryButton(
+          label: 'Create Gift Reward',
+          icon: Icons.card_giftcard_rounded,
           onPressed: isSaving || campaigns.isEmpty ? null : onCreate,
-          icon: const Icon(Icons.card_giftcard),
-          label: const Text('Create gift reward'),
+          isLoading: isSaving,
         ),
         const SizedBox(height: 12),
         _SimpleList(
-          emptyText: 'No reward templates yet',
-          children: rewardTemplates
+          emptyTitle: 'No reward templates yet',
+          emptyMessage: 'Created reward templates will appear here.',
+          leadingIcon: Icons.card_giftcard_rounded,
+          items: rewardTemplates
               .map(
-                (template) =>
-                    '${template.name} · ${template.giftName ?? template.rewardType}',
+                (template) => _SimpleListItem(
+                  title: template.name,
+                  subtitle:
+                      '${template.giftName ?? template.rewardType} · ${template.validDays} days',
+                ),
               )
               .toList(),
         ),
       ],
-    );
-  }
-}
-
-class _SetupCard extends StatelessWidget {
-  const _SetupCard({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            ...children,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SimpleList extends StatelessWidget {
-  const _SimpleList({required this.emptyText, required this.children});
-
-  final String emptyText;
-  final List<String> children;
-
-  @override
-  Widget build(BuildContext context) {
-    if (children.isEmpty) {
-      return Text(
-        emptyText,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyMedium?.copyWith(color: BrandColors.textSecondary),
-      );
-    }
-    return Column(
-      children: children
-          .map(
-            (item) => ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              leading: const Icon(Icons.circle, size: 10),
-              title: Text(item),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class _MessageBanner extends StatelessWidget {
-  const _MessageBanner({required this.message, required this.isError});
-
-  final String message;
-  final bool isError;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isError ? BrandColors.error : BrandColors.success;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        border: Border.all(color: color),
-        borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(message, style: TextStyle(color: color)),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.title, required this.message});
-
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: Column(
-          children: [
-            const Icon(Icons.store_outlined),
-            const SizedBox(height: 8),
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(message, textAlign: TextAlign.center),
-          ],
-        ),
-      ),
     );
   }
 }
