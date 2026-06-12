@@ -15,10 +15,10 @@ class StaffServicePanel extends ConsumerStatefulWidget {
   final StaffBusiness business;
 
   @override
-  ConsumerState<StaffServicePanel> createState() => _StaffServicePanelState();
+  ConsumerState<StaffServicePanel> createState() => StaffServicePanelState();
 }
 
-class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
+class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
   final _qrTokenController = TextEditingController();
   final Map<String, int> _quantities = {};
 
@@ -100,6 +100,8 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
       ],
     );
   }
+
+  Future<void> scanQrFromTopBar() => _scanQr();
 
   Future<void> _loadMissions() async {
     setState(() {

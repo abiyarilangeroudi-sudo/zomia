@@ -56,7 +56,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.16 (17)'), findsOneWidget);
+    expect(find.text('Version 1.0.17 (18)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -79,7 +79,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.16 (17)'));
+    await tester.tap(find.text('Version 1.0.17 (18)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -117,12 +117,20 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
-    expect(find.text('Staff Service'), findsOneWidget);
+    expect(find.text('Staff Dashboard'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
+    expect(find.byTooltip('Scan customer QR'), findsOneWidget);
     expect(find.text('Customer QR'), findsOneWidget);
     expect(find.text('Scan with camera'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsOneWidget);
+
+    await tester.tap(find.text('Profile'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Profile'), findsWidgets);
+    expect(find.text('Staff One'), findsOneWidget);
+    expect(find.text('staff@example.com'), findsOneWidget);
   });
 
   testWidgets('signs in and renders customer QR screen', (tester) async {
