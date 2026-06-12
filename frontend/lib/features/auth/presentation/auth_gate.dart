@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/ui/ui.dart';
 import 'auth_controller.dart';
 import 'login_screen.dart';
 import '../../customer_qr/presentation/customer_qr_screen.dart';
@@ -49,21 +50,37 @@ class _UnsupportedRoleScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Zomia'),
+      appBar: AppTopBar(
+        title: 'Zomia',
+        variant: AppTopBarVariant.business,
+        onMenu: () {},
         actions: [
           IconButton(
             tooltip: 'Sign out',
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout_rounded),
           ),
         ],
       ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text('This role is not supported in the MVP app yet.'),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: AppCard(
+              child: EmptyStateView(
+                icon: Icons.manage_accounts_outlined,
+                title: 'Unsupported role',
+                message: 'This role is not supported in the MVP app yet.',
+                action: SecondaryButton(
+                  label: 'Sign out',
+                  icon: Icons.logout_rounded,
+                  onPressed: () =>
+                      ref.read(authControllerProvider.notifier).signOut(),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -75,6 +92,15 @@ class _LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 420),
+            child: AppCard(child: LoadingState(label: 'Loading Zomia')),
+          ),
+        ),
+      ),
+    );
   }
 }
