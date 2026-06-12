@@ -85,7 +85,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       label: 'Email',
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      prefixIcon: const Icon(Icons.email_outlined),
                       validator: (value) {
                         final email = value?.trim() ?? '';
                         if (email.isEmpty) {
@@ -103,7 +102,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       label: 'Password',
                       obscureText: true,
                       textInputAction: TextInputAction.done,
-                      prefixIcon: const Icon(Icons.lock_outline_rounded),
                       validator: (value) {
                         if ((value ?? '').isEmpty) {
                           return 'Password is required.';
