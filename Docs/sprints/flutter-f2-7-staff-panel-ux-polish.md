@@ -42,3 +42,14 @@ F2.7 کامل است وقتی:
 - Staff قبل از use کردن reward dialog تأیید ببیند
 - بعد از action بدون reward جدید، پیام مناسب نمایش داده شود
 - Login نسخه جدید Flutter را نشان دهد
+
+## Manual QA Data
+
+اگر reward فعالی برای تست دستی وجود نداشت، از local dev seed زیر استفاده می‌کنیم:
+
+```bash
+cd backend
+.venv/bin/python -m app.devtools.seed_reward_use_demo
+```
+
+این script فقط برای local development است و یک Staff، Customer، Business، QR token و active reward تازه برای تست `Use Reward` می‌سازد.

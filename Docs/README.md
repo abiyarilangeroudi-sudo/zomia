@@ -189,3 +189,4 @@ Flutter F2.7:
 - confirmation قبل از `Use Reward` اضافه شد
 - پیام ثبت Action وقتی reward جدید صادر نمی‌شود واضح‌تر شد
 - کارت customer loaded و mission row برای استفاده عملی Staff polish شدند
+- local dev seed برای ساخت reward فعال تستی اضافه شد
