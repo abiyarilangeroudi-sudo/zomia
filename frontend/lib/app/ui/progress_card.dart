@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
-import 'zomia_badge.dart';
-import 'zomia_card.dart';
+import 'status_badge.dart';
+import 'app_card.dart';
 
-class ZomiaProgressCard extends StatelessWidget {
-  const ZomiaProgressCard({
+class ProgressCard extends StatelessWidget {
+  const ProgressCard({
     super.key,
     required this.title,
     required this.subtitle,
@@ -22,10 +22,8 @@ class ZomiaProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ZomiaCard(
-      variant: isCompleted
-          ? ZomiaCardVariant.highlight
-          : ZomiaCardVariant.normal,
+    return AppCard(
+      variant: isCompleted ? AppCardVariant.highlight : AppCardVariant.normal,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -46,11 +44,9 @@ class ZomiaProgressCard extends StatelessWidget {
                   ],
                 ),
               ),
-              ZomiaBadge(
+              StatusBadge(
                 label: isCompleted ? 'Completed' : 'Active',
-                tone: isCompleted
-                    ? ZomiaBadgeTone.success
-                    : ZomiaBadgeTone.info,
+                tone: isCompleted ? BadgeTone.success : BadgeTone.info,
               ),
             ],
           ),

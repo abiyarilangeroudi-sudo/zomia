@@ -2,27 +2,27 @@ import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
 
-enum ZomiaEmptyStateSize { small, large }
+enum EmptyStateSize { small, large }
 
-class ZomiaEmptyState extends StatelessWidget {
-  const ZomiaEmptyState({
+class EmptyStateView extends StatelessWidget {
+  const EmptyStateView({
     super.key,
     required this.icon,
     required this.title,
     this.message,
     this.action,
-    this.size = ZomiaEmptyStateSize.small,
+    this.size = EmptyStateSize.small,
   });
 
   final IconData icon;
   final String title;
   final String? message;
   final Widget? action;
-  final ZomiaEmptyStateSize size;
+  final EmptyStateSize size;
 
   @override
   Widget build(BuildContext context) {
-    final large = size == ZomiaEmptyStateSize.large;
+    final large = size == EmptyStateSize.large;
     return Padding(
       padding: EdgeInsets.all(large ? 32 : 16),
       child: Column(

@@ -122,7 +122,7 @@ ThemeData buildZomiaTheme() {
       style: FilledButton.styleFrom(
         backgroundColor: BrandColors.orange,
         foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(52),
+        minimumSize: const Size(64, 52),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(pillRadius),
         ),
@@ -137,7 +137,7 @@ ThemeData buildZomiaTheme() {
       style: OutlinedButton.styleFrom(
         foregroundColor: BrandColors.orange,
         side: const BorderSide(color: BrandColors.orange, width: 1.2),
-        minimumSize: const Size.fromHeight(52),
+        minimumSize: const Size(64, 52),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(pillRadius),
         ),

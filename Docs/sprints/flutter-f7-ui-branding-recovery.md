@@ -67,16 +67,11 @@ frontend/zomia_Branding/
 
 ```text
 frontend/lib/app/ui/
-  zomia_app_bar.dart
-  zomia_badge.dart
-  zomia_banner.dart
-  zomia_button.dart
-  zomia_card.dart
-  zomia_confirm_dialog.dart
-  zomia_empty_state.dart
-  zomia_progress_card.dart
-  zomia_scaffold.dart
-  zomia_text_field.dart
+  shared layout components
+  shared surface components
+  shared form components
+  shared feedback components
+  MVP workflow components
 ```
 
 Design tokenها در مسیر فعلی باقی می‌مانند:
@@ -96,41 +91,48 @@ frontend/lib/app/brand/
 
 | Component | Purpose | Variants allowed |
 | --- | --- | --- |
-| `ZomiaScaffold` | ساختار صفحه، padding، background، safe area | `scroll`, `fixed` |
-| `ZomiaAppBar` | title/action/sign out/back | `main`, `modal`, `service` |
+| `AppScaffold` | ساختار صفحه، padding، background، safe area | `scroll`, `fixed` |
+| `AppTopBar` | title/action/sign out/back | `main`, `modal`, `service`, `business` |
+| `BottomNavBar` | navigation پایین dashboardها | selected item |
 
 ### Surface
 
 | Component | Purpose | Variants allowed |
 | --- | --- | --- |
-| `ZomiaCard` | container اصلی برای بخش‌های صفحه | `default`, `highlight`, `compact` |
-| `ZomiaSectionHeader` | عنوان و action کوچک برای section | `default` |
+| `AppCard` | container اصلی برای بخش‌های صفحه | `default`, `highlight`, `compact` |
+| `SectionHeader` | عنوان و action کوچک برای section | `default` |
+| `AppListRow` | ردیف لیست برای Business/Staff/Mission/Campaign/Reward Template | `tap`, `static` |
+| `MetricPill` | badge عددی/وضعیتی کوچک | color token |
 
 ### Forms
 
 | Component | Purpose | Variants allowed |
 | --- | --- | --- |
-| `ZomiaTextField` | همه inputهای متنی | `password`, `number`, `email`, `multiline` |
-| `ZomiaPrimaryButton` | action اصلی هر section | `loading`, `icon` |
-| `ZomiaSecondaryButton` | action فرعی | `icon` |
+| `AppTextField` | همه inputهای متنی | `password`, `number`, `email`, `multiline` |
+| `SelectField` | dropdown رسمی فرم‌ها | typed options |
+| `CheckboxRow` | انتخاب Missionها یا گزینه‌های setup | `checked`, `unchecked` |
+| `PrimaryButton` | action اصلی هر section | `loading`, `icon` |
+| `SecondaryButton` | action فرعی | `icon` |
 
 ### Feedback
 
 | Component | Purpose | Variants allowed |
 | --- | --- | --- |
-| `ZomiaBanner` | success/error/info/warning پیام‌های inline | `success`, `error`, `info`, `warning` |
-| `ZomiaEmptyState` | حالت خالی قابل تکرار | `small`, `large` |
-| `ZomiaConfirmDialog` | confirmation برای actionهای حساس | `destructive`, `standard` |
-| `ZomiaBadge` | وضعیت‌های کوچک | `success`, `warning`, `error`, `info`, `neutral` |
+| `InlineBanner` | success/error/info/warning پیام‌های inline | `success`, `error`, `info`, `warning` |
+| `EmptyStateView` | حالت خالی قابل تکرار | `small`, `large` |
+| `LoadingState` | loading استاندارد sectionها | default |
+| `ConfirmDialog` | confirmation برای actionهای حساس | `destructive`, `standard` |
+| `StatusBadge` | وضعیت‌های کوچک | `success`, `warning`, `error`, `info`, `neutral` |
 
 ### Loyalty Specific
 
 | Component | Purpose | Variants allowed |
 | --- | --- | --- |
-| `ZomiaQrCard` | نمایش QR و token fallback | `customer`, `staff-scan` |
-| `ZomiaProgressCard` | campaign progress مشتری | `active`, `completed` |
-| `ZomiaRewardCard` | نمایش reward فعال | `customer`, `staff-action` |
-| `ZomiaMissionRow` | mission/action row | `selectable`, `quantity` |
+| `QrCard` | نمایش QR و token fallback | `customer`, `staff-scan` |
+| `ScannerSheetFrame` | preview/structure برای camera scan sheet | `compact`, `full` |
+| `ProgressCard` | campaign progress مشتری | `active`, `completed` |
+| `RewardCard` | نمایش reward فعال | `customer`, `staff-action` |
+| `MissionRow` | mission/action row با quantity controls | `quantity` |
 
 ## Current Screens To Recover
 
@@ -148,8 +150,8 @@ frontend/lib/app/brand/
 نیازها:
 
 - QR مرکز تجربه بماند
-- Campaign Progress با `ZomiaProgressCard`
-- Active Rewards با `ZomiaRewardCard`
+- Campaign Progress با `ProgressCard`
+- Active Rewards با `RewardCard`
 - Empty state تمیز برای نبود progress/reward
 
 ### Staff Service Panel
@@ -160,16 +162,16 @@ frontend/lib/app/brand/
 - scan/resolve flow واضح‌تر
 - customer summary بالاتر از actions
 - mission quantity controls استاندارد
-- reward use confirmation با `ZomiaConfirmDialog`
+- reward use confirmation با `ConfirmDialog`
 
 ### Owner Setup
 
 نیازها:
 
 - تقسیم به setup sections
-- فرم‌ها با `ZomiaTextField`
+- فرم‌ها با `AppTextField`
 - list rowهای یکدست
-- success/error inline با `ZomiaBanner`
+- success/error inline با `InlineBanner`
 - حفظ scope حداقلی: Staff, Mission, Campaign, Reward Template
 
 ### Business Select
@@ -190,19 +192,25 @@ frontend/lib/app/brand/
 - به‌روزرسانی theme/tokens فقط در صورت نیاز
 - اضافه کردن doc usage کوتاه
 
+### F7.1.1 MVP Component Coverage
+
+- حذف پیشوند `Zomia` از نام componentهای design system
+- پوشش QR, Reward, Mission quantity, List row, Select, Checkbox, Metric, Loading, Scanner preview, Confirm dialog در catalog
+- تکمیل `UI Component Catalog` قبل از شروع recovery صفحه‌ها
+
 ### F7.2 Login Recovery
 
-- استفاده از `ZomiaTextField`
-- استفاده از `ZomiaBanner`
+- استفاده از `AppTextField`
+- استفاده از `InlineBanner`
 - حفظ version label
 - password visibility
 - آماده‌سازی مسیر آینده برای `Customer Register`
 
 ### F7.3 Customer Dashboard Recovery
 
-- استفاده از `ZomiaQrCard`
-- استفاده از `ZomiaProgressCard`
-- استفاده از `ZomiaRewardCard`
+- استفاده از `QrCard`
+- استفاده از `ProgressCard`
+- استفاده از `RewardCard`
 - QR و Campaign Progress به عنوان بخش‌های Customer Dashboard دیده می‌شوند، نه صفحه‌های جدا از هم
 
 ### F7.4 Staff Dashboard Recovery

@@ -56,7 +56,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.12 (13)'), findsOneWidget);
+    expect(find.text('Version 1.0.13 (14)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -79,13 +79,13 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.12 (13)'));
+    await tester.tap(find.text('Version 1.0.13 (14)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
     expect(find.text('Zomia Design System'), findsOneWidget);
-    expect(find.text('ZomiaCard / normal'), findsOneWidget);
-    expect(find.text('ZomiaProgressCard / active'), findsOneWidget);
+    expect(find.text('AppCard / normal'), findsOneWidget);
+    expect(find.text('ProgressCard / active'), findsOneWidget);
   });
 
   testWidgets('signs in and renders staff context', (tester) async {

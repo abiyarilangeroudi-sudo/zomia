@@ -3,27 +3,27 @@ import 'package:flutter/material.dart';
 import '../brand/brand_colors.dart';
 import '../brand/brand_spacing.dart';
 
-enum ZomiaCardVariant { normal, highlight, compact }
+enum AppCardVariant { normal, highlight, compact }
 
-class ZomiaCard extends StatelessWidget {
-  const ZomiaCard({
+class AppCard extends StatelessWidget {
+  const AppCard({
     super.key,
     required this.child,
-    this.variant = ZomiaCardVariant.normal,
+    this.variant = AppCardVariant.normal,
     this.padding,
   });
 
   final Widget child;
-  final ZomiaCardVariant variant;
+  final AppCardVariant variant;
   final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
-    final isHighlight = variant == ZomiaCardVariant.highlight;
+    final isHighlight = variant == AppCardVariant.highlight;
     final effectivePadding =
         padding ??
         EdgeInsets.all(
-          variant == ZomiaCardVariant.compact ? 12 : BrandSpacing.cardPadding,
+          variant == AppCardVariant.compact ? 12 : BrandSpacing.cardPadding,
         );
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -47,8 +47,8 @@ class ZomiaCard extends StatelessWidget {
   }
 }
 
-class ZomiaSectionHeader extends StatelessWidget {
-  const ZomiaSectionHeader({
+class SectionHeader extends StatelessWidget {
+  const SectionHeader({
     super.key,
     required this.title,
     this.subtitle,

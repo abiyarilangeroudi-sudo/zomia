@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
 
-class ZomiaPrimaryButton extends StatelessWidget {
-  const ZomiaPrimaryButton({
+class PrimaryButton extends StatelessWidget {
+  const PrimaryButton({
     super.key,
     required this.label,
     required this.onPressed,
@@ -49,8 +49,8 @@ class ZomiaPrimaryButton extends StatelessWidget {
   }
 }
 
-class ZomiaSecondaryButton extends StatelessWidget {
-  const ZomiaSecondaryButton({
+class SecondaryButton extends StatelessWidget {
+  const SecondaryButton({
     super.key,
     required this.label,
     required this.onPressed,

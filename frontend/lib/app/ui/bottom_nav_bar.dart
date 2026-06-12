@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
 
-class ZomiaNavItem {
-  const ZomiaNavItem({
+class NavItem {
+  const NavItem({
     required this.label,
     required this.icon,
     required this.activeIcon,
@@ -14,8 +14,8 @@ class ZomiaNavItem {
   final IconData activeIcon;
 }
 
-class ZomiaBottomNavBar extends StatelessWidget {
-  const ZomiaBottomNavBar({
+class BottomNavBar extends StatelessWidget {
+  const BottomNavBar({
     super.key,
     required this.items,
     required this.selectedIndex,
@@ -23,7 +23,7 @@ class ZomiaBottomNavBar extends StatelessWidget {
     this.maxWidth = 530,
   });
 
-  final List<ZomiaNavItem> items;
+  final List<NavItem> items;
   final int selectedIndex;
   final ValueChanged<int>? onChanged;
   final double maxWidth;

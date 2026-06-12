@@ -3,33 +3,33 @@ import 'package:flutter/material.dart';
 import '../brand/brand_colors.dart';
 import '../brand/brand_spacing.dart';
 
-enum ZomiaBannerTone { success, error, info, warning }
+enum BannerTone { success, error, info, warning }
 
-class ZomiaBanner extends StatelessWidget {
-  const ZomiaBanner({
+class InlineBanner extends StatelessWidget {
+  const InlineBanner({
     super.key,
     required this.message,
-    this.tone = ZomiaBannerTone.info,
+    this.tone = BannerTone.info,
     this.onClose,
   });
 
   final String message;
-  final ZomiaBannerTone tone;
+  final BannerTone tone;
   final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
     final color = switch (tone) {
-      ZomiaBannerTone.success => BrandColors.success,
-      ZomiaBannerTone.error => BrandColors.error,
-      ZomiaBannerTone.warning => BrandColors.warning,
-      ZomiaBannerTone.info => BrandColors.info,
+      BannerTone.success => BrandColors.success,
+      BannerTone.error => BrandColors.error,
+      BannerTone.warning => BrandColors.warning,
+      BannerTone.info => BrandColors.info,
     };
     final icon = switch (tone) {
-      ZomiaBannerTone.success => Icons.check_circle_outline,
-      ZomiaBannerTone.error => Icons.error_outline,
-      ZomiaBannerTone.warning => Icons.warning_amber_rounded,
-      ZomiaBannerTone.info => Icons.info_outline,
+      BannerTone.success => Icons.check_circle_outline,
+      BannerTone.error => Icons.error_outline,
+      BannerTone.warning => Icons.warning_amber_rounded,
+      BannerTone.info => Icons.info_outline,
     };
     return DecoratedBox(
       decoration: BoxDecoration(

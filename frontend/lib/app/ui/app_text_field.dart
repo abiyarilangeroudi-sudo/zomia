@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ZomiaTextField extends StatefulWidget {
-  const ZomiaTextField({
+class AppTextField extends StatefulWidget {
+  const AppTextField({
     super.key,
     this.controller,
     required this.label,
@@ -31,10 +31,10 @@ class ZomiaTextField extends StatefulWidget {
   final bool enabled;
 
   @override
-  State<ZomiaTextField> createState() => _ZomiaTextFieldState();
+  State<AppTextField> createState() => _AppTextFieldState();
 }
 
-class _ZomiaTextFieldState extends State<ZomiaTextField> {
+class _AppTextFieldState extends State<AppTextField> {
   late bool _isObscured = widget.obscureText;
 
   @override

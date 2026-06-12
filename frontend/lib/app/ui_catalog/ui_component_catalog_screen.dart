@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
-import '../ui/zomia_ui.dart';
+import '../ui/ui.dart';
 
 class UiComponentCatalogScreen extends StatelessWidget {
   const UiComponentCatalogScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ZomiaScaffold(
+    return AppScaffold(
       maxWidth: 960,
-      appBar: ZomiaAppBar(
+      appBar: AppTopBar(
         title: 'UI Component Catalog',
-        variant: ZomiaAppBarVariant.modal,
+        variant: AppTopBarVariant.modal,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -32,6 +32,11 @@ class UiComponentCatalogScreen extends StatelessWidget {
           const _CatalogSection(title: 'Feedback', child: _FeedbackExamples()),
           const SizedBox(height: 16),
           const _CatalogSection(title: 'Loyalty', child: _LoyaltyExamples()),
+          const SizedBox(height: 16),
+          const _CatalogSection(
+            title: 'MVP Workflow',
+            child: _MvpWorkflowExamples(),
+          ),
         ],
       ),
     );
@@ -43,20 +48,20 @@ class _CatalogIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ZomiaCard(
+    return const AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ZomiaSectionHeader(
+          SectionHeader(
             title: 'Zomia Design System',
             subtitle:
                 'Temporary review album for canonical components before dashboard recovery.',
           ),
           SizedBox(height: 12),
-          ZomiaBanner(
+          InlineBanner(
             message:
                 'Only components approved here should be reused in Login, Customer, Staff, and Owner dashboards.',
-            tone: ZomiaBannerTone.info,
+            tone: BannerTone.info,
           ),
         ],
       ),
@@ -72,11 +77,11 @@ class _CatalogSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ZomiaCard(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ZomiaSectionHeader(title: title),
+          SectionHeader(title: title),
           const SizedBox(height: 16),
           child,
         ],
@@ -214,22 +219,22 @@ class _NavigationExamples extends StatelessWidget {
   const _NavigationExamples();
 
   static const _navItems = [
-    ZomiaNavItem(
+    NavItem(
       label: 'Home',
       icon: Icons.dashboard_outlined,
       activeIcon: Icons.dashboard_rounded,
     ),
-    ZomiaNavItem(
+    NavItem(
       label: 'Campaigns',
       icon: Icons.campaign_outlined,
       activeIcon: Icons.campaign_rounded,
     ),
-    ZomiaNavItem(
+    NavItem(
       label: 'Rewards',
       icon: Icons.card_giftcard_outlined,
       activeIcon: Icons.card_giftcard_rounded,
     ),
-    ZomiaNavItem(
+    NavItem(
       label: 'Groups',
       icon: Icons.group_outlined,
       activeIcon: Icons.group_rounded,
@@ -241,9 +246,9 @@ class _NavigationExamples extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _ComponentName('ZomiaAppBar / main'),
+        const _ComponentName('AppTopBar / main'),
         _AppBarPreview(
-          child: ZomiaAppBar(
+          child: AppTopBar(
             title: 'Customer Dashboard',
             onMenu: () {},
             actions: [
@@ -261,11 +266,11 @@ class _NavigationExamples extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const _ComponentName('ZomiaAppBar / business'),
+        const _ComponentName('AppTopBar / business'),
         _AppBarPreview(
-          child: ZomiaAppBar(
+          child: AppTopBar(
             title: 'Staff Dashboard',
-            variant: ZomiaAppBarVariant.business,
+            variant: AppTopBarVariant.business,
             onMenu: () {},
             actions: [
               IconButton(
@@ -277,9 +282,9 @@ class _NavigationExamples extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const _ComponentName('ZomiaBottomNavBar'),
+        const _ComponentName('BottomNavBar'),
         _PhoneChrome(
-          child: ZomiaBottomNavBar(
+          child: BottomNavBar(
             items: _navItems,
             selectedIndex: 1,
             onChanged: (_) {},
@@ -336,12 +341,12 @@ class _SurfaceExamples extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ComponentName('ZomiaCard / normal'),
-        ZomiaCard(child: Text('Default white card for dashboard sections.')),
+        _ComponentName('AppCard / normal'),
+        AppCard(child: Text('Default white card for dashboard sections.')),
         SizedBox(height: 12),
-        _ComponentName('ZomiaCard / highlight'),
-        ZomiaCard(
-          variant: ZomiaCardVariant.highlight,
+        _ComponentName('AppCard / highlight'),
+        AppCard(
+          variant: AppCardVariant.highlight,
           child: Text(
             'Teal accent card for primary context without muddy color mixing.',
           ),
@@ -359,25 +364,25 @@ class _FormExamples extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ComponentName('ZomiaTextField / email'),
-        ZomiaTextField(
+        _ComponentName('AppTextField / email'),
+        AppTextField(
           label: 'Email',
           hint: 'customer@example.com',
           keyboardType: TextInputType.emailAddress,
         ),
         SizedBox(height: 12),
-        _ComponentName('ZomiaTextField / password'),
-        ZomiaTextField(label: 'Password', obscureText: true),
+        _ComponentName('AppTextField / password'),
+        AppTextField(label: 'Password', obscureText: true),
         SizedBox(height: 12),
-        _ComponentName('ZomiaPrimaryButton / icon'),
-        ZomiaPrimaryButton(
+        _ComponentName('PrimaryButton / icon'),
+        PrimaryButton(
           label: 'Create campaign',
           icon: Icons.flag_rounded,
           onPressed: _noop,
         ),
         SizedBox(height: 12),
-        _ComponentName('ZomiaSecondaryButton / icon'),
-        ZomiaSecondaryButton(
+        _ComponentName('SecondaryButton / icon'),
+        SecondaryButton(
           label: 'Scan with camera',
           icon: Icons.qr_code_scanner_rounded,
           onPressed: _noop,
@@ -397,28 +402,25 @@ class _FeedbackExamples extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ComponentName('ZomiaBanner'),
-        ZomiaBanner(message: 'Mission created.', tone: ZomiaBannerTone.success),
+        _ComponentName('InlineBanner'),
+        InlineBanner(message: 'Mission created.', tone: BannerTone.success),
         SizedBox(height: 8),
-        ZomiaBanner(
-          message: 'Something went wrong.',
-          tone: ZomiaBannerTone.error,
-        ),
+        InlineBanner(message: 'Something went wrong.', tone: BannerTone.error),
         SizedBox(height: 12),
-        _ComponentName('ZomiaBadge'),
+        _ComponentName('StatusBadge'),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
-            ZomiaBadge(label: 'Active', tone: ZomiaBadgeTone.success),
-            ZomiaBadge(label: 'Pending', tone: ZomiaBadgeTone.warning),
-            ZomiaBadge(label: 'Info', tone: ZomiaBadgeTone.info),
-            ZomiaBadge(label: 'Neutral'),
+            StatusBadge(label: 'Active', tone: BadgeTone.success),
+            StatusBadge(label: 'Pending', tone: BadgeTone.warning),
+            StatusBadge(label: 'Info', tone: BadgeTone.info),
+            StatusBadge(label: 'Neutral'),
           ],
         ),
         SizedBox(height: 12),
-        _ComponentName('ZomiaEmptyState'),
-        ZomiaEmptyState(
+        _ComponentName('EmptyStateView'),
+        EmptyStateView(
           icon: Icons.inbox_outlined,
           title: 'No rewards yet',
           message: 'Rewards will appear after campaign completion.',
@@ -436,23 +438,211 @@ class _LoyaltyExamples extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ComponentName('ZomiaProgressCard / active'),
-        ZomiaProgressCard(
+        _ComponentName('ProgressCard / active'),
+        ProgressCard(
           title: 'Coffee Reward',
           subtitle: 'Zomia Cafe',
           value: 0.6,
           label: '6/10 pts · 4 pts to reward',
         ),
         SizedBox(height: 12),
-        _ComponentName('ZomiaProgressCard / completed'),
-        ZomiaProgressCard(
+        _ComponentName('ProgressCard / completed'),
+        ProgressCard(
           title: 'Cake Reward',
           subtitle: 'Zomia Cafe',
           value: 1,
           label: '10/10 pts · Completed',
           isCompleted: true,
         ),
+        SizedBox(height: 12),
+        _ComponentName('RewardCard / customer'),
+        RewardCard(
+          title: 'Free Coffee',
+          subtitle: 'Gift reward',
+          expiresLabel: 'Valid until 2026-07-12',
+        ),
+        SizedBox(height: 12),
+        _ComponentName('RewardCard / staff-action'),
+        RewardCard(
+          title: 'Free Coffee',
+          subtitle: 'Use for loaded customer',
+          expiresLabel: 'Valid until 2026-07-12',
+          variant: RewardCardVariant.staffAction,
+          onUse: _noop,
+        ),
       ],
+    );
+  }
+}
+
+class _MvpWorkflowExamples extends StatelessWidget {
+  const _MvpWorkflowExamples();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _ComponentName('QrCard / customer'),
+        QrCard(
+          title: 'Ready to Scan',
+          message: 'Show this QR to staff during service.',
+          token: 'J8Gd1wSboWryp_HA22Qc7Q',
+          primaryActionLabel: 'Refresh QR token',
+          primaryActionIcon: Icons.refresh_rounded,
+          onPrimaryAction: _noop,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('QrCard / staff-scan'),
+        QrCard(
+          title: 'Customer QR',
+          message: 'Scan with camera. Manual token remains the fallback.',
+          variant: QrCardVariant.staffScan,
+          primaryActionLabel: 'Resolve customer',
+          primaryActionIcon: Icons.search_rounded,
+          onPrimaryAction: _noop,
+          secondaryActionLabel: 'Scan with camera',
+          secondaryActionIcon: Icons.qr_code_scanner_rounded,
+          onSecondaryAction: _noop,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('MissionRow / quantity'),
+        MissionRow(
+          title: 'Buy Coffee',
+          subtitle: '1 point each',
+          quantity: 2,
+          onIncrement: _noop,
+          onDecrement: _noop,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('MetricPill'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            MetricPill(
+              icon: Icons.redeem_rounded,
+              label: '1 active reward',
+              color: BrandColors.purple,
+            ),
+            MetricPill(
+              icon: Icons.flag_rounded,
+              label: '2 campaigns',
+              color: BrandColors.teal,
+            ),
+            MetricPill(
+              icon: Icons.history_rounded,
+              label: '3 recent actions',
+              color: BrandColors.info,
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        _ComponentName('AppListRow'),
+        AppListRow(
+          title: 'Zomia Cafe',
+          subtitle: 'EUR · Europe/Berlin',
+          leadingIcon: Icons.storefront_rounded,
+          onTap: _noop,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('SelectField'),
+        SelectField<String>(
+          label: 'Business',
+          value: 'zomia-cafe',
+          options: [
+            SelectFieldOption(value: 'zomia-cafe', label: 'Zomia Cafe'),
+            SelectFieldOption(value: 'demo-shop', label: 'Demo Shop'),
+          ],
+          onChanged: _noopValue,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('CheckboxRow'),
+        CheckboxRow(
+          title: 'Buy Coffee',
+          subtitle: '1 point',
+          value: true,
+          onChanged: _noopValue,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('LoadingState'),
+        LoadingState(label: 'Loading service data'),
+        SizedBox(height: 12),
+        _ComponentName('ScannerSheetFrame'),
+        ScannerSheetFrame(),
+        SizedBox(height: 12),
+        _ComponentName('ConfirmDialog / standard'),
+        _DialogPreview(
+          title: 'Use this reward?',
+          message: 'This will mark the reward as used for the loaded customer.',
+          confirmLabel: 'Use reward',
+        ),
+        SizedBox(height: 12),
+        _ComponentName('ConfirmDialog / destructive'),
+        _DialogPreview(
+          title: 'Discard changes?',
+          message: 'Unsaved setup changes will be lost.',
+          confirmLabel: 'Discard',
+          tone: ConfirmTone.destructive,
+        ),
+      ],
+    );
+  }
+}
+
+class _DialogPreview extends StatelessWidget {
+  const _DialogPreview({
+    required this.title,
+    required this.message,
+    required this.confirmLabel,
+    this.tone = ConfirmTone.standard,
+  });
+
+  final String title;
+  final String message;
+  final String confirmLabel;
+  final ConfirmTone tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDestructive = tone == ConfirmTone.destructive;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: BrandColors.surface,
+        border: Border.all(color: BrandColors.line),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(message),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(onPressed: _noop, child: const Text('Cancel')),
+                const SizedBox(width: 8),
+                SizedBox(
+                  height: 52,
+                  child: FilledButton(
+                    style: isDestructive
+                        ? FilledButton.styleFrom(
+                            backgroundColor: BrandColors.error,
+                          )
+                        : null,
+                    onPressed: _noop,
+                    child: Text(confirmLabel),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -470,3 +660,5 @@ class _ComponentName extends StatelessWidget {
     );
   }
 }
+
+void _noopValue(Object? value) {}

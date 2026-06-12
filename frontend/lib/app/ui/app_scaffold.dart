@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../brand/brand_spacing.dart';
 
-enum ZomiaScaffoldVariant { scroll, fixed }
+enum AppScaffoldVariant { scroll, fixed }
 
-class ZomiaScaffold extends StatelessWidget {
-  const ZomiaScaffold({
+class AppScaffold extends StatelessWidget {
+  const AppScaffold({
     super.key,
     required this.body,
     this.appBar,
-    this.variant = ZomiaScaffoldVariant.scroll,
+    this.variant = AppScaffoldVariant.scroll,
     this.maxWidth = 860,
   });
 
   final Widget body;
   final PreferredSizeWidget? appBar;
-  final ZomiaScaffoldVariant variant;
+  final AppScaffoldVariant variant;
   final double maxWidth;
 
   @override
@@ -33,7 +33,7 @@ class ZomiaScaffold extends StatelessWidget {
     return Scaffold(
       appBar: appBar,
       body: SafeArea(
-        child: variant == ZomiaScaffoldVariant.scroll
+        child: variant == AppScaffoldVariant.scroll
             ? ListView(children: [content])
             : content,
       ),

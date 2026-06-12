@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
 
-enum ZomiaConfirmTone { standard, destructive }
+enum ConfirmTone { standard, destructive }
 
-Future<bool> showZomiaConfirmDialog({
+Future<bool> showConfirmDialog({
   required BuildContext context,
   required String title,
   required String message,
   String confirmLabel = 'Confirm',
   String cancelLabel = 'Cancel',
-  ZomiaConfirmTone tone = ZomiaConfirmTone.standard,
+  ConfirmTone tone = ConfirmTone.standard,
 }) async {
   final result = await showDialog<bool>(
     context: context,
-    builder: (context) => ZomiaConfirmDialog(
+    builder: (context) => ConfirmDialog(
       title: title,
       message: message,
       confirmLabel: confirmLabel,
@@ -25,25 +25,25 @@ Future<bool> showZomiaConfirmDialog({
   return result ?? false;
 }
 
-class ZomiaConfirmDialog extends StatelessWidget {
-  const ZomiaConfirmDialog({
+class ConfirmDialog extends StatelessWidget {
+  const ConfirmDialog({
     super.key,
     required this.title,
     required this.message,
     required this.confirmLabel,
     required this.cancelLabel,
-    this.tone = ZomiaConfirmTone.standard,
+    this.tone = ConfirmTone.standard,
   });
 
   final String title;
   final String message;
   final String confirmLabel;
   final String cancelLabel;
-  final ZomiaConfirmTone tone;
+  final ConfirmTone tone;
 
   @override
   Widget build(BuildContext context) {
-    final isDestructive = tone == ZomiaConfirmTone.destructive;
+    final isDestructive = tone == ConfirmTone.destructive;
     return AlertDialog(
       title: Text(title),
       content: Text(message),

@@ -3,26 +3,26 @@ import 'package:flutter/material.dart';
 import '../brand/brand_colors.dart';
 import '../brand/brand_spacing.dart';
 
-enum ZomiaBadgeTone { neutral, success, warning, error, info }
+enum BadgeTone { neutral, success, warning, error, info }
 
-class ZomiaBadge extends StatelessWidget {
-  const ZomiaBadge({
+class StatusBadge extends StatelessWidget {
+  const StatusBadge({
     super.key,
     required this.label,
-    this.tone = ZomiaBadgeTone.neutral,
+    this.tone = BadgeTone.neutral,
   });
 
   final String label;
-  final ZomiaBadgeTone tone;
+  final BadgeTone tone;
 
   @override
   Widget build(BuildContext context) {
     final color = switch (tone) {
-      ZomiaBadgeTone.success => BrandColors.success,
-      ZomiaBadgeTone.warning => BrandColors.warning,
-      ZomiaBadgeTone.error => BrandColors.error,
-      ZomiaBadgeTone.info => BrandColors.info,
-      ZomiaBadgeTone.neutral => BrandColors.textSecondary,
+      BadgeTone.success => BrandColors.success,
+      BadgeTone.warning => BrandColors.warning,
+      BadgeTone.error => BrandColors.error,
+      BadgeTone.info => BrandColors.info,
+      BadgeTone.neutral => BrandColors.textSecondary,
     };
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -35,9 +35,7 @@ class ZomiaBadge extends StatelessWidget {
         child: Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: tone == ZomiaBadgeTone.warning
-                ? BrandColors.textPrimary
-                : color,
+            color: tone == BadgeTone.warning ? BrandColors.textPrimary : color,
             fontWeight: FontWeight.w700,
           ),
         ),

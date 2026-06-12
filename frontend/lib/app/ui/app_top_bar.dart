@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
 
-enum ZomiaAppBarVariant { main, modal, service, business }
+enum AppTopBarVariant { main, modal, service, business }
 
-class ZomiaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ZomiaAppBar({
+class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
+  const AppTopBar({
     super.key,
     required this.title,
-    this.variant = ZomiaAppBarVariant.main,
+    this.variant = AppTopBarVariant.main,
     this.onBack,
     this.onMenu,
     this.actions = const [],
   });
 
   final String title;
-  final ZomiaAppBarVariant variant;
+  final AppTopBarVariant variant;
   final VoidCallback? onBack;
   final VoidCallback? onMenu;
   final List<Widget> actions;
@@ -26,25 +26,25 @@ class ZomiaAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final leading = switch (variant) {
-      ZomiaAppBarVariant.modal => IconButton(
+      AppTopBarVariant.modal => IconButton(
         tooltip: 'Close',
         onPressed: onBack ?? () => Navigator.of(context).maybePop(),
         icon: const Icon(Icons.close_rounded),
       ),
-      ZomiaAppBarVariant.service => IconButton(
+      AppTopBarVariant.service => IconButton(
         tooltip: 'Back',
         onPressed: onBack ?? () => Navigator.of(context).maybePop(),
         icon: const Icon(Icons.arrow_back_rounded),
       ),
-      ZomiaAppBarVariant.main || ZomiaAppBarVariant.business => IconButton(
+      AppTopBarVariant.main || AppTopBarVariant.business => IconButton(
         tooltip: 'Menu',
         onPressed: onMenu,
         icon: const Icon(Icons.menu_rounded),
       ),
     };
     final centerTitle = switch (variant) {
-      ZomiaAppBarVariant.modal || ZomiaAppBarVariant.service => true,
-      ZomiaAppBarVariant.main || ZomiaAppBarVariant.business => false,
+      AppTopBarVariant.modal || AppTopBarVariant.service => true,
+      AppTopBarVariant.main || AppTopBarVariant.business => false,
     };
     return AppBar(
       automaticallyImplyLeading: false,
