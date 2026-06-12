@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/http/api_client.dart';
+import '../domain/customer_status.dart';
 import '../domain/customer_qr_token.dart';
 
 final customerQrRepositoryProvider = Provider<CustomerQrRepository>((ref) {
@@ -31,6 +32,17 @@ class CustomerQrRepository {
         '/customers/me/qr-token/rotate',
       );
       return CustomerQrToken.fromJson(response.data ?? <String, dynamic>{});
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<CustomerStatus> getStatus() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/customers/me/status',
+      );
+      return CustomerStatus.fromJson(response.data ?? <String, dynamic>{});
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
     }

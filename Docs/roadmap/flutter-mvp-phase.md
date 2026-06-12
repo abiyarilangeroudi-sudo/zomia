@@ -141,6 +141,7 @@ POST /api/v1/customers/me/qr-token
 POST /api/v1/customers/me/qr-token/rotate
 GET  /api/v1/customers/me/points
 GET  /api/v1/customers/me/rewards
+GET  /api/v1/customers/me/status
 ```
 
 ### برای Owner Management آماده اما اولویت دوم

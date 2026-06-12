@@ -232,6 +232,35 @@ class LoyaltyRepository:
             )
         )
 
+    def list_customer_point_business_ids(self, customer_id: uuid.UUID) -> set[uuid.UUID]:
+        return set(
+            self.db.scalars(
+                select(PointsLedgerEntry.business_id)
+                .where(PointsLedgerEntry.customer_id == customer_id)
+                .distinct()
+            )
+        )
+
+    def list_customer_reward_business_ids(self, customer_id: uuid.UUID) -> set[uuid.UUID]:
+        return set(
+            self.db.scalars(
+                select(GeneratedReward.business_id)
+                .where(GeneratedReward.customer_id == customer_id)
+                .distinct()
+            )
+        )
+
+    def list_businesses_by_ids(self, business_ids: set[uuid.UUID]) -> list[Business]:
+        if not business_ids:
+            return []
+        return list(
+            self.db.scalars(
+                select(Business)
+                .where(Business.id.in_(business_ids))
+                .order_by(Business.name.asc())
+            )
+        )
+
     def get_generated_reward(self, reward_id: uuid.UUID) -> GeneratedReward | None:
         return self.db.get(GeneratedReward, reward_id)
 

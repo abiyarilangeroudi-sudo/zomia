@@ -10,6 +10,7 @@ from app.modules.loyalty.dependencies import get_loyalty_service
 from app.modules.loyalty.schemas import (
     CampaignCreate,
     CampaignProgressRead,
+    CustomerStatusRead,
     CampaignRead,
     CustomerPointsRead,
     GeneratedRewardRead,
@@ -116,6 +117,17 @@ def get_my_points(
     service: LoyaltyService = Depends(get_loyalty_service),
 ) -> CustomerPointsRead:
     return service.get_customer_points(current_user, business_id)
+
+
+@router.get("/customers/me/status", response_model=CustomerStatusRead)
+def get_my_status(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+) -> CustomerStatusRead:
+    status_read = service.get_customer_status(current_user)
+    db.commit()
+    return status_read
 
 
 @router.get("/customers/me/campaigns/{campaign_id}/progress", response_model=CampaignProgressRead)

@@ -8,6 +8,7 @@ import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
 import 'package:zomia_frontend/features/auth/domain/current_user.dart';
 import 'package:zomia_frontend/features/customer_qr/data/customer_qr_repository.dart';
+import 'package:zomia_frontend/features/customer_qr/domain/customer_status.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
@@ -42,7 +43,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.4 (5)'), findsOneWidget);
+    expect(find.text('Version 1.0.5 (6)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -112,6 +113,11 @@ void main() {
 
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(find.text('Customer QR'), findsOneWidget);
+    expect(find.text('My Status'), findsOneWidget);
+    expect(find.text('Zomia Cafe'), findsOneWidget);
+    expect(find.text('5 points'), findsOneWidget);
+    expect(find.text('1 active rewards'), findsOneWidget);
+    expect(find.text('Free Coffee'), findsOneWidget);
     expect(find.text('Ready to Scan'), findsOneWidget);
     expect(find.text('Refresh QR token'), findsOneWidget);
     expect(find.text('qr-token'), findsOneWidget);
@@ -172,6 +178,37 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
   @override
   Future<CustomerQrToken> rotateToken() async {
     return issueToken();
+  }
+
+  @override
+  Future<CustomerStatus> getStatus() async {
+    return CustomerStatus(
+      customerId: 'customer-id',
+      totalPoints: 5,
+      activeRewardsCount: 1,
+      businesses: [
+        CustomerBusinessStatus(
+          businessId: 'business-id',
+          businessName: 'Zomia Cafe',
+          points: 5,
+          rewards: [
+            CustomerReward(
+              id: 'reward-id',
+              title: 'Free Coffee',
+              description: null,
+              rewardType: 'gift',
+              status: 'active',
+              giftName: 'Free coffee',
+              discountPercent: null,
+              discountAmountMinor: null,
+              currencyCode: null,
+              expiresAt: DateTime(2027),
+              usedAt: null,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 

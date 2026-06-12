@@ -252,6 +252,44 @@ def test_staff_registers_multi_item_action_and_customer_reads_points(
     }
 
 
+def test_customer_reads_minimal_status(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "customer-status-action",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert response.status_code == 201
+
+    status_response = client.get(
+        "/api/v1/customers/me/status",
+        headers=auth(customer_token),
+    )
+
+    assert status_response.status_code == 200
+    body = status_response.json()
+    assert body["customer_id"] == customer_id
+    assert body["total_points"] == 5
+    assert body["active_rewards_count"] == 1
+    assert len(body["businesses"]) == 1
+    assert body["businesses"][0]["business_id"] == business_id
+    assert body["businesses"][0]["points"] == 5
+    assert body["businesses"][0]["rewards"][0]["status"] == "active"
+
+
 def test_duplicate_idempotency_key_returns_previous_action_without_extra_points(
     client: TestClient, db_session: Session
 ) -> None:

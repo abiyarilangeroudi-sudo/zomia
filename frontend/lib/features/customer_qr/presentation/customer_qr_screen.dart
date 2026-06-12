@@ -7,6 +7,7 @@ import '../../../app/brand/brand_spacing.dart';
 import '../../auth/domain/current_user.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/customer_qr_repository.dart';
+import '../domain/customer_status.dart';
 import '../domain/customer_qr_token.dart';
 
 class CustomerQrScreen extends ConsumerStatefulWidget {
@@ -20,14 +21,20 @@ class CustomerQrScreen extends ConsumerStatefulWidget {
 
 class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
   CustomerQrToken? _token;
+  CustomerStatus? _status;
   String? _error;
+  String? _statusError;
   bool _isLoading = true;
+  bool _isLoadingStatus = true;
   bool _isRotating = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _issueToken());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _issueToken();
+      _loadStatus();
+    });
   }
 
   @override
@@ -70,6 +77,13 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
                 ],
               ),
             ),
+          ),
+          const SizedBox(height: 16),
+          _CustomerStatusCard(
+            status: _status,
+            isLoading: _isLoadingStatus,
+            error: _statusError,
+            onRefresh: _loadStatus,
           ),
           const SizedBox(height: 16),
           Card(
@@ -141,6 +155,31 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
     }
   }
 
+  Future<void> _loadStatus() async {
+    setState(() {
+      _isLoadingStatus = true;
+      _statusError = null;
+    });
+    try {
+      final status = await ref.read(customerQrRepositoryProvider).getStatus();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _status = status;
+        _isLoadingStatus = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _statusError = error.toString();
+        _isLoadingStatus = false;
+      });
+    }
+  }
+
   Future<void> _rotateToken() async {
     setState(() {
       _isRotating = true;
@@ -164,6 +203,241 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
         _isRotating = false;
       });
     }
+  }
+}
+
+class _CustomerStatusCard extends StatelessWidget {
+  const _CustomerStatusCard({
+    required this.status,
+    required this.isLoading,
+    required this.error,
+    required this.onRefresh,
+  });
+
+  final CustomerStatus? status;
+  final bool isLoading;
+  final String? error;
+  final VoidCallback onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = this.status;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'My Status',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Refresh status',
+                  onPressed: isLoading ? null : onRefresh,
+                  icon: isLoading
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Refresh after staff registers an action or uses a reward.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: BrandColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (isLoading && status == null)
+              const Center(child: CircularProgressIndicator())
+            else if (error != null)
+              _InlineError(message: error!, onRetry: onRefresh)
+            else if (status == null || status.businesses.isEmpty)
+              const _EmptyStatus()
+            else ...[
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _StatusMetric(
+                    icon: Icons.stars,
+                    label: '${status.totalPoints} points',
+                    color: BrandColors.orange,
+                  ),
+                  _StatusMetric(
+                    icon: Icons.redeem,
+                    label: '${status.activeRewardsCount} active rewards',
+                    color: BrandColors.purple,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...status.businesses.map(
+                (business) => _BusinessStatusRow(business: business),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BusinessStatusRow extends StatelessWidget {
+  const _BusinessStatusRow({required this.business});
+
+  final CustomerBusinessStatus business;
+
+  @override
+  Widget build(BuildContext context) {
+    final activeRewards = business.activeRewards;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(color: BrandColors.line),
+          borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      business.businessName,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  Text('${business.points} pts'),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (activeRewards.isEmpty)
+                Text(
+                  'No active rewards',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: BrandColors.textSecondary,
+                  ),
+                )
+              else
+                ...activeRewards.map((reward) => _RewardLine(reward: reward)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RewardLine extends StatelessWidget {
+  const _RewardLine({required this.reward});
+
+  final CustomerReward reward;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.card_giftcard, size: 18, color: BrandColors.orange),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(reward.title),
+                Text(
+                  '${reward.displayValue} · expires ${_formatDateTime(reward.expiresAt)}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: BrandColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusMetric extends StatelessWidget {
+  const _StatusMetric({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
+        borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyStatus extends StatelessWidget {
+  const _EmptyStatus();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'No points or rewards yet.',
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: BrandColors.textSecondary),
+    );
+  }
+}
+
+class _InlineError extends StatelessWidget {
+  const _InlineError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.error_outline, color: BrandColors.error),
+        const SizedBox(width: 8),
+        Expanded(child: Text(message)),
+        TextButton(onPressed: onRetry, child: const Text('Retry')),
+      ],
+    );
   }
 }
 

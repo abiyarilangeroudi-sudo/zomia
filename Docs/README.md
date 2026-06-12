@@ -39,6 +39,7 @@ Customer QR
 - [Flutter F2.5: Staff And Customer QR UX Polish](./sprints/flutter-f2-5-staff-customer-ux-polish.md)
 - [Flutter F2.6: Manual End-to-End QA](./sprints/flutter-f2-6-manual-end-to-end-qa.md)
 - [Flutter F2.7: Staff Panel UX Polish](./sprints/flutter-f2-7-staff-panel-ux-polish.md)
+- [Flutter F2.8: Customer Minimal Status](./sprints/flutter-f2-8-customer-minimal-status.md)
 - [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
@@ -190,3 +191,9 @@ Flutter F2.7:
 - پیام ثبت Action وقتی reward جدید صادر نمی‌شود واضح‌تر شد
 - کارت customer loaded و mission row برای استفاده عملی Staff polish شدند
 - local dev seed برای ساخت reward فعال تستی اضافه شد
+
+Flutter F2.8:
+
+- endpoint `GET /customers/me/status` اضافه شد
+- Customer QR Screen وضعیت پایه points و active rewards را نشان می‌دهد
+- Customer می‌تواند status را بعد از عملیات Staff دستی refresh کند
