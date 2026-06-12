@@ -57,6 +57,8 @@ Docs داخلی پروژه می‌توانند فارسی بمانند، اما 
 - انتخاب Business اگر Staff چند Business داشت
 - Staff Service Panel
 - QR scan یا manual token input
+- Customer QR display
+- Customer QR rotate
 - Customer Summary
 - لیست Missionهای قابل ثبت
 - ثبت Action با چند Mission و quantity

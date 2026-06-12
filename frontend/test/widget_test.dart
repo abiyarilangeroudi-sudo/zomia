@@ -6,6 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
+import 'package:zomia_frontend/features/auth/domain/current_user.dart';
+import 'package:zomia_frontend/features/customer_qr/data/customer_qr_repository.dart';
+import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
 import 'package:zomia_frontend/features/staff_context/domain/staff_context.dart';
@@ -19,6 +22,9 @@ void main() {
           staffServiceRepositoryProvider.overrideWithValue(
             _FakeStaffServiceRepository(),
           ),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
         ],
         child: const ZomiaApp(),
       ),
@@ -26,7 +32,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Sign in to Staff Service'), findsOneWidget);
+    expect(find.text('Sign in to Zomia'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -40,6 +46,9 @@ void main() {
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
           staffServiceRepositoryProvider.overrideWithValue(
             _FakeStaffServiceRepository(),
+          ),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
           ),
         ],
         child: const ZomiaApp(),
@@ -61,6 +70,40 @@ void main() {
     expect(find.text('Signed in as Staff One'), findsOneWidget);
     expect(find.text('Customer QR'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsOneWidget);
+  });
+
+  testWidgets('signs in and renders customer QR screen', (tester) async {
+    final tokenStore = _MemoryTokenStore();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository(role: 'customer'),
+          ),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'customer@example.com',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(find.text('My QR'), findsOneWidget);
+    expect(find.text('Customer QR'), findsOneWidget);
+    expect(find.text('Rotate QR'), findsOneWidget);
+    expect(find.text('qr-token'), findsOneWidget);
   });
 }
 
@@ -103,8 +146,28 @@ class _FakeStaffServiceRepository extends StaffServiceRepository {
   }
 }
 
+class _FakeCustomerQrRepository extends CustomerQrRepository {
+  _FakeCustomerQrRepository() : super(Dio());
+
+  @override
+  Future<CustomerQrToken> issueToken() async {
+    return CustomerQrToken(
+      token: 'qr-token',
+      qrPayload: 'qr-token',
+      expiresAt: DateTime(2027),
+    );
+  }
+
+  @override
+  Future<CustomerQrToken> rotateToken() async {
+    return issueToken();
+  }
+}
+
 class _FakeAuthRepository extends AuthRepository {
-  _FakeAuthRepository() : super(Dio());
+  _FakeAuthRepository({this.role = 'staff'}) : super(Dio());
+
+  final String role;
 
   @override
   Future<String> login({
@@ -112,6 +175,17 @@ class _FakeAuthRepository extends AuthRepository {
     required String password,
   }) async {
     return 'access-token';
+  }
+
+  @override
+  Future<CurrentUser> getCurrentUser() async {
+    return CurrentUser(
+      id: '$role-id',
+      email: '$role@example.com',
+      fullName: role == 'staff' ? 'Staff One' : 'Customer One',
+      role: role,
+      isActive: true,
+    );
   }
 
   @override

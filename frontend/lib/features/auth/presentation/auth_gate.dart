@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'auth_controller.dart';
 import 'login_screen.dart';
+import '../../customer_qr/presentation/customer_qr_screen.dart';
 import '../../staff_context/presentation/business_select_screen.dart';
 import '../../staff_context/presentation/staff_home_screen.dart';
 
@@ -20,6 +21,12 @@ class AuthGate extends ConsumerWidget {
         if (!state.isAuthenticated) {
           return const LoginScreen();
         }
+        if (state.isCustomer) {
+          return CustomerQrScreen(user: state.user!);
+        }
+        if (!state.isStaff) {
+          return const _UnsupportedRoleScreen();
+        }
         if (state.selectedBusiness == null) {
           return BusinessSelectScreen(businesses: state.context!.businesses);
         }
@@ -28,6 +35,33 @@ class AuthGate extends ConsumerWidget {
           business: state.selectedBusiness!,
         );
       },
+    );
+  }
+}
+
+class _UnsupportedRoleScreen extends ConsumerWidget {
+  const _UnsupportedRoleScreen();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Zomia'),
+        actions: [
+          IconButton(
+            tooltip: 'Sign out',
+            onPressed: () =>
+                ref.read(authControllerProvider.notifier).signOut(),
+            icon: const Icon(Icons.logout),
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text('This role is not supported in the MVP app yet.'),
+        ),
+      ),
     );
   }
 }

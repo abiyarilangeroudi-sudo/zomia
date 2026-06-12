@@ -73,10 +73,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 24),
                       Text('Welcome back', style: textTheme.headlineMedium),
                       const SizedBox(height: 12),
-                      Text(
-                        'Sign in to Staff Service',
-                        style: textTheme.bodyLarge,
-                      ),
+                      Text('Sign in to Zomia', style: textTheme.bodyLarge),
                       const SizedBox(height: 24),
                       TextFormField(
                         controller: _emailController,

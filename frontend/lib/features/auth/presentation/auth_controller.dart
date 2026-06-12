@@ -18,8 +18,14 @@ class AuthController extends AsyncNotifier<AuthState> {
     }
 
     try {
-      final context = await ref.read(authRepositoryProvider).getStaffContext();
+      final repository = ref.read(authRepositoryProvider);
+      final user = await repository.getCurrentUser();
+      if (!user.isStaff) {
+        return AuthState.authenticated(user: user);
+      }
+      final context = await repository.getStaffContext();
       return AuthState.authenticated(
+        user: user,
         context: context,
         selectedBusiness: _defaultBusiness(context),
       );
@@ -35,8 +41,13 @@ class AuthController extends AsyncNotifier<AuthState> {
       final repository = ref.read(authRepositoryProvider);
       final token = await repository.login(email: email, password: password);
       await ref.read(secureTokenStoreProvider).writeAccessToken(token);
+      final user = await repository.getCurrentUser();
+      if (!user.isStaff) {
+        return AuthState.authenticated(user: user);
+      }
       final context = await repository.getStaffContext();
       return AuthState.authenticated(
+        user: user,
         context: context,
         selectedBusiness: _defaultBusiness(context),
       );

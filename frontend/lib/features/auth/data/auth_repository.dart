@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/http/api_client.dart';
+import '../domain/current_user.dart';
 import '../../staff_context/domain/staff_context.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -35,6 +36,15 @@ class AuthRepository {
         '/staff/me/context',
       );
       return StaffContext.fromJson(response.data ?? <String, dynamic>{});
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<CurrentUser> getCurrentUser() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>('/auth/me');
+      return CurrentUser.fromJson(response.data ?? <String, dynamic>{});
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
     }
