@@ -146,6 +146,16 @@ GET  /api/v1/customers/me/status
 
 نکته محصولی: `GET /customers/me/status` برای Flutter MVP فقط active rewards را پشتیبانی می‌کند. نمایش `total points` برای Customer فعلاً انجام نمی‌شود؛ Customer Campaign Progress باید جداگانه طراحی شود.
 
+## Demo Readiness Rule
+
+بعد از F2.9، قبل از اضافه کردن feature جدید باید یکی از این تصمیم‌ها گرفته شود:
+
+- UI/Branding recovery phase
+- Customer Campaign Progress design
+- Owner minimal tools
+
+تا قبل از این تصمیم، از افزودن dashboardهای نصفه یا metricهای بدون ارزش مستقیم برای Customer خودداری می‌کنیم.
+
 ### برای Owner Management آماده اما اولویت دوم
 
 ```text

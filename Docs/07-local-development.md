@@ -67,6 +67,33 @@ make verify
 
 این دستور تست‌ها، lint و تولید SQL migration را اجرا می‌کند.
 
+## Demo / QA Seed
+
+اگر برای تست دستی Reward فعال ندارید، seed مخصوص local QA را اجرا کنید:
+
+```bash
+cd backend
+.venv/bin/python -m app.devtools.seed_reward_use_demo
+```
+
+این دستور در دیتابیس local یک سناریوی تازه برای تست `Use Reward` می‌سازد و credentialهای لازم را در خروجی چاپ می‌کند.
+
+این seed برای production نیست.
+
+## اجرای Flutter Frontend
+
+از ریشه frontend:
+
+```bash
+cd frontend
+flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8080 --dart-define=API_BASE_URL=http://127.0.0.1:8000/api/v1
+```
+
+بعد از اجرا:
+
+- Frontend: `http://127.0.0.1:8080`
+- نسخه Flutter در صفحه Login نمایش داده می‌شود
+
 ## بستن دیتابیس
 
 ```bash

@@ -40,6 +40,7 @@ Customer QR
 - [Flutter F2.6: Manual End-to-End QA](./sprints/flutter-f2-6-manual-end-to-end-qa.md)
 - [Flutter F2.7: Staff Panel UX Polish](./sprints/flutter-f2-7-staff-panel-ux-polish.md)
 - [Flutter F2.8: Customer Minimal Status](./sprints/flutter-f2-8-customer-minimal-status.md)
+- [Flutter F2.9: MVP Demo Readiness](./sprints/flutter-f2-9-mvp-demo-readiness.md)
 - [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
@@ -198,3 +199,10 @@ Flutter F2.8:
 - Customer QR Screen وضعیت active rewards را نشان می‌دهد
 - Customer می‌تواند status را بعد از عملیات Staff دستی refresh کند
 - نمایش total points برای Customer حذف شد؛ Campaign Progress باید جداگانه طراحی شود
+
+Flutter F2.9:
+
+- مسیر demo رسمی مستند شد
+- seed strategy برای reward-use QA مستند شد
+- known product gaps و UI/Brand debt ثبت شدند
+- پروژه برای تصمیم‌گیری مرحله بعد آماده شد، بدون اضافه کردن feature جدید
