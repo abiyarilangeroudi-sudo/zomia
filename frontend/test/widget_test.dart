@@ -10,10 +10,20 @@ import 'package:zomia_frontend/features/auth/domain/current_user.dart';
 import 'package:zomia_frontend/features/customer_qr/data/customer_qr_repository.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
+import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
 import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
 import 'package:zomia_frontend/features/staff_context/domain/staff_context.dart';
 
 void main() {
+  test('normalizes raw and deep-link QR token inputs', () {
+    expect(normalizeQrTokenInput('raw-token'), 'raw-token');
+    expect(normalizeQrTokenInput('zomia://customer/raw-token'), 'raw-token');
+    expect(
+      normalizeQrTokenInput('  zomia://customer/raw-token  '),
+      'raw-token',
+    );
+  });
+
   testWidgets('renders the staff login screen when signed out', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -32,7 +42,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.2 (3)'), findsOneWidget);
+    expect(find.text('Version 1.0.3 (4)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 

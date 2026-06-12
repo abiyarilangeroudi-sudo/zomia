@@ -6,6 +6,7 @@ import '../../../app/brand/brand_colors.dart';
 import '../../../app/brand/brand_spacing.dart';
 import '../../staff_context/domain/staff_context.dart';
 import '../data/staff_service_repository.dart';
+import '../domain/qr_token_input.dart';
 import '../domain/staff_service_models.dart';
 
 class StaffServicePanel extends ConsumerStatefulWidget {
@@ -128,7 +129,7 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
   }
 
   Future<void> _resolveQr() async {
-    final token = _qrTokenController.text.trim();
+    final token = normalizeQrTokenInput(_qrTokenController.text);
     if (token.isEmpty) {
       setState(() {
         _error = 'Enter a customer QR token.';
@@ -150,6 +151,7 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
         return;
       }
       setState(() {
+        _qrTokenController.text = token;
         _summary = summary;
         _quantities.clear();
         _isResolving = false;
@@ -179,12 +181,12 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
       return;
     }
 
-    _qrTokenController.text = token.trim();
+    _qrTokenController.text = normalizeQrTokenInput(token);
     await _resolveQr();
   }
 
   Future<void> _submitAction() async {
-    final token = _qrTokenController.text.trim();
+    final token = normalizeQrTokenInput(_qrTokenController.text);
     final items = _selectedItems();
     if (_summary == null || token.isEmpty || items.isEmpty) {
       return;
@@ -225,7 +227,7 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
   }
 
   Future<void> _useReward(GeneratedReward reward) async {
-    final token = _qrTokenController.text.trim();
+    final token = normalizeQrTokenInput(_qrTokenController.text);
     if (_summary == null || token.isEmpty) {
       return;
     }

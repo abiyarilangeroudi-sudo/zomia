@@ -18,6 +18,7 @@ Customer shows QR
 
 - اضافه شدن QR camera scan به Staff Service Panel
 - حفظ manual token input به‌عنوان fallback
+- normalize کردن QR payload از `zomia://customer/{token}` به `{token}` قبل از ارسال به backend
 - polish اولیه کارت Customer QR در Staff Panel
 - polish اولیه Customer QR Screen
 - نمایش واضح‌تر token fallback در Customer QR
@@ -56,6 +57,7 @@ mobile_scanner
 - Frontend UI remains English.
 - Staff flow now starts with `Scan with camera`.
 - Manual token entry is explicitly labeled as fallback.
+- Staff input accepts both the full QR payload and the raw token.
 - Customer QR screen tells the customer to show the QR to staff.
 - Customer QR still exposes the raw token for local MVP testing.
 
@@ -68,4 +70,5 @@ F2.5 کامل است وقتی:
 - `flutter build web` پاس شود
 - Staff Panel دکمه `Scan with camera` داشته باشد
 - Customer QR صفحه `Ready to Scan` و fallback token را نمایش دهد
+- scan کردن QR با payload کامل باعث resolve شدن همان raw token شود
 - Login نسخه جدید Flutter را نشان دهد
