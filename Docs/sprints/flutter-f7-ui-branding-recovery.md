@@ -128,7 +128,7 @@ frontend/lib/app/brand/
 
 | Component | Purpose | Variants allowed |
 | --- | --- | --- |
-| `QrCard` | نمایش QR و token fallback | `customer`, `staff-scan` |
+| `QRCard` | نمایش QR و token fallback | `customer`, `staff-scan` |
 | `ScannerSheetFrame` | preview/structure برای camera scan sheet | `compact`, `full` |
 | `ProgressCard` | campaign progress مشتری | `active`, `completed` |
 | `RewardCard` | نمایش reward فعال | `customer`, `staff-action` |
@@ -208,7 +208,7 @@ frontend/lib/app/brand/
 
 ### F7.3 Customer Dashboard Recovery
 
-- استفاده از `QrCard`
+- استفاده از `QRCard`
 - استفاده از `ProgressCard`
 - استفاده از `RewardCard`
 - QR و Campaign Progress به عنوان بخش‌های Customer Dashboard دیده می‌شوند، نه صفحه‌های جدا از هم

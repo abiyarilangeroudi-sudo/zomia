@@ -5,15 +5,15 @@ import '../brand/brand_colors.dart';
 import 'app_button.dart';
 import 'app_card.dart';
 
-enum QrCardVariant { customer, staffScan }
+enum QRCardVariant { customer, staffScan }
 
-class QrCard extends StatelessWidget {
-  const QrCard({
+class QRCard extends StatelessWidget {
+  const QRCard({
     super.key,
     required this.title,
     required this.message,
     this.token,
-    this.variant = QrCardVariant.customer,
+    this.variant = QRCardVariant.customer,
     this.primaryActionLabel,
     this.primaryActionIcon,
     this.onPrimaryAction,
@@ -25,7 +25,7 @@ class QrCard extends StatelessWidget {
   final String title;
   final String message;
   final String? token;
-  final QrCardVariant variant;
+  final QRCardVariant variant;
   final String? primaryActionLabel;
   final IconData? primaryActionIcon;
   final VoidCallback? onPrimaryAction;
@@ -35,7 +35,7 @@ class QrCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCustomer = variant == QrCardVariant.customer;
+    final isCustomer = variant == QRCardVariant.customer;
     return AppCard(
       variant: isCustomer ? AppCardVariant.highlight : AppCardVariant.normal,
       child: Column(

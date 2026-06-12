@@ -56,7 +56,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.15 (16)'), findsOneWidget);
+    expect(find.text('Version 1.0.16 (17)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -79,7 +79,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.15 (16)'));
+    await tester.tap(find.text('Version 1.0.16 (17)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -153,17 +153,27 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
-    expect(find.text('Customer QR'), findsOneWidget);
-    expect(find.text('My Status'), findsOneWidget);
-    expect(find.text('Zomia Cafe'), findsWidgets);
+    expect(find.text('Customer Dashboard'), findsOneWidget);
+    expect(find.byTooltip('Show QR code'), findsOneWidget);
+    expect(find.text('Welcome, Customer One'), findsOneWidget);
     expect(find.text('1 campaigns'), findsOneWidget);
+    expect(find.text('1 active rewards'), findsOneWidget);
+
+    await tester.tap(find.text('Campaign'));
+    await pumpAppFrames(tester);
+
     expect(find.text('Campaign Progress'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsOneWidget);
     expect(find.text('2/10 pts · 8 pts to reward'), findsOneWidget);
-    expect(find.text('1 active rewards'), findsOneWidget);
-    expect(find.text('Free Coffee'), findsOneWidget);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.tap(find.text('Reward'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Active Rewards'), findsOneWidget);
+    expect(find.text('Free Coffee'), findsOneWidget);
+    expect(find.text('Zomia Cafe · Free coffee'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Show QR code'));
     await pumpAppFrames(tester);
 
     expect(find.text('Ready to Scan'), findsOneWidget);

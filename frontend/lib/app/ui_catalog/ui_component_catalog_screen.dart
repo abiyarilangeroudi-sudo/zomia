@@ -483,8 +483,8 @@ class _MvpWorkflowExamples extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ComponentName('QrCard / customer'),
-        QrCard(
+        _ComponentName('QRCard / customer'),
+        QRCard(
           title: 'Ready to Scan',
           message: 'Show this QR to staff during service.',
           token: 'J8Gd1wSboWryp_HA22Qc7Q',
@@ -493,11 +493,11 @@ class _MvpWorkflowExamples extends StatelessWidget {
           onPrimaryAction: _noop,
         ),
         SizedBox(height: 12),
-        _ComponentName('QrCard / staff-scan'),
-        QrCard(
+        _ComponentName('QRCard / staff-scan'),
+        QRCard(
           title: 'Customer QR',
           message: 'Scan with camera. Manual token remains the fallback.',
-          variant: QrCardVariant.staffScan,
+          variant: QRCardVariant.staffScan,
           primaryActionLabel: 'Resolve customer',
           primaryActionIcon: Icons.search_rounded,
           onPrimaryAction: _noop,
