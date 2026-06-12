@@ -43,7 +43,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.5 (6)'), findsOneWidget);
+    expect(find.text('Version 1.0.6 (7)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -115,7 +115,6 @@ void main() {
     expect(find.text('Customer QR'), findsOneWidget);
     expect(find.text('My Status'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsOneWidget);
-    expect(find.text('5 points'), findsOneWidget);
     expect(find.text('1 active rewards'), findsOneWidget);
     expect(find.text('Free Coffee'), findsOneWidget);
     expect(find.text('Ready to Scan'), findsOneWidget);
@@ -184,13 +183,11 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
   Future<CustomerStatus> getStatus() async {
     return CustomerStatus(
       customerId: 'customer-id',
-      totalPoints: 5,
       activeRewardsCount: 1,
       businesses: [
         CustomerBusinessStatus(
           businessId: 'business-id',
           businessName: 'Zomia Cafe',
-          points: 5,
           rewards: [
             CustomerReward(
               id: 'reward-id',

@@ -82,13 +82,11 @@ class CustomerPointsRead(BaseModel):
 class CustomerBusinessStatusRead(BaseModel):
     business_id: uuid.UUID
     business_name: str
-    points: int
     rewards: list["GeneratedRewardRead"]
 
 
 class CustomerStatusRead(BaseModel):
     customer_id: uuid.UUID
-    total_points: int
     active_rewards_count: int
     businesses: list[CustomerBusinessStatusRead]
 

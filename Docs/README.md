@@ -195,5 +195,6 @@ Flutter F2.7:
 Flutter F2.8:
 
 - endpoint `GET /customers/me/status` اضافه شد
-- Customer QR Screen وضعیت پایه points و active rewards را نشان می‌دهد
+- Customer QR Screen وضعیت active rewards را نشان می‌دهد
 - Customer می‌تواند status را بعد از عملیات Staff دستی refresh کند
+- نمایش total points برای Customer حذف شد؛ Campaign Progress باید جداگانه طراحی شود

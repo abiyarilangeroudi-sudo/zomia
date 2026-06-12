@@ -325,41 +325,36 @@ class LoyaltyService:
 
     def get_customer_status(self, customer: User) -> CustomerStatusRead:
         self._require_role(customer, UserRole.CUSTOMER)
-        business_ids = self.repository.list_customer_point_business_ids(
-            customer.id
-        ) | self.repository.list_customer_reward_business_ids(customer.id)
+        business_ids = self.repository.list_customer_reward_business_ids(customer.id)
         businesses = self.repository.list_businesses_by_ids(business_ids)
         now = datetime.now(UTC)
 
         business_statuses: list[CustomerBusinessStatusRead] = []
-        total_points = 0
         active_rewards_count = 0
         for business in businesses:
-            points = self.repository.sum_customer_points(
-                business_id=business.id, customer_id=customer.id
-            )
             rewards = [
                 self._reward_read(self._expire_if_needed(reward, now))
                 for reward in self.repository.list_customer_rewards(
                     business_id=business.id, customer_id=customer.id
                 )
             ]
-            total_points += points
-            active_rewards_count += sum(
-                1 for reward in rewards if reward.status == RewardStatus.ACTIVE
-            )
+            active_rewards = [
+                reward for reward in rewards if reward.status == RewardStatus.ACTIVE
+            ]
+            if not active_rewards:
+                continue
+
+            active_rewards_count += len(active_rewards)
             business_statuses.append(
                 CustomerBusinessStatusRead(
                     business_id=business.id,
                     business_name=business.name,
-                    points=points,
-                    rewards=rewards,
+                    rewards=active_rewards,
                 )
             )
 
         return CustomerStatusRead(
             customer_id=customer.id,
-            total_points=total_points,
             active_rewards_count=active_rewards_count,
             businesses=business_statuses,
         )

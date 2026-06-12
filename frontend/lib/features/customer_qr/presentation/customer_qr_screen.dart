@@ -250,7 +250,7 @@ class _CustomerStatusCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Refresh after staff registers an action or uses a reward.',
+              'Refresh after staff issues or uses a reward.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: BrandColors.textSecondary,
               ),
@@ -267,11 +267,6 @@ class _CustomerStatusCard extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _StatusMetric(
-                    icon: Icons.stars,
-                    label: '${status.totalPoints} points',
-                    color: BrandColors.orange,
-                  ),
                   _StatusMetric(
                     icon: Icons.redeem,
                     label: '${status.activeRewardsCount} active rewards',
@@ -319,7 +314,6 @@ class _BusinessStatusRow extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
-                  Text('${business.points} pts'),
                 ],
               ),
               const SizedBox(height: 8),
@@ -414,7 +408,7 @@ class _EmptyStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'No points or rewards yet.',
+      'No active rewards yet.',
       style: Theme.of(
         context,
       ).textTheme.bodyMedium?.copyWith(color: BrandColors.textSecondary),

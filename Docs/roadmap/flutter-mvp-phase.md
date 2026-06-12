@@ -144,6 +144,8 @@ GET  /api/v1/customers/me/rewards
 GET  /api/v1/customers/me/status
 ```
 
+نکته محصولی: `GET /customers/me/status` برای Flutter MVP فقط active rewards را پشتیبانی می‌کند. نمایش `total points` برای Customer فعلاً انجام نمی‌شود؛ Customer Campaign Progress باید جداگانه طراحی شود.
+
 ### برای Owner Management آماده اما اولویت دوم
 
 ```text

@@ -252,7 +252,7 @@ def test_staff_registers_multi_item_action_and_customer_reads_points(
     }
 
 
-def test_customer_reads_minimal_status(client: TestClient) -> None:
+def test_customer_reads_active_reward_status(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
     customer_token, customer_id = register_customer(client)
@@ -282,11 +282,9 @@ def test_customer_reads_minimal_status(client: TestClient) -> None:
     assert status_response.status_code == 200
     body = status_response.json()
     assert body["customer_id"] == customer_id
-    assert body["total_points"] == 5
     assert body["active_rewards_count"] == 1
     assert len(body["businesses"]) == 1
     assert body["businesses"][0]["business_id"] == business_id
-    assert body["businesses"][0]["points"] == 5
     assert body["businesses"][0]["rewards"][0]["status"] == "active"
 
 

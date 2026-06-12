@@ -1,7 +1,6 @@
 class CustomerStatus {
   const CustomerStatus({
     required this.customerId,
-    required this.totalPoints,
     required this.activeRewardsCount,
     required this.businesses,
   });
@@ -9,7 +8,6 @@ class CustomerStatus {
   factory CustomerStatus.fromJson(Map<String, dynamic> json) {
     return CustomerStatus(
       customerId: json['customer_id'] as String,
-      totalPoints: json['total_points'] as int,
       activeRewardsCount: json['active_rewards_count'] as int,
       businesses: (json['businesses'] as List<dynamic>? ?? [])
           .map(
@@ -21,7 +19,6 @@ class CustomerStatus {
   }
 
   final String customerId;
-  final int totalPoints;
   final int activeRewardsCount;
   final List<CustomerBusinessStatus> businesses;
 }
@@ -30,7 +27,6 @@ class CustomerBusinessStatus {
   const CustomerBusinessStatus({
     required this.businessId,
     required this.businessName,
-    required this.points,
     required this.rewards,
   });
 
@@ -38,7 +34,6 @@ class CustomerBusinessStatus {
     return CustomerBusinessStatus(
       businessId: json['business_id'] as String,
       businessName: json['business_name'] as String,
-      points: json['points'] as int,
       rewards: (json['rewards'] as List<dynamic>? ?? [])
           .map((item) => CustomerReward.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -47,7 +42,6 @@ class CustomerBusinessStatus {
 
   final String businessId;
   final String businessName;
-  final int points;
   final List<CustomerReward> rewards;
 
   List<CustomerReward> get activeRewards {

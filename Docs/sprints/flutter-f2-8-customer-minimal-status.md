@@ -2,7 +2,7 @@
 
 ## هدف
 
-هدف F2.8 این است که Customer بعد از login فقط QR نبیند؛ بلکه حداقل وضعیت loyalty خودش را هم ببیند.
+هدف F2.8 این است که Customer بعد از login فقط QR نبیند؛ بلکه active rewardهای قابل استفاده خودش را هم ببیند.
 
 این مرحله Customer dashboard کامل نیست. فقط وضعیت پایه لازم برای MVP را اضافه می‌کند.
 
@@ -11,7 +11,6 @@
 داخل F2.8:
 
 - endpoint جدید `GET /customers/me/status`
-- نمایش total points در Customer QR Screen
 - نمایش تعداد active rewards
 - نمایش status به تفکیک Business
 - نمایش active rewards هر Business
@@ -22,6 +21,8 @@
 
 - طراحی کامل Customer dashboard
 - campaign progress visual کامل
+- progress points برای campaign
+- نمایش total points به customer
 - history کامل rewardهای used/expired
 - notification یا realtime update
 - redesign کامل UI/branding
@@ -35,10 +36,9 @@ GET /api/v1/customers/me/status
 خروجی شامل:
 
 - `customer_id`
-- `total_points`
 - `active_rewards_count`
 - `businesses[]`
-- points و rewards هر business
+- active rewards هر business
 
 ## UX Notes
 
@@ -46,6 +46,8 @@ GET /api/v1/customers/me/status
 - QR همچنان بخش اصلی صفحه Customer است.
 - status با refresh دستی به‌روزرسانی می‌شود.
 - این طراحی realtime نیست؛ برای MVP کافی است Customer بعد از Staff action دکمه refresh را بزند.
+- نمایش `total points` برای Customer فعلاً حذف شد، چون بدون Campaign Progress ارزش محصولی واضح ندارد و می‌تواند گمراه‌کننده باشد.
+- Customer Campaign Progress باید جداگانه طراحی شود.
 
 ## Verification
 
@@ -56,4 +58,4 @@ F2.8 کامل است وقتی:
 - `flutter test` پاس شود
 - `flutter build web` پاس شود
 - Customer صفحه `My Status` را ببیند
-- Customer بتواند points و active rewards را بعد از Staff action با refresh ببیند
+- Customer بتواند active rewards را بعد از Staff action با refresh ببیند
