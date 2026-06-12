@@ -78,6 +78,7 @@ frontend/lib/app/app_version.dart
 - نمایش Active Rewards
 - Use Reward
 - error/loading/empty states پایه
+- Manual end-to-end QA برای Staff/Customer loop
 
 ### خارج از فاز اول Flutter
 

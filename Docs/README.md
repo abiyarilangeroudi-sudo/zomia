@@ -37,6 +37,7 @@ Customer QR
 - [Flutter F1: Auth And Staff Context](./sprints/flutter-f1-auth-staff-context.md)
 - [Flutter F2: Staff Service Panel MVP](./sprints/flutter-f2-staff-service-panel.md)
 - [Flutter F2.5: Staff And Customer QR UX Polish](./sprints/flutter-f2-5-staff-customer-ux-polish.md)
+- [Flutter F2.6: Manual End-to-End QA](./sprints/flutter-f2-6-manual-end-to-end-qa.md)
 - [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
@@ -175,3 +176,9 @@ Flutter F2.5:
 - manual token input به‌عنوان fallback باقی ماند
 - Customer QR و Staff QR entry polish اولیه شدند
 - نسخه Flutter برای تشخیص build جدید در Login افزایش یافت
+
+Flutter F2.6:
+
+- تست دستی end-to-end انجام شد
+- Customer login، Customer QR، Staff login، camera scan، resolve customer، ثبت Action، points، reward generation، reward use و recent actions پاس شدند
+- core Staff/Customer MVP loop برای ادامه UX polish قابل اتکا شد
