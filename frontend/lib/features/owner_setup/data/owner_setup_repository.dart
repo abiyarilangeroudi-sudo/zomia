@@ -39,6 +39,19 @@ class OwnerSetupRepository {
     }
   }
 
+  Future<List<OwnerStaffMember>> listStaff() async {
+    try {
+      final response = await _dio.get<List<dynamic>>('/owner/staff');
+      return (response.data ?? [])
+          .map(
+            (item) => OwnerStaffMember.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<List<OwnerCampaign>> listCampaigns(String businessId) async {
     try {
       final response = await _dio.get<List<dynamic>>(
@@ -86,6 +99,27 @@ class OwnerSetupRepository {
           'name': name,
           'mission_type': missionType,
           'point_value': pointValue,
+        },
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<void> createStaff({
+    required String businessId,
+    required String email,
+    required String password,
+    required String fullName,
+  }) async {
+    try {
+      await _dio.post<Map<String, dynamic>>(
+        '/owner/staff',
+        data: {
+          'business_id': businessId,
+          'email': email,
+          'password': password,
+          'full_name': fullName,
         },
       );
     } on DioException catch (error) {

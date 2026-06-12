@@ -45,7 +45,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.7 (8)'), findsOneWidget);
+    expect(find.text('Version 1.0.8 (9)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -155,10 +155,16 @@ void main() {
     expect(find.text('Owner Setup'), findsOneWidget);
     expect(find.text('Signed in as Owner One'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsOneWidget);
+    expect(find.text('Create staff'), findsOneWidget);
+    expect(find.text('Setup Staff · setup-staff@example.com'), findsOneWidget);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
     expect(find.text('Create mission'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsWidgets);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.drag(find.byType(ListView), const Offset(0, -500));
     await tester.pumpAndSettle();
 
     expect(find.text('Create campaign'), findsOneWidget);
@@ -283,6 +289,24 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         missionType: 'purchase',
         pointValue: 1,
         isActive: true,
+      ),
+    ];
+  }
+
+  @override
+  Future<List<OwnerStaffMember>> listStaff() async {
+    return const [
+      OwnerStaffMember(
+        id: 'staff-member-id',
+        businessId: 'business-id',
+        userId: 'staff-user-id',
+        isActive: true,
+        user: OwnerStaffUser(
+          id: 'staff-user-id',
+          email: 'setup-staff@example.com',
+          fullName: 'Setup Staff',
+          isActive: true,
+        ),
       ),
     ];
   }

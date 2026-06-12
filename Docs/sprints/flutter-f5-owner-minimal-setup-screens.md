@@ -13,6 +13,8 @@ Frontend برای نقش Owner بعد از login وارد صفحه `Owner Setup`
 در این صفحه Owner می‌تواند:
 
 - Businessهای خودش را ببیند و انتخاب کند
+- Staff جدید برای Business انتخاب‌شده بسازد
+- Staffهای Business انتخاب‌شده را ببیند
 - Mission جدید بسازد
 - Missionهای موجود را ببیند
 - Campaign جدید با یک یا چند Mission بسازد
@@ -49,6 +51,8 @@ F5 فقط از APIهای آماده backend استفاده می‌کند:
 
 ```text
 GET  /api/v1/owner/businesses
+POST /api/v1/owner/staff
+GET  /api/v1/owner/staff
 POST /api/v1/owner/missions
 GET  /api/v1/owner/missions
 POST /api/v1/owner/campaigns
@@ -64,6 +68,8 @@ F5 migration جدید ندارد.
 داده‌های زیر از schema موجود استفاده می‌کنند:
 
 - `businesses`
+- `users`
+- `staff_members`
 - `missions`
 - `campaigns`
 - `campaign_missions`
@@ -82,8 +88,9 @@ Widget test باید تایید کند:
 
 - Owner بعد از login به صفحه Owner Setup می‌رسد
 - Business نمایش داده می‌شود
+- Staff موجود نمایش داده می‌شود
 - Mission/Campaign/Reward Template موجود نمایش داده می‌شوند
-- Create controls برای هر سه بخش وجود دارند
+- Create controls برای Staff, Mission, Campaign و Reward Template وجود دارند
 
 ## Verification Checklist
 
@@ -93,4 +100,3 @@ Widget test باید تایید کند:
 - `flutter test` پاس شود
 - `flutter build web` پاس شود
 - دستی: Owner بتواند login کند و صفحه setup را ببیند
-

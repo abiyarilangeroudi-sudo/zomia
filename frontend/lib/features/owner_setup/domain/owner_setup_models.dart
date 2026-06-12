@@ -24,6 +24,55 @@ class OwnerBusiness {
   final String currencyCode;
 }
 
+class OwnerStaffUser {
+  const OwnerStaffUser({
+    required this.id,
+    required this.email,
+    required this.fullName,
+    required this.isActive,
+  });
+
+  factory OwnerStaffUser.fromJson(Map<String, dynamic> json) {
+    return OwnerStaffUser(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      fullName: json['full_name'] as String,
+      isActive: json['is_active'] as bool,
+    );
+  }
+
+  final String id;
+  final String email;
+  final String fullName;
+  final bool isActive;
+}
+
+class OwnerStaffMember {
+  const OwnerStaffMember({
+    required this.id,
+    required this.businessId,
+    required this.userId,
+    required this.isActive,
+    required this.user,
+  });
+
+  factory OwnerStaffMember.fromJson(Map<String, dynamic> json) {
+    return OwnerStaffMember(
+      id: json['id'] as String,
+      businessId: json['business_id'] as String,
+      userId: json['user_id'] as String,
+      isActive: json['is_active'] as bool,
+      user: OwnerStaffUser.fromJson(json['user'] as Map<String, dynamic>),
+    );
+  }
+
+  final String id;
+  final String businessId;
+  final String userId;
+  final bool isActive;
+  final OwnerStaffUser user;
+}
+
 class OwnerMission {
   const OwnerMission({
     required this.id,

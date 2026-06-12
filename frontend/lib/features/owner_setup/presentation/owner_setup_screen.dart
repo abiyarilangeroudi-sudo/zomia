@@ -18,6 +18,13 @@ class OwnerSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
+  final _staffEmailController = TextEditingController(
+    text: 'staff@example.com',
+  );
+  final _staffNameController = TextEditingController(text: 'Staff One');
+  final _staffPasswordController = TextEditingController(
+    text: 'strong-password',
+  );
   final _missionNameController = TextEditingController(text: 'Buy Coffee');
   final _missionPointsController = TextEditingController(text: '1');
   final _campaignNameController = TextEditingController(text: 'Coffee Reward');
@@ -27,6 +34,7 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
   final _validDaysController = TextEditingController(text: '30');
 
   List<OwnerBusiness> _businesses = [];
+  List<OwnerStaffMember> _staffMembers = [];
   List<OwnerMission> _missions = [];
   List<OwnerCampaign> _campaigns = [];
   List<OwnerRewardTemplate> _rewardTemplates = [];
@@ -46,6 +54,9 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
 
   @override
   void dispose() {
+    _staffEmailController.dispose();
+    _staffNameController.dispose();
+    _staffPasswordController.dispose();
     _missionNameController.dispose();
     _missionPointsController.dispose();
     _campaignNameController.dispose();
@@ -91,6 +102,15 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
               businesses: _businesses,
               selectedBusiness: _selectedBusiness,
               onChanged: _selectBusiness,
+            ),
+            const SizedBox(height: 16),
+            _StaffSetupCard(
+              emailController: _staffEmailController,
+              fullNameController: _staffNameController,
+              passwordController: _staffPasswordController,
+              staffMembers: _staffForSelectedBusiness,
+              isSaving: _isSaving,
+              onCreate: _createStaff,
             ),
             const SizedBox(height: 16),
             _MissionSetupCard(
@@ -146,7 +166,9 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
       List<OwnerMission> missions = [];
       List<OwnerCampaign> campaigns = [];
       List<OwnerRewardTemplate> templates = [];
+      List<OwnerStaffMember> staffMembers = [];
       if (selected != null) {
+        staffMembers = await repository.listStaff();
         missions = await repository.listMissions(selected.id);
         campaigns = await repository.listCampaigns(selected.id);
         templates = await repository.listRewardTemplates(selected.id);
@@ -157,6 +179,7 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
       setState(() {
         _businesses = businesses;
         _selectedBusiness = selected;
+        _staffMembers = staffMembers;
         _missions = missions;
         _campaigns = campaigns;
         _rewardTemplates = templates;
@@ -197,6 +220,41 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
         _selectedMissionIds.remove(missionId);
       }
     });
+  }
+
+  List<OwnerStaffMember> get _staffForSelectedBusiness {
+    final business = _selectedBusiness;
+    if (business == null) {
+      return const [];
+    }
+    return _staffMembers
+        .where((staffMember) => staffMember.businessId == business.id)
+        .toList();
+  }
+
+  Future<void> _createStaff() async {
+    final business = _selectedBusiness;
+    final email = _staffEmailController.text.trim();
+    final fullName = _staffNameController.text.trim();
+    final password = _staffPasswordController.text;
+    if (business == null ||
+        email.isEmpty ||
+        fullName.isEmpty ||
+        password.length < 8) {
+      _showError('Enter a valid staff email, name, and password.');
+      return;
+    }
+    await _save(
+      () => ref
+          .read(ownerSetupRepositoryProvider)
+          .createStaff(
+            businessId: business.id,
+            email: email,
+            password: password,
+            fullName: fullName,
+          ),
+      'Staff created.',
+    );
   }
 
   Future<void> _createMission() async {
@@ -369,6 +427,65 @@ class _BusinessPicker extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class _StaffSetupCard extends StatelessWidget {
+  const _StaffSetupCard({
+    required this.emailController,
+    required this.fullNameController,
+    required this.passwordController,
+    required this.staffMembers,
+    required this.isSaving,
+    required this.onCreate,
+  });
+
+  final TextEditingController emailController;
+  final TextEditingController fullNameController;
+  final TextEditingController passwordController;
+  final List<OwnerStaffMember> staffMembers;
+  final bool isSaving;
+  final VoidCallback onCreate;
+
+  @override
+  Widget build(BuildContext context) {
+    return _SetupCard(
+      title: 'Staff',
+      children: [
+        TextField(
+          controller: emailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(labelText: 'Staff email'),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: fullNameController,
+          decoration: const InputDecoration(labelText: 'Staff name'),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: const InputDecoration(labelText: 'Temporary password'),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: isSaving ? null : onCreate,
+          icon: const Icon(Icons.person_add_alt_1),
+          label: const Text('Create staff'),
+        ),
+        const SizedBox(height: 12),
+        _SimpleList(
+          emptyText: 'No staff yet',
+          children: staffMembers
+              .map(
+                (staffMember) =>
+                    '${staffMember.user.fullName} · ${staffMember.user.email}',
+              )
+              .toList(),
+        ),
+      ],
     );
   }
 }
