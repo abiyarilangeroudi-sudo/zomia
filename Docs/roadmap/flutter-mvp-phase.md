@@ -156,6 +156,16 @@ GET  /api/v1/customers/me/status
 
 تا قبل از این تصمیم، از افزودن dashboardهای نصفه یا metricهای بدون ارزش مستقیم برای Customer خودداری می‌کنیم.
 
+تصمیم گرفته شد:
+
+```text
+1. Owner minimal tools
+2. Customer Campaign Progress design
+3. UI/Branding recovery
+```
+
+دلیل: قبل از طراحی Progress مشتری، Owner باید بتواند Mission/Campaign/Reward Template را بدون دخالت مستقیم backend آماده کند.
+
 ### برای Owner Management آماده اما اولویت دوم
 
 ```text

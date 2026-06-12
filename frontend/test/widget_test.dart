@@ -10,6 +10,8 @@ import 'package:zomia_frontend/features/auth/domain/current_user.dart';
 import 'package:zomia_frontend/features/customer_qr/data/customer_qr_repository.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_status.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
+import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
+import 'package:zomia_frontend/features/owner_setup/domain/owner_setup_models.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
 import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
@@ -43,7 +45,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.6 (7)'), findsOneWidget);
+    expect(find.text('Version 1.0.7 (8)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -120,6 +122,53 @@ void main() {
     expect(find.text('Ready to Scan'), findsOneWidget);
     expect(find.text('Refresh QR token'), findsOneWidget);
     expect(find.text('qr-token'), findsOneWidget);
+  });
+
+  testWidgets('signs in and renders owner setup screen', (tester) async {
+    final tokenStore = _MemoryTokenStore();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository(role: 'owner'),
+          ),
+          ownerSetupRepositoryProvider.overrideWithValue(
+            _FakeOwnerSetupRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'owner@example.com',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(find.text('Owner Setup'), findsOneWidget);
+    expect(find.text('Signed in as Owner One'), findsOneWidget);
+    expect(find.text('Zomia Cafe'), findsOneWidget);
+    expect(find.text('Create mission'), findsOneWidget);
+    expect(find.text('Buy Coffee'), findsWidgets);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Create campaign'), findsOneWidget);
+    expect(find.text('Coffee Reward · 10 pts'), findsOneWidget);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Create gift reward'), findsOneWidget);
+    expect(find.text('Free Coffee · Free coffee'), findsOneWidget);
   });
 }
 
@@ -209,6 +258,66 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
   }
 }
 
+class _FakeOwnerSetupRepository extends OwnerSetupRepository {
+  _FakeOwnerSetupRepository() : super(Dio());
+
+  @override
+  Future<List<OwnerBusiness>> listBusinesses() async {
+    return const [
+      OwnerBusiness(
+        id: 'business-id',
+        name: 'Zomia Cafe',
+        slug: 'zomia-cafe',
+        status: 'active',
+        currencyCode: 'EUR',
+      ),
+    ];
+  }
+
+  @override
+  Future<List<OwnerMission>> listMissions(String businessId) async {
+    return const [
+      OwnerMission(
+        id: 'mission-coffee',
+        name: 'Buy Coffee',
+        missionType: 'purchase',
+        pointValue: 1,
+        isActive: true,
+      ),
+    ];
+  }
+
+  @override
+  Future<List<OwnerCampaign>> listCampaigns(String businessId) async {
+    return [
+      OwnerCampaign(
+        id: 'campaign-id',
+        name: 'Coffee Reward',
+        thresholdPoints: 10,
+        status: 'active',
+        startsAt: DateTime(2026),
+        endsAt: DateTime(2027),
+      ),
+    ];
+  }
+
+  @override
+  Future<List<OwnerRewardTemplate>> listRewardTemplates(
+    String businessId,
+  ) async {
+    return const [
+      OwnerRewardTemplate(
+        id: 'template-id',
+        name: 'Free Coffee',
+        rewardType: 'gift',
+        giftName: 'Free coffee',
+        validDays: 30,
+        isActive: true,
+      ),
+    ];
+  }
+}
+
 class _FakeAuthRepository extends AuthRepository {
   _FakeAuthRepository({this.role = 'staff'}) : super(Dio());
 
@@ -227,7 +336,11 @@ class _FakeAuthRepository extends AuthRepository {
     return CurrentUser(
       id: '$role-id',
       email: '$role@example.com',
-      fullName: role == 'staff' ? 'Staff One' : 'Customer One',
+      fullName: switch (role) {
+        'owner' => 'Owner One',
+        'staff' => 'Staff One',
+        _ => 'Customer One',
+      },
       role: role,
       isActive: true,
     );

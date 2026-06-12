@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_controller.dart';
 import 'login_screen.dart';
 import '../../customer_qr/presentation/customer_qr_screen.dart';
+import '../../owner_setup/presentation/owner_setup_screen.dart';
 import '../../staff_context/presentation/business_select_screen.dart';
 import '../../staff_context/presentation/staff_home_screen.dart';
 
@@ -23,6 +24,9 @@ class AuthGate extends ConsumerWidget {
         }
         if (state.isCustomer) {
           return CustomerQrScreen(user: state.user!);
+        }
+        if (state.user!.isOwner) {
+          return OwnerSetupScreen(user: state.user!);
         }
         if (!state.isStaff) {
           return const _UnsupportedRoleScreen();

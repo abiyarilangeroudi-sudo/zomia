@@ -25,4 +25,5 @@ class CurrentUser {
 
   bool get isStaff => role == 'staff';
   bool get isCustomer => role == 'customer';
+  bool get isOwner => role == 'owner';
 }
