@@ -4,15 +4,21 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../app/brand/brand_colors.dart';
 import '../../../app/brand/brand_spacing.dart';
+import '../../../app/ui/ui.dart';
 import '../../staff_context/domain/staff_context.dart';
 import '../data/staff_service_repository.dart';
 import '../domain/qr_token_input.dart';
 import '../domain/staff_service_models.dart';
 
 class StaffServicePanel extends ConsumerStatefulWidget {
-  const StaffServicePanel({super.key, required this.business});
+  const StaffServicePanel({
+    super.key,
+    required this.business,
+    this.onSummaryChanged,
+  });
 
   final StaffBusiness business;
+  final ValueChanged<StaffServiceSummary?>? onSummaryChanged;
 
   @override
   ConsumerState<StaffServicePanel> createState() => StaffServicePanelState();
@@ -42,6 +48,7 @@ class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.business.id != widget.business.id) {
       _summary = null;
+      widget.onSummaryChanged?.call(null);
       _quantities.clear();
       _qrTokenController.clear();
       _loadMissions();
@@ -61,18 +68,18 @@ class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _QrResolveCard(
-          controller: _qrTokenController,
-          isLoading: _isResolving,
-          onScan: _scanQr,
-          onResolve: _resolveQr,
-        ),
-        const SizedBox(height: 16),
-        if (_error != null) _MessageBanner(message: _error!, isError: true),
+        if (_error != null)
+          InlineBanner(message: _error!, tone: BannerTone.error),
         if (_success != null)
-          _MessageBanner(message: _success!, isError: false),
+          InlineBanner(message: _success!, tone: BannerTone.success),
         if (_error != null || _success != null) const SizedBox(height: 16),
-        _CustomerSummaryCard(summary: _summary),
+        _CustomerSummaryCard(summary: _summary, isLoading: _isResolving),
+        const SizedBox(height: 16),
+        _RewardsCard(
+          rewards: _summary?.activeRewards ?? const [],
+          rewardInUseId: _rewardInUseId,
+          onUseReward: _useReward,
+        ),
         const SizedBox(height: 16),
         _MissionCard(
           missions: _missions,
@@ -89,14 +96,6 @@ class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
           onSubmit: selectedItems.isEmpty ? null : _submitAction,
           isSubmitting: _isSubmittingAction,
         ),
-        const SizedBox(height: 16),
-        _RewardsCard(
-          rewards: _summary?.activeRewards ?? const [],
-          rewardInUseId: _rewardInUseId,
-          onUseReward: _useReward,
-        ),
-        const SizedBox(height: 16),
-        _RecentActionsCard(actions: _summary?.recentActions ?? const []),
       ],
     );
   }
@@ -159,6 +158,7 @@ class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
         _isResolving = false;
         _success = 'Customer loaded.';
       });
+      widget.onSummaryChanged?.call(summary);
     } catch (error) {
       if (!mounted) {
         return;
@@ -221,6 +221,7 @@ class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
         _isSubmittingAction = false;
         _success = _actionSuccessMessage(result, activeRewardIdsBefore);
       });
+      widget.onSummaryChanged?.call(result.summary);
     } catch (error) {
       if (!mounted) {
         return;
@@ -265,6 +266,7 @@ class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
         _rewardInUseId = null;
         _success = '${reward.title} marked as used.';
       });
+      widget.onSummaryChanged?.call(result.summary);
     } catch (error) {
       if (!mounted) {
         return;
@@ -334,92 +336,69 @@ class StaffServicePanelState extends ConsumerState<StaffServicePanel> {
   }
 
   Future<bool> _confirmRewardUse(GeneratedReward reward) async {
-    final confirmed = await showDialog<bool>(
+    return showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Use this reward?'),
-        content: Text(
+      title: 'Use this Reward?',
+      message:
           'This will mark "${reward.title}" as used for the loaded customer.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Use reward'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Use Reward',
     );
-
-    return confirmed ?? false;
   }
 }
 
-class _QrResolveCard extends StatelessWidget {
-  const _QrResolveCard({
-    required this.controller,
-    required this.isLoading,
-    required this.onScan,
-    required this.onResolve,
-  });
+class _CustomerSummaryCard extends StatelessWidget {
+  const _CustomerSummaryCard({required this.summary, required this.isLoading});
 
-  final TextEditingController controller;
+  final StaffServiceSummary? summary;
   final bool isLoading;
-  final VoidCallback onScan;
-  final VoidCallback onResolve;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Customer QR', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 4),
-            Text(
-              'Scan the customer QR code. Manual token entry remains available as a fallback.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: BrandColors.textSecondary,
-              ),
+    final summary = this.summary;
+    return AppCard(
+      child: isLoading
+          ? const LoadingState(label: 'Loading customer')
+          : summary == null
+          ? const EmptyStateView(
+              icon: Icons.person_search_rounded,
+              title: 'No customer loaded',
+              message: 'Scan a customer QR to start the service session.',
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionHeader(
+                  title: summary.customer.fullName,
+                  subtitle: summary.customer.email,
+                  trailing: const StatusBadge(
+                    label: 'Loaded',
+                    tone: BadgeTone.success,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    MetricPill(
+                      icon: Icons.stars_rounded,
+                      label: '${summary.points} points',
+                      color: BrandColors.orange,
+                    ),
+                    MetricPill(
+                      icon: Icons.redeem_rounded,
+                      label: '${summary.activeRewards.length} active rewards',
+                      color: BrandColors.purple,
+                    ),
+                    MetricPill(
+                      icon: Icons.history_rounded,
+                      label: '${summary.recentActions.length} recent actions',
+                      color: BrandColors.info,
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: isLoading ? null : onScan,
-              icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Scan with camera'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              minLines: 1,
-              maxLines: 3,
-              textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(
-                labelText: 'Manual token fallback',
-                hintText: 'Paste or type customer QR token',
-                prefixIcon: Icon(Icons.qr_code_2),
-              ),
-              onSubmitted: (_) => onResolve(),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: isLoading ? null : onResolve,
-              icon: isLoading
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.search),
-              label: const Text('Resolve customer'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -465,10 +444,9 @@ class _QrScannerSheetState extends State<_QrScannerSheet> {
                 ],
               ),
               const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+              ScannerSheetFrame(
+                height: MediaQuery.sizeOf(context).height * 0.55,
                 child: SizedBox(
-                  height: MediaQuery.sizeOf(context).height * 0.55,
                   child: MobileScanner(
                     fit: BoxFit.cover,
                     onDetect: _handleDetection,
@@ -508,84 +486,6 @@ class _QrScannerSheetState extends State<_QrScannerSheet> {
   }
 }
 
-class _CustomerSummaryCard extends StatelessWidget {
-  const _CustomerSummaryCard({required this.summary});
-
-  final StaffServiceSummary? summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final summary = this.summary;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: summary == null
-            ? const _EmptyPanelState(
-                icon: Icons.person_search,
-                title: 'No customer loaded',
-                message: 'Scan a customer QR to start the service session.',
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const CircleAvatar(
-                        backgroundColor: BrandColors.teal,
-                        foregroundColor: Colors.white,
-                        child: Icon(Icons.person),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              summary.customer.fullName,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(summary.customer.email),
-                          ],
-                        ),
-                      ),
-                      const _StatusPill(
-                        icon: Icons.check_circle,
-                        label: 'Loaded',
-                        color: BrandColors.success,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _MetricPill(
-                        icon: Icons.stars,
-                        label: '${summary.points} points',
-                        color: BrandColors.orange,
-                      ),
-                      _MetricPill(
-                        icon: Icons.redeem,
-                        label: '${summary.activeRewards.length} active rewards',
-                        color: BrandColors.purple,
-                      ),
-                      _MetricPill(
-                        icon: Icons.history,
-                        label: '${summary.recentActions.length} recent actions',
-                        color: BrandColors.info,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-}
-
 class _MissionCard extends StatelessWidget {
   const _MissionCard({
     required this.missions,
@@ -611,146 +511,49 @@ class _MissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Register Action',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                Chip(
-                  avatar: const Icon(Icons.stars, size: 16),
-                  label: Text('$selectedPoints pts'),
-                ),
-              ],
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionHeader(
+            title: 'Register Action',
+            trailing: MetricPill(
+              icon: Icons.stars_rounded,
+              label: '$selectedPoints pts',
+              color: BrandColors.orange,
             ),
-            const SizedBox(height: 12),
-            if (isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (missions.isEmpty)
-              const _EmptyPanelState(
-                icon: Icons.task_alt,
-                title: 'No missions',
-                message: 'No active missions are available for this business.',
-              )
-            else
-              ...missions.map(
-                (mission) => _MissionRow(
-                  mission: mission,
+          ),
+          const SizedBox(height: 12),
+          if (isLoading)
+            const LoadingState(label: 'Loading missions')
+          else if (missions.isEmpty)
+            const EmptyStateView(
+              icon: Icons.task_alt_rounded,
+              title: 'No missions',
+              message: 'No active missions are available for this business.',
+            )
+          else
+            ...missions.map(
+              (mission) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: MissionRow(
+                  title: mission.name,
+                  subtitle: '${mission.pointValue} points each',
                   quantity: quantities[mission.id] ?? 0,
                   isEnabled: isEnabled,
                   onIncrement: () => onIncrement(mission),
                   onDecrement: () => onDecrement(mission),
                 ),
               ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: isEnabled && !isSubmitting ? onSubmit : null,
-              icon: isSubmitting
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check_circle),
-              label: const Text('Register action'),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MissionRow extends StatelessWidget {
-  const _MissionRow({
-    required this.mission,
-    required this.quantity,
-    required this.isEnabled,
-    required this.onIncrement,
-    required this.onDecrement,
-  });
-
-  final StaffServiceMission mission;
-  final int quantity;
-  final bool isEnabled;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(color: BrandColors.line),
-          borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final details = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    mission.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 2),
-                  Text('${mission.pointValue} points each'),
-                ],
-              );
-              final controls = Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: 'Decrease',
-                    onPressed: isEnabled && quantity > 0 ? onDecrement : null,
-                    icon: const Icon(Icons.remove_circle_outline),
-                  ),
-                  SizedBox(
-                    width: 36,
-                    child: Text(
-                      '$quantity',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Increase',
-                    onPressed: isEnabled ? onIncrement : null,
-                    icon: const Icon(Icons.add_circle_outline),
-                  ),
-                ],
-              );
-
-              if (constraints.maxWidth < 360) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    details,
-                    const SizedBox(height: 8),
-                    Align(alignment: Alignment.centerRight, child: controls),
-                  ],
-                );
-              }
-
-              return Row(
-                children: [
-                  Expanded(child: details),
-                  controls,
-                ],
-              );
-            },
+          const SizedBox(height: 4),
+          PrimaryButton(
+            label: 'Register Action',
+            icon: Icons.check_circle_rounded,
+            onPressed: isEnabled && !isSubmitting ? onSubmit : null,
+            isLoading: isSubmitting,
           ),
-        ),
+        ],
       ),
     );
   }
@@ -769,270 +572,84 @@ class _RewardsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Active Rewards',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Confirm before marking a reward as used.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: BrandColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (rewards.isEmpty)
-              const _EmptyPanelState(
-                icon: Icons.redeem,
-                title: 'No active rewards',
-                message: 'Available rewards will appear after customer lookup.',
-              )
-            else
-              ...rewards.map(
-                (reward) => _RewardRow(
-                  reward: reward,
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(
+            title: 'Active Rewards',
+            subtitle: 'Confirm before marking a reward as used.',
+          ),
+          const SizedBox(height: 12),
+          if (rewards.isEmpty)
+            const EmptyStateView(
+              icon: Icons.redeem_rounded,
+              title: 'No active rewards',
+              message: 'Available rewards will appear after customer lookup.',
+            )
+          else
+            ...rewards.map(
+              (reward) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RewardCard(
+                  title: reward.title,
+                  subtitle: reward.displayValue,
+                  expiresLabel: _formatRewardExpires(reward),
+                  variant: RewardCardVariant.staffAction,
                   isLoading: rewardInUseId == reward.id,
                   onUse: () => onUseReward(reward),
                 ),
               ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RewardRow extends StatelessWidget {
-  const _RewardRow({
-    required this.reward,
-    required this.isLoading,
-    required this.onUse,
-  });
-
-  final GeneratedReward reward;
-  final bool isLoading;
-  final VoidCallback onUse;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: BrandColors.orange.withValues(alpha: 0.08),
-          border: Border.all(color: BrandColors.orange),
-          borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              const Icon(Icons.card_giftcard, color: BrandColors.orange),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      reward.title,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(reward.displayValue),
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: isLoading ? null : onUse,
-                child: isLoading
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Use'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RecentActionsCard extends StatelessWidget {
-  const _RecentActionsCard({required this.actions});
-
-  final List<StaffRecentAction> actions;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BrandSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Recent Actions',
-              style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 12),
-            if (actions.isEmpty)
-              const _EmptyPanelState(
-                icon: Icons.history,
-                title: 'No recent actions',
-                message: 'Customer activity will appear after service starts.',
-              )
-            else
-              ...actions.map(
-                (action) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.receipt_long),
-                  title: Text(_formatActionType(action.actionType)),
-                  subtitle: Text(_formatDateTime(action.occurredAt)),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MessageBanner extends StatelessWidget {
-  const _MessageBanner({required this.message, required this.isError});
-
-  final String message;
-  final bool isError;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isError ? BrandColors.error : BrandColors.success;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        border: Border.all(color: color),
-        borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(message, style: TextStyle(color: color)),
-      ),
-    );
-  }
-}
-
-class _EmptyPanelState extends StatelessWidget {
-  const _EmptyPanelState({
-    required this.icon,
-    required this.title,
-    required this.message,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          Icon(icon, color: BrandColors.textSecondary),
-          const SizedBox(height: 8),
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: BrandColors.textSecondary),
-          ),
         ],
       ),
     );
   }
 }
 
-class _MetricPill extends StatelessWidget {
-  const _MetricPill({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
+class StaffRecentActionsCard extends StatelessWidget {
+  const StaffRecentActionsCard({super.key, required this.actions});
 
-  final IconData icon;
-  final String label;
-  final Color color;
+  final List<StaffRecentAction> actions;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        border: Border.all(color: color.withValues(alpha: 0.28)),
-        borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 6),
-            Text(label),
-          ],
-        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Recent Actions'),
+          const SizedBox(height: 12),
+          if (actions.isEmpty)
+            const EmptyStateView(
+              icon: Icons.history_rounded,
+              title: 'No recent actions',
+              message: 'Customer activity will appear after service starts.',
+            )
+          else
+            ...actions.map(
+              (action) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: AppListRow(
+                  title: _formatActionType(action.actionType),
+                  subtitle: _formatDateTime(action.occurredAt),
+                  leadingIcon: Icons.receipt_long_rounded,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
 
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
+String _formatRewardExpires(GeneratedReward reward) {
+  return 'Valid until ${_formatDate(reward.expiresAt)}';
+}
 
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+String _formatDate(DateTime value) {
+  final local = value.toLocal();
+  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
 }
 
 String _formatDateTime(DateTime value) {

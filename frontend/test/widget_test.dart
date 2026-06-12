@@ -56,7 +56,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.17 (18)'), findsOneWidget);
+    expect(find.text('Version 1.0.20 (21)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -79,7 +79,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.17 (18)'));
+    await tester.tap(find.text('Version 1.0.20 (21)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -121,9 +121,16 @@ void main() {
     expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
     expect(find.byTooltip('Scan customer QR'), findsOneWidget);
-    expect(find.text('Customer QR'), findsOneWidget);
-    expect(find.text('Scan with camera'), findsOneWidget);
+    expect(find.text('Customer QR'), findsNothing);
+    expect(find.text('Scan with Camera'), findsNothing);
+    expect(find.text('No customer loaded'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsOneWidget);
+
+    await tester.tap(find.text('Recent Actions'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Recent Actions'), findsWidgets);
+    expect(find.text('No recent actions'), findsOneWidget);
 
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);

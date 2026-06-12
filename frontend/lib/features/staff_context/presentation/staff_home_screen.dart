@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/ui.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../staff_service/domain/staff_service_models.dart';
 import '../../staff_service/presentation/staff_service_panel.dart';
 import '../domain/staff_context.dart';
 
@@ -22,6 +23,7 @@ class StaffHomeScreen extends ConsumerStatefulWidget {
 
 class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
   final _servicePanelKey = GlobalKey<StaffServicePanelState>();
+  List<StaffRecentAction> _recentActions = const [];
   int _selectedIndex = 0;
 
   static const _tabs = [
@@ -29,6 +31,11 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
       label: 'Home',
       icon: Icons.dashboard_outlined,
       activeIcon: Icons.dashboard_rounded,
+    ),
+    NavItem(
+      label: 'Recent Actions',
+      icon: Icons.history_outlined,
+      activeIcon: Icons.history_rounded,
     ),
     NavItem(
       label: 'Profile',
@@ -68,9 +75,13 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                   StaffServicePanel(
                     key: _servicePanelKey,
                     business: widget.business,
+                    onSummaryChanged: _handleSummaryChanged,
                   ),
                 ],
               ),
+            ),
+            _DashboardScroll(
+              child: StaffRecentActionsCard(actions: _recentActions),
             ),
             _DashboardScroll(
               child: _StaffProfileCard(
@@ -89,6 +100,10 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
         onChanged: (index) => setState(() => _selectedIndex = index),
       ),
     );
+  }
+
+  void _handleSummaryChanged(StaffServiceSummary? summary) {
+    setState(() => _recentActions = summary?.recentActions ?? const []);
   }
 }
 

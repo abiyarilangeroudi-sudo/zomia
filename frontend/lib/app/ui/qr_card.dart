@@ -17,6 +17,7 @@ class QRCard extends StatelessWidget {
     this.primaryActionLabel,
     this.primaryActionIcon,
     this.onPrimaryAction,
+    this.fallbackContent,
     this.secondaryActionLabel,
     this.secondaryActionIcon,
     this.onSecondaryAction,
@@ -29,6 +30,7 @@ class QRCard extends StatelessWidget {
   final String? primaryActionLabel;
   final IconData? primaryActionIcon;
   final VoidCallback? onPrimaryAction;
+  final Widget? fallbackContent;
   final String? secondaryActionLabel;
   final IconData? secondaryActionIcon;
   final VoidCallback? onSecondaryAction;
@@ -79,6 +81,10 @@ class QRCard extends StatelessWidget {
               onPressed: onPrimaryAction,
             ),
           ],
+          if (fallbackContent != null) ...[
+            const SizedBox(height: 12),
+            fallbackContent!,
+          ],
           if (secondaryActionLabel != null) ...[
             const SizedBox(height: 10),
             SecondaryButton(
@@ -94,9 +100,16 @@ class QRCard extends StatelessWidget {
 }
 
 class ScannerSheetFrame extends StatelessWidget {
-  const ScannerSheetFrame({super.key, this.compact = false});
+  const ScannerSheetFrame({
+    super.key,
+    this.compact = false,
+    this.height,
+    this.child,
+  });
 
   final bool compact;
+  final double? height;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -106,16 +119,24 @@ class ScannerSheetFrame extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
       ),
       child: SizedBox(
-        height: compact ? 180 : 320,
+        height: height ?? (compact ? 180 : 320),
         child: Stack(
           children: [
-            const Center(
-              child: Icon(
-                Icons.qr_code_scanner_rounded,
-                color: Colors.white,
-                size: 72,
+            if (child != null)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: child,
+                ),
+              )
+            else
+              const Center(
+                child: Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Colors.white,
+                  size: 72,
+                ),
               ),
-            ),
             Positioned.fill(
               child: Padding(
                 padding: const EdgeInsets.all(22),

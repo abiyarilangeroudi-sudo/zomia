@@ -328,7 +328,15 @@ class _PhoneChrome extends StatelessWidget {
         border: Border.all(color: BrandColors.line),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(padding: const EdgeInsets.only(top: 56), child: child),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 56),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+          child: child,
+        ),
+      ),
     );
   }
 }
@@ -383,7 +391,14 @@ class _FormExamples extends StatelessWidget {
         SizedBox(height: 12),
         _ComponentName('SecondaryButton / icon'),
         SecondaryButton(
-          label: 'Scan with camera',
+          label: 'Resolve Customer',
+          icon: Icons.search_rounded,
+          onPressed: _noop,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('PrimaryButton / scan action'),
+        PrimaryButton(
+          label: 'Scan with Camera',
           icon: Icons.qr_code_scanner_rounded,
           onPressed: _noop,
         ),
@@ -498,11 +513,16 @@ class _MvpWorkflowExamples extends StatelessWidget {
           title: 'Customer QR',
           message: 'Scan with camera. Manual token remains the fallback.',
           variant: QRCardVariant.staffScan,
-          primaryActionLabel: 'Resolve customer',
-          primaryActionIcon: Icons.search_rounded,
+          primaryActionLabel: 'Scan with Camera',
+          primaryActionIcon: Icons.qr_code_scanner_rounded,
           onPrimaryAction: _noop,
-          secondaryActionLabel: 'Scan with camera',
-          secondaryActionIcon: Icons.qr_code_scanner_rounded,
+          fallbackContent: AppTextField(
+            label: 'Manual token fallback',
+            hint: 'Paste or type customer QR token',
+            maxLines: 3,
+          ),
+          secondaryActionLabel: 'Resolve Customer',
+          secondaryActionIcon: Icons.search_rounded,
           onSecondaryAction: _noop,
         ),
         SizedBox(height: 12),
@@ -573,9 +593,9 @@ class _MvpWorkflowExamples extends StatelessWidget {
         SizedBox(height: 12),
         _ComponentName('ConfirmDialog / standard'),
         _DialogPreview(
-          title: 'Use this reward?',
+          title: 'Use this Reward?',
           message: 'This will mark the reward as used for the loaded customer.',
-          confirmLabel: 'Use reward',
+          confirmLabel: 'Use Reward',
         ),
         SizedBox(height: 12),
         _ComponentName('ConfirmDialog / destructive'),
@@ -606,41 +626,42 @@ class _DialogPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDestructive = tone == ConfirmTone.destructive;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: BrandColors.surface,
-        border: Border.all(color: BrandColors.line),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Text(message),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+    final confirmButton = isDestructive
+        ? SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: BrandColors.error),
+              onPressed: _noop,
+              child: Text(confirmLabel),
+            ),
+          )
+        : PrimaryButton(label: confirmLabel, onPressed: _noop);
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: BrandColors.surface,
+            border: Border.all(color: BrandColors.line),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextButton(onPressed: _noop, child: const Text('Cancel')),
-                const SizedBox(width: 8),
-                SizedBox(
-                  height: 52,
-                  child: FilledButton(
-                    style: isDestructive
-                        ? FilledButton.styleFrom(
-                            backgroundColor: BrandColors.error,
-                          )
-                        : null,
-                    onPressed: _noop,
-                    child: Text(confirmLabel),
-                  ),
-                ),
+                Text(title, style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 8),
+                Text(message),
+                const SizedBox(height: 16),
+                confirmButton,
+                const SizedBox(height: 10),
+                SecondaryButton(label: 'Cancel', onPressed: _noop),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

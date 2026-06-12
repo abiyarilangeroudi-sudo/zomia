@@ -2,7 +2,7 @@ name: zomia_frontend
 description: "Zomia MVP Flutter application."
 publish_to: 'none'
 
-version: 1.0.17+18
+version: 1.0.20+21
 
 environment:
   sdk: ^3.12.1

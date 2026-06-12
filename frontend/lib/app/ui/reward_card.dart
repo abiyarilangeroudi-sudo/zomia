@@ -63,7 +63,7 @@ class RewardCard extends StatelessWidget {
           if (variant == RewardCardVariant.staffAction) ...[
             const SizedBox(height: 12),
             PrimaryButton(
-              label: 'Use reward',
+              label: 'Use Reward',
               icon: Icons.redeem_rounded,
               onPressed: isLoading ? null : onUse,
               isLoading: isLoading,
