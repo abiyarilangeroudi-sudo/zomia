@@ -42,7 +42,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.3 (4)'), findsOneWidget);
+    expect(find.text('Version 1.0.4 (5)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 

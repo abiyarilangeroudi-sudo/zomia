@@ -192,6 +192,10 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
       return;
     }
 
+    final activeRewardIdsBefore = _summary!.activeRewards
+        .map((reward) => reward.id)
+        .toSet();
+
     setState(() {
       _isSubmittingAction = true;
       _error = null;
@@ -213,7 +217,7 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
         _summary = result.summary;
         _quantities.clear();
         _isSubmittingAction = false;
-        _success = 'Action registered. ${result.pointsGranted} points added.';
+        _success = _actionSuccessMessage(result, activeRewardIdsBefore);
       });
     } catch (error) {
       if (!mounted) {
@@ -229,6 +233,11 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
   Future<void> _useReward(GeneratedReward reward) async {
     final token = normalizeQrTokenInput(_qrTokenController.text);
     if (_summary == null || token.isEmpty) {
+      return;
+    }
+
+    final shouldUse = await _confirmRewardUse(reward);
+    if (!mounted || !shouldUse) {
       return;
     }
 
@@ -252,7 +261,7 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
       setState(() {
         _summary = result.summary;
         _rewardInUseId = null;
-        _success = 'Reward used.';
+        _success = '${reward.title} marked as used.';
       });
     } catch (error) {
       if (!mounted) {
@@ -303,6 +312,47 @@ class _StaffServicePanelState extends ConsumerState<StaffServicePanel> {
   String _newIdempotencyKey(String prefix) {
     final timestamp = DateTime.now().microsecondsSinceEpoch;
     return 'staff-${widget.business.id}-$prefix-$timestamp';
+  }
+
+  String _actionSuccessMessage(
+    RegisterActionResult result,
+    Set<String> activeRewardIdsBefore,
+  ) {
+    final newRewards = result.summary.activeRewards
+        .where((reward) => !activeRewardIdsBefore.contains(reward.id))
+        .toList();
+    final pointsText = result.pointsGranted == 1 ? 'point' : 'points';
+
+    if (newRewards.isNotEmpty) {
+      final rewardText = newRewards.length == 1 ? 'reward' : 'rewards';
+      return 'Action registered. ${result.pointsGranted} $pointsText added. ${newRewards.length} new $rewardText issued.';
+    }
+
+    return 'Action registered. ${result.pointsGranted} $pointsText added. No new reward was issued for this action.';
+  }
+
+  Future<bool> _confirmRewardUse(GeneratedReward reward) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Use this reward?'),
+        content: Text(
+          'This will mark "${reward.title}" as used for the loaded customer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Use reward'),
+          ),
+        ],
+      ),
+    );
+
+    return confirmed ?? false;
   }
 }
 
@@ -476,20 +526,54 @@ class _CustomerSummaryCard extends StatelessWidget {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    summary.customer.fullName,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(summary.customer.email),
-                  const SizedBox(height: 16),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.stars, color: BrandColors.orange),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${summary.points} points',
-                        style: Theme.of(context).textTheme.titleMedium,
+                      const CircleAvatar(
+                        backgroundColor: BrandColors.teal,
+                        foregroundColor: Colors.white,
+                        child: Icon(Icons.person),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              summary.customer.fullName,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(summary.customer.email),
+                          ],
+                        ),
+                      ),
+                      const _StatusPill(
+                        icon: Icons.check_circle,
+                        label: 'Loaded',
+                        color: BrandColors.success,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _MetricPill(
+                        icon: Icons.stars,
+                        label: '${summary.points} points',
+                        color: BrandColors.orange,
+                      ),
+                      _MetricPill(
+                        icon: Icons.redeem,
+                        label: '${summary.activeRewards.length} active rewards',
+                        color: BrandColors.purple,
+                      ),
+                      _MetricPill(
+                        icon: Icons.history,
+                        label: '${summary.recentActions.length} recent actions',
+                        color: BrandColors.info,
                       ),
                     ],
                   ),
@@ -608,40 +692,61 @@ class _MissionRow extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      mission.name,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final details = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    mission.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 2),
+                  Text('${mission.pointValue} points each'),
+                ],
+              );
+              final controls = Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'Decrease',
+                    onPressed: isEnabled && quantity > 0 ? onDecrement : null,
+                    icon: const Icon(Icons.remove_circle_outline),
+                  ),
+                  SizedBox(
+                    width: 36,
+                    child: Text(
+                      '$quantity',
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 2),
-                    Text('${mission.pointValue} points each'),
+                  ),
+                  IconButton(
+                    tooltip: 'Increase',
+                    onPressed: isEnabled ? onIncrement : null,
+                    icon: const Icon(Icons.add_circle_outline),
+                  ),
+                ],
+              );
+
+              if (constraints.maxWidth < 360) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    details,
+                    const SizedBox(height: 8),
+                    Align(alignment: Alignment.centerRight, child: controls),
                   ],
-                ),
-              ),
-              IconButton(
-                tooltip: 'Decrease',
-                onPressed: isEnabled && quantity > 0 ? onDecrement : null,
-                icon: const Icon(Icons.remove_circle_outline),
-              ),
-              SizedBox(
-                width: 36,
-                child: Text(
-                  '$quantity',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Increase',
-                onPressed: isEnabled ? onIncrement : null,
-                icon: const Icon(Icons.add_circle_outline),
-              ),
-            ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: details),
+                  controls,
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -671,6 +776,13 @@ class _RewardsCard extends StatelessWidget {
             Text(
               'Active Rewards',
               style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Confirm before marking a reward as used.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: BrandColors.textSecondary,
+              ),
             ),
             const SizedBox(height: 12),
             if (rewards.isEmpty)
@@ -780,7 +892,7 @@ class _RecentActionsCard extends StatelessWidget {
                 (action) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.receipt_long),
-                  title: Text(action.actionType.replaceAll('_', ' ')),
+                  title: Text(_formatActionType(action.actionType)),
                   subtitle: Text(_formatDateTime(action.occurredAt)),
                 ),
               ),
@@ -848,6 +960,79 @@ class _EmptyPanelState extends StatelessWidget {
   }
 }
 
+class _MetricPill extends StatelessWidget {
+  const _MetricPill({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
+        borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 String _formatDateTime(DateTime value) {
   final local = value.toLocal();
   final date =
@@ -855,4 +1040,12 @@ String _formatDateTime(DateTime value) {
   final time =
       '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
   return '$date $time';
+}
+
+String _formatActionType(String value) {
+  return value
+      .split('_')
+      .where((part) => part.isNotEmpty)
+      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
 }

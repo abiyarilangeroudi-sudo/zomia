@@ -38,6 +38,7 @@ Customer QR
 - [Flutter F2: Staff Service Panel MVP](./sprints/flutter-f2-staff-service-panel.md)
 - [Flutter F2.5: Staff And Customer QR UX Polish](./sprints/flutter-f2-5-staff-customer-ux-polish.md)
 - [Flutter F2.6: Manual End-to-End QA](./sprints/flutter-f2-6-manual-end-to-end-qa.md)
+- [Flutter F2.7: Staff Panel UX Polish](./sprints/flutter-f2-7-staff-panel-ux-polish.md)
 - [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
@@ -182,3 +183,9 @@ Flutter F2.6:
 - تست دستی end-to-end انجام شد
 - Customer login، Customer QR، Staff login، camera scan، resolve customer، ثبت Action، points، reward generation، reward use و recent actions پاس شدند
 - core Staff/Customer MVP loop برای ادامه UX polish قابل اتکا شد
+
+Flutter F2.7:
+
+- confirmation قبل از `Use Reward` اضافه شد
+- پیام ثبت Action وقتی reward جدید صادر نمی‌شود واضح‌تر شد
+- کارت customer loaded و mission row برای استفاده عملی Staff polish شدند
