@@ -171,7 +171,23 @@ GET  /api/v1/customers/me/campaigns/progress
 
 - Owner minimal tools انجام شد.
 - Customer Campaign Progress با rule بدون `total points` تعریف و پیاده‌سازی شد.
-- UI/Branding recovery هنوز باقی است.
+- UI/Branding recovery به عنوان F7 تعریف شد.
+
+## UI Component Registry Rule
+
+از F7 به بعد، UI باید registry رسمی داشته باشد:
+
+```text
+frontend/lib/app/ui/
+```
+
+هر pattern تکرارشونده فقط یک implementation اصلی دارد. اگر component جدید لازم شد، باید قبل از ساخت مشخص شود variant یک component موجود است یا واقعاً component جدید.
+
+سند مرجع:
+
+```text
+Docs/sprints/flutter-f7-ui-branding-recovery.md
+```
 
 ### برای Owner Management آماده اما اولویت دوم
 

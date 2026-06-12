@@ -44,6 +44,7 @@ Customer QR
 - [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
 - [Flutter F5: Owner Minimal Setup Screens](./sprints/flutter-f5-owner-minimal-setup-screens.md)
 - [Flutter F6: Customer Campaign Progress](./sprints/flutter-f6-customer-campaign-progress.md)
+- [Flutter F7: UI / Branding Recovery](./sprints/flutter-f7-ui-branding-recovery.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 
