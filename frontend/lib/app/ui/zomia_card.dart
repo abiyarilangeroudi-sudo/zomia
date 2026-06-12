@@ -27,12 +27,10 @@ class ZomiaCard extends StatelessWidget {
         );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: isHighlight
-            ? BrandColors.orange.withValues(alpha: 0.08)
-            : BrandColors.surface,
+        color: BrandColors.surface,
         border: Border.all(
           color: isHighlight
-              ? BrandColors.orange.withValues(alpha: 0.34)
+              ? BrandColors.teal.withValues(alpha: 0.28)
               : BrandColors.line,
         ),
         borderRadius: BorderRadius.circular(BrandSpacing.cardRadius),

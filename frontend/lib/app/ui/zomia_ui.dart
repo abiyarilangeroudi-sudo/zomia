@@ -5,6 +5,7 @@ export 'zomia_button.dart';
 export 'zomia_card.dart';
 export 'zomia_confirm_dialog.dart';
 export 'zomia_empty_state.dart';
+export 'zomia_nav_bar.dart';
 export 'zomia_progress_card.dart';
 export 'zomia_scaffold.dart';
 export 'zomia_text_field.dart';
