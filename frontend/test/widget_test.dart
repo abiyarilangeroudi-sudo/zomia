@@ -45,7 +45,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.8 (9)'), findsOneWidget);
+    expect(find.text('Version 1.0.9 (10)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -79,7 +79,7 @@ void main() {
 
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(find.text('Staff Service'), findsOneWidget);
-    expect(find.text('Zomia Cafe'), findsOneWidget);
+    expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
     expect(find.text('Customer QR'), findsOneWidget);
     expect(find.text('Scan with camera'), findsOneWidget);
@@ -116,9 +116,17 @@ void main() {
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(find.text('Customer QR'), findsOneWidget);
     expect(find.text('My Status'), findsOneWidget);
-    expect(find.text('Zomia Cafe'), findsOneWidget);
+    expect(find.text('Zomia Cafe'), findsWidgets);
+    expect(find.text('1 campaigns'), findsOneWidget);
+    expect(find.text('Campaign Progress'), findsOneWidget);
+    expect(find.text('Coffee Reward'), findsOneWidget);
+    expect(find.text('2/10 pts · 8 pts to reward'), findsOneWidget);
     expect(find.text('1 active rewards'), findsOneWidget);
     expect(find.text('Free Coffee'), findsOneWidget);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
     expect(find.text('Ready to Scan'), findsOneWidget);
     expect(find.text('Refresh QR token'), findsOneWidget);
     expect(find.text('qr-token'), findsOneWidget);
@@ -261,6 +269,22 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
         ),
       ],
     );
+  }
+
+  @override
+  Future<List<CustomerCampaignProgress>> getCampaignProgresses() async {
+    return const [
+      CustomerCampaignProgress(
+        businessId: 'business-id',
+        businessName: 'Zomia Cafe',
+        campaignId: 'campaign-id',
+        campaignName: 'Coffee Reward',
+        progressPoints: 2,
+        thresholdPoints: 10,
+        remainingPoints: 8,
+        isCompleted: false,
+      ),
+    ];
   }
 }
 

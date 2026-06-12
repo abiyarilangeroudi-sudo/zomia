@@ -90,6 +90,28 @@ class LoyaltyRepository:
             )
         )
 
+    def list_active_individual_campaigns_for_businesses(
+        self, *, business_ids: set[uuid.UUID], now
+    ) -> list[Campaign]:
+        if not business_ids:
+            return []
+        return list(
+            self.db.scalars(
+                select(Campaign)
+                .where(
+                    Campaign.creator_business_id.in_(business_ids),
+                    Campaign.campaign_type == CampaignType.INDIVIDUAL,
+                    Campaign.scope_type == CampaignScopeType.SINGLE_BUSINESS,
+                    Campaign.participation_mode == CampaignParticipationMode.AUTOMATIC,
+                    Campaign.progress_metric == CampaignProgressMetric.POINTS,
+                    Campaign.status == CampaignStatus.ACTIVE,
+                    Campaign.starts_at <= now,
+                    Campaign.ends_at >= now,
+                )
+                .order_by(Campaign.ends_at.asc(), Campaign.created_at.desc())
+            )
+        )
+
     def get_campaign(self, campaign_id: uuid.UUID) -> Campaign | None:
         return self.db.get(Campaign, campaign_id)
 

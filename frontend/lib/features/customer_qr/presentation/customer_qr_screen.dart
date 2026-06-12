@@ -22,6 +22,7 @@ class CustomerQrScreen extends ConsumerStatefulWidget {
 class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
   CustomerQrToken? _token;
   CustomerStatus? _status;
+  List<CustomerCampaignProgress> _campaignProgresses = [];
   String? _error;
   String? _statusError;
   bool _isLoading = true;
@@ -81,6 +82,7 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
           const SizedBox(height: 16),
           _CustomerStatusCard(
             status: _status,
+            campaignProgresses: _campaignProgresses,
             isLoading: _isLoadingStatus,
             error: _statusError,
             onRefresh: _loadStatus,
@@ -161,12 +163,15 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
       _statusError = null;
     });
     try {
-      final status = await ref.read(customerQrRepositoryProvider).getStatus();
+      final repository = ref.read(customerQrRepositoryProvider);
+      final status = await repository.getStatus();
+      final campaignProgresses = await repository.getCampaignProgresses();
       if (!mounted) {
         return;
       }
       setState(() {
         _status = status;
+        _campaignProgresses = campaignProgresses;
         _isLoadingStatus = false;
       });
     } catch (error) {
@@ -209,12 +214,14 @@ class _CustomerQrScreenState extends ConsumerState<CustomerQrScreen> {
 class _CustomerStatusCard extends StatelessWidget {
   const _CustomerStatusCard({
     required this.status,
+    required this.campaignProgresses,
     required this.isLoading,
     required this.error,
     required this.onRefresh,
   });
 
   final CustomerStatus? status;
+  final List<CustomerCampaignProgress> campaignProgresses;
   final bool isLoading;
   final String? error;
   final VoidCallback onRefresh;
@@ -260,26 +267,96 @@ class _CustomerStatusCard extends StatelessWidget {
               const Center(child: CircularProgressIndicator())
             else if (error != null)
               _InlineError(message: error!, onRetry: onRefresh)
-            else if (status == null || status.businesses.isEmpty)
+            else if ((status == null || status.businesses.isEmpty) &&
+                campaignProgresses.isEmpty)
               const _EmptyStatus()
             else ...[
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _StatusMetric(
-                    icon: Icons.redeem,
-                    label: '${status.activeRewardsCount} active rewards',
-                    color: BrandColors.purple,
-                  ),
+                  if (status != null)
+                    _StatusMetric(
+                      icon: Icons.redeem,
+                      label: '${status.activeRewardsCount} active rewards',
+                      color: BrandColors.purple,
+                    ),
+                  if (campaignProgresses.isNotEmpty)
+                    _StatusMetric(
+                      icon: Icons.flag,
+                      label: '${campaignProgresses.length} campaigns',
+                      color: BrandColors.teal,
+                    ),
                 ],
               ),
               const SizedBox(height: 12),
-              ...status.businesses.map(
-                (business) => _BusinessStatusRow(business: business),
-              ),
+              if (campaignProgresses.isNotEmpty) ...[
+                Text(
+                  'Campaign Progress',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                ...campaignProgresses.map(
+                  (progress) => _CampaignProgressRow(progress: progress),
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (status != null)
+                ...status.businesses.map(
+                  (business) => _BusinessStatusRow(business: business),
+                ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CampaignProgressRow extends StatelessWidget {
+  const _CampaignProgressRow({required this.progress});
+
+  final CustomerCampaignProgress progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = progress.isCompleted
+        ? 'Completed'
+        : '${progress.remainingPoints} pts to reward';
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(color: BrandColors.line),
+          borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                progress.businessName,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: BrandColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                progress.campaignName,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(value: progress.progressRatio),
+              const SizedBox(height: 8),
+              Text(
+                '${progress.progressPoints}/${progress.thresholdPoints} pts · $label',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: BrandColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -408,7 +485,7 @@ class _EmptyStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'No active rewards yet.',
+      'No campaign progress or active rewards yet.',
       style: Theme.of(
         context,
       ).textTheme.bodyMedium?.copyWith(color: BrandColors.textSecondary),

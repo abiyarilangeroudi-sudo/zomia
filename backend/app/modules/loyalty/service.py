@@ -33,6 +33,7 @@ from app.modules.loyalty.repository import LoyaltyRepository
 from app.modules.loyalty.schemas import (
     CampaignCreate,
     CampaignProgressRead,
+    CustomerCampaignProgressRead,
     CustomerPointsRead,
     CustomerBusinessStatusRead,
     CustomerStatusRead,
@@ -377,6 +378,53 @@ class LoyaltyService:
             threshold_points=campaign.threshold_points,
             is_completed=completion is not None,
         )
+
+    def list_customer_campaign_progresses(
+        self, customer: User
+    ) -> list[CustomerCampaignProgressRead]:
+        self._require_role(customer, UserRole.CUSTOMER)
+        business_ids = (
+            self.repository.list_customer_point_business_ids(customer.id)
+            | self.repository.list_customer_reward_business_ids(customer.id)
+        )
+        businesses = {
+            business.id: business
+            for business in self.repository.list_businesses_by_ids(business_ids)
+        }
+        campaigns = self.repository.list_active_individual_campaigns_for_businesses(
+            business_ids=business_ids,
+            now=datetime.now(UTC),
+        )
+
+        progress_reads: list[CustomerCampaignProgressRead] = []
+        for campaign in campaigns:
+            business = businesses.get(campaign.creator_business_id)
+            if business is None:
+                continue
+            progress_points = self.repository.sum_campaign_points(
+                campaign=campaign,
+                customer_id=customer.id,
+            )
+            completion = self.repository.get_campaign_completion(
+                campaign_id=campaign.id,
+                customer_id=customer.id,
+            )
+            if progress_points <= 0 and completion is None:
+                continue
+            remaining_points = max(campaign.threshold_points - progress_points, 0)
+            progress_reads.append(
+                CustomerCampaignProgressRead(
+                    business_id=business.id,
+                    business_name=business.name,
+                    campaign_id=campaign.id,
+                    campaign_name=campaign.name,
+                    progress_points=progress_points,
+                    threshold_points=campaign.threshold_points,
+                    remaining_points=remaining_points,
+                    is_completed=completion is not None,
+                )
+            )
+        return progress_reads
 
     def list_customer_rewards(self, customer: User, business_id) -> list[GeneratedRewardRead]:
         self._require_role(customer, UserRole.CUSTOMER)

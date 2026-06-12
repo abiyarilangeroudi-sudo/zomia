@@ -462,6 +462,24 @@ def test_action_below_threshold_updates_campaign_progress_without_completion(
     assert progress.json()["progress_points"] == 2
     assert progress.json()["is_completed"] is False
 
+    progresses = client.get(
+        "/api/v1/customers/me/campaigns/progress",
+        headers=auth(customer_token),
+    )
+    assert progresses.status_code == 200
+    assert progresses.json() == [
+        {
+            "business_id": business_id,
+            "business_name": "Zomia Cafe",
+            "campaign_id": campaign["id"],
+            "campaign_name": campaign["name"],
+            "progress_points": 2,
+            "threshold_points": 5,
+            "remaining_points": 3,
+            "is_completed": False,
+        }
+    ]
+
 
 def test_action_reaching_threshold_creates_campaign_completion(
     client: TestClient, db_session: Session

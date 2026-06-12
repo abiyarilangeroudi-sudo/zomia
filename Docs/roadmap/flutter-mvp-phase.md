@@ -142,9 +142,10 @@ POST /api/v1/customers/me/qr-token/rotate
 GET  /api/v1/customers/me/points
 GET  /api/v1/customers/me/rewards
 GET  /api/v1/customers/me/status
+GET  /api/v1/customers/me/campaigns/progress
 ```
 
-نکته محصولی: `GET /customers/me/status` برای Flutter MVP فقط active rewards را پشتیبانی می‌کند. نمایش `total points` برای Customer فعلاً انجام نمی‌شود؛ Customer Campaign Progress باید جداگانه طراحی شود.
+نکته محصولی: `GET /customers/me/status` برای Flutter MVP فقط active rewards را پشتیبانی می‌کند. نمایش `total points` برای Customer انجام نمی‌شود. Customer Campaign Progress از endpoint جداگانه و campaign-based خوانده می‌شود.
 
 ## Demo Readiness Rule
 
@@ -165,6 +166,12 @@ GET  /api/v1/customers/me/status
 ```
 
 دلیل: قبل از طراحی Progress مشتری، Owner باید بتواند Mission/Campaign/Reward Template را بدون دخالت مستقیم backend آماده کند.
+
+وضعیت:
+
+- Owner minimal tools انجام شد.
+- Customer Campaign Progress با rule بدون `total points` تعریف و پیاده‌سازی شد.
+- UI/Branding recovery هنوز باقی است.
 
 ### برای Owner Management آماده اما اولویت دوم
 

@@ -43,6 +43,7 @@ Customer QR
 - [Flutter F2.9: MVP Demo Readiness](./sprints/flutter-f2-9-mvp-demo-readiness.md)
 - [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
 - [Flutter F5: Owner Minimal Setup Screens](./sprints/flutter-f5-owner-minimal-setup-screens.md)
+- [Flutter F6: Customer Campaign Progress](./sprints/flutter-f6-customer-campaign-progress.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
 

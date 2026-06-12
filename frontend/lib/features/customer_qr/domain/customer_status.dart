@@ -49,6 +49,48 @@ class CustomerBusinessStatus {
   }
 }
 
+class CustomerCampaignProgress {
+  const CustomerCampaignProgress({
+    required this.businessId,
+    required this.businessName,
+    required this.campaignId,
+    required this.campaignName,
+    required this.progressPoints,
+    required this.thresholdPoints,
+    required this.remainingPoints,
+    required this.isCompleted,
+  });
+
+  factory CustomerCampaignProgress.fromJson(Map<String, dynamic> json) {
+    return CustomerCampaignProgress(
+      businessId: json['business_id'] as String,
+      businessName: json['business_name'] as String,
+      campaignId: json['campaign_id'] as String,
+      campaignName: json['campaign_name'] as String,
+      progressPoints: json['progress_points'] as int,
+      thresholdPoints: json['threshold_points'] as int,
+      remainingPoints: json['remaining_points'] as int,
+      isCompleted: json['is_completed'] as bool,
+    );
+  }
+
+  final String businessId;
+  final String businessName;
+  final String campaignId;
+  final String campaignName;
+  final int progressPoints;
+  final int thresholdPoints;
+  final int remainingPoints;
+  final bool isCompleted;
+
+  double get progressRatio {
+    if (thresholdPoints <= 0) {
+      return 0;
+    }
+    return (progressPoints / thresholdPoints).clamp(0, 1).toDouble();
+  }
+}
+
 class CustomerReward {
   const CustomerReward({
     required this.id,

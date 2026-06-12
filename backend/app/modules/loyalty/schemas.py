@@ -135,6 +135,17 @@ class CampaignProgressRead(BaseModel):
     is_completed: bool
 
 
+class CustomerCampaignProgressRead(BaseModel):
+    business_id: uuid.UUID
+    business_name: str
+    campaign_id: uuid.UUID
+    campaign_name: str
+    progress_points: int
+    threshold_points: int
+    remaining_points: int
+    is_completed: bool
+
+
 class RewardTemplateCreate(BaseModel):
     business_id: uuid.UUID
     campaign_id: uuid.UUID

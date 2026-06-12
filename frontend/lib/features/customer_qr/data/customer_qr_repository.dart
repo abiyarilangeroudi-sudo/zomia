@@ -48,6 +48,22 @@ class CustomerQrRepository {
     }
   }
 
+  Future<List<CustomerCampaignProgress>> getCampaignProgresses() async {
+    try {
+      final response = await _dio.get<List<dynamic>>(
+        '/customers/me/campaigns/progress',
+      );
+      return (response.data ?? [])
+          .map(
+            (item) =>
+                CustomerCampaignProgress.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   String _messageFor(DioException error) {
     final data = error.response?.data;
     if (data is Map<String, dynamic> && data['detail'] is String) {
