@@ -57,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.28 (29)'), findsOneWidget);
+    expect(find.text('Version 1.0.29 (30)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -80,7 +80,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.28 (29)'));
+    await tester.tap(find.text('Version 1.0.29 (30)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
