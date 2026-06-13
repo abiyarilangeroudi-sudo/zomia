@@ -86,6 +86,10 @@ class StaffCreate(UserCreate):
     business_id: uuid.UUID
 
 
+class StaffUpdate(BaseModel):
+    is_active: bool
+
+
 class StaffRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

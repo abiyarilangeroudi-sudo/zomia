@@ -218,6 +218,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             staffMembers: _controller.staffForSelectedBusiness,
             isSaving: _controller.isSaving,
             onCreate: _controller.createStaff,
+            onSetStaffActive: _controller.setStaffActive,
           ),
       ],
     );

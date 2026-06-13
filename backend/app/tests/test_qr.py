@@ -79,6 +79,34 @@ def test_staff_resolves_qr_for_own_business(client: TestClient, db_session: Sess
     assert token.last_used_at is not None
 
 
+def test_inactive_staff_cannot_resolve_qr(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner-inactive@example.com")
+    staff_token, staff_user_id = create_staff(
+        client, owner_token, business_id, "staff-inactive@example.com"
+    )
+    customer_token, _ = register_customer(client)
+    qr = issue_qr(client, customer_token)
+    staff_members = client.get("/api/v1/owner/staff", headers=auth(owner_token)).json()
+    staff_member_id = next(
+        member["id"] for member in staff_members if member["user_id"] == staff_user_id
+    )
+    deactivate_response = client.patch(
+        f"/api/v1/owner/staff/{staff_member_id}",
+        json={"is_active": False},
+        headers=auth(owner_token),
+    )
+    assert deactivate_response.status_code == 200
+
+    response = client.post(
+        "/api/v1/staff/qr/resolve",
+        json={"business_id": business_id, "token": qr["token"]},
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Staff does not belong to this business"
+
+
 def test_staff_cannot_resolve_qr_for_another_business(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
     other_owner_token, other_business_id = register_owner(client, "other@example.com", "Other Cafe")

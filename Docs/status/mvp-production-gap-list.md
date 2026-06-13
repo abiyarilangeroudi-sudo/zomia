@@ -107,15 +107,21 @@ Required:
 
 ### 8. Staff Lifecycle Management
 
-Owner can create Staff, but cannot yet remove or deactivate Staff from the UI.
+Owner can create Staff and F10.2 adds Active/Inactive switching.
 
 Required:
 
-- Add Owner-controlled Staff deactivate/remove flow.
-- Prefer deactivate over hard delete for MVP, because actions and audit history must remain valid.
+- Keep deactivate/reactivate instead of hard delete for MVP, because actions and audit history must remain valid.
 - Make inactive Staff unable to access Staff workflows for that business.
 - Show clear active/inactive Staff status in Owner dashboard.
 - Add tests for inactive Staff access denial.
+
+F10.2 progress:
+
+- Owner can switch Staff between Active and Inactive.
+- Inactive Staff are removed from Staff context for that business.
+- Inactive Staff cannot resolve Customer QR for that business.
+- Owner UI shows Active/Inactive state and confirms the switch.
 
 ### 9. Repeatable Campaign Cycles
 

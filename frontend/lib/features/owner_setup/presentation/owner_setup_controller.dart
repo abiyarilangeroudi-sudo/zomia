@@ -141,6 +141,19 @@ class OwnerSetupController extends ChangeNotifier {
     );
   }
 
+  Future<void> setStaffActive(
+    OwnerStaffMember staffMember,
+    bool isActive,
+  ) async {
+    await _save(
+      () => repository.setStaffActive(
+        staffMemberId: staffMember.id,
+        isActive: isActive,
+      ),
+      isActive ? 'Staff activated.' : 'Staff deactivated.',
+    );
+  }
+
   Future<void> createMission() async {
     final business = selectedBusiness;
     final points = int.tryParse(missionPointsController.text.trim());

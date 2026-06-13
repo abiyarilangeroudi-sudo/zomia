@@ -148,6 +148,73 @@ def test_staff_can_read_own_context(client: TestClient) -> None:
     ]
 
 
+def test_owner_can_toggle_staff_active_status(client: TestClient) -> None:
+    owner_response = client.post(
+        "/api/v1/auth/register/owner",
+        json={
+            "email": "owner-toggle@example.com",
+            "password": "strong-password",
+            "full_name": "Owner Toggle",
+            "business_name": "Toggle Cafe",
+        },
+    )
+    assert owner_response.status_code == 201
+    business = owner_response.json()
+    owner_token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "owner-toggle@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+    owner_headers = {"Authorization": f"Bearer {owner_token}"}
+    staff_response = client.post(
+        "/api/v1/owner/staff",
+        json={
+            "business_id": business["id"],
+            "email": "staff-toggle@example.com",
+            "password": "strong-password",
+            "full_name": "Staff Toggle",
+        },
+        headers=owner_headers,
+    )
+    assert staff_response.status_code == 201
+    staff_id = staff_response.json()["id"]
+    staff_token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "staff-toggle@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+
+    inactive_response = client.patch(
+        f"/api/v1/owner/staff/{staff_id}",
+        json={"is_active": False},
+        headers=owner_headers,
+    )
+
+    assert inactive_response.status_code == 200
+    assert inactive_response.json()["is_active"] is False
+    context_response = client.get(
+        "/api/v1/staff/me/context",
+        headers={"Authorization": f"Bearer {staff_token}"},
+    )
+    assert context_response.status_code == 200
+    assert context_response.json()["businesses"] == []
+
+    active_response = client.patch(
+        f"/api/v1/owner/staff/{staff_id}",
+        json={"is_active": True},
+        headers=owner_headers,
+    )
+
+    assert active_response.status_code == 200
+    assert active_response.json()["is_active"] is True
+    context_response = client.get(
+        "/api/v1/staff/me/context",
+        headers={"Authorization": f"Bearer {staff_token}"},
+    )
+    assert context_response.status_code == 200
+    assert [business["id"] for business in context_response.json()["businesses"]] == [
+        business["id"]
+    ]
+
+
 def test_staff_context_can_return_multiple_businesses(
     client: TestClient, db_session: Session
 ) -> None:

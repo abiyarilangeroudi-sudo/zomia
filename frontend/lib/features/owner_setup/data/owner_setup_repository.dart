@@ -127,6 +127,20 @@ class OwnerSetupRepository {
     }
   }
 
+  Future<void> setStaffActive({
+    required String staffMemberId,
+    required bool isActive,
+  }) async {
+    try {
+      await _dio.patch<Map<String, dynamic>>(
+        '/owner/staff/$staffMemberId',
+        data: {'is_active': isActive},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<void> createCampaign({
     required String businessId,
     required String name,

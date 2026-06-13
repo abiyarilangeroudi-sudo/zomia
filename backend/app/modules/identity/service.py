@@ -1,4 +1,5 @@
 import re
+import uuid
 from datetime import timedelta
 
 from fastapi import HTTPException, status
@@ -54,6 +55,19 @@ class IdentityService:
         staff_user = self._create_user(payload, UserRole.STAFF)
         return self.repository.add_staff_member(
             StaffMember(business_id=business.id, user_id=staff_user.id)
+        )
+
+    def set_staff_active(
+        self, owner: User, staff_member_id: uuid.UUID, *, is_active: bool
+    ) -> StaffMember:
+        self._require_role(owner, UserRole.OWNER)
+        staff_member = self.repository.get_owner_staff_member(
+            staff_member_id=staff_member_id, owner_id=owner.id
+        )
+        if staff_member is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff member not found")
+        return self.repository.set_staff_member_active(
+            staff_member=staff_member, is_active=is_active
         )
 
     def get_staff_context(self, staff: User) -> StaffContextRead:

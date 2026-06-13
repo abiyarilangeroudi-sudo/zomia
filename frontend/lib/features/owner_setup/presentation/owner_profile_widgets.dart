@@ -190,6 +190,7 @@ class OwnerStaffSetupCard extends StatelessWidget {
     required this.staffMembers,
     required this.isSaving,
     required this.onCreate,
+    required this.onSetStaffActive,
   });
 
   final TextEditingController emailController;
@@ -198,6 +199,8 @@ class OwnerStaffSetupCard extends StatelessWidget {
   final List<OwnerStaffMember> staffMembers;
   final bool isSaving;
   final VoidCallback onCreate;
+  final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
+  onSetStaffActive;
 
   @override
   Widget build(BuildContext context) {
@@ -231,20 +234,97 @@ class OwnerStaffSetupCard extends StatelessWidget {
           isLoading: isSaving,
         ),
         const SizedBox(height: 12),
-        OwnerSimpleList(
-          emptyTitle: 'No staff yet',
-          emptyMessage: 'Created staff users will appear here.',
-          leadingIcon: Icons.person_rounded,
-          items: staffMembers
-              .map(
-                (staffMember) => OwnerSimpleListItem(
-                  title: staffMember.user.fullName,
-                  subtitle: staffMember.user.email,
-                ),
-              )
-              .toList(),
+        OwnerStaffList(
+          staffMembers: staffMembers,
+          isSaving: isSaving,
+          onSetStaffActive: onSetStaffActive,
         ),
       ],
     );
+  }
+}
+
+class OwnerStaffList extends StatelessWidget {
+  const OwnerStaffList({
+    super.key,
+    required this.staffMembers,
+    required this.isSaving,
+    required this.onSetStaffActive,
+  });
+
+  final List<OwnerStaffMember> staffMembers;
+  final bool isSaving;
+  final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
+  onSetStaffActive;
+
+  @override
+  Widget build(BuildContext context) {
+    if (staffMembers.isEmpty) {
+      return const EmptyStateView(
+        icon: Icons.person_rounded,
+        title: 'No staff yet',
+        message: 'Created staff users will appear here.',
+      );
+    }
+
+    return Column(
+      children: staffMembers
+          .map(
+            (staffMember) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AppListRow(
+                title: staffMember.user.fullName,
+                subtitle: staffMember.user.email,
+                leadingIcon: Icons.person_rounded,
+                trailing: Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusBadge(
+                      label: staffMember.isActive ? 'Active' : 'Inactive',
+                      tone: staffMember.isActive
+                          ? BadgeTone.success
+                          : BadgeTone.neutral,
+                    ),
+                    IconButton(
+                      tooltip: staffMember.isActive
+                          ? 'Deactivate staff'
+                          : 'Activate staff',
+                      onPressed: isSaving
+                          ? null
+                          : () => _confirmToggle(context, staffMember),
+                      icon: Icon(
+                        staffMember.isActive
+                            ? Icons.person_off_rounded
+                            : Icons.person_add_alt_1_rounded,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Future<void> _confirmToggle(
+    BuildContext context,
+    OwnerStaffMember staffMember,
+  ) async {
+    final nextActive = !staffMember.isActive;
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: nextActive ? 'Activate Staff?' : 'Deactivate Staff?',
+      message: nextActive
+          ? 'This staff member will regain access to this business.'
+          : 'This staff member will lose access to this business. History remains unchanged.',
+      confirmLabel: nextActive ? 'Activate' : 'Deactivate',
+      tone: nextActive ? ConfirmTone.standard : ConfirmTone.destructive,
+    );
+    if (!confirmed) {
+      return;
+    }
+    await onSetStaffActive(staffMember, nextActive);
   }
 }

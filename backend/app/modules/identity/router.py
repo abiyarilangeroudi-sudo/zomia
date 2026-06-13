@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+import uuid
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -17,6 +18,7 @@ from app.modules.identity.schemas import (
     StaffContextRead,
     StaffCreate,
     StaffRead,
+    StaffUpdate,
     TokenResponse,
     UserCreate,
     UserRead,
@@ -98,6 +100,21 @@ def create_staff(
     service: IdentityService = Depends(get_identity_service),
 ):
     staff_member = service.create_staff(current_user, payload)
+    db.commit()
+    return staff_member
+
+
+@router.patch("/owner/staff/{staff_member_id}", response_model=StaffRead)
+def update_staff(
+    staff_member_id: uuid.UUID,
+    payload: StaffUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+):
+    staff_member = service.set_staff_active(
+        current_user, staff_member_id, is_active=payload.is_active
+    )
     db.commit()
     return staff_member
 

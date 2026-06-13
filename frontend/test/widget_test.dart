@@ -73,7 +73,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.32 (33)'), findsOneWidget);
+    expect(find.text('Version 1.0.33 (34)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -96,7 +96,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.32 (33)'));
+    await tester.tap(find.text('Version 1.0.33 (34)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -287,6 +287,8 @@ void main() {
 
   testWidgets('signs in and renders owner setup screen', (tester) async {
     final tokenStore = _MemoryTokenStore();
+    await tester.binding.setSurfaceSize(const Size(900, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
       ProviderScope(
@@ -347,6 +349,24 @@ void main() {
     expect(find.text('Create Staff'), findsOneWidget);
     expect(find.text('Setup Staff'), findsOneWidget);
     expect(find.text('setup-staff@example.com'), findsOneWidget);
+    expect(find.text('Active'), findsOneWidget);
+    expect(find.byTooltip('Deactivate staff'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.byTooltip('Deactivate staff'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byTooltip('Deactivate staff'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Deactivate Staff?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Deactivate'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Staff deactivated.'), findsOneWidget);
+    expect(find.text('Inactive'), findsOneWidget);
+    expect(find.byTooltip('Activate staff'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Staff recent actions'));
     await pumpAppFrames(tester);
@@ -515,6 +535,8 @@ class _MemoryCustomerQrTokenStore implements CustomerQrTokenStore {
 class _FakeOwnerSetupRepository extends OwnerSetupRepository {
   _FakeOwnerSetupRepository() : super(Dio());
 
+  bool _staffIsActive = true;
+
   @override
   Future<List<OwnerBusiness>> listBusinesses() async {
     return const [
@@ -543,13 +565,13 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
 
   @override
   Future<List<OwnerStaffMember>> listStaff() async {
-    return const [
+    return [
       OwnerStaffMember(
         id: 'staff-member-id',
         businessId: 'business-id',
         userId: 'staff-user-id',
-        isActive: true,
-        user: OwnerStaffUser(
+        isActive: _staffIsActive,
+        user: const OwnerStaffUser(
           id: 'staff-user-id',
           email: 'setup-staff@example.com',
           fullName: 'Setup Staff',
@@ -557,6 +579,14 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         ),
       ),
     ];
+  }
+
+  @override
+  Future<void> setStaffActive({
+    required String staffMemberId,
+    required bool isActive,
+  }) async {
+    _staffIsActive = isActive;
   }
 
   @override

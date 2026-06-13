@@ -43,6 +43,24 @@ class IdentityRepository:
         self.db.refresh(staff_member, attribute_names=["user"])
         return staff_member
 
+    def get_owner_staff_member(
+        self, *, staff_member_id: uuid.UUID, owner_id: uuid.UUID
+    ) -> StaffMember | None:
+        return self.db.scalar(
+            select(StaffMember)
+            .join(StaffMember.business)
+            .where(StaffMember.id == staff_member_id, Business.owner_id == owner_id)
+            .options(selectinload(StaffMember.user))
+        )
+
+    def set_staff_member_active(
+        self, *, staff_member: StaffMember, is_active: bool
+    ) -> StaffMember:
+        staff_member.is_active = is_active
+        self.db.flush()
+        self.db.refresh(staff_member, attribute_names=["user"])
+        return staff_member
+
     def list_staff_members(self, owner_id: uuid.UUID) -> list[StaffMember]:
         return list(
             self.db.scalars(
