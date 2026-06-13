@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zomia_frontend/app/router.dart';
 import 'package:zomia_frontend/app/ui/app_text_field.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
+import 'package:zomia_frontend/core/http/api_client.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
 import 'package:zomia_frontend/features/auth/domain/current_user.dart';
@@ -55,6 +56,18 @@ void main() {
     );
   });
 
+  test('maps auth backend errors to user-facing messages', () {
+    expect(
+      mapAuthErrorDetail('Incorrect email or password'),
+      'Incorrect email or password.',
+    );
+    expect(
+      mapAuthErrorDetail('Email already exists'),
+      'This email is already registered.',
+    );
+    expect(mapAuthErrorDetail('Custom auth detail'), 'Custom auth detail');
+  });
+
   testWidgets('renders the staff login screen when signed out', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -73,8 +86,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.33 (34)'), findsOneWidget);
+    expect(find.text('Version 1.0.34 (35)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
+  });
+
+  testWidgets('renders session expired message on login screen', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(_MemoryTokenStore()),
+          sessionExpiredMessageProvider.overrideWith(
+            _ExpiredSessionMessageNotifier.new,
+          ),
+          staffServiceRepositoryProvider.overrideWithValue(
+            _FakeStaffServiceRepository(),
+          ),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Your session expired. Please sign in again.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('opens the temporary UI component catalog from version label', (
@@ -96,7 +137,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.33 (34)'));
+    await tester.tap(find.text('Version 1.0.34 (35)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -408,6 +449,11 @@ class _MemoryTokenStore implements TokenStore {
   Future<void> writeAccessToken(String token) async {
     _token = token;
   }
+}
+
+class _ExpiredSessionMessageNotifier extends SessionExpiredMessageNotifier {
+  @override
+  String? build() => 'Your session expired. Please sign in again.';
 }
 
 class _FakeStaffServiceRepository extends StaffServiceRepository {

@@ -74,7 +74,10 @@ class AuthRepository {
   String _messageFor(DioException error) {
     final data = error.response?.data;
     if (data is Map<String, dynamic> && data['detail'] is String) {
-      return data['detail'] as String;
+      return mapAuthErrorDetail(data['detail'] as String);
+    }
+    if (data is Map<String, dynamic> && data['detail'] is List<dynamic>) {
+      return 'Please check the form and try again.';
     }
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
@@ -83,4 +86,13 @@ class AuthRepository {
     }
     return 'Something went wrong. Please try again.';
   }
+}
+
+String mapAuthErrorDetail(String detail) {
+  return switch (detail) {
+    'Incorrect email or password' => 'Incorrect email or password.',
+    'Email already exists' => 'This email is already registered.',
+    'Insufficient role' => 'You do not have access to this area.',
+    _ => detail,
+  };
 }

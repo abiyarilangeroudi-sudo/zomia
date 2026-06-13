@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/ui.dart';
+import '../../../core/http/api_client.dart';
 import '../../customer_qr/presentation/customer_screen.dart';
 import '../../owner_setup/presentation/owner_screen.dart';
 import '../../staff_context/presentation/business_select_screen.dart';
@@ -15,13 +16,20 @@ class AuthGate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
+    final sessionExpiredMessage = ref.watch(sessionExpiredMessageProvider);
+
+    ref.listen<String?>(sessionExpiredMessageProvider, (_, message) {
+      if (message != null) {
+        ref.read(authControllerProvider.notifier).expireSession();
+      }
+    });
 
     return authState.when(
       loading: () => const _LoadingScreen(),
       error: (error, _) => LoginScreen(initialError: error.toString()),
       data: (state) {
         if (!state.isAuthenticated) {
-          return const LoginScreen();
+          return LoginScreen(initialError: sessionExpiredMessage);
         }
         if (state.isCustomer) {
           return CustomerScreen(user: state.user!);

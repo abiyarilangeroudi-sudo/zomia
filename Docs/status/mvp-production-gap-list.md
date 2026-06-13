@@ -147,6 +147,14 @@ Required:
 - Decide whether Social Auth is needed for MVP or later.
 - Keep Google/Apple OAuth2 out of scope until the basic email/password flow is stable.
 
+F10.3 progress:
+
+- Flutter clears local auth state and Customer QR cache when authenticated API calls return `401`.
+- Flutter shows `Your session expired. Please sign in again.` on the Login screen.
+- Login/register backend error details are mapped to clearer user-facing messages.
+- Password recovery and email verification remain design/contract work, not rushed implementation.
+- Follow OWASP Forgot Password guidance when implementing reset: consistent responses, expiring single-use tokens/codes, secure storage, and no account change before a valid token/code is presented.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion, not registration requirement.

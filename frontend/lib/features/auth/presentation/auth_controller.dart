@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/http/api_client.dart';
 import '../../../core/storage/secure_token_store.dart';
 import '../../customer_qr/data/customer_qr_repository.dart';
 import '../../staff_context/domain/staff_context.dart';
@@ -63,6 +64,13 @@ class AuthController extends AsyncNotifier<AuthState> {
   }
 
   Future<void> signOut() async {
+    ref.read(sessionExpiredMessageProvider.notifier).clear();
+    await ref.read(secureTokenStoreProvider).clear();
+    await ref.read(customerQrRepositoryProvider).clearCachedToken();
+    state = const AsyncData(AuthState.unauthenticated());
+  }
+
+  Future<void> expireSession() async {
     await ref.read(secureTokenStoreProvider).clear();
     await ref.read(customerQrRepositoryProvider).clearCachedToken();
     state = const AsyncData(AuthState.unauthenticated());
@@ -89,6 +97,7 @@ class AuthController extends AsyncNotifier<AuthState> {
   }) async {
     final repository = ref.read(authRepositoryProvider);
     final token = await repository.login(email: email, password: password);
+    ref.read(sessionExpiredMessageProvider.notifier).clear();
     await ref.read(secureTokenStoreProvider).writeAccessToken(token);
     final user = await repository.getCurrentUser();
     if (!user.isStaff) {
