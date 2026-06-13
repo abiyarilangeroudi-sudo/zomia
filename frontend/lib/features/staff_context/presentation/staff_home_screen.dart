@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../staff_service/domain/staff_service_models.dart';
-import '../../staff_service/presentation/staff_service_panel.dart';
+import '../../staff_service/presentation/staff_panel.dart';
+import '../../staff_service/presentation/staff_service_cards.dart';
 import '../domain/staff_context.dart';
 
 class StaffHomeScreen extends ConsumerStatefulWidget {
@@ -22,7 +23,7 @@ class StaffHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
-  final _servicePanelKey = GlobalKey<StaffServicePanelState>();
+  final _servicePanelKey = GlobalKey<StaffPanelState>();
   List<StaffRecentAction> _recentActions = const [];
   int _selectedIndex = 0;
 
@@ -63,7 +64,7 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
         child: IndexedStack(
           index: _selectedIndex,
           children: [
-            _DashboardScroll(
+            DashboardScroll(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -72,7 +73,7 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                     staff: widget.staff,
                   ),
                   const SizedBox(height: 16),
-                  StaffServicePanel(
+                  StaffPanel(
                     key: _servicePanelKey,
                     business: widget.business,
                     onSummaryChanged: _handleSummaryChanged,
@@ -80,10 +81,10 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                 ],
               ),
             ),
-            _DashboardScroll(
+            DashboardScroll(
               child: StaffRecentActionsCard(actions: _recentActions),
             ),
-            _DashboardScroll(
+            DashboardScroll(
               child: _StaffProfileCard(
                 staff: widget.staff,
                 business: widget.business,
@@ -104,27 +105,6 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
 
   void _handleSummaryChanged(StaffServiceSummary? summary) {
     setState(() => _recentActions = summary?.recentActions ?? const []);
-  }
-}
-
-class _DashboardScroll extends StatelessWidget {
-  const _DashboardScroll({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      children: [
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: child,
-          ),
-        ),
-      ],
-    );
   }
 }
 

@@ -38,19 +38,26 @@ class AuthController extends AsyncNotifier<AuthState> {
   Future<void> signIn({required String email, required String password}) async {
     state = const AsyncLoading<AuthState>();
     state = await AsyncValue.guard(() async {
+      return _authenticate(email: email, password: password);
+    });
+  }
+
+  Future<void> registerCustomer({
+    required String fullName,
+    required String email,
+    required String password,
+    String? phone,
+  }) async {
+    state = const AsyncLoading<AuthState>();
+    state = await AsyncValue.guard(() async {
       final repository = ref.read(authRepositoryProvider);
-      final token = await repository.login(email: email, password: password);
-      await ref.read(secureTokenStoreProvider).writeAccessToken(token);
-      final user = await repository.getCurrentUser();
-      if (!user.isStaff) {
-        return AuthState.authenticated(user: user);
-      }
-      final context = await repository.getStaffContext();
-      return AuthState.authenticated(
-        user: user,
-        context: context,
-        selectedBusiness: _defaultBusiness(context),
+      await repository.registerCustomer(
+        fullName: fullName,
+        email: email,
+        password: password,
+        phone: phone,
       );
+      return _authenticate(email: email, password: password);
     });
   }
 
@@ -72,5 +79,24 @@ class AuthController extends AsyncNotifier<AuthState> {
       return context.businesses.first;
     }
     return null;
+  }
+
+  Future<AuthState> _authenticate({
+    required String email,
+    required String password,
+  }) async {
+    final repository = ref.read(authRepositoryProvider);
+    final token = await repository.login(email: email, password: password);
+    await ref.read(secureTokenStoreProvider).writeAccessToken(token);
+    final user = await repository.getCurrentUser();
+    if (!user.isStaff) {
+      return AuthState.authenticated(user: user);
+    }
+    final context = await repository.getStaffContext();
+    return AuthState.authenticated(
+      user: user,
+      context: context,
+      selectedBusiness: _defaultBusiness(context),
+    );
   }
 }

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/ui.dart';
-import 'auth_controller.dart';
-import 'login_screen.dart';
-import '../../customer_qr/presentation/customer_qr_screen.dart';
-import '../../owner_setup/presentation/owner_setup_screen.dart';
+import '../../customer_qr/presentation/customer_screen.dart';
+import '../../owner_setup/presentation/owner_screen.dart';
 import '../../staff_context/presentation/business_select_screen.dart';
 import '../../staff_context/presentation/staff_home_screen.dart';
+import 'auth_controller.dart';
+import 'login_screen.dart';
 
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
@@ -24,10 +24,10 @@ class AuthGate extends ConsumerWidget {
           return const LoginScreen();
         }
         if (state.isCustomer) {
-          return CustomerQrScreen(user: state.user!);
+          return CustomerScreen(user: state.user!);
         }
         if (state.user!.isOwner) {
-          return OwnerSetupScreen(user: state.user!);
+          return OwnerScreen(user: state.user!);
         }
         if (!state.isStaff) {
           return const _UnsupportedRoleScreen();

@@ -12,6 +12,7 @@ export 'inline_banner.dart';
 export 'app_button.dart';
 export 'app_card.dart';
 export 'confirm_dialog.dart';
+export 'dashboard_scroll.dart';
 export 'empty_state_view.dart';
 export 'bottom_nav_bar.dart';
 export 'progress_card.dart';

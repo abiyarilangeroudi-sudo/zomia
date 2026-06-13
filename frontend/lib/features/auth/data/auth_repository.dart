@@ -30,6 +30,27 @@ class AuthRepository {
     }
   }
 
+  Future<void> registerCustomer({
+    required String fullName,
+    required String email,
+    required String password,
+    String? phone,
+  }) async {
+    try {
+      await _dio.post<Map<String, dynamic>>(
+        '/auth/register/customer',
+        data: {
+          'full_name': fullName,
+          'email': email,
+          'password': password,
+          'phone': phone?.isEmpty ?? true ? null : phone,
+        },
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<StaffContext> getStaffContext() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(

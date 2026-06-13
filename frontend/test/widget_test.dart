@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:zomia_frontend/app/router.dart';
+import 'package:zomia_frontend/app/ui/app_text_field.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
@@ -56,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.22 (23)'), findsOneWidget);
+    expect(find.text('Version 1.0.28 (29)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -79,13 +80,61 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.22 (23)'));
+    await tester.tap(find.text('Version 1.0.28 (29)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
     expect(find.text('Zomia Design System'), findsOneWidget);
     expect(find.text('AppCard / normal'), findsOneWidget);
     expect(find.text('ProgressCard / active'), findsOneWidget);
+  });
+
+  testWidgets('registers a customer and opens customer dashboard', (
+    tester,
+  ) async {
+    final tokenStore = _MemoryTokenStore();
+    final authRepository = _FakeAuthRepository(role: 'customer');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.text('New here? Create an account'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Get Started'), findsOneWidget);
+
+    await _enterTextByLabel(tester, 'Name', 'Customer One');
+    await _enterTextByLabel(tester, 'Email', 'customer@example.com');
+    await _enterTextByLabel(tester, 'Password', 'strong-password');
+    await _enterTextByLabel(tester, 'Confirm Password', 'strong-password');
+    await tester.tap(find.text('Term Accept'));
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    await tester.pumpAndSettle();
+    final createButton = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Create account'),
+    );
+    expect(createButton.onPressed, isNotNull);
+    await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.registeredCustomer, isTrue);
+    expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(find.text('Customer Dashboard'), findsOneWidget);
+    expect(find.text('Welcome, Customer One'), findsOneWidget);
   });
 
   testWidgets('signs in and renders staff context', (tester) async {
@@ -228,9 +277,7 @@ void main() {
     expect(find.text('Owner Setup'), findsOneWidget);
     expect(find.text('Signed in as Owner One'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsWidgets);
-    expect(find.text('Create Staff'), findsOneWidget);
-    expect(find.text('Setup Staff'), findsOneWidget);
-    expect(find.text('setup-staff@example.com'), findsOneWidget);
+    expect(find.byTooltip('Staff recent actions'), findsOneWidget);
 
     await tester.drag(find.byType(ListView), const Offset(0, -500));
     await pumpAppFrames(tester);
@@ -238,7 +285,7 @@ void main() {
     expect(find.text('Create Mission'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsWidgets);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.tap(find.text('Campaigns'));
     await pumpAppFrames(tester);
 
     expect(find.text('Create Campaign'), findsOneWidget);
@@ -257,7 +304,31 @@ void main() {
 
     expect(find.text('Profile'), findsWidgets);
     expect(find.text('owner@example.com'), findsOneWidget);
+    expect(find.text('Create Staff'), findsOneWidget);
+    expect(find.text('Setup Staff'), findsOneWidget);
+    expect(find.text('setup-staff@example.com'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Staff recent actions'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Staff Recent Actions'), findsOneWidget);
+    expect(find.text('No staff actions yet'), findsOneWidget);
   });
+}
+
+Future<void> _enterTextByLabel(
+  WidgetTester tester,
+  String label,
+  String value,
+) async {
+  final finder = find.byWidgetPredicate(
+    (widget) => widget is AppTextField && widget.label == label,
+  );
+  final field = find
+      .descendant(of: finder, matching: find.byType(TextFormField))
+      .last;
+  await tester.ensureVisible(field);
+  await tester.enterText(field, value);
 }
 
 class _MemoryTokenStore implements TokenStore {
@@ -444,6 +515,17 @@ class _FakeAuthRepository extends AuthRepository {
   _FakeAuthRepository({this.role = 'staff'}) : super(Dio());
 
   final String role;
+  bool registeredCustomer = false;
+
+  @override
+  Future<void> registerCustomer({
+    required String fullName,
+    required String email,
+    required String password,
+    String? phone,
+  }) async {
+    registeredCustomer = true;
+  }
 
   @override
   Future<String> login({
