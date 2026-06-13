@@ -16,6 +16,7 @@ from app.modules.qr.schemas import (
     RegisterActionByQrResponse,
     ResolveQrRequest,
     StaffRecentActionRead,
+    StaffServiceCustomerRead,
     StaffServiceMissionRead,
     StaffServiceSummary,
     UseRewardByQrRequest,
@@ -124,9 +125,10 @@ class QrService:
         self, *, staff: User, business_id: uuid.UUID, raw_token: str
     ) -> User:
         self._require_role(staff, UserRole.STAFF)
-        if self.repository.get_staff_membership(
-            business_id=business_id, staff_user_id=staff.id
-        ) is None:
+        if (
+            self.repository.get_staff_membership(business_id=business_id, staff_user_id=staff.id)
+            is None
+        ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Staff does not belong to this business",
@@ -136,12 +138,16 @@ class QrService:
         if token is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="QR token not found")
         if token.status != CustomerQrTokenStatus.ACTIVE:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="QR token is not active")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="QR token is not active"
+            )
 
         now = datetime.now(UTC)
         if self._as_utc(token.expires_at) <= now:
             self.repository.expire_token(token, now)
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="QR token is expired")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="QR token is expired"
+            )
 
         customer = token.customer
         if not self.repository.is_customer(customer):
@@ -170,7 +176,7 @@ class QrService:
         ]
         return StaffServiceSummary(
             business_id=business_id,
-            customer=customer,
+            customer=StaffServiceCustomerRead.model_validate(customer),
             points=points,
             active_rewards=rewards,
             recent_actions=recent_actions,

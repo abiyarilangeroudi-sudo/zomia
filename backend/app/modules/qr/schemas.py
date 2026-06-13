@@ -1,9 +1,9 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.modules.identity.schemas import UserRead
+from app.modules.identity.models import UserRole
 from app.modules.loyalty.schemas import (
     ActionItemCreate,
     GeneratedRewardRead,
@@ -31,9 +31,18 @@ class StaffRecentActionRead(BaseModel):
     created_at: datetime
 
 
+class StaffServiceCustomerRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    full_name: str
+    role: UserRole
+    is_active: bool
+
+
 class StaffServiceSummary(BaseModel):
     business_id: uuid.UUID
-    customer: UserRead
+    customer: StaffServiceCustomerRead
     points: int
     active_rewards: list[GeneratedRewardRead]
     recent_actions: list[StaffRecentActionRead] = Field(default_factory=list)

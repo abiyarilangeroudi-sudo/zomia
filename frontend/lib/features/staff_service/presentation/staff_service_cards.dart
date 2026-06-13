@@ -31,7 +31,6 @@ class StaffCustomerSummaryCard extends StatelessWidget {
               children: [
                 SectionHeader(
                   title: summary.customer.fullName,
-                  subtitle: summary.customer.email,
                   trailing: const StatusBadge(
                     label: 'Loaded',
                     tone: BadgeTone.success,

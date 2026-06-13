@@ -23,9 +23,7 @@ def issue_qr(client: TestClient, customer_token: str) -> dict:
     return response.json()
 
 
-def test_customer_issues_and_rotates_qr_token(
-    client: TestClient, db_session: Session
-) -> None:
+def test_customer_issues_and_rotates_qr_token(client: TestClient, db_session: Session) -> None:
     customer_token, customer_id = register_customer(client)
 
     first = issue_qr(client, customer_token)
@@ -71,10 +69,14 @@ def test_staff_resolves_qr_for_own_business(client: TestClient, db_session: Sess
     body = response.json()
     assert body["business_id"] == business_id
     assert body["customer"]["id"] == customer_id
+    assert body["customer"]["full_name"] == "Customer"
+    assert "email" not in body["customer"]
     assert body["points"] == 0
     assert body["active_rewards"] == []
 
-    token = db_session.scalar(select(CustomerQrToken).where(CustomerQrToken.status == CustomerQrTokenStatus.ACTIVE))
+    token = db_session.scalar(
+        select(CustomerQrToken).where(CustomerQrToken.status == CustomerQrTokenStatus.ACTIVE)
+    )
     assert token is not None
     assert token.last_used_at is not None
 
@@ -156,9 +158,7 @@ def test_staff_cannot_list_service_missions_for_another_business(client: TestCli
     assert response.status_code == 403
 
 
-def test_expired_qr_cannot_be_resolved(
-    client: TestClient, db_session: Session
-) -> None:
+def test_expired_qr_cannot_be_resolved(client: TestClient, db_session: Session) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
     customer_token, _ = register_customer(client)
@@ -206,6 +206,7 @@ def test_staff_registers_action_using_qr_and_gets_updated_summary(
     assert response.status_code == 200
     body = response.json()
     assert body["action"]["points_granted"] == 5
+    assert "email" not in body["summary"]["customer"]
     assert body["summary"]["points"] == 5
     assert len(body["summary"]["active_rewards"]) == 1
     assert body["summary"]["recent_actions"][0]["action_type"] == "mission_progress"
@@ -251,6 +252,7 @@ def test_staff_uses_reward_using_qr_service_endpoint(
     assert response.status_code == 200
     body = response.json()
     assert body["reward_use"]["reward"]["status"] == "used"
+    assert "email" not in body["summary"]["customer"]
     assert body["summary"]["active_rewards"] == []
     assert db_session.query(RewardUsage).count() == 1
     assert db_session.query(PointsLedgerEntry).count() == 1

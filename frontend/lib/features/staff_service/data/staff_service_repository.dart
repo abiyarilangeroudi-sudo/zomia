@@ -111,8 +111,7 @@ String mapStaffServiceErrorDetail(String detail) {
   return switch (detail) {
     'QR token not found' =>
       'QR code not found. Please scan the customer QR again.',
-    'QR token is not active' =>
-      'This QR code is no longer active. Scan the current QR.',
+    'QR token is not active' => 'Scan the current QR.',
     'QR token is expired' =>
       'This QR code has expired. Ask the customer to refresh it.',
     'Staff does not belong to this business' =>

@@ -20,6 +20,7 @@ import 'package:zomia_frontend/features/owner_setup/presentation/owner_profile_w
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
 import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
+import 'package:zomia_frontend/features/staff_service/presentation/staff_service_cards.dart';
 import 'package:zomia_frontend/features/staff_context/domain/staff_context.dart';
 
 void main() {
@@ -45,7 +46,7 @@ void main() {
   test('maps staff service backend errors to user-facing messages', () {
     expect(
       mapStaffServiceErrorDetail('QR token is not active'),
-      'This QR code is no longer active. Scan the current QR.',
+      'Scan the current QR.',
     );
     expect(
       mapStaffServiceErrorDetail('Reward is already used'),
@@ -99,6 +100,23 @@ void main() {
     expect(mapAuthErrorDetail('Custom auth detail'), 'Custom auth detail');
   });
 
+  test('parses staff service customer without email', () {
+    final summary = StaffServiceSummary.fromJson({
+      'business_id': 'business-id',
+      'customer': {
+        'id': 'customer-id',
+        'full_name': 'Customer One',
+        'role': 'customer',
+        'is_active': true,
+      },
+      'points': 0,
+      'active_rewards': [],
+      'recent_actions': [],
+    });
+
+    expect(summary.customer.fullName, 'Customer One');
+  });
+
   testWidgets('renders the staff login screen when signed out', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -117,7 +135,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.37 (38)'), findsOneWidget);
+    expect(find.text('Version 1.0.39 (40)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -168,7 +186,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.37 (38)'));
+    await tester.tap(find.text('Version 1.0.39 (40)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -468,6 +486,36 @@ void main() {
     expect(find.text('Staff Recent Actions'), findsOneWidget);
     expect(find.text('No staff actions yet'), findsOneWidget);
     expect(find.text('Close'), findsNothing);
+  });
+
+  testWidgets('renders staff customer card without customer email', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: StaffCustomerSummaryCard(
+            isLoading: false,
+            summary: StaffServiceSummary(
+              businessId: 'business-id',
+              customer: StaffServiceCustomer(
+                id: 'customer-id',
+                fullName: 'Customer One',
+                role: 'customer',
+                isActive: true,
+              ),
+              points: 2,
+              activeRewards: [],
+              recentActions: [],
+            ),
+          ),
+        ),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    expect(find.text('Customer One'), findsOneWidget);
+    expect(find.text('customer@example.com'), findsNothing);
   });
 }
 
