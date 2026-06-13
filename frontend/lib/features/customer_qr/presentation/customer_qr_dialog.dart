@@ -28,6 +28,7 @@ class CustomerQrDialog extends ConsumerStatefulWidget {
 class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
   CustomerQrToken? _token;
   String? _error;
+  bool _showRefreshWarning = false;
   bool _isRotating = false;
 
   @override
@@ -105,6 +106,12 @@ class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
       primaryActionIcon: Icons.refresh_rounded,
       isPrimaryActionLoading: _isRotating,
       onPrimaryAction: _isRotating ? null : _refreshToken,
+      fallbackContent: _showRefreshWarning
+          ? const InlineBanner(
+              message: 'Old QR is invalid.',
+              tone: BannerTone.warning,
+            )
+          : null,
     );
   }
 
@@ -121,6 +128,7 @@ class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
       widget.onTokenChanged(token);
       setState(() {
         _token = token;
+        _showRefreshWarning = true;
         _isRotating = false;
       });
     } catch (error) {

@@ -96,7 +96,7 @@ class StaffServiceRepository {
   String _messageFor(DioException error) {
     final data = error.response?.data;
     if (data is Map<String, dynamic> && data['detail'] is String) {
-      return data['detail'] as String;
+      return mapStaffServiceErrorDetail(data['detail'] as String);
     }
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
@@ -105,6 +105,27 @@ class StaffServiceRepository {
     }
     return 'Something went wrong. Please try again.';
   }
+}
+
+String mapStaffServiceErrorDetail(String detail) {
+  return switch (detail) {
+    'QR token not found' =>
+      'QR code not found. Please scan the customer QR again.',
+    'QR token is not active' =>
+      'This QR code is no longer active. Scan the current QR.',
+    'QR token is expired' =>
+      'This QR code has expired. Ask the customer to refresh it.',
+    'Staff does not belong to this business' =>
+      'You do not have access to this business.',
+    'Customer not found' => 'Customer not found. Please scan again.',
+    'Reward not found' => 'Reward not found. Refresh the customer session.',
+    'Reward does not belong to resolved customer' =>
+      'This reward does not belong to the scanned customer.',
+    'Reward is expired' => 'This reward has expired.',
+    'Reward is already used' => 'This reward was already used.',
+    'Reward is not active' => 'This reward is no longer active.',
+    _ => detail,
+  };
 }
 
 class StaffServiceActionItem {

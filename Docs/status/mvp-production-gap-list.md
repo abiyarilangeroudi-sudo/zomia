@@ -34,6 +34,13 @@ Required:
 - Understand WebGL/camera/video warnings and decide whether they are harmless local dev noise or need mitigation.
 - Keep console clean enough that real failures are easy to notice.
 
+F10.1 progress:
+
+- Staff-facing QR and reward errors are mapped to clearer UI messages.
+- Customer manual QR refresh shows a short warning: `Old QR is invalid.`
+- `flutter.js.map` 404 is caused by generated web files referencing `flutter.js.map` while the local build output does not include that map file; keep it as a local serving/build artifact cleanup item.
+- WebGL/camera/video warnings are still tracked as browser/camera lifecycle noise until proven otherwise.
+
 ### 2. Auth and Session Hardening
 
 Current MVP uses simple JWT access token storage.

@@ -40,6 +40,21 @@ void main() {
     );
   });
 
+  test('maps staff service backend errors to user-facing messages', () {
+    expect(
+      mapStaffServiceErrorDetail('QR token is not active'),
+      'This QR code is no longer active. Scan the current QR.',
+    );
+    expect(
+      mapStaffServiceErrorDetail('Reward is already used'),
+      'This reward was already used.',
+    );
+    expect(
+      mapStaffServiceErrorDetail('Custom backend detail'),
+      'Custom backend detail',
+    );
+  });
+
   testWidgets('renders the staff login screen when signed out', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -58,7 +73,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.31 (32)'), findsOneWidget);
+    expect(find.text('Version 1.0.32 (33)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -81,7 +96,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.31 (32)'));
+    await tester.tap(find.text('Version 1.0.32 (33)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -267,6 +282,7 @@ void main() {
 
     expect(find.text('rotated-qr-token'), findsOneWidget);
     expect(find.text('qr-token'), findsNothing);
+    expect(find.text('Old QR is invalid.'), findsOneWidget);
   });
 
   testWidgets('signs in and renders owner setup screen', (tester) async {
