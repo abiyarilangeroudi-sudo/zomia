@@ -27,7 +27,6 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
   String? _statusError;
   bool _isLoadingQr = true;
   bool _isLoadingStatus = true;
-  bool _isRotating = false;
   int _selectedIndex = 0;
 
   static const _tabs = [
@@ -175,31 +174,6 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
     }
   }
 
-  Future<void> _rotateToken() async {
-    setState(() {
-      _isRotating = true;
-      _qrError = null;
-    });
-    try {
-      final token = await ref.read(customerQrRepositoryProvider).rotateToken();
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _token = token;
-        _isRotating = false;
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _qrError = error.toString();
-        _isRotating = false;
-      });
-    }
-  }
-
   void _openQrDialog() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -207,9 +181,13 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
         builder: (context) => CustomerQrDialog(
           token: _token,
           isLoading: _isLoadingQr,
-          isRotating: _isRotating,
           error: _qrError,
-          onRefresh: _isLoadingQr || _isRotating ? null : _rotateToken,
+          onTokenChanged: (token) {
+            if (!mounted) {
+              return;
+            }
+            setState(() => _token = token);
+          },
           onRetry: _issueToken,
         ),
       ),

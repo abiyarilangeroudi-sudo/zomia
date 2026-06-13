@@ -57,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.29 (30)'), findsOneWidget);
+    expect(find.text('Version 1.0.30 (31)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -80,7 +80,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.29 (30)'));
+    await tester.tap(find.text('Version 1.0.30 (31)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -243,6 +243,12 @@ void main() {
     expect(find.text('Ready to Scan'), findsOneWidget);
     expect(find.text('Refresh QR token'), findsOneWidget);
     expect(find.text('qr-token'), findsOneWidget);
+
+    await tester.tap(find.text('Refresh QR token'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('rotated-qr-token'), findsOneWidget);
+    expect(find.text('qr-token'), findsNothing);
   });
 
   testWidgets('signs in and renders owner setup screen', (tester) async {
@@ -384,7 +390,11 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
 
   @override
   Future<CustomerQrToken> rotateToken() async {
-    return issueToken();
+    return CustomerQrToken(
+      token: 'rotated-qr-token',
+      qrPayload: 'rotated-qr-token',
+      expiresAt: DateTime(2027),
+    );
   }
 
   @override

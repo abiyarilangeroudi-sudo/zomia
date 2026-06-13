@@ -16,6 +16,7 @@ class QRCard extends StatelessWidget {
     this.variant = QRCardVariant.customer,
     this.primaryActionLabel,
     this.primaryActionIcon,
+    this.isPrimaryActionLoading = false,
     this.onPrimaryAction,
     this.fallbackContent,
     this.secondaryActionLabel,
@@ -29,6 +30,7 @@ class QRCard extends StatelessWidget {
   final QRCardVariant variant;
   final String? primaryActionLabel;
   final IconData? primaryActionIcon;
+  final bool isPrimaryActionLoading;
   final VoidCallback? onPrimaryAction;
   final Widget? fallbackContent;
   final String? secondaryActionLabel;
@@ -78,6 +80,7 @@ class QRCard extends StatelessWidget {
             PrimaryButton(
               label: primaryActionLabel!,
               icon: primaryActionIcon,
+              isLoading: isPrimaryActionLoading,
               onPressed: onPrimaryAction,
             ),
           ],

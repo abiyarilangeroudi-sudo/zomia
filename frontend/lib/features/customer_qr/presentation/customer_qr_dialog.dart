@@ -1,25 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/ui.dart';
+import '../data/customer_qr_repository.dart';
 import '../domain/customer_qr_token.dart';
 
-class CustomerQrDialog extends StatelessWidget {
+class CustomerQrDialog extends ConsumerStatefulWidget {
   const CustomerQrDialog({
     super.key,
     required this.token,
     required this.isLoading,
-    required this.isRotating,
     required this.error,
-    required this.onRefresh,
+    required this.onTokenChanged,
     required this.onRetry,
   });
 
   final CustomerQrToken? token;
   final bool isLoading;
-  final bool isRotating;
   final String? error;
-  final VoidCallback? onRefresh;
+  final ValueChanged<CustomerQrToken> onTokenChanged;
   final VoidCallback onRetry;
+
+  @override
+  ConsumerState<CustomerQrDialog> createState() => _CustomerQrDialogState();
+}
+
+class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
+  CustomerQrToken? _token;
+  String? _error;
+  bool _isRotating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _token = widget.token;
+    _error = widget.error;
+  }
+
+  @override
+  void didUpdateWidget(CustomerQrDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.token != widget.token) {
+      _token = widget.token;
+    }
+    if (oldWidget.error != widget.error) {
+      _error = widget.error;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +69,20 @@ class CustomerQrDialog extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    final token = this.token;
-    if (isLoading && token == null) {
+    final token = _token;
+    if (widget.isLoading && token == null) {
       return const AppCard(child: LoadingState(label: 'Loading QR code'));
     }
-    if (error != null) {
+    if (_error != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InlineBanner(message: error!, tone: BannerTone.error),
+          InlineBanner(message: _error!, tone: BannerTone.error),
           const SizedBox(height: 12),
           SecondaryButton(
             label: 'Try again',
             icon: Icons.refresh_rounded,
-            onPressed: onRetry,
+            onPressed: widget.onRetry,
           ),
         ],
       );
@@ -74,10 +101,37 @@ class CustomerQrDialog extends StatelessWidget {
       message:
           'Show this QR to staff. Expires ${_formatDateTime(token.expiresAt)}.',
       token: token.token,
-      primaryActionLabel: isRotating ? 'Refreshing' : 'Refresh QR token',
+      primaryActionLabel: _isRotating ? 'Refreshing' : 'Refresh QR token',
       primaryActionIcon: Icons.refresh_rounded,
-      onPrimaryAction: onRefresh,
+      isPrimaryActionLoading: _isRotating,
+      onPrimaryAction: _isRotating ? null : _refreshToken,
     );
+  }
+
+  Future<void> _refreshToken() async {
+    setState(() {
+      _isRotating = true;
+      _error = null;
+    });
+    try {
+      final token = await ref.read(customerQrRepositoryProvider).rotateToken();
+      if (!mounted) {
+        return;
+      }
+      widget.onTokenChanged(token);
+      setState(() {
+        _token = token;
+        _isRotating = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _error = error.toString();
+        _isRotating = false;
+      });
+    }
   }
 }
 
