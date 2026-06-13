@@ -155,6 +155,12 @@ F10.3 progress:
 - Password recovery and email verification remain design/contract work, not rushed implementation.
 - Follow OWASP Forgot Password guidance when implementing reset: consistent responses, expiring single-use tokens/codes, secure storage, and no account change before a valid token/code is presented.
 
+F10.4 progress:
+
+- Password recovery and email verification contracts are documented in `Docs/status/auth-recovery-verification-contract.md`.
+- No endpoints, migrations, or Flutter screens were added in F10.4.
+- Local MVP delivery rule is documented: generate secure tokens/codes, store only hashes, and log raw tokens/codes only in local development.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion, not registration requirement.
@@ -194,15 +200,14 @@ Direction:
 
 ## Next Recommended Phase
 
-F10.1 should be:
+F10.5 should be:
 
 ```text
-Error UX and Console Hygiene
+Auth Recovery Minimal Backend
 ```
 
 Reason:
 
-- It came directly from F9 manual testing.
-- It improves trust in testing.
-- It does not require changing the product model.
-- It makes future manual QA less confusing.
+- Password recovery and email verification are now designed but not implemented.
+- Minimal backend can be built with local log delivery before adding a real email provider.
+- It keeps authentication work separate from Loyalty.

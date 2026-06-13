@@ -26,6 +26,7 @@ Customer QR
 - [Local Development](./07-local-development.md)
 - [Current Stability Check](./status/current-stability-check.md)
 - [MVP Production Gap List](./status/mvp-production-gap-list.md)
+- [Auth Recovery and Email Verification Contract](./status/auth-recovery-verification-contract.md)
 - [Flutter MVP Phase](./roadmap/flutter-mvp-phase.md)
 - [Flutter Branding Extraction](./roadmap/flutter-branding-extraction.md)
 - [Sprint 1: Identity Engine](./sprints/sprint-1-identity.md)
