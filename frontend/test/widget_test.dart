@@ -57,6 +57,36 @@ void main() {
     );
   });
 
+  test('maps customer QR backend errors to user-facing messages', () {
+    expect(
+      mapCustomerQrErrorDetail('QR token is expired'),
+      'This QR code has expired. Refresh your QR code.',
+    );
+    expect(
+      mapCustomerQrErrorDetail('QR token is not active'),
+      'This QR code is no longer active. Refresh your QR code.',
+    );
+    expect(
+      mapCustomerQrErrorDetail('Custom customer detail'),
+      'Custom customer detail',
+    );
+  });
+
+  test('maps owner setup backend errors to user-facing messages', () {
+    expect(
+      mapOwnerSetupErrorDetail('Business not found'),
+      'Business not found or you do not have access.',
+    );
+    expect(
+      mapOwnerSetupErrorDetail('One or more missions were not found'),
+      'One or more selected missions are no longer available.',
+    );
+    expect(
+      mapOwnerSetupErrorDetail('Custom owner detail'),
+      'Custom owner detail',
+    );
+  });
+
   test('maps auth backend errors to user-facing messages', () {
     expect(
       mapAuthErrorDetail('Incorrect email or password'),
@@ -87,7 +117,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.36 (37)'), findsOneWidget);
+    expect(find.text('Version 1.0.37 (38)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -138,7 +168,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.36 (37)'));
+    await tester.tap(find.text('Version 1.0.37 (38)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);

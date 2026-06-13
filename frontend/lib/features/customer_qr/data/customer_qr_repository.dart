@@ -88,7 +88,10 @@ class CustomerQrRepository {
   String _messageFor(DioException error) {
     final data = error.response?.data;
     if (data is Map<String, dynamic> && data['detail'] is String) {
-      return data['detail'] as String;
+      return mapCustomerQrErrorDetail(data['detail'] as String);
+    }
+    if (data is Map<String, dynamic> && data['detail'] is List<dynamic>) {
+      return 'Please check the request and try again.';
     }
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
@@ -97,4 +100,16 @@ class CustomerQrRepository {
     }
     return 'Something went wrong. Please try again.';
   }
+}
+
+String mapCustomerQrErrorDetail(String detail) {
+  return switch (detail) {
+    'Insufficient role' => 'You do not have access to this area.',
+    'Customer not found' => 'Customer profile was not found.',
+    'QR token not found' => 'QR code not found. Please refresh your QR code.',
+    'QR token is not active' =>
+      'This QR code is no longer active. Refresh your QR code.',
+    'QR token is expired' => 'This QR code has expired. Refresh your QR code.',
+    _ => detail,
+  };
 }

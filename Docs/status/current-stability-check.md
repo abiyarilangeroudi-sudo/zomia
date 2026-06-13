@@ -48,7 +48,7 @@ This document is the short checkpoint before the next feature phase.
 - Before Group Campaign or Cross-Network Campaign, split `LoyaltyService` into smaller services such as action registration, campaign evaluation, reward generation, reward usage, and audit orchestration.
 - Owner recent activity is live for MVP; broader audit review remains separate from owner-facing activity.
 - Phone remains out of Customer Registration and should be added later as a profile completion field.
-- Console Hygiene / Error UX needs a future cleanup pass: investigate `flutter.js.map` 404 logs, understand WebGL/camera warnings, map expected 400 responses to clear UI messages, and warn customers that manual QR refresh invalidates any previously scanned QR.
+- Console Hygiene / Error UX has started: Staff, Customer QR, and Owner setup now map expected backend details to clearer UI messages. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
 
 ## Continue Rules

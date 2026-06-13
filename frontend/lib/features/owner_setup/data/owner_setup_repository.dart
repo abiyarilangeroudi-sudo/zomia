@@ -209,8 +209,28 @@ class OwnerSetupRepository {
   String _messageFor(DioException error) {
     final data = error.response?.data;
     if (data is Map<String, dynamic> && data['detail'] is String) {
-      return data['detail'] as String;
+      return mapOwnerSetupErrorDetail(data['detail'] as String);
+    }
+    if (data is Map<String, dynamic> && data['detail'] is List<dynamic>) {
+      return 'Please check the form and try again.';
+    }
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      return 'The server took too long to respond.';
     }
     return 'Something went wrong. Please try again.';
   }
+}
+
+String mapOwnerSetupErrorDetail(String detail) {
+  return switch (detail) {
+    'Business not found' => 'Business not found or you do not have access.',
+    'Campaign not found' => 'Campaign not found for this business.',
+    'One or more missions were not found' =>
+      'One or more selected missions are no longer available.',
+    'Email already exists' => 'This email is already registered.',
+    'Insufficient role' => 'You do not have access to this area.',
+    _ => detail,
+  };
 }

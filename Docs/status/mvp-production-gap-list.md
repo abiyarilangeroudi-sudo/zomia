@@ -41,6 +41,13 @@ F10.1 progress:
 - `flutter.js.map` 404 is caused by generated web files referencing `flutter.js.map` while the local build output does not include that map file; keep it as a local serving/build artifact cleanup item.
 - WebGL/camera/video warnings are still tracked as browser/camera lifecycle noise until proven otherwise.
 
+F10.7 progress:
+
+- Customer QR backend details are mapped to user-facing QR refresh/access messages.
+- Owner setup backend details are mapped to clearer business, mission, campaign, and staff email messages.
+- Expected backend `400` responses can still appear as red network entries in the browser console; the MVP goal is that users see clear UI messages instead of raw backend details.
+- Source-map/WebGL/camera warnings remain tracked as local/dev console noise unless they produce a broken user flow.
+
 ### 2. Auth and Session Hardening
 
 Current MVP uses simple JWT access token storage.
@@ -213,3 +220,18 @@ Outcome:
 
 - Owner can review recent staff actions for the selected business.
 - Auth recovery remains on hold until the email delivery decision.
+
+## Current Recommended Phase
+
+F10.7 should continue with:
+
+```text
+Console Hygiene / Error UX manual review
+```
+
+Focus:
+
+- Confirm the UI message is clear when Staff uses an old QR token.
+- Confirm reward-used and reward-expired errors are clear.
+- Confirm Owner activity error state uses mapped messages.
+- Keep browser/dev warnings documented without overengineering around harmless local noise.
