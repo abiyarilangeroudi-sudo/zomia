@@ -179,11 +179,6 @@ class _OwnerRecentActionsDialogState
                     title: 'No staff actions yet',
                     message:
                         'Staff activity will appear here after actions are registered.',
-                    action: SecondaryButton(
-                      label: 'Close',
-                      icon: Icons.close_rounded,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
                   ),
                 );
               }
