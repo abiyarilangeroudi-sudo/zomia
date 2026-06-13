@@ -42,6 +42,7 @@ This document is the short checkpoint before the next feature phase.
 
 ## Watch Items
 
+- MVP production gaps are tracked in `Docs/status/mvp-production-gap-list.md`.
 - `backend/app/modules/loyalty/service.py` is intentionally not refactored in this pass because it contains sensitive tested business logic.
 - Before Group Campaign or Cross-Network Campaign, split `LoyaltyService` into smaller services such as action registration, campaign evaluation, reward generation, reward usage, and audit orchestration.
 - Owner recent staff actions dialog is UI-ready, but it still needs a dedicated Owner activity endpoint before it can show live data.
