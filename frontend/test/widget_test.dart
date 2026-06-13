@@ -10,6 +10,7 @@ import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
 import 'package:zomia_frontend/features/auth/domain/current_user.dart';
 import 'package:zomia_frontend/features/customer_qr/data/customer_qr_repository.dart';
+import 'package:zomia_frontend/features/customer_qr/data/customer_qr_token_store.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_status.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
 import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
@@ -57,7 +58,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.30 (31)'), findsOneWidget);
+    expect(find.text('Version 1.0.31 (32)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -80,7 +81,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.30 (31)'));
+    await tester.tap(find.text('Version 1.0.31 (32)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -191,6 +192,7 @@ void main() {
 
   testWidgets('signs in and renders customer QR screen', (tester) async {
     final tokenStore = _MemoryTokenStore();
+    final qrRepository = _FakeCustomerQrRepository();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -199,9 +201,7 @@ void main() {
           authRepositoryProvider.overrideWithValue(
             _FakeAuthRepository(role: 'customer'),
           ),
-          customerQrRepositoryProvider.overrideWithValue(
-            _FakeCustomerQrRepository(),
-          ),
+          customerQrRepositoryProvider.overrideWithValue(qrRepository),
         ],
         child: const ZomiaApp(),
       ),
@@ -222,6 +222,24 @@ void main() {
     expect(find.text('Welcome, Customer One'), findsOneWidget);
     expect(find.text('1 campaigns'), findsOneWidget);
     expect(find.text('1 active rewards'), findsOneWidget);
+    expect(qrRepository.issueCount, 1);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository(role: 'customer'),
+          ),
+          customerQrRepositoryProvider.overrideWithValue(qrRepository),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    expect(find.text('Customer Dashboard'), findsOneWidget);
+    expect(qrRepository.issueCount, 1);
 
     await tester.tap(find.text('Campaign'));
     await pumpAppFrames(tester);
@@ -377,24 +395,40 @@ class _FakeStaffServiceRepository extends StaffServiceRepository {
 }
 
 class _FakeCustomerQrRepository extends CustomerQrRepository {
-  _FakeCustomerQrRepository() : super(Dio());
+  _FakeCustomerQrRepository() : super(Dio(), _MemoryCustomerQrTokenStore());
+
+  CustomerQrToken? _cachedToken;
+  int issueCount = 0;
+
+  @override
+  Future<CustomerQrToken?> readCachedToken() async {
+    return _cachedToken;
+  }
 
   @override
   Future<CustomerQrToken> issueToken() async {
-    return CustomerQrToken(
+    issueCount += 1;
+    _cachedToken = CustomerQrToken(
       token: 'qr-token',
       qrPayload: 'qr-token',
       expiresAt: DateTime(2027),
     );
+    return _cachedToken!;
   }
 
   @override
   Future<CustomerQrToken> rotateToken() async {
-    return CustomerQrToken(
+    _cachedToken = CustomerQrToken(
       token: 'rotated-qr-token',
       qrPayload: 'rotated-qr-token',
       expiresAt: DateTime(2027),
     );
+    return _cachedToken!;
+  }
+
+  @override
+  Future<void> clearCachedToken() async {
+    _cachedToken = null;
   }
 
   @override
@@ -440,6 +474,25 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
         isCompleted: false,
       ),
     ];
+  }
+}
+
+class _MemoryCustomerQrTokenStore implements CustomerQrTokenStore {
+  CustomerQrToken? _token;
+
+  @override
+  Future<void> clear() async {
+    _token = null;
+  }
+
+  @override
+  Future<CustomerQrToken?> readToken() async {
+    return _token;
+  }
+
+  @override
+  Future<void> writeToken(CustomerQrToken token) async {
+    _token = token;
   }
 }
 

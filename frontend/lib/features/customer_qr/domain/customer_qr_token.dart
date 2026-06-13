@@ -13,6 +13,14 @@ class CustomerQrToken {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'token': token,
+      'qr_payload': qrPayload,
+      'expires_at': expiresAt.toIso8601String(),
+    };
+  }
+
   final String token;
   final String qrPayload;
   final DateTime expiresAt;

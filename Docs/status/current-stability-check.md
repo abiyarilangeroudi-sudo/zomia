@@ -46,6 +46,7 @@ This document is the short checkpoint before the next feature phase.
 - Before Group Campaign or Cross-Network Campaign, split `LoyaltyService` into smaller services such as action registration, campaign evaluation, reward generation, reward usage, and audit orchestration.
 - Owner recent staff actions dialog is UI-ready, but it still needs a dedicated Owner activity endpoint before it can show live data.
 - Phone remains out of Customer Registration and should be added later as a profile completion field.
+- Console Hygiene / Error UX needs a future cleanup pass: investigate `flutter.js.map` 404 logs, understand WebGL/camera warnings, map expected 400 responses to clear UI messages, and warn customers that manual QR refresh invalidates any previously scanned QR.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
 
 ## Continue Rules

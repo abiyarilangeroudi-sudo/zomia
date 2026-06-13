@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/storage/secure_token_store.dart';
+import '../../customer_qr/data/customer_qr_repository.dart';
 import '../../staff_context/domain/staff_context.dart';
 import '../data/auth_repository.dart';
 import '../domain/auth_state.dart';
@@ -63,6 +64,7 @@ class AuthController extends AsyncNotifier<AuthState> {
 
   Future<void> signOut() async {
     await ref.read(secureTokenStoreProvider).clear();
+    await ref.read(customerQrRepositoryProvider).clearCachedToken();
     state = const AsyncData(AuthState.unauthenticated());
   }
 

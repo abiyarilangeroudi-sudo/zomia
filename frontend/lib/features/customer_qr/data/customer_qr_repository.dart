@@ -5,22 +5,35 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/http/api_client.dart';
 import '../domain/customer_status.dart';
 import '../domain/customer_qr_token.dart';
+import 'customer_qr_token_store.dart';
 
 final customerQrRepositoryProvider = Provider<CustomerQrRepository>((ref) {
-  return CustomerQrRepository(ref.watch(dioProvider));
+  return CustomerQrRepository(
+    ref.watch(dioProvider),
+    ref.watch(customerQrTokenStoreProvider),
+  );
 });
 
 class CustomerQrRepository {
-  const CustomerQrRepository(this._dio);
+  const CustomerQrRepository(this._dio, this._tokenStore);
 
   final Dio _dio;
+  final CustomerQrTokenStore _tokenStore;
+
+  Future<CustomerQrToken?> readCachedToken() {
+    return _tokenStore.readToken();
+  }
 
   Future<CustomerQrToken> issueToken() async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         '/customers/me/qr-token',
       );
-      return CustomerQrToken.fromJson(response.data ?? <String, dynamic>{});
+      final token = CustomerQrToken.fromJson(
+        response.data ?? <String, dynamic>{},
+      );
+      await _tokenStore.writeToken(token);
+      return token;
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
     }
@@ -31,10 +44,18 @@ class CustomerQrRepository {
       final response = await _dio.post<Map<String, dynamic>>(
         '/customers/me/qr-token/rotate',
       );
-      return CustomerQrToken.fromJson(response.data ?? <String, dynamic>{});
+      final token = CustomerQrToken.fromJson(
+        response.data ?? <String, dynamic>{},
+      );
+      await _tokenStore.writeToken(token);
+      return token;
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
     }
+  }
+
+  Future<void> clearCachedToken() {
+    return _tokenStore.clear();
   }
 
   Future<CustomerStatus> getStatus() async {

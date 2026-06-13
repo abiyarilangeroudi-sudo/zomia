@@ -127,7 +127,20 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
       _qrError = null;
     });
     try {
-      final token = await ref.read(customerQrRepositoryProvider).issueToken();
+      final repository = ref.read(customerQrRepositoryProvider);
+      final cachedToken = await repository.readCachedToken();
+      if (cachedToken != null &&
+          cachedToken.expiresAt.isAfter(DateTime.now())) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _token = cachedToken;
+          _isLoadingQr = false;
+        });
+        return;
+      }
+      final token = await repository.issueToken();
       if (!mounted) {
         return;
       }
