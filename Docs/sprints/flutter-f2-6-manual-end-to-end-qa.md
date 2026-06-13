@@ -28,7 +28,8 @@ F2.6 پاس شد.
 نتیجه محصولی:
 
 - core Staff/Customer MVP loop در local environment قابل استفاده است.
-- camera scan و manual fallback هر دو در مسیر MVP معتبر هستند.
+- در زمان F2.6، camera scan و manual fallback هر دو برای QA معتبر بودند.
+- وضعیت فعلی محصول بعد از UI recovery: camera scan مسیر اصلی Staff است و manual fallback در UI اصلی وجود ندارد.
 - قدم بعدی می‌تواند UX polish کوچک و کنترل‌شده باشد، نه تغییر معماری.
 
 ## Next

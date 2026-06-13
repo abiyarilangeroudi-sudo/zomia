@@ -8,7 +8,7 @@ Owner بتواند برای اجرای demo و تست end-to-end، حداقل د
 
 ## What Will Be Built
 
-Frontend برای نقش Owner بعد از login وارد صفحه `Owner Setup` می‌شود.
+Frontend برای نقش Owner بعد از login وارد `Owner Dashboard` حداقلی می‌شود.
 
 در این صفحه Owner می‌تواند:
 
@@ -28,7 +28,7 @@ Frontend برای نقش Owner بعد از login وارد صفحه `Owner Setup`
 Auth Gate
 -> Role Router
    -> owner
-      -> Owner Setup Screen
+      -> Owner Dashboard
          -> Owner Setup Repository
             -> Owner Management API
 ```
@@ -42,8 +42,14 @@ frontend/lib/features/owner_setup/
   domain/
     owner_setup_models.dart
   presentation/
-    owner_setup_screen.dart
+    owner_screen.dart
+    owner_setup_controller.dart
+    owner_loyalty_widgets.dart
+    owner_profile_widgets.dart
+    owner_setup_shared_widgets.dart
 ```
+
+Historical note: نام اولیه صفحه `owner_setup_screen.dart` بود. وضعیت فعلی فایل اصلی `owner_screen.dart` است و widgetهای بزرگ به فایل‌های کوچک‌تر تقسیم شده‌اند.
 
 ## Backend API Contracts
 

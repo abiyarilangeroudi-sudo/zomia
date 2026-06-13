@@ -180,7 +180,7 @@ Flutter F2/F3:
 Flutter F2.5:
 
 - Staff camera QR scan اضافه شد
-- manual token input به‌عنوان fallback باقی ماند
+- manual token input در آن مرحله به‌عنوان fallback باقی ماند؛ در وضعیت فعلی UI مسیر اصلی فقط camera scan است
 - Customer QR و Staff QR entry polish اولیه شدند
 - نسخه Flutter برای تشخیص build جدید در Login افزایش یافت
 
@@ -200,9 +200,9 @@ Flutter F2.7:
 Flutter F2.8:
 
 - endpoint `GET /customers/me/status` اضافه شد
-- Customer QR Screen وضعیت active rewards را نشان می‌دهد
+- Customer Dashboard وضعیت active rewards را نشان می‌دهد
 - Customer می‌تواند status را بعد از عملیات Staff دستی refresh کند
-- نمایش total points برای Customer حذف شد؛ Campaign Progress باید جداگانه طراحی شود
+- نمایش total points برای Customer حذف شد؛ در آن زمان Campaign Progress به‌عنوان فاز جداگانه برنامه‌ریزی شد
 
 Flutter F2.9:
 
@@ -210,3 +210,26 @@ Flutter F2.9:
 - seed strategy برای reward-use QA مستند شد
 - known product gaps و UI/Brand debt ثبت شدند
 - پروژه برای تصمیم‌گیری مرحله بعد آماده شد، بدون اضافه کردن feature جدید
+
+Flutter F5 تا F8:
+
+- Owner Dashboard حداقلی برای ساخت Staff, Mission, Campaign و Reward Template اضافه شد
+- Customer Campaign Progress طراحی و پیاده‌سازی شد، بدون نمایش `total points` عمومی
+- UI/Branding Recovery انجام شد و component catalog به‌عنوان مرجع UI اضافه شد
+- صفحه‌های اصلی Flutter به ساختار فعلی منتقل شدند:
+  - `customer_screen.dart`
+  - `staff_panel.dart`
+  - `owner_screen.dart`
+- Customer Registration اضافه شد و Customer می‌تواند از Login صفحه ثبت‌نام را باز کند
+- Customer Registration فعلاً فقط `name`, `email`, `password`, `confirm password` و `Term Accept` دارد
+- `phone` خارج از registration است و بعداً به‌عنوان profile completion اضافه می‌شود
+
+## وضعیت فعلی برای ادامه
+
+منبع حقیقت کوتاه برای ادامه پروژه:
+
+- سند [Current Stability Check](./status/current-stability-check.md)
+- کد فعلی backend و frontend
+- این README به‌عنوان snapshot کلی
+
+سندهای sprint قدیمی‌تر، تاریخچه تصمیم‌ها را نگه می‌دارند. اگر در آن‌ها عباراتی مثل manual token fallback یا نام فایل‌های قدیمی دیده شد، باید با یادداشت تاریخی همان مرحله خوانده شوند، نه به‌عنوان وضعیت فعلی محصول.

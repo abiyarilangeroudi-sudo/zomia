@@ -25,7 +25,7 @@ Customer Login
 - اتصال به `POST /customers/me/qr-token`
 - اتصال به `POST /customers/me/qr-token/rotate`
 - نمایش QR با `qr_flutter`
-- نمایش token متنی برای تست دستی و fallback
+- نمایش QR برای scan توسط Staff
 - sign out برای Customer
 
 خارج از F3:
@@ -48,7 +48,8 @@ features/
     domain/
       customer_qr_token.dart
     presentation/
-      customer_qr_screen.dart
+      customer_screen.dart
+      customer_qr_dialog.dart
 ```
 
 ## Backend Contracts
@@ -63,7 +64,7 @@ POST /api/v1/customers/me/qr-token/rotate
 
 - Frontend UI remains English.
 - Customer QR uses the existing Zomia branding foundation.
-- The raw token remains visible for local MVP testing and manual Staff fallback input.
+- The early F3 implementation exposed the raw token for local testing. Current UI keeps QR scan as the primary interaction.
 - F2.5 adds first-pass polish for Customer QR clarity and Staff scan handoff.
 - Customer QR screen will still need deeper production UI/UX polish later.
 

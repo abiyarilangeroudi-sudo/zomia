@@ -195,7 +195,7 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 شامل:
 
 - اضافه کردن camera scan
-- حفظ manual input به عنوان fallback
+- حذف وابستگی روزمره به manual input از مسیر اصلی UI
 
 ### F4: Customer QR Minimal Screen
 
@@ -204,7 +204,8 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 - Customer login
 - issue/rotate QR
 - نمایش QR
-- نمایش points/rewards پایه
+- نمایش active rewards/status پایه
+- عدم نمایش `total points` عمومی به Customer
 
 ### F5: Owner Minimal Setup Screens
 

@@ -14,7 +14,7 @@
 Customer Login
 -> Customer QR
 -> Staff Login
--> Scan Customer QR یا manual token fallback
+-> Scan Customer QR
 -> Resolve Customer
 -> Register Action
 -> Reward appears in Staff Panel if campaign condition is satisfied
@@ -86,22 +86,20 @@ Reward: Reward QA Free Coffee
 
 ## Known Product Gaps
 
-- Customer Campaign Progress هنوز طراحی نشده است.
-- Customer فعلاً فقط active rewards را می‌بیند، نه progress تا reward بعدی.
+- Customer Campaign Progress بعد از F2.9 طراحی و پیاده‌سازی شد.
+- Customer فقط progress مربوط به Campaign را می‌بیند، نه `total points` عمومی.
 - نمایش total points به Customer عمداً حذف شد، چون بدون Campaign Progress ارزش محصولی واضح ندارد.
 - Customer status realtime نیست و با refresh دستی به‌روزرسانی می‌شود.
 - Reward generation در campaignهای non-repeatable برای یک customer فقط یک بار رخ می‌دهد.
-- Owner هنوز UI برای ساخت Mission/Campaign/Reward Template ندارد.
+- Owner بعد از F5 UI حداقلی برای ساخت Staff, Mission, Campaign و Reward Template دارد.
 
 ## UI / Brand Debt
 
 این موارد فعلاً debt هستند و نباید وسط demo readiness به redesign تبدیل شوند:
 
-- Staff Panel visual hierarchy ضعیف است.
-- confirmation dialog برای `Use Reward` branded نیست.
-- Customer QR و Staff Panel از brand template اصلی فاصله دارند.
-- cardها، spacing و component states باید با brand system بازطراحی شوند.
-- UI فعلی برای اثبات workflow کافی است، نه برای production polish.
+- بسیاری از debtهای F2.9 در F7 اصلاح شدند.
+- UI/Branding هنوز باید در هر feature جدید با component catalog هماهنگ بماند.
+- قبل از ساخت component جدید باید مشخص شود variant کامپوننت موجود است یا نیاز واقعی جدید.
 
 ## Verification
 

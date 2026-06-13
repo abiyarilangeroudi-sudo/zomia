@@ -4,18 +4,20 @@
 
 هدف فاز Flutter این است که core backend ساخته‌شده را به یک تجربه قابل استفاده برای MVP وصل کند.
 
-در این فاز قرار نیست همه نقش‌ها و همه داشبوردها کامل شوند. تمرکز روی اجرای workflow واقعی و قابل تست است:
+در شروع این فاز قرار نبود همه نقش‌ها و همه داشبوردها کامل شوند. تمرکز اول روی اجرای workflow واقعی و قابل تست بود:
 
 ```text
 Staff Login
 -> Staff Context
--> Scan یا وارد کردن QR
+-> Scan QR
 -> Customer Summary
 -> انتخاب Missionها
 -> ثبت Action
 -> دیدن Reward فعال
 -> Use Reward
 ```
+
+وضعیت فعلی فراتر از Staff-first شده و شامل Customer Registration، Customer Dashboard، Staff Dashboard و Owner Dashboard حداقلی است.
 
 ## تصمیم محصولی
 
@@ -69,7 +71,7 @@ frontend/lib/app/app_version.dart
 - Staff Context بعد از login
 - انتخاب Business اگر Staff چند Business داشت
 - Staff Service Panel
-- QR scan یا manual token input
+- QR camera scan
 - Customer QR display
 - Customer QR rotate
 - Customer Summary
@@ -79,11 +81,12 @@ frontend/lib/app/app_version.dart
 - Use Reward
 - error/loading/empty states پایه
 - Manual end-to-end QA برای Staff/Customer loop
+- Customer self-registration
+- Owner minimal setup برای Staff, Mission, Campaign و Reward Template
+- UI/Branding recovery و component registry
 
 ### خارج از فاز اول Flutter
 
-- Owner dashboard کامل
-- Customer app کامل
 - Campaign builder کامل
 - Reward Template management کامل
 - Admin panel
@@ -96,7 +99,7 @@ frontend/lib/app/app_version.dart
 
 ## Flutter App Shape
 
-در MVP، یک اپ Flutter می‌تواند چند نقش را پشتیبانی کند، اما شروع عملی آن Staff-first است.
+در MVP، یک اپ Flutter چند نقش را پشتیبانی می‌کند. شروع عملی Staff-first بود، اما وضعیت فعلی سه dashboard اصلی دارد.
 
 پیشنهاد navigation:
 
@@ -104,21 +107,22 @@ frontend/lib/app/app_version.dart
 App Start
 -> Auth Gate
    -> Login
+   -> Customer Register
    -> Role Router
-      -> Staff Shell
+      -> Staff Dashboard
          -> Business Select
          -> Service Panel
-      -> Customer QR
+      -> Customer Dashboard
+      -> Owner Dashboard
 ```
 
-برای نقش‌های دیگر:
+صفحه‌های فعلی:
 
 ```text
-Owner -> Placeholder یا minimal management later
-Customer -> Placeholder یا QR display later
+Customer -> customer_screen.dart
+Staff -> staff_panel.dart
+Owner -> owner_screen.dart
 ```
-
-اگر user با نقش غیر Staff وارد شد، MVP می‌تواند پیام ساده نشان دهد که این نسخه فعلاً Staff Panel را پشتیبانی می‌کند.
 
 ## Backend Contracts مورد نیاز
 
@@ -270,10 +274,12 @@ show Business Select
 
 در F2 ابتدا با manual token input شروع شد.
 
-در F2.5:
+در F2.5 camera scan اضافه شد. وضعیت فعلی محصول:
 
 - QR camera scan اضافه شد
-- manual input به عنوان fallback باقی بماند
+- manual token fallback از UI اصلی حذف شده است
+- Staff باید QR payload کامل مثل `zomia://customer/{token}` را scan کند
+- frontend payload را normalize می‌کند و فقط token را به backend می‌فرستد
 
 ### 5. Register Action
 
@@ -365,6 +371,8 @@ mobile_scanner
 
 - اول API flow را validate می‌کنیم
 - بعد permission/camera/device complexity را اضافه می‌کنیم
+
+وضعیت فعلی: camera scan مسیر اصلی Staff است و manual fallback در UI اصلی نگه داشته نمی‌شود.
 
 ## Folder Structure پیشنهادی
 
@@ -465,7 +473,7 @@ frontend/
 هدف:
 
 - اضافه کردن camera scan
-- fallback manual input حفظ شود
+- حذف وابستگی روزمره به manual token input از مسیر اصلی UI
 
 خروجی:
 
@@ -478,7 +486,8 @@ frontend/
 - Customer login
 - issue/rotate QR
 - نمایش QR
-- نمایش points/rewards پایه
+- نمایش active rewards/status پایه
+- عدم نمایش `total points` عمومی به Customer
 
 خروجی:
 
@@ -511,7 +520,12 @@ Backend برای شروع Flutter کافی است اگر:
 ```text
 F0 completed
 F1 completed
-Ready for Branding Integration
+F2/F3 completed
+F5 Owner minimal setup completed
+F6 Customer campaign progress completed
+F7 UI/Branding recovery completed
+F8 Customer registration completed
+Ready for MVP readiness flow review
 ```
 
 ## ریسک‌ها
@@ -538,9 +552,11 @@ Frontend باید خطاهای 401/403/404/409/422 را به پیام‌های �
 
 - Staff بتواند login کند
 - Staff بتواند Business خودش را ببیند
-- Staff بتواند QR token را وارد یا scan کند
+- Staff بتواند Customer QR را scan کند
 - Staff بتواند Customer Summary ببیند
 - Staff بتواند Action ثبت کند
 - Generated Reward در UI دیده شود
 - Staff بتواند Reward را use کند
+- Owner بتواند Staff, Mission, Campaign و Reward Template حداقلی بسازد
+- Customer بتواند ثبت‌نام کند، login کند و Dashboard خودش را ببیند
 - demo بدون دخالت مستقیم API client قابل اجرا باشد

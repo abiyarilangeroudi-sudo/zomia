@@ -47,7 +47,7 @@ GET /api/v1/customers/me/status
 - status با refresh دستی به‌روزرسانی می‌شود.
 - این طراحی realtime نیست؛ برای MVP کافی است Customer بعد از Staff action دکمه refresh را بزند.
 - نمایش `total points` برای Customer فعلاً حذف شد، چون بدون Campaign Progress ارزش محصولی واضح ندارد و می‌تواند گمراه‌کننده باشد.
-- Customer Campaign Progress باید جداگانه طراحی شود.
+- در زمان F2.8، Customer Campaign Progress باید جداگانه طراحی می‌شد. این مسیر بعداً در F6 تعریف و پیاده‌سازی شد.
 
 ## Verification
 

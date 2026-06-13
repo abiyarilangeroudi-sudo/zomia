@@ -128,7 +128,7 @@ frontend/lib/app/brand/
 
 | Component | Purpose | Variants allowed |
 | --- | --- | --- |
-| `QRCard` | نمایش QR و token fallback | `customer`, `staff-scan` |
+| `QRCard` | نمایش QR برای scan توسط Staff | `customer`, `staff-scan` |
 | `ScannerSheetFrame` | preview/structure برای camera scan sheet | `compact`, `full` |
 | `ProgressCard` | campaign progress مشتری | `active`, `completed` |
 | `RewardCard` | نمایش reward فعال | `customer`, `staff-action` |
@@ -145,7 +145,7 @@ frontend/lib/app/brand/
 - error banner استاندارد
 - password visibility
 
-### Customer QR
+### Customer Dashboard
 
 نیازها:
 
@@ -154,7 +154,7 @@ frontend/lib/app/brand/
 - Active Rewards با `RewardCard`
 - Empty state تمیز برای نبود progress/reward
 
-### Staff Service Panel
+### Staff Dashboard
 
 نیازها:
 
@@ -164,7 +164,7 @@ frontend/lib/app/brand/
 - mission quantity controls استاندارد
 - reward use confirmation با `ConfirmDialog`
 
-### Owner Setup
+### Owner Dashboard
 
 نیازها:
 
