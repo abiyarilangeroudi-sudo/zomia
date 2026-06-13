@@ -159,7 +159,8 @@ F10.4 progress:
 
 - Password recovery and email verification contracts are documented in `Docs/status/auth-recovery-verification-contract.md`.
 - No endpoints, migrations, or Flutter screens were added in F10.4.
-- Local MVP delivery rule is documented: generate secure tokens/codes, store only hashes, and log raw tokens/codes only in local development.
+- Auth recovery implementation is on hold until a real email provider and delivery strategy are chosen.
+- Temporary local/log delivery is explicitly avoided to prevent rework and unsafe habits.
 
 ## Should Fix Soon, But Not Production Blockers
 
@@ -203,11 +204,11 @@ Direction:
 F10.5 should be:
 
 ```text
-Auth Recovery Minimal Backend
+Owner Activity Endpoint
 ```
 
 Reason:
 
-- Password recovery and email verification are now designed but not implemented.
-- Minimal backend can be built with local log delivery before adding a real email provider.
-- It keeps authentication work separate from Loyalty.
+- Owner Activity has real MVP value and the UI placeholder already exists.
+- It does not depend on temporary infrastructure.
+- Auth recovery should wait for the email delivery decision.

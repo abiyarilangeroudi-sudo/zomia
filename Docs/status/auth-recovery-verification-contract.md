@@ -16,7 +16,7 @@ Included:
 - Email Verification confirm contract
 - Candidate database tables
 - Flutter UX flow
-- Local MVP delivery rule
+- Delivery strategy hold rule
 
 Not included:
 
@@ -69,7 +69,7 @@ Rules:
 - If user exists, create one reset token/code.
 - If user does not exist, do not reveal that.
 - Rate limiting is required before production.
-- Local MVP may log the reset URL/code to backend logs instead of sending email.
+- Do not implement reset delivery until the email provider and delivery strategy are chosen.
 
 ### 2. Reset Password
 
@@ -133,7 +133,7 @@ Rules:
 - Response should not expose account existence.
 - If user exists and email is not verified, create verification token/code.
 - If already verified, keep response generic.
-- Local MVP may log the verification URL/code to backend logs instead of sending email.
+- Do not implement verification delivery until the email provider and delivery strategy are chosen.
 
 ### 2. Confirm Verification
 
@@ -271,15 +271,23 @@ Actions:
 - `Send verification`
 - `I have verified`
 
-## Local MVP Delivery Rule
+## Delivery Strategy Hold Rule
 
-Until real email is configured:
+Do not implement password recovery or email verification with a temporary local/log delivery shortcut.
 
-- Generate secure tokens/codes.
-- Store only hashes.
-- Log raw token/code once in backend local logs.
-- Clearly mark the log behavior as local-only.
-- Do not expose raw token/code through normal API responses in production mode.
+Reason:
+
+- A log-only reset flow is useful for local QA but not useful for the real product.
+- It creates later rework when real email delivery, templates, delivery status, and rate limiting are added.
+- It can normalize unsafe behavior around raw recovery tokens/codes.
+
+Implementation stays blocked until:
+
+- Email provider is chosen.
+- Sender/domain strategy is known.
+- Delivery status/error behavior is defined.
+- Rate limiting strategy is defined.
+- Production and local delivery modes are explicitly separated.
 
 ## Open Product Decisions
 
@@ -291,15 +299,14 @@ Until real email is configured:
 
 ## Recommended Next Step
 
-Before implementation:
+Before implementing auth recovery:
 
 ```text
-F10.5 Auth Recovery Minimal Backend
+Keep auth recovery on hold until email delivery is decided.
 ```
 
-Only if approved:
+Next product-safe implementation phase:
 
-- Add database table.
-- Add forgot/reset password endpoints.
-- Use local log delivery only.
-- Do not add real email provider yet.
+```text
+F10.5 Owner Activity Endpoint
+```
