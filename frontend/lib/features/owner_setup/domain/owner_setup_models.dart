@@ -156,3 +156,44 @@ class OwnerRewardTemplate {
   final int validDays;
   final bool isActive;
 }
+
+class OwnerActivity {
+  const OwnerActivity({
+    required this.actionId,
+    required this.businessId,
+    required this.actionType,
+    required this.staffName,
+    required this.staffEmail,
+    required this.customerName,
+    required this.customerEmail,
+    required this.pointsGranted,
+    required this.summary,
+    required this.createdAt,
+  });
+
+  factory OwnerActivity.fromJson(Map<String, dynamic> json) {
+    return OwnerActivity(
+      actionId: json['action_id'] as String,
+      businessId: json['business_id'] as String,
+      actionType: json['action_type'] as String,
+      staffName: json['staff_name'] as String,
+      staffEmail: json['staff_email'] as String,
+      customerName: json['customer_name'] as String,
+      customerEmail: json['customer_email'] as String,
+      pointsGranted: json['points_granted'] as int,
+      summary: json['summary'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
+
+  final String actionId;
+  final String businessId;
+  final String actionType;
+  final String staffName;
+  final String staffEmail;
+  final String customerName;
+  final String customerEmail;
+  final int pointsGranted;
+  final String summary;
+  final DateTime createdAt;
+}

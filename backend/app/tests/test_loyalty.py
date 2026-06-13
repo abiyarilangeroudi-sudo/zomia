@@ -15,7 +15,9 @@ from app.modules.loyalty.models import (
 )
 
 
-def register_owner(client: TestClient, email: str, business_name: str = "Zomia Cafe") -> tuple[str, str]:
+def register_owner(
+    client: TestClient, email: str, business_name: str = "Zomia Cafe"
+) -> tuple[str, str]:
     response = client.post(
         "/api/v1/auth/register/owner",
         json={
@@ -44,7 +46,9 @@ def register_customer(client: TestClient, email: str = "customer@example.com") -
     return login(client, email), response.json()["id"]
 
 
-def create_staff(client: TestClient, owner_token: str, business_id: str, email: str) -> tuple[str, str]:
+def create_staff(
+    client: TestClient, owner_token: str, business_id: str, email: str
+) -> tuple[str, str]:
     response = client.post(
         "/api/v1/owner/staff",
         json={
@@ -250,6 +254,78 @@ def test_staff_registers_multi_item_action_and_customer_reads_points(
         "action_recorded",
         "points_granted",
     }
+
+
+def test_owner_reads_recent_activity_for_business(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    coffee = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    cake = create_mission(client, owner_token, business_id, name="Buy Cake", point_value=5)
+
+    action_response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "owner-activity-1",
+            "items": [
+                {"mission_id": coffee["id"], "quantity": 2},
+                {"mission_id": cake["id"], "quantity": 1},
+            ],
+        },
+        headers=auth(staff_token),
+    )
+    assert action_response.status_code == 201
+
+    response = client.get(
+        f"/api/v1/owner/activity/recent?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body) == 1
+    assert body[0]["action_id"] == action_response.json()["action_id"]
+    assert body[0]["action_type"] == "mission_progress"
+    assert body[0]["staff_name"] == "Staff"
+    assert body[0]["staff_email"] == "staff@example.com"
+    assert body[0]["customer_name"] == "Customer"
+    assert body[0]["customer_email"] == "customer@example.com"
+    assert body[0]["points_granted"] == 7
+    assert body[0]["summary"] == "Buy Coffee x2, Buy Cake x1"
+    assert body[0]["created_at"] is not None
+
+
+def test_owner_cannot_read_recent_activity_for_another_owner_business(
+    client: TestClient,
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
+    other_owner_token, other_business_id = register_owner(client, "other@example.com", "Other Cafe")
+    staff_token, _ = create_staff(client, other_owner_token, other_business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(
+        client, other_owner_token, other_business_id, name="Foreign Coffee", point_value=1
+    )
+
+    action_response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": other_business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "owner-activity-forbidden",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert action_response.status_code == 201
+
+    response = client.get(
+        f"/api/v1/owner/activity/recent?business_id={other_business_id}",
+        headers=auth(owner_token),
+    )
+
+    assert response.status_code == 404
 
 
 def test_customer_reads_active_reward_status(client: TestClient) -> None:
@@ -763,7 +839,9 @@ def test_campaign_completion_without_template_does_not_generate_reward(
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
     _, customer_id = register_customer(client)
     mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
-    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5)
+    create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
+    )
 
     response = client.post(
         "/api/v1/staff/actions",

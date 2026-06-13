@@ -17,6 +17,7 @@ from app.modules.loyalty.schemas import (
     GeneratedRewardRead,
     MissionCreate,
     MissionRead,
+    OwnerActivityRead,
     RegisterActionRequest,
     RegisterActionResponse,
     RewardTemplateCreate,
@@ -99,7 +100,19 @@ def list_reward_templates(
     return service.list_reward_templates(current_user, business_id)
 
 
-@router.post("/staff/actions", response_model=RegisterActionResponse, status_code=status.HTTP_201_CREATED)
+@router.get("/owner/activity/recent", response_model=list[OwnerActivityRead])
+def list_owner_recent_activity(
+    business_id: uuid.UUID = Query(...),
+    limit: int = Query(default=20, ge=1, le=50),
+    current_user: User = Depends(get_current_user),
+    service: LoyaltyService = Depends(get_loyalty_service),
+) -> list[OwnerActivityRead]:
+    return service.list_owner_recent_activity(current_user, business_id, limit=limit)
+
+
+@router.post(
+    "/staff/actions", response_model=RegisterActionResponse, status_code=status.HTTP_201_CREATED
+)
 def register_action(
     payload: RegisterActionRequest,
     current_user: User = Depends(get_current_user),

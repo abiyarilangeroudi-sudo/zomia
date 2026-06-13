@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload
 
 from app.modules.identity.models import Business, StaffMember, User, UserRole
 from app.modules.loyalty.models import (
@@ -277,9 +277,7 @@ class LoyaltyRepository:
             return []
         return list(
             self.db.scalars(
-                select(Business)
-                .where(Business.id.in_(business_ids))
-                .order_by(Business.name.asc())
+                select(Business).where(Business.id.in_(business_ids)).order_by(Business.name.asc())
             )
         )
 
@@ -335,6 +333,25 @@ class LoyaltyRepository:
         self.db.flush()
         return event
 
+    def list_owner_recent_activity(
+        self, *, business_id: uuid.UUID, limit: int
+    ) -> list[tuple[LoyaltyAction, User, User]]:
+        staff_user = aliased(User)
+        customer_user = aliased(User)
+        rows = self.db.execute(
+            select(LoyaltyAction, staff_user, customer_user)
+            .join(staff_user, staff_user.id == LoyaltyAction.staff_id)
+            .join(customer_user, customer_user.id == LoyaltyAction.customer_id)
+            .where(LoyaltyAction.business_id == business_id)
+            .options(
+                selectinload(LoyaltyAction.items).selectinload(LoyaltyActionItem.mission),
+                selectinload(LoyaltyAction.points_entries),
+            )
+            .order_by(LoyaltyAction.created_at.desc())
+            .limit(limit)
+        )
+        return [(action, staff, customer) for action, staff, customer in rows.all()]
+
     def sum_customer_points(self, *, business_id: uuid.UUID, customer_id: uuid.UUID) -> int:
         total = self.db.scalar(
             select(func.coalesce(func.sum(PointsLedgerEntry.points), 0)).where(
@@ -347,9 +364,9 @@ class LoyaltyRepository:
     def count_actions_for_business(self, business_id: uuid.UUID) -> int:
         return int(
             self.db.scalar(
-                select(func.count()).select_from(LoyaltyAction).where(
-                    LoyaltyAction.business_id == business_id
-                )
+                select(func.count())
+                .select_from(LoyaltyAction)
+                .where(LoyaltyAction.business_id == business_id)
             )
             or 0
         )
@@ -357,9 +374,9 @@ class LoyaltyRepository:
     def count_points_entries_for_business(self, business_id: uuid.UUID) -> int:
         return int(
             self.db.scalar(
-                select(func.count()).select_from(PointsLedgerEntry).where(
-                    PointsLedgerEntry.business_id == business_id
-                )
+                select(func.count())
+                .select_from(PointsLedgerEntry)
+                .where(PointsLedgerEntry.business_id == business_id)
             )
             or 0
         )

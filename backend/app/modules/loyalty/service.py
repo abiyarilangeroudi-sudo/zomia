@@ -39,6 +39,7 @@ from app.modules.loyalty.schemas import (
     CustomerStatusRead,
     GeneratedRewardRead,
     MissionCreate,
+    OwnerActivityRead,
     RegisterActionRequest,
     RegisterActionResponse,
     RewardTemplateCreate,
@@ -73,7 +74,10 @@ class LoyaltyService:
             business_id=payload.business_id,
             entity_type="mission",
             entity_id=mission.id,
-            metadata={"mission_type": payload.mission_type.value, "point_value": payload.point_value},
+            metadata={
+                "mission_type": payload.mission_type.value,
+                "point_value": payload.point_value,
+            },
         )
         return mission
 
@@ -86,9 +90,10 @@ class LoyaltyService:
 
     def list_staff_missions(self, staff: User, business_id) -> list[Mission]:
         self._require_role(staff, UserRole.STAFF)
-        if self.repository.get_staff_membership(
-            business_id=business_id, staff_user_id=staff.id
-        ) is None:
+        if (
+            self.repository.get_staff_membership(business_id=business_id, staff_user_id=staff.id)
+            is None
+        ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Staff does not belong to this business",
@@ -209,13 +214,43 @@ class LoyaltyService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
         return self.repository.list_reward_templates(business_id)
 
+    def list_owner_recent_activity(
+        self, owner: User, business_id, *, limit: int = 20
+    ) -> list[OwnerActivityRead]:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+
+        rows = self.repository.list_owner_recent_activity(business_id=business_id, limit=limit)
+        return [
+            OwnerActivityRead(
+                action_id=action.id,
+                business_id=action.business_id,
+                action_type=action.action_type,
+                staff_id=staff.id,
+                staff_name=staff.full_name,
+                staff_email=staff.email,
+                customer_id=customer.id,
+                customer_name=customer.full_name,
+                customer_email=customer.email,
+                points_granted=sum(entry.points for entry in action.points_entries),
+                summary=self._activity_summary(action),
+                created_at=action.created_at,
+            )
+            for action, staff, customer in rows
+        ]
+
     def register_action(
         self, staff: User, payload: RegisterActionRequest
     ) -> RegisterActionResponse:
         self._require_role(staff, UserRole.STAFF)
-        if self.repository.get_staff_membership(
-            business_id=payload.business_id, staff_user_id=staff.id
-        ) is None:
+        if (
+            self.repository.get_staff_membership(
+                business_id=payload.business_id, staff_user_id=staff.id
+            )
+            is None
+        ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Staff does not belong to this business",
@@ -313,9 +348,7 @@ class LoyaltyService:
             action_items=created_items,
             actor_user_id=staff.id,
         )
-        return self._action_response(
-            action, idempotency_replayed=False, items=created_items
-        )
+        return self._action_response(action, idempotency_replayed=False, items=created_items)
 
     def get_customer_points(self, customer: User, business_id) -> CustomerPointsRead:
         self._require_role(customer, UserRole.CUSTOMER)
@@ -339,9 +372,7 @@ class LoyaltyService:
                     business_id=business.id, customer_id=customer.id
                 )
             ]
-            active_rewards = [
-                reward for reward in rewards if reward.status == RewardStatus.ACTIVE
-            ]
+            active_rewards = [reward for reward in rewards if reward.status == RewardStatus.ACTIVE]
             if not active_rewards:
                 continue
 
@@ -383,10 +414,9 @@ class LoyaltyService:
         self, customer: User
     ) -> list[CustomerCampaignProgressRead]:
         self._require_role(customer, UserRole.CUSTOMER)
-        business_ids = (
-            self.repository.list_customer_point_business_ids(customer.id)
-            | self.repository.list_customer_reward_business_ids(customer.id)
-        )
+        business_ids = self.repository.list_customer_point_business_ids(
+            customer.id
+        ) | self.repository.list_customer_reward_business_ids(customer.id)
         businesses = {
             business.id: business
             for business in self.repository.list_businesses_by_ids(business_ids)
@@ -434,13 +464,14 @@ class LoyaltyService:
         now = datetime.now(UTC)
         return [self._reward_read(self._expire_if_needed(reward, now)) for reward in rewards]
 
-    def use_reward(
-        self, staff: User, reward_id, payload: UseRewardRequest
-    ) -> UseRewardResponse:
+    def use_reward(self, staff: User, reward_id, payload: UseRewardRequest) -> UseRewardResponse:
         self._require_role(staff, UserRole.STAFF)
-        if self.repository.get_staff_membership(
-            business_id=payload.business_id, staff_user_id=staff.id
-        ) is None:
+        if (
+            self.repository.get_staff_membership(
+                business_id=payload.business_id, staff_user_id=staff.id
+            )
+            is None
+        ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Staff does not belong to this business",
@@ -490,9 +521,13 @@ class LoyaltyService:
         if reward.status == RewardStatus.EXPIRED:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reward is expired")
         if reward.status == RewardStatus.USED:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reward is already used")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Reward is already used"
+            )
         if reward.status != RewardStatus.ACTIVE:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reward is not active")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Reward is not active"
+            )
 
         action = self.repository.add_action(
             LoyaltyAction(
@@ -681,6 +716,18 @@ class LoyaltyService:
     @staticmethod
     def _reward_read(reward: GeneratedReward) -> GeneratedRewardRead:
         return GeneratedRewardRead.model_validate(reward)
+
+    @staticmethod
+    def _activity_summary(action: LoyaltyAction) -> str:
+        if action.action_type == LoyaltyActionType.REWARD_USE:
+            return "Reward used"
+        if action.action_type == LoyaltyActionType.MISSION_PROGRESS:
+            items = []
+            for item in action.items:
+                mission_name = item.mission.name if item.mission is not None else "Mission"
+                items.append(f"{mission_name} x{item.quantity}")
+            return ", ".join(items) if items else "Mission progress"
+        return action.action_type.value.replace("_", " ").title()
 
     def _audit(
         self,

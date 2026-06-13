@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 from app.modules.loyalty.models import (
     CampaignParticipationMode,
@@ -71,6 +71,21 @@ class RegisterActionResponse(BaseModel):
     points_granted: int
     idempotency_replayed: bool
     items: list[ActionItemRead]
+
+
+class OwnerActivityRead(BaseModel):
+    action_id: uuid.UUID
+    business_id: uuid.UUID
+    action_type: LoyaltyActionType
+    staff_id: uuid.UUID
+    staff_name: str
+    staff_email: EmailStr
+    customer_id: uuid.UUID
+    customer_name: str
+    customer_email: EmailStr
+    points_granted: int
+    summary: str
+    created_at: datetime
 
 
 class CustomerPointsRead(BaseModel):

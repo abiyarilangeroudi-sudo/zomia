@@ -65,13 +65,15 @@ Required before Group or Cross-Network Campaign:
 
 ### 4. Owner Activity Endpoint
 
-Owner dashboard has a recent staff actions dialog, but it does not yet have live backend data.
+Owner dashboard now has live recent staff activity for the selected business.
 
-Required:
+F10.5 progress:
 
-- Add Owner-scoped recent staff activity endpoint.
-- Show staff actions by business.
-- Keep Staff recent actions and Owner recent activity as separate product concepts.
+- Added Owner-scoped `GET /api/v1/owner/activity/recent`.
+- Owner activity is business-scoped and only visible to the owner of that business.
+- Owner activity reads loyalty actions and shows action type, Staff, Customer, points granted, created time, and a short summary.
+- Flutter Owner recent actions dialog now loads live activity with loading, empty, and error states.
+- Staff recent actions and Owner recent activity remain separate product concepts.
 
 ### 5. QR Lifecycle Clarity
 
@@ -199,16 +201,15 @@ Direction:
 - Loyalty owns missions, actions, points ledger, campaigns, rewards, and audit related to loyalty behavior.
 - Do not let Loyalty become responsible for password, email verification, OAuth, or account recovery.
 
-## Next Recommended Phase
+## Recently Completed Phase
 
-F10.5 should be:
+F10.5:
 
 ```text
 Owner Activity Endpoint
 ```
 
-Reason:
+Outcome:
 
-- Owner Activity has real MVP value and the UI placeholder already exists.
-- It does not depend on temporary infrastructure.
-- Auth recovery should wait for the email delivery decision.
+- Owner can review recent staff actions for the selected business.
+- Auth recovery remains on hold until the email delivery decision.

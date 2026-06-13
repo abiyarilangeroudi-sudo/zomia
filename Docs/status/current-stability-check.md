@@ -10,13 +10,14 @@ This document is the short checkpoint before the next feature phase.
 - Flutter MVP is implemented through Auth, Customer QR, Staff Dashboard, Owner Dashboard, Customer Registration, and UI/Branding recovery.
 - Customer registration is available from the Login screen and auto-signs the customer in after successful registration.
 - Owner minimal setup can create Staff, Mission, Campaign, and Reward Template from Flutter.
+- Owner can view recent Staff activity for the selected business.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.
 - Customer can view QR, campaign progress, active rewards, and profile basics.
 
 ## Verification Snapshot
 
-- Backend tests: `41 passed`
-- Frontend tests: `7 passed`
+- Backend tests: `45 passed`
+- Frontend tests: `11 passed`
 - Flutter analyze: no issues
 - Git status before this stability pass: clean
 
@@ -45,7 +46,7 @@ This document is the short checkpoint before the next feature phase.
 - MVP production gaps are tracked in `Docs/status/mvp-production-gap-list.md`.
 - `backend/app/modules/loyalty/service.py` is intentionally not refactored in this pass because it contains sensitive tested business logic.
 - Before Group Campaign or Cross-Network Campaign, split `LoyaltyService` into smaller services such as action registration, campaign evaluation, reward generation, reward usage, and audit orchestration.
-- Owner recent staff actions dialog is UI-ready, but it still needs a dedicated Owner activity endpoint before it can show live data.
+- Owner recent activity is live for MVP; broader audit review remains separate from owner-facing activity.
 - Phone remains out of Customer Registration and should be added later as a profile completion field.
 - Console Hygiene / Error UX needs a future cleanup pass: investigate `flutter.js.map` 404 logs, understand WebGL/camera warnings, map expected 400 responses to clear UI messages, and warn customers that manual QR refresh invalidates any previously scanned QR.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.

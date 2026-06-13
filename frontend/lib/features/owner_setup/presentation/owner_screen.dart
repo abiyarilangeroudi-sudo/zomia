@@ -225,10 +225,15 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
   }
 
   void _openRecentActionsDialog() {
+    final selectedBusiness = _controller.selectedBusiness;
+    if (selectedBusiness == null) {
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (context) => const OwnerRecentActionsDialog(),
+        builder: (context) =>
+            OwnerRecentActionsDialog(businessId: selectedBusiness.id),
       ),
     );
   }

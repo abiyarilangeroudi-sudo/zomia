@@ -14,4 +14,3 @@ def get_loyalty_service(
     repository: LoyaltyRepository = Depends(get_loyalty_repository),
 ) -> LoyaltyService:
     return LoyaltyService(repository)
-

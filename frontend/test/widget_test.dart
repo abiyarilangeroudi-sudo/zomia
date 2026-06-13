@@ -16,6 +16,7 @@ import 'package:zomia_frontend/features/customer_qr/domain/customer_status.dart'
 import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
 import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
 import 'package:zomia_frontend/features/owner_setup/domain/owner_setup_models.dart';
+import 'package:zomia_frontend/features/owner_setup/presentation/owner_profile_widgets.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
 import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
@@ -86,7 +87,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.34 (35)'), findsOneWidget);
+    expect(find.text('Version 1.0.35 (36)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -137,7 +138,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.34 (35)'));
+    await tester.tap(find.text('Version 1.0.35 (36)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -413,6 +414,28 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(find.text('Staff Recent Actions'), findsOneWidget);
+    expect(find.text('Recent activity'), findsOneWidget);
+    expect(find.text('Buy Coffee x2'), findsOneWidget);
+    expect(find.text('Customer One · Staff One · 01/01 10:30'), findsOneWidget);
+    expect(find.text('+2 pts'), findsOneWidget);
+  });
+
+  testWidgets('renders empty owner recent activity dialog', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          ownerSetupRepositoryProvider.overrideWithValue(
+            _EmptyOwnerSetupRepository(),
+          ),
+        ],
+        child: const MaterialApp(
+          home: OwnerRecentActionsDialog(businessId: 'business-id'),
+        ),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    expect(find.text('Staff Recent Actions'), findsOneWidget);
     expect(find.text('No staff actions yet'), findsOneWidget);
   });
 }
@@ -663,6 +686,37 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         isActive: true,
       ),
     ];
+  }
+
+  @override
+  Future<List<OwnerActivity>> listRecentActivity({
+    required String businessId,
+    int limit = 20,
+  }) async {
+    return [
+      OwnerActivity(
+        actionId: 'action-id',
+        businessId: businessId,
+        actionType: 'mission_progress',
+        staffName: 'Staff One',
+        staffEmail: 'staff@example.com',
+        customerName: 'Customer One',
+        customerEmail: 'customer@example.com',
+        pointsGranted: 2,
+        summary: 'Buy Coffee x2',
+        createdAt: DateTime(2026, 1, 1, 10, 30),
+      ),
+    ];
+  }
+}
+
+class _EmptyOwnerSetupRepository extends _FakeOwnerSetupRepository {
+  @override
+  Future<List<OwnerActivity>> listRecentActivity({
+    required String businessId,
+    int limit = 20,
+  }) async {
+    return const [];
   }
 }
 
