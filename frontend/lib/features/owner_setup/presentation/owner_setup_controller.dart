@@ -15,8 +15,10 @@ class OwnerSetupController extends ChangeNotifier {
   );
   final missionNameController = TextEditingController(text: 'Buy Coffee');
   final missionPointsController = TextEditingController(text: '1');
+  final DateTime _today = DateTime.now();
   final campaignNameController = TextEditingController(text: 'Coffee Reward');
   final campaignThresholdController = TextEditingController(text: '10');
+  final campaignMaxCompletionsController = TextEditingController(text: '2');
   final rewardNameController = TextEditingController(text: 'Free Coffee');
   final giftNameController = TextEditingController(text: 'Free coffee');
   final validDaysController = TextEditingController(text: '30');
@@ -31,6 +33,14 @@ class OwnerSetupController extends ChangeNotifier {
   String? selectedCampaignId;
   String? error;
   String? success;
+  late DateTime campaignStartDate = DateTime(
+    _today.year,
+    _today.month,
+    _today.day,
+  );
+  late DateTime campaignEndDate = _addMonths(campaignStartDate, 3);
+  bool campaignIsRepeatable = true;
+  bool campaignHasCompletionLimit = false;
   bool isLoading = true;
   bool isSaving = false;
   bool _isDisposed = false;
@@ -118,6 +128,40 @@ class OwnerSetupController extends ChangeNotifier {
     _setState(() => selectedCampaignId = value);
   }
 
+  void setCampaignRepeatable(bool value) {
+    _setState(() {
+      campaignIsRepeatable = value;
+      if (!value) {
+        campaignHasCompletionLimit = false;
+        campaignMaxCompletionsController.text = '2';
+      }
+    });
+  }
+
+  void setCampaignCompletionLimit(bool value) {
+    _setState(() {
+      campaignHasCompletionLimit = value;
+      if (!value) {
+        campaignMaxCompletionsController.text = '2';
+      }
+    });
+  }
+
+  void setCampaignStartDate(DateTime value) {
+    _setState(() {
+      campaignStartDate = DateTime(value.year, value.month, value.day);
+      if (!campaignStartDate.isBefore(campaignEndDate)) {
+        campaignEndDate = _addMonths(campaignStartDate, 3);
+      }
+    });
+  }
+
+  void setCampaignEndDate(DateTime value) {
+    _setState(() {
+      campaignEndDate = DateTime(value.year, value.month, value.day);
+    });
+  }
+
   Future<void> createStaff() async {
     final business = selectedBusiness;
     final email = staffEmailController.text.trim();
@@ -176,6 +220,9 @@ class OwnerSetupController extends ChangeNotifier {
   Future<void> createCampaign() async {
     final business = selectedBusiness;
     final threshold = int.tryParse(campaignThresholdController.text.trim());
+    final maxCompletions = int.tryParse(
+      campaignMaxCompletionsController.text.trim(),
+    );
     final name = campaignNameController.text.trim();
     if (business == null ||
         name.isEmpty ||
@@ -185,12 +232,29 @@ class OwnerSetupController extends ChangeNotifier {
       _showError('Select a mission and enter a valid threshold.');
       return;
     }
+    if (!campaignStartDate.isBefore(campaignEndDate)) {
+      _showError('Enter a valid campaign date range.');
+      return;
+    }
+    if (campaignIsRepeatable &&
+        campaignHasCompletionLimit &&
+        (maxCompletions == null || maxCompletions < 2)) {
+      _showError('Completion limit must be at least 2.');
+      return;
+    }
     await _save(
       () => repository.createCampaign(
         businessId: business.id,
         name: name,
         thresholdPoints: threshold,
+        startsAt: _startOfUtcDay(campaignStartDate),
+        endsAt: _endOfUtcDay(campaignEndDate),
         missionIds: selectedMissionIds.toList(),
+        isRepeatable: campaignIsRepeatable,
+        maxCompletionsPerCustomer:
+            campaignIsRepeatable && campaignHasCompletionLimit
+            ? maxCompletions
+            : null,
       ),
       'Campaign created.',
     );
@@ -269,9 +333,22 @@ class OwnerSetupController extends ChangeNotifier {
     missionPointsController.dispose();
     campaignNameController.dispose();
     campaignThresholdController.dispose();
+    campaignMaxCompletionsController.dispose();
     rewardNameController.dispose();
     giftNameController.dispose();
     validDaysController.dispose();
     super.dispose();
+  }
+
+  static DateTime _addMonths(DateTime value, int months) {
+    return DateTime(value.year, value.month + months, value.day);
+  }
+
+  static DateTime _startOfUtcDay(DateTime value) {
+    return DateTime.utc(value.year, value.month, value.day);
+  }
+
+  static DateTime _endOfUtcDay(DateTime value) {
+    return DateTime.utc(value.year, value.month, value.day, 23, 59, 59);
   }
 }

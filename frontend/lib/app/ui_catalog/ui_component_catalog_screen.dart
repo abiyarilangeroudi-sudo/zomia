@@ -346,7 +346,7 @@ class _SurfaceExamples extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ComponentName('AppCard / normal'),
@@ -369,7 +369,7 @@ class _FormExamples extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ComponentName('AppTextField / email'),
@@ -401,6 +401,41 @@ class _FormExamples extends StatelessWidget {
           label: 'Scan with Camera',
           icon: Icons.qr_code_scanner_rounded,
           onPressed: _noop,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('Campaign repeatability controls'),
+        AppDateField(
+          label: 'Start date',
+          value: DateTime(2026, 6, 14),
+          firstDate: DateTime(2020),
+          lastDate: DateTime(2100),
+          onChanged: _noopDate,
+        ),
+        SizedBox(height: 8),
+        AppDateField(
+          label: 'End date',
+          value: DateTime(2026, 9, 14),
+          firstDate: DateTime(2020),
+          lastDate: DateTime(2100),
+          onChanged: _noopDate,
+        ),
+        SizedBox(height: 8),
+        ToggleRow(
+          title: 'Repeatable campaign',
+          value: true,
+          onChanged: _noopValue,
+        ),
+        SizedBox(height: 8),
+        CheckboxRow(
+          title: 'Limit completions',
+          value: false,
+          onChanged: _noopValue,
+        ),
+        SizedBox(height: 8),
+        AppTextField(
+          label: 'Max completions per customer',
+          hint: '2',
+          keyboardType: TextInputType.number,
         ),
       ],
     );
@@ -675,3 +710,5 @@ class _ComponentName extends StatelessWidget {
 }
 
 void _noopValue(Object? value) {}
+
+void _noopDate(DateTime value) {}

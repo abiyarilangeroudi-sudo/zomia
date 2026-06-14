@@ -16,6 +16,7 @@ import 'package:zomia_frontend/features/customer_qr/domain/customer_status.dart'
 import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
 import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
 import 'package:zomia_frontend/features/owner_setup/domain/owner_setup_models.dart';
+import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_controller.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_profile_widgets.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
@@ -117,6 +118,73 @@ void main() {
     expect(summary.customer.fullName, 'Customer One');
   });
 
+  test('owner campaign creation defaults to repeatable unlimited', () async {
+    final repository = _FakeOwnerSetupRepository();
+    final controller = OwnerSetupController(repository: repository);
+    addTearDown(controller.dispose);
+
+    await controller.load();
+    await controller.createCampaign();
+
+    expect(repository.createdCampaignIsRepeatable, isTrue);
+    expect(repository.createdCampaignMaxCompletions, isNull);
+    expect(repository.createdCampaignStartsAt, isNotNull);
+    expect(repository.createdCampaignEndsAt, isNotNull);
+    expect(
+      repository.createdCampaignStartsAt!.isBefore(
+        repository.createdCampaignEndsAt!,
+      ),
+      isTrue,
+    );
+  });
+
+  test('owner campaign can be set to non-repeatable', () async {
+    final repository = _FakeOwnerSetupRepository();
+    final controller = OwnerSetupController(repository: repository);
+    addTearDown(controller.dispose);
+
+    await controller.load();
+    controller.setCampaignRepeatable(false);
+    await controller.createCampaign();
+
+    expect(repository.createdCampaignIsRepeatable, isFalse);
+    expect(repository.createdCampaignMaxCompletions, isNull);
+  });
+
+  test('owner repeatable campaign validates completion limit', () async {
+    final repository = _FakeOwnerSetupRepository();
+    final controller = OwnerSetupController(repository: repository);
+    addTearDown(controller.dispose);
+
+    await controller.load();
+    controller.setCampaignCompletionLimit(true);
+    controller.campaignMaxCompletionsController.text = '1';
+    await controller.createCampaign();
+
+    expect(controller.error, 'Completion limit must be at least 2.');
+    expect(repository.createdCampaignIsRepeatable, isNull);
+
+    controller.campaignMaxCompletionsController.text = '2';
+    await controller.createCampaign();
+
+    expect(repository.createdCampaignIsRepeatable, isTrue);
+    expect(repository.createdCampaignMaxCompletions, 2);
+  });
+
+  test('owner campaign creation validates date range', () async {
+    final repository = _FakeOwnerSetupRepository();
+    final controller = OwnerSetupController(repository: repository);
+    addTearDown(controller.dispose);
+
+    await controller.load();
+    controller.setCampaignStartDate(DateTime(2026, 9, 14));
+    controller.setCampaignEndDate(DateTime(2026, 6, 14));
+    await controller.createCampaign();
+
+    expect(controller.error, 'Enter a valid campaign date range.');
+    expect(repository.createdCampaignStartsAt, isNull);
+  });
+
   testWidgets('renders the staff login screen when signed out', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -135,7 +203,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.42 (43)'), findsOneWidget);
+    expect(find.text('Version 1.0.45 (46)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -186,7 +254,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.42 (43)'));
+    await tester.tap(find.text('Version 1.0.45 (46)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -430,7 +498,8 @@ void main() {
 
     expect(find.text('Create Campaign'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
-    expect(find.text('10 pts · active'), findsOneWidget);
+    expect(find.text('Repeatable campaign'), findsOneWidget);
+    expect(find.text('10 pts · non-repeatable · active'), findsOneWidget);
 
     await tester.drag(find.byType(ListView), const Offset(0, -600));
     await pumpAppFrames(tester);
@@ -696,6 +765,10 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
   _FakeOwnerSetupRepository() : super(Dio());
 
   bool _staffIsActive = true;
+  bool? createdCampaignIsRepeatable;
+  int? createdCampaignMaxCompletions;
+  DateTime? createdCampaignStartsAt;
+  DateTime? createdCampaignEndsAt;
 
   @override
   Future<List<OwnerBusiness>> listBusinesses() async {
@@ -763,6 +836,23 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         endsAt: DateTime(2027),
       ),
     ];
+  }
+
+  @override
+  Future<void> createCampaign({
+    required String businessId,
+    required String name,
+    required int thresholdPoints,
+    required DateTime startsAt,
+    required DateTime endsAt,
+    required List<String> missionIds,
+    required bool isRepeatable,
+    int? maxCompletionsPerCustomer,
+  }) async {
+    createdCampaignIsRepeatable = isRepeatable;
+    createdCampaignMaxCompletions = maxCompletionsPerCustomer;
+    createdCampaignStartsAt = startsAt;
+    createdCampaignEndsAt = endsAt;
   }
 
   @override

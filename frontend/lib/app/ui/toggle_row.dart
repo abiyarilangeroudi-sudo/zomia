@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
 
-class CheckboxRow extends StatelessWidget {
-  const CheckboxRow({
+class ToggleRow extends StatelessWidget {
+  const ToggleRow({
     super.key,
     required this.title,
     required this.value,
@@ -14,7 +14,7 @@ class CheckboxRow extends StatelessWidget {
   final String title;
   final String? subtitle;
   final bool value;
-  final ValueChanged<bool?>? onChanged;
+  final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +29,11 @@ class CheckboxRow extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
-        child: CheckboxListTile(
+        child: SwitchListTile(
           value: value,
           onChanged: onChanged,
           title: Text(title),
           subtitle: subtitle == null ? null : Text(subtitle!),
-          controlAffinity: ListTileControlAffinity.trailing,
           contentPadding: const EdgeInsets.symmetric(horizontal: 14),
         ),
       ),

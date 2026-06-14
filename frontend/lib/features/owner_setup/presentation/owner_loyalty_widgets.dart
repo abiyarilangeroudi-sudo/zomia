@@ -69,21 +69,39 @@ class OwnerCampaignSetupCard extends StatelessWidget {
     super.key,
     required this.controller,
     required this.thresholdController,
+    required this.startDate,
+    required this.endDate,
+    required this.maxCompletionsController,
     required this.missions,
     required this.campaigns,
     required this.selectedMissionIds,
+    required this.isRepeatable,
+    required this.hasCompletionLimit,
     required this.isSaving,
     required this.onMissionToggled,
+    required this.onRepeatableChanged,
+    required this.onCompletionLimitChanged,
+    required this.onStartDateChanged,
+    required this.onEndDateChanged,
     required this.onCreate,
   });
 
   final TextEditingController controller;
   final TextEditingController thresholdController;
+  final DateTime startDate;
+  final DateTime endDate;
+  final TextEditingController maxCompletionsController;
   final List<OwnerMission> missions;
   final List<OwnerCampaign> campaigns;
   final Set<String> selectedMissionIds;
+  final bool isRepeatable;
+  final bool hasCompletionLimit;
   final bool isSaving;
   final void Function(String missionId, bool selected) onMissionToggled;
+  final ValueChanged<bool> onRepeatableChanged;
+  final ValueChanged<bool> onCompletionLimitChanged;
+  final ValueChanged<DateTime> onStartDateChanged;
+  final ValueChanged<DateTime> onEndDateChanged;
   final VoidCallback onCreate;
 
   @override
@@ -104,6 +122,46 @@ class OwnerCampaignSetupCard extends StatelessWidget {
           hint: '10',
           keyboardType: TextInputType.number,
         ),
+        const SizedBox(height: 12),
+        AppDateField(
+          value: startDate,
+          label: 'Start date',
+          firstDate: DateTime(2020),
+          lastDate: DateTime(2100),
+          onChanged: onStartDateChanged,
+        ),
+        const SizedBox(height: 12),
+        AppDateField(
+          value: endDate,
+          label: 'End date',
+          firstDate: startDate.add(const Duration(days: 1)),
+          lastDate: DateTime(2100),
+          onChanged: onEndDateChanged,
+        ),
+        const SizedBox(height: 12),
+        ToggleRow(
+          title: 'Repeatable campaign',
+          value: isRepeatable,
+          onChanged: onRepeatableChanged,
+        ),
+        if (isRepeatable) ...[
+          const SizedBox(height: 8),
+          CheckboxRow(
+            title: 'Limit completions',
+            value: hasCompletionLimit,
+            onChanged: (selected) =>
+                onCompletionLimitChanged(selected ?? false),
+          ),
+          if (hasCompletionLimit) ...[
+            const SizedBox(height: 8),
+            AppTextField(
+              controller: maxCompletionsController,
+              label: 'Max completions per customer',
+              hint: '2',
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ],
         const SizedBox(height: 12),
         const SectionHeader(title: 'Included missions'),
         const SizedBox(height: 8),
@@ -144,14 +202,22 @@ class OwnerCampaignSetupCard extends StatelessWidget {
               .map(
                 (campaign) => OwnerSimpleListItem(
                   title: campaign.name,
-                  subtitle:
-                      '${campaign.thresholdPoints} pts · ${campaign.status}',
+                  subtitle: _campaignSubtitle(campaign),
                 ),
               )
               .toList(),
         ),
       ],
     );
+  }
+
+  String _campaignSubtitle(OwnerCampaign campaign) {
+    final repeatableLabel = campaign.isRepeatable
+        ? campaign.maxCompletionsPerCustomer == null
+              ? 'repeatable · unlimited within dates'
+              : 'repeatable · max ${campaign.maxCompletionsPerCustomer}'
+        : 'non-repeatable';
+    return '${campaign.thresholdPoints} pts · $repeatableLabel · ${campaign.status}';
   }
 }
 

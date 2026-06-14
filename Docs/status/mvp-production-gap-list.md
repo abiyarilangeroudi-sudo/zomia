@@ -167,7 +167,11 @@ F10.10 progress:
 - Campaign completions are unique per `campaign + customer + completion_number`.
 - Reward generation remains source-based on the completion id.
 - Campaigns still require `starts_at` and `ends_at`; points outside the campaign time window do not count.
-- Owner UI does not expose repeatable controls yet. Any new control must be added to the UI catalog first.
+- Owner UI now exposes repeatable campaign controls after adding the pattern to the UI catalog.
+- Individual campaigns are repeatable by default in Owner UI.
+- `Limit completions` starts from 2 when enabled; 0 and 1 are not accepted in the UI.
+- Owner UI uses date picker fields for `Start date` and `End date`; defaults are today and three months later.
+- UI labels unlimited repeatable campaigns as `Unlimited within campaign dates`; backend `null` is not shown as a product concept.
 
 ### 10. Authentication Flow Completeness
 

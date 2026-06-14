@@ -162,21 +162,26 @@ class OwnerSetupRepository {
     required String businessId,
     required String name,
     required int thresholdPoints,
+    required DateTime startsAt,
+    required DateTime endsAt,
     required List<String> missionIds,
+    required bool isRepeatable,
+    int? maxCompletionsPerCustomer,
   }) async {
-    final now = DateTime.now().toUtc();
+    final payload = <String, dynamic>{
+      'creator_business_id': businessId,
+      'name': name,
+      'threshold_points': thresholdPoints,
+      'is_repeatable': isRepeatable,
+      'starts_at': startsAt.toUtc().toIso8601String(),
+      'ends_at': endsAt.toUtc().toIso8601String(),
+      'mission_ids': missionIds,
+    };
+    if (isRepeatable) {
+      payload['max_completions_per_customer'] = maxCompletionsPerCustomer;
+    }
     try {
-      await _dio.post<Map<String, dynamic>>(
-        '/owner/campaigns',
-        data: {
-          'creator_business_id': businessId,
-          'name': name,
-          'threshold_points': thresholdPoints,
-          'starts_at': now.subtract(const Duration(days: 1)).toIso8601String(),
-          'ends_at': now.add(const Duration(days: 30)).toIso8601String(),
-          'mission_ids': missionIds,
-        },
-      );
+      await _dio.post<Map<String, dynamic>>('/owner/campaigns', data: payload);
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
     }
