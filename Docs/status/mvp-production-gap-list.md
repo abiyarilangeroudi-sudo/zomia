@@ -70,6 +70,13 @@ Required before Group or Cross-Network Campaign:
 - Keep current tests green during the split.
 - Do not change Group/Cross behavior until individual campaign flow remains stable.
 
+F10.10.1 progress:
+
+- Campaign responsibilities were extracted into `CampaignService`.
+- `CampaignService` now owns campaign creation, campaign listing, customer campaign progress, action evaluation, cycle calculation, and campaign completion creation.
+- `LoyaltyService` remains the orchestration layer for action registration and still triggers reward generation after Campaign completions are returned.
+- Reward generation and reward usage still need a later `RewardService` extraction before Group/Cross-Network Campaign work.
+
 ### 4. Owner Activity Endpoint
 
 Owner dashboard now has live recent staff activity for the selected business.
@@ -142,15 +149,25 @@ F10.2 progress:
 
 ### 9. Repeatable Campaign Cycles
 
-Current individual campaign flow is stable, but repeatable campaign behavior still needs a product decision.
+Current individual campaign flow is stable. Repeatable behavior is now defined as threshold-based cycles inside the campaign time window.
 
 Required:
 
-- Decide whether a campaign can issue more than one reward per customer.
-- Define cycle rules: unlimited, limited count, daily/weekly/monthly reset, or explicit campaign reset.
-- Decide how Customer campaign progress should show completed cycles and next-cycle progress.
-- Ensure reward generation stays idempotent inside each cycle.
-- Keep non-repeatable campaign behavior as the default until repeatable rules are explicit.
+- Keep non-repeatable campaign behavior as the default.
+- A repeatable campaign can issue one reward for each completed threshold cycle.
+- `max_completions_per_customer = null` means unlimited cycles for the campaign time window.
+- A positive `max_completions_per_customer` caps cycles per customer.
+- Daily/weekly/monthly reset remains out of MVP until there is a separate product decision.
+- Customer campaign progress must show the current cycle progress, not total lifetime points.
+- Reward generation must stay idempotent inside each cycle.
+
+F10.10 progress:
+
+- Backend supports repeatable individual campaign cycles.
+- Campaign completions are unique per `campaign + customer + completion_number`.
+- Reward generation remains source-based on the completion id.
+- Campaigns still require `starts_at` and `ends_at`; points outside the campaign time window do not count.
+- Owner UI does not expose repeatable controls yet. Any new control must be added to the UI catalog first.
 
 ### 10. Authentication Flow Completeness
 

@@ -135,7 +135,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.41 (42)'), findsOneWidget);
+    expect(find.text('Version 1.0.42 (43)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -186,7 +186,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.41 (42)'));
+    await tester.tap(find.text('Version 1.0.42 (43)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -664,6 +664,10 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
         thresholdPoints: 10,
         remainingPoints: 8,
         isCompleted: false,
+        isRepeatable: false,
+        completedCycles: 0,
+        currentCycleNumber: 1,
+        maxCompletionsPerCustomer: null,
       ),
     ];
   }
@@ -752,6 +756,8 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         id: 'campaign-id',
         name: 'Coffee Reward',
         thresholdPoints: 10,
+        isRepeatable: false,
+        maxCompletionsPerCustomer: null,
         status: 'active',
         startsAt: DateTime(2026),
         endsAt: DateTime(2027),

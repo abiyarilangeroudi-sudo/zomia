@@ -9,12 +9,6 @@ from app.modules.loyalty.models import (
     AuditEventType,
     Campaign,
     CampaignCompletion,
-    CampaignMission,
-    CampaignParticipationMode,
-    CampaignProgressMetric,
-    CampaignScopeType,
-    CampaignStatus,
-    CampaignType,
     GeneratedReward,
     LoyaltyAction,
     LoyaltyActionItem,
@@ -29,6 +23,7 @@ from app.modules.loyalty.models import (
     RewardTemplate,
     RewardUsage,
 )
+from app.modules.loyalty.campaign_service import CampaignService
 from app.modules.loyalty.repository import LoyaltyRepository
 from app.modules.loyalty.schemas import (
     CampaignCreate,
@@ -51,6 +46,7 @@ from app.modules.loyalty.schemas import (
 class LoyaltyService:
     def __init__(self, repository: LoyaltyRepository) -> None:
         self.repository = repository
+        self.campaigns = CampaignService(repository, audit=self._audit)
 
     def create_mission(self, owner: User, payload: MissionCreate) -> Mission:
         self._require_role(owner, UserRole.OWNER)
@@ -101,64 +97,10 @@ class LoyaltyService:
         return self.repository.list_business_missions(business_id)
 
     def create_campaign(self, owner: User, payload: CampaignCreate) -> Campaign:
-        self._require_role(owner, UserRole.OWNER)
-        business = self.repository.get_owner_business(
-            business_id=payload.creator_business_id, owner_id=owner.id
-        )
-        if business is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-
-        mission_ids = set(payload.mission_ids)
-        missions = self.repository.get_active_missions_by_ids(
-            business_id=payload.creator_business_id, mission_ids=mission_ids
-        )
-        if mission_ids - set(missions):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="One or more missions were not found",
-            )
-
-        campaign = self.repository.add_campaign(
-            Campaign(
-                creator_business_id=payload.creator_business_id,
-                name=payload.name,
-                description=payload.description,
-                campaign_type=CampaignType.INDIVIDUAL,
-                scope_type=CampaignScopeType.SINGLE_BUSINESS,
-                participation_mode=CampaignParticipationMode.AUTOMATIC,
-                progress_metric=CampaignProgressMetric.POINTS,
-                threshold_points=payload.threshold_points,
-                is_repeatable=False,
-                max_completions_per_customer=1,
-                status=CampaignStatus.ACTIVE,
-                starts_at=payload.starts_at,
-                ends_at=payload.ends_at,
-            )
-        )
-        for mission_id in mission_ids:
-            self.repository.add_campaign_mission(
-                CampaignMission(campaign_id=campaign.id, mission_id=mission_id)
-            )
-
-        self._audit(
-            event_type=AuditEventType.CAMPAIGN_CREATED,
-            actor_user_id=owner.id,
-            business_id=payload.creator_business_id,
-            entity_type="campaign",
-            entity_id=campaign.id,
-            metadata={
-                "threshold_points": payload.threshold_points,
-                "mission_ids": [str(mission_id) for mission_id in mission_ids],
-            },
-        )
-        return campaign
+        return self.campaigns.create_campaign(owner, payload)
 
     def list_campaigns(self, owner: User, business_id) -> list[Campaign]:
-        self._require_role(owner, UserRole.OWNER)
-        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
-        if business is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-        return self.repository.list_business_campaigns(business_id)
+        return self.campaigns.list_campaigns(owner, business_id)
 
     def create_reward_template(self, owner: User, payload: RewardTemplateCreate) -> RewardTemplate:
         self._require_role(owner, UserRole.OWNER)
@@ -344,9 +286,7 @@ class LoyaltyService:
             metadata={"customer_id": str(payload.customer_id), "points_granted": points_granted},
         )
         self._evaluate_campaigns_for_action(
-            action=action,
-            action_items=created_items,
-            actor_user_id=staff.id,
+            action=action, action_items=created_items, actor_user_id=staff.id
         )
         return self._action_response(action, idempotency_replayed=False, items=created_items)
 
@@ -392,69 +332,12 @@ class LoyaltyService:
         )
 
     def get_campaign_progress(self, customer: User, campaign_id) -> CampaignProgressRead:
-        self._require_role(customer, UserRole.CUSTOMER)
-        campaign = self.repository.get_campaign(campaign_id)
-        if campaign is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Campaign not found")
-        progress_points = self.repository.sum_campaign_points(
-            campaign=campaign, customer_id=customer.id
-        )
-        completion = self.repository.get_campaign_completion(
-            campaign_id=campaign.id, customer_id=customer.id
-        )
-        return CampaignProgressRead(
-            campaign_id=campaign.id,
-            customer_id=customer.id,
-            progress_points=progress_points,
-            threshold_points=campaign.threshold_points,
-            is_completed=completion is not None,
-        )
+        return self.campaigns.get_campaign_progress(customer, campaign_id)
 
     def list_customer_campaign_progresses(
         self, customer: User
     ) -> list[CustomerCampaignProgressRead]:
-        self._require_role(customer, UserRole.CUSTOMER)
-        business_ids = self.repository.list_customer_point_business_ids(
-            customer.id
-        ) | self.repository.list_customer_reward_business_ids(customer.id)
-        businesses = {
-            business.id: business
-            for business in self.repository.list_businesses_by_ids(business_ids)
-        }
-        campaigns = self.repository.list_active_individual_campaigns_for_businesses(
-            business_ids=business_ids,
-            now=datetime.now(UTC),
-        )
-
-        progress_reads: list[CustomerCampaignProgressRead] = []
-        for campaign in campaigns:
-            business = businesses.get(campaign.creator_business_id)
-            if business is None:
-                continue
-            progress_points = self.repository.sum_campaign_points(
-                campaign=campaign,
-                customer_id=customer.id,
-            )
-            completion = self.repository.get_campaign_completion(
-                campaign_id=campaign.id,
-                customer_id=customer.id,
-            )
-            if progress_points <= 0 and completion is None:
-                continue
-            remaining_points = max(campaign.threshold_points - progress_points, 0)
-            progress_reads.append(
-                CustomerCampaignProgressRead(
-                    business_id=business.id,
-                    business_name=business.name,
-                    campaign_id=campaign.id,
-                    campaign_name=campaign.name,
-                    progress_points=progress_points,
-                    threshold_points=campaign.threshold_points,
-                    remaining_points=remaining_points,
-                    is_completed=completion is not None,
-                )
-            )
-        return progress_reads
+        return self.campaigns.list_customer_campaign_progresses(customer)
 
     def list_customer_rewards(self, customer: User, business_id) -> list[GeneratedRewardRead]:
         self._require_role(customer, UserRole.CUSTOMER)
@@ -584,48 +467,12 @@ class LoyaltyService:
         action_items: list[LoyaltyActionItem],
         actor_user_id,
     ) -> None:
-        mission_ids = {item.mission_id for item in action_items}
-        campaigns = self.repository.get_active_individual_campaigns_for_action(
-            business_id=action.business_id,
-            mission_ids=mission_ids,
-            occurred_at=action.occurred_at,
+        completions = self.campaigns.evaluate_action(
+            action=action,
+            action_items=action_items,
+            actor_user_id=actor_user_id,
         )
-        for campaign in campaigns:
-            existing_completion = self.repository.get_campaign_completion(
-                campaign_id=campaign.id, customer_id=action.customer_id
-            )
-            if existing_completion is not None:
-                continue
-
-            progress_points = self.repository.sum_campaign_points(
-                campaign=campaign, customer_id=action.customer_id
-            )
-            if progress_points < campaign.threshold_points:
-                continue
-
-            completion = self.repository.add_campaign_completion(
-                CampaignCompletion(
-                    campaign_id=campaign.id,
-                    customer_id=action.customer_id,
-                    progress_points=progress_points,
-                    threshold_points=campaign.threshold_points,
-                    completion_number=1,
-                    completed_at=datetime.now(UTC),
-                )
-            )
-            self._audit(
-                event_type=AuditEventType.CAMPAIGN_COMPLETED,
-                actor_user_id=actor_user_id,
-                business_id=campaign.creator_business_id,
-                entity_type="campaign_completion",
-                entity_id=completion.id,
-                metadata={
-                    "campaign_id": str(campaign.id),
-                    "customer_id": str(action.customer_id),
-                    "progress_points": progress_points,
-                    "threshold_points": campaign.threshold_points,
-                },
-            )
+        for completion in completions:
             self._generate_reward_for_completion(completion, actor_user_id=actor_user_id)
 
     def _generate_reward_for_completion(

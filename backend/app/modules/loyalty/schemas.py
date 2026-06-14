@@ -111,6 +111,8 @@ class CampaignCreate(BaseModel):
     name: str = Field(min_length=2, max_length=160)
     description: str | None = Field(default=None, max_length=500)
     threshold_points: int = Field(gt=0)
+    is_repeatable: bool = False
+    max_completions_per_customer: int | None = Field(default=None, gt=0)
     starts_at: datetime
     ends_at: datetime
     mission_ids: list[uuid.UUID] = Field(min_length=1)
@@ -135,7 +137,7 @@ class CampaignRead(BaseModel):
     progress_metric: CampaignProgressMetric
     threshold_points: int
     is_repeatable: bool
-    max_completions_per_customer: int
+    max_completions_per_customer: int | None
     status: CampaignStatus
     starts_at: datetime
     ends_at: datetime
@@ -147,7 +149,12 @@ class CampaignProgressRead(BaseModel):
     customer_id: uuid.UUID
     progress_points: int
     threshold_points: int
+    remaining_points: int
     is_completed: bool
+    is_repeatable: bool
+    completed_cycles: int
+    current_cycle_number: int
+    max_completions_per_customer: int | None
 
 
 class CustomerCampaignProgressRead(BaseModel):
@@ -159,6 +166,10 @@ class CustomerCampaignProgressRead(BaseModel):
     threshold_points: int
     remaining_points: int
     is_completed: bool
+    is_repeatable: bool
+    completed_cycles: int
+    current_cycle_number: int
+    max_completions_per_customer: int | None
 
 
 class RewardTemplateCreate(BaseModel):

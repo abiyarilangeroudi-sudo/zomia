@@ -105,6 +105,8 @@ def create_campaign(
     threshold_points: int = 5,
     starts_at: datetime | None = None,
     ends_at: datetime | None = None,
+    is_repeatable: bool = False,
+    max_completions_per_customer: int | None = None,
 ) -> dict:
     starts_at = starts_at or datetime.now(UTC) - timedelta(days=1)
     ends_at = ends_at or datetime.now(UTC) + timedelta(days=30)
@@ -115,6 +117,8 @@ def create_campaign(
             "name": "Coffee Lover",
             "description": "Reach the threshold",
             "threshold_points": threshold_points,
+            "is_repeatable": is_repeatable,
+            "max_completions_per_customer": max_completions_per_customer,
             "starts_at": starts_at.isoformat(),
             "ends_at": ends_at.isoformat(),
             "mission_ids": mission_ids,
@@ -469,6 +473,8 @@ def test_owner_creates_and_lists_campaigns(client: TestClient) -> None:
     assert campaign["participation_mode"] == "automatic"
     assert campaign["progress_metric"] == "points"
     assert campaign["threshold_points"] == 10
+    assert campaign["is_repeatable"] is False
+    assert campaign["max_completions_per_customer"] is None
 
     response = client.get(
         f"/api/v1/owner/campaigns?business_id={business_id}",
@@ -553,6 +559,10 @@ def test_action_below_threshold_updates_campaign_progress_without_completion(
             "threshold_points": 5,
             "remaining_points": 3,
             "is_completed": False,
+            "is_repeatable": False,
+            "completed_cycles": 0,
+            "current_cycle_number": 1,
+            "max_completions_per_customer": None,
         }
     ]
 
@@ -701,6 +711,143 @@ def test_non_repeatable_campaign_creates_only_one_completion(
         assert response.status_code == 201
 
     assert db_session.query(CampaignCompletion).count() == 1
+
+
+def test_repeatable_campaign_creates_reward_for_each_completed_cycle(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+        is_repeatable=True,
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+
+    first = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "repeatable-cycle-1",
+            "items": [{"mission_id": mission["id"], "quantity": 5}],
+        },
+        headers=auth(staff_token),
+    )
+    second = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "repeatable-cycle-2",
+            "items": [{"mission_id": mission["id"], "quantity": 7}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert first.status_code == 201
+    assert second.status_code == 201
+    completions = db_session.scalars(
+        select(CampaignCompletion).order_by(CampaignCompletion.completion_number)
+    ).all()
+    assert [completion.completion_number for completion in completions] == [1, 2]
+    assert db_session.query(GeneratedReward).count() == 2
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["progress_points"] == 2
+    assert progress.json()["remaining_points"] == 3
+    assert progress.json()["is_repeatable"] is True
+    assert progress.json()["completed_cycles"] == 2
+    assert progress.json()["current_cycle_number"] == 3
+    assert progress.json()["max_completions_per_customer"] is None
+
+
+def test_repeatable_campaign_respects_max_completions_per_customer(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Tea", point_value=1)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+        is_repeatable=True,
+        max_completions_per_customer=2,
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "repeatable-max-1",
+            "items": [{"mission_id": mission["id"], "quantity": 20}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 2
+    assert db_session.query(GeneratedReward).count() == 2
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["progress_points"] == 5
+    assert progress.json()["remaining_points"] == 0
+    assert progress.json()["completed_cycles"] == 2
+    assert progress.json()["current_cycle_number"] == 2
+    assert progress.json()["max_completions_per_customer"] == 2
+
+
+def test_repeatable_campaign_idempotency_replay_does_not_duplicate_cycles(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Cake", point_value=1)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+        is_repeatable=True,
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    payload = {
+        "business_id": business_id,
+        "customer_id": customer_id,
+        "idempotency_key": "repeatable-replay-1",
+        "items": [{"mission_id": mission["id"], "quantity": 12}],
+    }
+
+    first = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+    second = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+
+    assert first.status_code == 201
+    assert second.status_code == 201
+    assert second.json()["idempotency_replayed"] is True
+    assert db_session.query(CampaignCompletion).count() == 2
+    assert db_session.query(GeneratedReward).count() == 2
 
 
 def test_owner_creates_reward_templates_for_all_mvp_types(client: TestClient) -> None:

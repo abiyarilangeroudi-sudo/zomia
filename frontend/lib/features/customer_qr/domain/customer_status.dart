@@ -59,6 +59,10 @@ class CustomerCampaignProgress {
     required this.thresholdPoints,
     required this.remainingPoints,
     required this.isCompleted,
+    required this.isRepeatable,
+    required this.completedCycles,
+    required this.currentCycleNumber,
+    required this.maxCompletionsPerCustomer,
   });
 
   factory CustomerCampaignProgress.fromJson(Map<String, dynamic> json) {
@@ -71,6 +75,10 @@ class CustomerCampaignProgress {
       thresholdPoints: json['threshold_points'] as int,
       remainingPoints: json['remaining_points'] as int,
       isCompleted: json['is_completed'] as bool,
+      isRepeatable: json['is_repeatable'] as bool? ?? false,
+      completedCycles: json['completed_cycles'] as int? ?? 0,
+      currentCycleNumber: json['current_cycle_number'] as int? ?? 1,
+      maxCompletionsPerCustomer: json['max_completions_per_customer'] as int?,
     );
   }
 
@@ -82,6 +90,10 @@ class CustomerCampaignProgress {
   final int thresholdPoints;
   final int remainingPoints;
   final bool isCompleted;
+  final bool isRepeatable;
+  final int completedCycles;
+  final int currentCycleNumber;
+  final int? maxCompletionsPerCustomer;
 
   double get progressRatio {
     if (thresholdPoints <= 0) {

@@ -168,11 +168,23 @@ class LoyaltyRepository:
         self, *, campaign_id: uuid.UUID, customer_id: uuid.UUID
     ) -> CampaignCompletion | None:
         return self.db.scalar(
-            select(CampaignCompletion).where(
+            select(CampaignCompletion)
+            .where(
+                CampaignCompletion.campaign_id == campaign_id,
+                CampaignCompletion.customer_id == customer_id,
+            )
+            .order_by(CampaignCompletion.completion_number.desc())
+            .limit(1)
+        )
+
+    def count_campaign_completions(self, *, campaign_id: uuid.UUID, customer_id: uuid.UUID) -> int:
+        count = self.db.scalar(
+            select(func.count(CampaignCompletion.id)).where(
                 CampaignCompletion.campaign_id == campaign_id,
                 CampaignCompletion.customer_id == customer_id,
             )
         )
+        return int(count or 0)
 
     def add_campaign_completion(self, completion: CampaignCompletion) -> CampaignCompletion:
         self.db.add(completion)

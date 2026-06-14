@@ -381,10 +381,13 @@ class _CustomerRewardEntry {
 }
 
 String customerProgressLabel(CustomerCampaignProgress progress) {
+  final cyclePrefix = progress.isRepeatable
+      ? 'Cycle ${progress.currentCycleNumber} · '
+      : '';
   final label = progress.isCompleted
       ? 'Completed'
       : '${progress.remainingPoints} pts to reward';
-  return '${progress.progressPoints}/${progress.thresholdPoints} pts · $label';
+  return '$cyclePrefix${progress.progressPoints}/${progress.thresholdPoints} pts · $label';
 }
 
 String customerFormatDateTime(DateTime value) {

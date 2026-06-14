@@ -83,6 +83,8 @@ Buy Cake x 1
 
 مجموعه‌ای از قوانین که progress مشتری را بررسی می‌کند و تصمیم می‌گیرد Reward صادر شود یا نه.
 
+Campaign همیشه بازه زمانی `starts_at` و `ends_at` دارد. Actionهای خارج از این بازه برای progress همان Campaign حساب نمی‌شوند.
+
 ### Individual Campaign
 
 Campaignی که هر Customer به صورت مستقل در آن پیشرفت می‌کند.
@@ -91,6 +93,20 @@ Campaignی که هر Customer به صورت مستقل در آن پیشرفت م
 
 ```text
 10 purchases -> 1 free coffee
+```
+
+### Repeatable Campaign Cycle
+
+چرخه‌ای که در آن یک Individual Campaign می‌تواند بعد از هر بار رسیدن Customer به threshold، یک Campaign Completion و در نتیجه یک Reward جدید بسازد.
+
+در MVP، `max_completions_per_customer = null` یعنی تعداد چرخه‌ها در بازه زمانی Campaign نامحدود است. اگر عدد مثبت باشد، همان عدد سقف تعداد completion برای هر Customer است.
+
+مثال:
+
+```text
+threshold = 10 points
+20 points -> 2 completed cycles -> 2 rewards
+23 points -> current cycle progress is 3/10
 ```
 
 ### Group Campaign

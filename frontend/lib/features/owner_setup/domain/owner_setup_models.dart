@@ -104,6 +104,8 @@ class OwnerCampaign {
     required this.id,
     required this.name,
     required this.thresholdPoints,
+    required this.isRepeatable,
+    required this.maxCompletionsPerCustomer,
     required this.status,
     required this.startsAt,
     required this.endsAt,
@@ -114,6 +116,8 @@ class OwnerCampaign {
       id: json['id'] as String,
       name: json['name'] as String,
       thresholdPoints: json['threshold_points'] as int,
+      isRepeatable: json['is_repeatable'] as bool? ?? false,
+      maxCompletionsPerCustomer: json['max_completions_per_customer'] as int?,
       status: json['status'] as String,
       startsAt: DateTime.parse(json['starts_at'] as String),
       endsAt: DateTime.parse(json['ends_at'] as String),
@@ -123,6 +127,8 @@ class OwnerCampaign {
   final String id;
   final String name;
   final int thresholdPoints;
+  final bool isRepeatable;
+  final int? maxCompletionsPerCustomer;
   final String status;
   final DateTime startsAt;
   final DateTime endsAt;

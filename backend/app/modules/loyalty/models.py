@@ -154,7 +154,7 @@ class Campaign(Base, TimestampMixin):
     __table_args__ = (
         CheckConstraint("threshold_points > 0", name="campaign_threshold_points_positive"),
         CheckConstraint(
-            "max_completions_per_customer > 0",
+            "max_completions_per_customer IS NULL OR max_completions_per_customer > 0",
             name="campaign_max_completions_per_customer_positive",
         ),
         CheckConstraint("starts_at < ends_at", name="campaign_time_window_valid"),
@@ -188,7 +188,7 @@ class Campaign(Base, TimestampMixin):
     )
     threshold_points: Mapped[int] = mapped_column(Integer)
     is_repeatable: Mapped[bool] = mapped_column(Boolean, default=False)
-    max_completions_per_customer: Mapped[int] = mapped_column(Integer, default=1)
+    max_completions_per_customer: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[CampaignStatus] = mapped_column(
         Enum(CampaignStatus, name="campaign_status", values_callable=enum_values),
         default=CampaignStatus.ACTIVE,
@@ -220,9 +220,16 @@ class CampaignMission(Base):
 class CampaignCompletion(Base):
     __tablename__ = "campaign_completions"
     __table_args__ = (
-        UniqueConstraint("campaign_id", "customer_id"),
+        UniqueConstraint(
+            "campaign_id",
+            "customer_id",
+            "completion_number",
+            name="campaign_completion_cycle_unique",
+        ),
         CheckConstraint("progress_points > 0", name="campaign_completion_progress_points_positive"),
-        CheckConstraint("threshold_points > 0", name="campaign_completion_threshold_points_positive"),
+        CheckConstraint(
+            "threshold_points > 0", name="campaign_completion_threshold_points_positive"
+        ),
         CheckConstraint("completion_number > 0", name="campaign_completion_number_positive"),
     )
 
@@ -233,7 +240,9 @@ class CampaignCompletion(Base):
     threshold_points: Mapped[int] = mapped_column(Integer)
     completion_number: Mapped[int] = mapped_column(Integer, default=1)
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-    reward_generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reward_generated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
     campaign: Mapped[Campaign] = relationship(back_populates="completions")
@@ -286,7 +295,9 @@ class RewardTemplate(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     campaign: Mapped[Campaign] = relationship(back_populates="reward_templates")
-    generated_rewards: Mapped[list["GeneratedReward"]] = relationship(back_populates="reward_template")
+    generated_rewards: Mapped[list["GeneratedReward"]] = relationship(
+        back_populates="reward_template"
+    )
 
 
 class GeneratedReward(Base, TimestampMixin):
@@ -304,7 +315,9 @@ class GeneratedReward(Base, TimestampMixin):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=new_uuid)
-    reward_template_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("reward_templates.id"), index=True)
+    reward_template_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("reward_templates.id"), index=True
+    )
     campaign_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("campaigns.id"), index=True)
     campaign_completion_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("campaign_completions.id"), nullable=True, index=True
