@@ -19,9 +19,6 @@ class QRCard extends StatelessWidget {
     this.isPrimaryActionLoading = false,
     this.onPrimaryAction,
     this.fallbackContent,
-    this.secondaryActionLabel,
-    this.secondaryActionIcon,
-    this.onSecondaryAction,
   });
 
   final String title;
@@ -33,9 +30,6 @@ class QRCard extends StatelessWidget {
   final bool isPrimaryActionLoading;
   final VoidCallback? onPrimaryAction;
   final Widget? fallbackContent;
-  final String? secondaryActionLabel;
-  final IconData? secondaryActionIcon;
-  final VoidCallback? onSecondaryAction;
 
   @override
   Widget build(BuildContext context) {
@@ -87,14 +81,6 @@ class QRCard extends StatelessWidget {
           if (fallbackContent != null) ...[
             const SizedBox(height: 12),
             fallbackContent!,
-          ],
-          if (secondaryActionLabel != null) ...[
-            const SizedBox(height: 10),
-            SecondaryButton(
-              label: secondaryActionLabel!,
-              icon: secondaryActionIcon,
-              onPressed: onSecondaryAction,
-            ),
           ],
         ],
       ),

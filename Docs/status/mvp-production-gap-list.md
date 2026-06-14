@@ -114,6 +114,14 @@ Required:
 - Avoid new one-off cards, forms, dialogs, or navigation patterns.
 - Keep frontend text in English.
 
+F10.9 progress:
+
+- Staff QR catalog example now matches the current product direction: camera scan only, no manual token fallback pattern.
+- Unused secondary-action API was removed from `QRCard` so manual resolve patterns do not re-enter through the shared component.
+- Owner dashboard presentation widgets were split by responsibility so Owner profile, activity, business, and staff UI can evolve separately.
+- `owner_profile_widgets.dart` remains only as a compatibility barrel.
+- New UI features that need a new component must first add it to the UI catalog, receive approval, and only then use it in product screens.
+
 ### 8. Staff Lifecycle Management
 
 Owner can create Staff and F10.2 adds Active/Inactive switching.

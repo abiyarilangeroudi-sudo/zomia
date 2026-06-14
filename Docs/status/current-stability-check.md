@@ -30,7 +30,11 @@ This document is the short checkpoint before the next feature phase.
 - Owner dashboard is split into:
   - `owner_screen.dart`
   - `owner_setup_controller.dart`
-  - `owner_profile_widgets.dart`
+  - `owner_profile_widgets.dart` as a compatibility barrel
+  - `owner_profile_cards.dart`
+  - `owner_activity_dialog.dart`
+  - `owner_business_widgets.dart`
+  - `owner_staff_widgets.dart`
   - `owner_loyalty_widgets.dart`
   - `owner_setup_shared_widgets.dart`
   - `owner_setup_widgets.dart` as the export barrel
@@ -54,6 +58,7 @@ This document is the short checkpoint before the next feature phase.
 ## Continue Rules
 
 - Before new UI work, agree on a short execution text first.
+- If a new UI feature needs a new reusable component, add it to the UI catalog first, get approval, and then use it in product screens.
 - Keep frontend text in English.
 - Bump `frontend/pubspec.yaml` and `frontend/lib/app/app_version.dart` on every Flutter change.
 - Keep screen files focused on orchestration; move reusable UI to feature widgets or shared UI components.
