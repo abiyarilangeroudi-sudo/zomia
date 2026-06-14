@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.modules.loyalty.models import (
     AuditEvent,
+    Campaign,
     CampaignCompletion,
     GeneratedReward,
     LoyaltyAction,
@@ -789,6 +790,77 @@ def test_ended_campaign_returns_backend_owned_progress_status(
     assert progress.json()["display_label"] == "0/5 pts · Ended"
     assert progress.json()["badge_label"] == "Ended"
     assert progress.json()["badge_tone"] == "neutral"
+
+
+def test_repeatable_campaign_does_not_create_new_cycle_after_end(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    now = datetime.now(UTC)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=2,
+        starts_at=now - timedelta(days=10),
+        ends_at=now + timedelta(days=10),
+        is_repeatable=True,
+    )
+    create_reward_template(client, owner_token, business_id, campaign["id"])
+    stored_campaign = db_session.get(Campaign, UUID(campaign["id"]))
+    assert stored_campaign is not None
+    stored_campaign.created_at = now - timedelta(days=2)
+    db_session.commit()
+
+    first = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "repeatable-before-end",
+            "occurred_at": (now - timedelta(days=1)).isoformat(),
+            "items": [{"mission_id": mission["id"], "quantity": 2}],
+        },
+        headers=auth(staff_token),
+    )
+    assert first.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 1
+    assert db_session.query(GeneratedReward).count() == 1
+
+    stored_campaign.ends_at = now - timedelta(hours=12)
+    db_session.commit()
+
+    second = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "repeatable-after-end",
+            "occurred_at": now.isoformat(),
+            "items": [{"mission_id": mission["id"], "quantity": 2}],
+        },
+        headers=auth(staff_token),
+    )
+    assert second.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 1
+    assert db_session.query(GeneratedReward).count() == 1
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["campaign_time_status"] == "ended"
+    assert progress.json()["progress_state"] == "ended"
+    assert progress.json()["completed_cycles"] == 1
+    assert progress.json()["current_cycle_number"] == 2
+    assert progress.json()["progress_points"] == 0
+    assert progress.json()["remaining_points"] == 2
+    assert progress.json()["display_label"] == "Cycle 2 · 0/2 pts · Ended"
 
 
 def test_non_repeatable_campaign_creates_only_one_completion(

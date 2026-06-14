@@ -175,6 +175,8 @@ F10.10 progress:
 - UI labels unlimited repeatable campaigns as `Unlimited within campaign dates`; backend `null` is not shown as a product concept.
 - Backend now returns campaign time status, progress state, display label, badge label, and badge tone for Customer campaign progress.
 - Flutter renders backend-owned progress labels and badges instead of deriving completed/active/upcoming/ended locally.
+- Campaign time status is backend-owned: `upcoming`, `active`, and `ended` are produced by CampaignService.
+- Repeatable campaigns do not create new cycles or rewards after `ends_at`, even if Staff records a later Action for the same Mission.
 
 ### 10. Authentication Flow Completeness
 
