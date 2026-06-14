@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../brand/brand_colors.dart';
+
 class AppDateField extends StatelessWidget {
   const AppDateField({
     super.key,
@@ -43,6 +45,33 @@ class AppDateField extends StatelessWidget {
       initialDate: value,
       firstDate: firstDate,
       lastDate: lastDate,
+      builder: (context, child) {
+        final theme = Theme.of(context);
+        return Theme(
+          data: theme.copyWith(
+            colorScheme: theme.colorScheme.copyWith(
+              primary: BrandColors.orange,
+              secondary: BrandColors.teal,
+              surface: BrandColors.surface,
+              onSurface: BrandColors.textPrimary,
+            ),
+            datePickerTheme: const DatePickerThemeData(
+              backgroundColor: BrandColors.surface,
+              headerBackgroundColor: BrandColors.orange,
+              headerForegroundColor: BrandColors.surface,
+              todayBorder: BorderSide(color: BrandColors.teal),
+              dayForegroundColor: WidgetStatePropertyAll(
+                BrandColors.textPrimary,
+              ),
+              weekdayStyle: TextStyle(color: BrandColors.textSecondary),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: BrandColors.orange),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (selected != null) {
       onChanged(selected);

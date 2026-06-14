@@ -203,7 +203,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.46 (47)'), findsOneWidget);
+    expect(find.text('Version 1.0.49 (50)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -254,7 +254,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.46 (47)'));
+    await tester.tap(find.text('Version 1.0.49 (50)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -423,7 +423,8 @@ void main() {
 
     expect(find.text('Active Rewards'), findsOneWidget);
     expect(find.text('Free Coffee'), findsWidgets);
-    expect(find.text('Zomia Cafe · Free coffee'), findsOneWidget);
+    expect(find.text('Zomia Cafe'), findsOneWidget);
+    expect(find.text('Free coffee'), findsOneWidget);
 
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);

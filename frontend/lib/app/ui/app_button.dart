@@ -19,7 +19,7 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
-      color: Colors.white,
+      color: BrandColors.surface,
       fontWeight: FontWeight.w700,
     );
     final child = isLoading

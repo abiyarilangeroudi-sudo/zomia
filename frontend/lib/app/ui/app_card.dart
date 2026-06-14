@@ -34,10 +34,10 @@ class AppCard extends StatelessWidget {
               : BrandColors.line,
         ),
         borderRadius: BorderRadius.circular(BrandSpacing.cardRadius),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
             blurRadius: 4,
-            color: Color(0x18000000),
+            color: BrandColors.textPrimary.withValues(alpha: 0.09),
             offset: Offset(0, 2),
           ),
         ],

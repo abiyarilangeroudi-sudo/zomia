@@ -121,7 +121,7 @@ ThemeData buildZomiaTheme() {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: BrandColors.orange,
-        foregroundColor: Colors.white,
+        foregroundColor: BrandColors.surface,
         minimumSize: const Size(64, 52),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(pillRadius),

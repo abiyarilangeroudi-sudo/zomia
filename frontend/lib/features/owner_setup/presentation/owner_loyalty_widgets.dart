@@ -146,11 +146,10 @@ class OwnerCampaignSetupCard extends StatelessWidget {
         ),
         if (isRepeatable) ...[
           const SizedBox(height: 8),
-          CheckboxRow(
+          ToggleRow(
             title: 'Limit completions',
             value: hasCompletionLimit,
-            onChanged: (selected) =>
-                onCompletionLimitChanged(selected ?? false),
+            onChanged: onCompletionLimitChanged,
           ),
           if (hasCompletionLimit) ...[
             const SizedBox(height: 8),

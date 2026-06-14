@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../brand/brand_colors.dart';
+import '../brand/brand_spacing.dart';
 import 'status_badge.dart';
 import 'app_card.dart';
 
@@ -13,7 +14,7 @@ class ProgressCard extends StatelessWidget {
     required this.label,
     required this.badgeLabel,
     required this.badgeTone,
-    this.highlight = false,
+    this.timeRangeLabel,
   });
 
   final String title;
@@ -22,12 +23,13 @@ class ProgressCard extends StatelessWidget {
   final String label;
   final String badgeLabel;
   final BadgeTone badgeTone;
-  final bool highlight;
+  final String? timeRangeLabel;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final normalizedValue = value.clamp(0.0, 1.0);
     return AppCard(
-      variant: highlight ? AppCardVariant.highlight : AppCardVariant.normal,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -39,28 +41,96 @@ class ProgressCard extends StatelessWidget {
                   children: [
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.labelLarge?.copyWith(
                         color: BrandColors.textSecondary,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(title, style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleLarge?.copyWith(height: 1.12),
+                    ),
                   ],
                 ),
               ),
+              const SizedBox(width: 12),
               StatusBadge(label: badgeLabel, tone: badgeTone),
             ],
           ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(value: value.clamp(0, 1)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 18),
+          _ProgressTrack(value: normalizedValue),
+          const SizedBox(height: 10),
           Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: BrandColors.textSecondary),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium?.copyWith(
+              color: BrandColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
+          if (timeRangeLabel != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.calendar_month_rounded,
+                  size: 16,
+                  color: BrandColors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    timeRangeLabel!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: BrandColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+class _ProgressTrack extends StatelessWidget {
+  const _ProgressTrack({required this.value});
+
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(BrandSpacing.smallRadius),
+      child: SizedBox(
+        height: 8,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: BrandColors.orange.withValues(alpha: 0.22),
+              ),
+            ),
+            FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: value,
+              child: const DecoratedBox(
+                decoration: BoxDecoration(color: BrandColors.orange),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

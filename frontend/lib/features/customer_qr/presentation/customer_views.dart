@@ -211,7 +211,8 @@ class CustomerRewardView extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: RewardCard(
               title: entry.reward.title,
-              subtitle: '${entry.businessName} · ${entry.reward.displayValue}',
+              businessName: entry.businessName,
+              subtitle: entry.reward.displayValue,
               expiresLabel:
                   'Expires ${customerFormatDateTime(entry.reward.expiresAt)}',
             ),

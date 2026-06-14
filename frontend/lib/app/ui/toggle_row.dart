@@ -34,6 +34,15 @@ class ToggleRow extends StatelessWidget {
           onChanged: onChanged,
           title: Text(title),
           subtitle: subtitle == null ? null : Text(subtitle!),
+          activeThumbColor: BrandColors.surface,
+          activeTrackColor: BrandColors.orange,
+          inactiveThumbColor: BrandColors.textSecondary,
+          inactiveTrackColor: BrandColors.line,
+          trackOutlineColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? BrandColors.orange
+                : BrandColors.line,
+          ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 14),
         ),
       ),

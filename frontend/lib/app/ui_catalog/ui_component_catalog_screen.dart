@@ -19,9 +19,33 @@ class UiComponentCatalogScreen extends StatelessWidget {
         children: [
           const _CatalogIntro(),
           const SizedBox(height: 16),
-          const _CatalogSection(title: 'Brand Palette', child: _PaletteGrid()),
+          const _CatalogSection(
+            title: 'Brand Palette',
+            status: CatalogApprovalStatus.approved,
+            subtitle: 'No product UI color may be used outside this palette.',
+            child: _PaletteGrid(),
+          ),
           const SizedBox(height: 16),
-          const _CatalogSection(title: 'Typography', child: _TypographyScale()),
+          const _CatalogSection(
+            title: 'Typography',
+            status: CatalogApprovalStatus.approved,
+            subtitle: 'Product text must use this theme scale.',
+            child: _TypographyScale(),
+          ),
+          const SizedBox(height: 16),
+          const _CatalogSection(
+            title: 'Spacing & Sizing',
+            status: CatalogApprovalStatus.approved,
+            subtitle: 'Token list for consistent layout rhythm.',
+            child: _SpacingScale(),
+          ),
+          const SizedBox(height: 16),
+          const _CatalogSection(
+            title: 'Icon Set',
+            status: CatalogApprovalStatus.approved,
+            subtitle: 'Allowed MVP icons before dashboard cleanup.',
+            child: _IconSet(),
+          ),
           const SizedBox(height: 16),
           _CatalogSection(title: 'Navigation', child: _NavigationExamples()),
           const SizedBox(height: 16),
@@ -55,13 +79,23 @@ class _CatalogIntro extends StatelessWidget {
           SectionHeader(
             title: 'Zomia Design System',
             subtitle:
-                'Temporary review album for canonical components before dashboard recovery.',
+                'Temporary review album for canonical components and approval status before dashboard recovery.',
           ),
           SizedBox(height: 12),
           InlineBanner(
             message:
-                'Only components approved here should be reused in Login, Customer, Staff, and Owner dashboards.',
+                'Only Approved catalog components should be reused in Login, Customer, Staff, and Owner dashboards.',
             tone: BannerTone.info,
+          ),
+          SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _ApprovalBadge(status: CatalogApprovalStatus.approved),
+              _ApprovalBadge(status: CatalogApprovalStatus.needsReview),
+              _ApprovalBadge(status: CatalogApprovalStatus.draft),
+            ],
           ),
         ],
       ),
@@ -70,10 +104,17 @@ class _CatalogIntro extends StatelessWidget {
 }
 
 class _CatalogSection extends StatelessWidget {
-  const _CatalogSection({required this.title, required this.child});
+  const _CatalogSection({
+    required this.title,
+    required this.child,
+    this.status,
+    this.subtitle,
+  });
 
   final String title;
   final Widget child;
+  final CatalogApprovalStatus? status;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -81,9 +122,121 @@ class _CatalogSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SectionHeader(title: title),
+          SectionHeader(
+            title: title,
+            subtitle: subtitle,
+            trailing: status == null ? null : _ApprovalBadge(status: status!),
+          ),
           const SizedBox(height: 16),
           child,
+        ],
+      ),
+    );
+  }
+}
+
+class _SpacingScale extends StatelessWidget {
+  const _SpacingScale();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        _TokenPill('screenPadding', '16'),
+        _TokenPill('cardSpacing', '12'),
+        _TokenPill('cardPadding', '16'),
+        _TokenPill('smallPadding', '8'),
+        _TokenPill('xsPadding', '4'),
+        _TokenPill('cardRadius', '12'),
+        _TokenPill('smallRadius', '8'),
+        _TokenPill('buttonHeight', '52'),
+        _TokenPill('pillRadius', '26'),
+      ],
+    );
+  }
+}
+
+class _IconSet extends StatelessWidget {
+  const _IconSet();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        _IconToken(Icons.qr_code_rounded, 'QR'),
+        _IconToken(Icons.qr_code_scanner_rounded, 'Scan'),
+        _IconToken(Icons.dashboard_outlined, 'Home'),
+        _IconToken(Icons.campaign_outlined, 'Campaign'),
+        _IconToken(Icons.card_giftcard_outlined, 'Reward'),
+        _IconToken(Icons.person_outline_rounded, 'Profile'),
+        _IconToken(Icons.history_rounded, 'Activity'),
+        _IconToken(Icons.storefront_rounded, 'Business'),
+        _IconToken(Icons.group_outlined, 'Staff'),
+        _IconToken(Icons.close_rounded, 'Close'),
+        _IconToken(Icons.calendar_month_rounded, 'Calendar'),
+        _IconToken(Icons.refresh_rounded, 'Refresh'),
+      ],
+    );
+  }
+}
+
+class _TokenPill extends StatelessWidget {
+  const _TokenPill(this.name, this.value);
+
+  final String name;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: BrandColors.surface,
+        border: Border.all(color: BrandColors.line),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Text(
+          '$name: $value',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+    );
+  }
+}
+
+class _IconToken extends StatelessWidget {
+  const _IconToken(this.icon, this.label);
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 100,
+      child: Column(
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: BrandColors.teal.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Icon(icon, color: BrandColors.teal),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ],
       ),
     );
@@ -396,13 +549,6 @@ class _FormExamples extends StatelessWidget {
           onPressed: _noop,
         ),
         SizedBox(height: 12),
-        _ComponentName('PrimaryButton / scan action'),
-        PrimaryButton(
-          label: 'Scan with Camera',
-          icon: Icons.qr_code_scanner_rounded,
-          onPressed: _noop,
-        ),
-        SizedBox(height: 12),
         _ComponentName('Campaign repeatability controls'),
         AppDateField(
           label: 'Start date',
@@ -426,7 +572,7 @@ class _FormExamples extends StatelessWidget {
           onChanged: _noopValue,
         ),
         SizedBox(height: 8),
-        CheckboxRow(
+        ToggleRow(
           title: 'Limit completions',
           value: false,
           onChanged: _noopValue,
@@ -490,28 +636,74 @@ class _LoyaltyExamples extends StatelessWidget {
       children: [
         _ComponentName('ProgressCard / active'),
         ProgressCard(
-          title: 'Coffee Reward',
-          subtitle: 'Zomia Cafe',
+          title: 'Coffee Party',
+          subtitle: 'Repeatable Clean Cafe',
           value: 0.6,
           label: '6/10 pts · 4 pts to reward',
+          timeRangeLabel: 'Jun 14, 2026 - Sep 14, 2026',
           badgeLabel: 'Active',
           badgeTone: BadgeTone.info,
         ),
         SizedBox(height: 12),
+        _ComponentName('ProgressCard / repeatable active cycle'),
+        ProgressCard(
+          title: 'Coffee Party',
+          subtitle: 'Repeatable Clean Cafe',
+          value: 0.2,
+          label: 'Cycle 2 · 1/5 pts · 4 pts to reward',
+          timeRangeLabel: 'Jun 14, 2026 - Sep 14, 2026',
+          badgeLabel: 'Active',
+          badgeTone: BadgeTone.info,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('ProgressCard / upcoming'),
+        ProgressCard(
+          title: 'Summer Party',
+          subtitle: 'Zomia Cafe',
+          value: 0,
+          label: '0/5 pts · Upcoming',
+          timeRangeLabel: 'Jul 01, 2026 - Sep 30, 2026',
+          badgeLabel: 'Upcoming',
+          badgeTone: BadgeTone.warning,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('ProgressCard / ended'),
+        ProgressCard(
+          title: 'Winter Party',
+          subtitle: 'Zomia Cafe',
+          value: 0.4,
+          label: '2/5 pts · Ended',
+          timeRangeLabel: 'Mar 01, 2026 - May 31, 2026',
+          badgeLabel: 'Ended',
+          badgeTone: BadgeTone.neutral,
+        ),
+        SizedBox(height: 12),
         _ComponentName('ProgressCard / completed'),
         ProgressCard(
-          title: 'Cake Reward',
+          title: 'Cake Party',
           subtitle: 'Zomia Cafe',
           value: 1,
           label: '10/10 pts · Completed',
+          timeRangeLabel: 'Jun 14, 2026 - Sep 14, 2026',
           badgeLabel: 'Completed',
           badgeTone: BadgeTone.success,
-          highlight: true,
+        ),
+        SizedBox(height: 12),
+        _ComponentName('ProgressCard / limit reached'),
+        ProgressCard(
+          title: 'Coffee 2 Sycle',
+          subtitle: 'Repeatable Clean Cafe',
+          value: 1,
+          label: 'Cycle 2 · 2/2 pts · Limit reached',
+          timeRangeLabel: 'Jun 14, 2026 - Sep 14, 2026',
+          badgeLabel: 'Limit reached',
+          badgeTone: BadgeTone.success,
         ),
         SizedBox(height: 12),
         _ComponentName('RewardCard / customer'),
         RewardCard(
           title: 'Free Coffee',
+          businessName: 'Zomia Cafe',
           subtitle: 'Gift reward',
           expiresLabel: 'Valid until 2026-07-12',
         ),
@@ -544,16 +736,6 @@ class _MvpWorkflowExamples extends StatelessWidget {
           token: 'J8Gd1wSboWryp_HA22Qc7Q',
           primaryActionLabel: 'Refresh QR token',
           primaryActionIcon: Icons.refresh_rounded,
-          onPrimaryAction: _noop,
-        ),
-        SizedBox(height: 12),
-        _ComponentName('QRCard / staff-scan'),
-        QRCard(
-          title: 'Customer QR',
-          message: 'Scan the customer QR with the camera.',
-          variant: QRCardVariant.staffScan,
-          primaryActionLabel: 'Scan with Camera',
-          primaryActionIcon: Icons.qr_code_scanner_rounded,
           onPrimaryAction: _noop,
         ),
         SizedBox(height: 12),
@@ -699,6 +881,8 @@ class _DialogPreview extends StatelessWidget {
   }
 }
 
+enum CatalogApprovalStatus { approved, needsReview, draft }
+
 class _ComponentName extends StatelessWidget {
   const _ComponentName(this.name);
 
@@ -708,8 +892,32 @@ class _ComponentName extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(name, style: Theme.of(context).textTheme.labelLarge),
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 6,
+        children: [
+          Text(name, style: Theme.of(context).textTheme.labelLarge),
+          const _ApprovalBadge(status: CatalogApprovalStatus.approved),
+        ],
+      ),
     );
+  }
+}
+
+class _ApprovalBadge extends StatelessWidget {
+  const _ApprovalBadge({required this.status});
+
+  final CatalogApprovalStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, tone) = switch (status) {
+      CatalogApprovalStatus.approved => ('Approved', BadgeTone.success),
+      CatalogApprovalStatus.needsReview => ('Needs review', BadgeTone.warning),
+      CatalogApprovalStatus.draft => ('Draft', BadgeTone.neutral),
+    };
+    return StatusBadge(label: label, tone: tone);
   }
 }
 

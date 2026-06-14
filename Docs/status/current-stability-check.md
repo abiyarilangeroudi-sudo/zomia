@@ -60,6 +60,10 @@ This document is the short checkpoint before the next feature phase.
 
 - Before new UI work, agree on a short execution text first.
 - If a new UI feature needs a new reusable component, add it to the UI catalog first, get approval, and then use it in product screens.
+- The UI catalog is the approval source of truth: `Approved` components may be reused, `Needs review` components may stay only where already introduced, and `Draft` components must not be used in product screens until approved.
+- `Brand Palette` is approved: product UI must use `BrandColors` only, with no one-off colors outside the catalog.
+- `Typography` is approved: product UI text must use the theme text scale instead of one-off font styles.
+- Customer Dashboard cleanup must start from the catalog `ProgressCard` review before changing product screens.
 - Keep frontend text in English.
 - Bump `frontend/pubspec.yaml` and `frontend/lib/app/app_version.dart` on every Flutter change.
 - Keep screen files focused on orchestration; move reusable UI to feature widgets or shared UI components.

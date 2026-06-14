@@ -13,6 +13,7 @@ class RewardCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.expiresLabel,
+    this.businessName,
     this.variant = RewardCardVariant.customer,
     this.isLoading = false,
     this.onUse,
@@ -21,6 +22,7 @@ class RewardCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final String expiresLabel;
+  final String? businessName;
   final RewardCardVariant variant;
   final bool isLoading;
   final VoidCallback? onUse;
@@ -36,7 +38,7 @@ class RewardCard extends StatelessWidget {
             children: [
               const CircleAvatar(
                 backgroundColor: BrandColors.purple,
-                foregroundColor: Colors.white,
+                foregroundColor: BrandColors.surface,
                 child: Icon(Icons.card_giftcard_rounded),
               ),
               const SizedBox(width: 12),
@@ -46,6 +48,15 @@ class RewardCard extends StatelessWidget {
                   children: [
                     Text(title, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 2),
+                    if (businessName != null) ...[
+                      Text(
+                        businessName!,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: BrandColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                    ],
                     Text(subtitle),
                   ],
                 ),
