@@ -155,6 +155,11 @@ class CampaignProgressRead(BaseModel):
     completed_cycles: int
     current_cycle_number: int
     max_completions_per_customer: int | None
+    campaign_time_status: str
+    progress_state: str
+    display_label: str
+    badge_label: str
+    badge_tone: str
 
 
 class CustomerCampaignProgressRead(BaseModel):
@@ -170,6 +175,11 @@ class CustomerCampaignProgressRead(BaseModel):
     completed_cycles: int
     current_cycle_number: int
     max_completions_per_customer: int | None
+    campaign_time_status: str
+    progress_state: str
+    display_label: str
+    badge_label: str
+    badge_tone: str
 
 
 class RewardTemplateCreate(BaseModel):

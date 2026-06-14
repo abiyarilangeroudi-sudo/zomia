@@ -63,6 +63,11 @@ class CustomerCampaignProgress {
     required this.completedCycles,
     required this.currentCycleNumber,
     required this.maxCompletionsPerCustomer,
+    required this.campaignTimeStatus,
+    required this.progressState,
+    required this.displayLabel,
+    required this.badgeLabel,
+    required this.badgeTone,
   });
 
   factory CustomerCampaignProgress.fromJson(Map<String, dynamic> json) {
@@ -79,6 +84,11 @@ class CustomerCampaignProgress {
       completedCycles: json['completed_cycles'] as int? ?? 0,
       currentCycleNumber: json['current_cycle_number'] as int? ?? 1,
       maxCompletionsPerCustomer: json['max_completions_per_customer'] as int?,
+      campaignTimeStatus: json['campaign_time_status'] as String? ?? 'active',
+      progressState: json['progress_state'] as String? ?? 'in_progress',
+      displayLabel: json['display_label'] as String? ?? '',
+      badgeLabel: json['badge_label'] as String? ?? 'Active',
+      badgeTone: json['badge_tone'] as String? ?? 'info',
     );
   }
 
@@ -94,6 +104,11 @@ class CustomerCampaignProgress {
   final int completedCycles;
   final int currentCycleNumber;
   final int? maxCompletionsPerCustomer;
+  final String campaignTimeStatus;
+  final String progressState;
+  final String displayLabel;
+  final String badgeLabel;
+  final String badgeTone;
 
   double get progressRatio {
     if (thresholdPoints <= 0) {

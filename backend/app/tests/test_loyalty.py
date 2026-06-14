@@ -543,6 +543,11 @@ def test_action_below_threshold_updates_campaign_progress_without_completion(
     assert progress.status_code == 200
     assert progress.json()["progress_points"] == 2
     assert progress.json()["is_completed"] is False
+    assert progress.json()["campaign_time_status"] == "active"
+    assert progress.json()["progress_state"] == "in_progress"
+    assert progress.json()["display_label"] == "2/5 pts · 3 pts to reward"
+    assert progress.json()["badge_label"] == "Active"
+    assert progress.json()["badge_tone"] == "info"
 
     progresses = client.get(
         "/api/v1/customers/me/campaigns/progress",
@@ -563,6 +568,11 @@ def test_action_below_threshold_updates_campaign_progress_without_completion(
             "completed_cycles": 0,
             "current_cycle_number": 1,
             "max_completions_per_customer": None,
+            "campaign_time_status": "active",
+            "progress_state": "in_progress",
+            "display_label": "2/5 pts · 3 pts to reward",
+            "badge_label": "Active",
+            "badge_tone": "info",
         }
     ]
 
@@ -606,6 +616,11 @@ def test_action_reaching_threshold_creates_campaign_completion(
     assert progress.status_code == 200
     assert progress.json()["progress_points"] == 5
     assert progress.json()["is_completed"] is True
+    assert progress.json()["campaign_time_status"] == "active"
+    assert progress.json()["progress_state"] == "completed"
+    assert progress.json()["display_label"] == "5/5 pts · Completed"
+    assert progress.json()["badge_label"] == "Completed"
+    assert progress.json()["badge_tone"] == "success"
 
     audit_events = db_session.scalars(select(AuditEvent)).all()
     assert "campaign_completed" in {event.event_type.value for event in audit_events}
@@ -680,6 +695,100 @@ def test_action_outside_campaign_window_does_not_count_for_progress(
     assert progress.status_code == 200
     assert progress.json()["progress_points"] == 0
     assert progress.json()["is_completed"] is False
+    assert progress.json()["campaign_time_status"] == "upcoming"
+    assert progress.json()["progress_state"] == "in_progress"
+    assert progress.json()["display_label"] == "0/5 pts · Upcoming"
+    assert progress.json()["badge_label"] == "Upcoming"
+    assert progress.json()["badge_tone"] == "warning"
+
+
+def test_action_before_campaign_creation_does_not_count_for_progress(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
+
+    earlier_action = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "pre-campaign-action",
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert earlier_action.status_code == 201
+
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+        starts_at=datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0),
+        ends_at=datetime.now(UTC) + timedelta(days=30),
+    )
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["progress_points"] == 0
+    assert progress.json()["remaining_points"] == 5
+    assert progress.json()["progress_state"] == "in_progress"
+    assert progress.json()["display_label"] == "0/5 pts · 5 pts to reward"
+    assert db_session.query(CampaignCompletion).count() == 0
+
+
+def test_ended_campaign_returns_backend_owned_progress_status(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
+    starts_at = datetime.now(UTC) - timedelta(days=10)
+    ends_at = datetime.now(UTC) - timedelta(days=5)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+        starts_at=starts_at,
+        ends_at=ends_at,
+    )
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "campaign-ended-status",
+            "occurred_at": (starts_at + timedelta(days=1)).isoformat(),
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 0
+
+    progress = client.get(
+        f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
+        headers=auth(customer_token),
+    )
+    assert progress.status_code == 200
+    assert progress.json()["campaign_time_status"] == "ended"
+    assert progress.json()["progress_state"] == "ended"
+    assert progress.json()["display_label"] == "0/5 pts · Ended"
+    assert progress.json()["badge_label"] == "Ended"
+    assert progress.json()["badge_tone"] == "neutral"
 
 
 def test_non_repeatable_campaign_creates_only_one_completion(
@@ -766,10 +875,16 @@ def test_repeatable_campaign_creates_reward_for_each_completed_cycle(
     assert progress.status_code == 200
     assert progress.json()["progress_points"] == 2
     assert progress.json()["remaining_points"] == 3
+    assert progress.json()["is_completed"] is False
     assert progress.json()["is_repeatable"] is True
     assert progress.json()["completed_cycles"] == 2
     assert progress.json()["current_cycle_number"] == 3
     assert progress.json()["max_completions_per_customer"] is None
+    assert progress.json()["campaign_time_status"] == "active"
+    assert progress.json()["progress_state"] == "in_progress"
+    assert progress.json()["display_label"] == "Cycle 3 · 2/5 pts · 3 pts to reward"
+    assert progress.json()["badge_label"] == "Active"
+    assert progress.json()["badge_tone"] == "info"
 
 
 def test_repeatable_campaign_respects_max_completions_per_customer(
@@ -812,9 +927,15 @@ def test_repeatable_campaign_respects_max_completions_per_customer(
     assert progress.status_code == 200
     assert progress.json()["progress_points"] == 5
     assert progress.json()["remaining_points"] == 0
+    assert progress.json()["is_completed"] is True
     assert progress.json()["completed_cycles"] == 2
     assert progress.json()["current_cycle_number"] == 2
     assert progress.json()["max_completions_per_customer"] == 2
+    assert progress.json()["campaign_time_status"] == "active"
+    assert progress.json()["progress_state"] == "limit_reached"
+    assert progress.json()["display_label"] == "Cycle 2 · 5/5 pts · Limit reached"
+    assert progress.json()["badge_label"] == "Limit reached"
+    assert progress.json()["badge_tone"] == "success"
 
 
 def test_repeatable_campaign_idempotency_replay_does_not_duplicate_cycles(

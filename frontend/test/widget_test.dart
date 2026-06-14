@@ -203,7 +203,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.45 (46)'), findsOneWidget);
+    expect(find.text('Version 1.0.46 (47)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -254,7 +254,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.45 (46)'));
+    await tester.tap(find.text('Version 1.0.46 (47)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -737,6 +737,11 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
         completedCycles: 0,
         currentCycleNumber: 1,
         maxCompletionsPerCustomer: null,
+        campaignTimeStatus: 'active',
+        progressState: 'in_progress',
+        displayLabel: '2/10 pts · 8 pts to reward',
+        badgeLabel: 'Active',
+        badgeTone: 'info',
       ),
     ];
   }

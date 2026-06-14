@@ -112,6 +112,26 @@ class LoyaltyRepository:
             )
         )
 
+    def list_individual_campaigns_for_businesses(
+        self, *, business_ids: set[uuid.UUID]
+    ) -> list[Campaign]:
+        if not business_ids:
+            return []
+        return list(
+            self.db.scalars(
+                select(Campaign)
+                .where(
+                    Campaign.creator_business_id.in_(business_ids),
+                    Campaign.campaign_type == CampaignType.INDIVIDUAL,
+                    Campaign.scope_type == CampaignScopeType.SINGLE_BUSINESS,
+                    Campaign.participation_mode == CampaignParticipationMode.AUTOMATIC,
+                    Campaign.progress_metric == CampaignProgressMetric.POINTS,
+                    Campaign.status == CampaignStatus.ACTIVE,
+                )
+                .order_by(Campaign.starts_at.asc(), Campaign.ends_at.asc())
+            )
+        )
+
     def get_campaign(self, campaign_id: uuid.UUID) -> Campaign | None:
         return self.db.get(Campaign, campaign_id)
 
@@ -150,6 +170,7 @@ class LoyaltyRepository:
         campaign_mission_ids = self.get_campaign_mission_ids(campaign.id)
         if not campaign_mission_ids:
             return 0
+        effective_starts_at = max(campaign.starts_at, campaign.created_at)
         total = self.db.scalar(
             select(func.coalesce(func.sum(PointsLedgerEntry.points), 0))
             .join(LoyaltyAction, LoyaltyAction.id == PointsLedgerEntry.action_id)
@@ -157,7 +178,7 @@ class LoyaltyRepository:
             .where(
                 PointsLedgerEntry.customer_id == customer_id,
                 PointsLedgerEntry.business_id == campaign.creator_business_id,
-                LoyaltyAction.occurred_at >= campaign.starts_at,
+                LoyaltyAction.occurred_at >= effective_starts_at,
                 LoyaltyAction.occurred_at <= campaign.ends_at,
                 LoyaltyActionItem.mission_id.in_(campaign_mission_ids),
             )

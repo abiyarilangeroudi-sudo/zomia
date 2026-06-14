@@ -159,6 +159,7 @@ Required:
 - A positive `max_completions_per_customer` caps cycles per customer.
 - Daily/weekly/monthly reset remains out of MVP until there is a separate product decision.
 - Customer campaign progress must show the current cycle progress, not total lifetime points.
+- Customer campaign progress status and display labels must be backend-owned.
 - Reward generation must stay idempotent inside each cycle.
 
 F10.10 progress:
@@ -172,6 +173,8 @@ F10.10 progress:
 - `Limit completions` starts from 2 when enabled; 0 and 1 are not accepted in the UI.
 - Owner UI uses date picker fields for `Start date` and `End date`; defaults are today and three months later.
 - UI labels unlimited repeatable campaigns as `Unlimited within campaign dates`; backend `null` is not shown as a product concept.
+- Backend now returns campaign time status, progress state, display label, badge label, and badge tone for Customer campaign progress.
+- Flutter renders backend-owned progress labels and badges instead of deriving completed/active/upcoming/ended locally.
 
 ### 10. Authentication Flow Completeness
 

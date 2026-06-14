@@ -85,6 +85,8 @@ Buy Cake x 1
 
 Campaign همیشه بازه زمانی `starts_at` و `ends_at` دارد. Actionهای خارج از این بازه برای progress همان Campaign حساب نمی‌شوند.
 
+وضعیت زمانی Campaign و متن قابل نمایش progress برای Customer توسط Backend محاسبه می‌شود، نه Frontend.
+
 ### Individual Campaign
 
 Campaignی که هر Customer به صورت مستقل در آن پیشرفت می‌کند.

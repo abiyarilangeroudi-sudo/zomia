@@ -11,19 +11,23 @@ class ProgressCard extends StatelessWidget {
     required this.subtitle,
     required this.value,
     required this.label,
-    this.isCompleted = false,
+    required this.badgeLabel,
+    required this.badgeTone,
+    this.highlight = false,
   });
 
   final String title;
   final String subtitle;
   final double value;
   final String label;
-  final bool isCompleted;
+  final String badgeLabel;
+  final BadgeTone badgeTone;
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      variant: isCompleted ? AppCardVariant.highlight : AppCardVariant.normal,
+      variant: highlight ? AppCardVariant.highlight : AppCardVariant.normal,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -44,10 +48,7 @@ class ProgressCard extends StatelessWidget {
                   ],
                 ),
               ),
-              StatusBadge(
-                label: isCompleted ? 'Completed' : 'Active',
-                tone: isCompleted ? BadgeTone.success : BadgeTone.info,
-              ),
+              StatusBadge(label: badgeLabel, tone: badgeTone),
             ],
           ),
           const SizedBox(height: 12),

@@ -104,17 +104,23 @@ class CampaignService:
             campaign=campaign, customer_id=customer.id
         )
         progress = self._campaign_cycle_progress(campaign, progress_points, customer.id)
+        status = self._campaign_progress_status(campaign, progress, datetime.now(UTC))
         return CampaignProgressRead(
             campaign_id=campaign.id,
             customer_id=customer.id,
             progress_points=progress["progress_points"],
             threshold_points=campaign.threshold_points,
             remaining_points=progress["remaining_points"],
-            is_completed=progress["is_completed"],
+            is_completed=status["progress_state"] in {"completed", "limit_reached"},
             is_repeatable=campaign.is_repeatable,
             completed_cycles=progress["completed_cycles"],
             current_cycle_number=progress["current_cycle_number"],
             max_completions_per_customer=campaign.max_completions_per_customer,
+            campaign_time_status=status["campaign_time_status"],
+            progress_state=status["progress_state"],
+            display_label=status["display_label"],
+            badge_label=status["badge_label"],
+            badge_tone=status["badge_tone"],
         )
 
     def list_customer_campaign_progresses(
@@ -128,9 +134,9 @@ class CampaignService:
             business.id: business
             for business in self.repository.list_businesses_by_ids(business_ids)
         }
-        campaigns = self.repository.list_active_individual_campaigns_for_businesses(
-            business_ids=business_ids,
-            now=datetime.now(UTC),
+        now = datetime.now(UTC)
+        campaigns = self.repository.list_individual_campaigns_for_businesses(
+            business_ids=business_ids
         )
 
         progress_reads: list[CustomerCampaignProgressRead] = []
@@ -145,6 +151,7 @@ class CampaignService:
             progress = self._campaign_cycle_progress(campaign, progress_points, customer.id)
             if progress_points <= 0 and not progress["is_completed"]:
                 continue
+            status = self._campaign_progress_status(campaign, progress, now)
             progress_reads.append(
                 CustomerCampaignProgressRead(
                     business_id=business.id,
@@ -154,11 +161,16 @@ class CampaignService:
                     progress_points=progress["progress_points"],
                     threshold_points=campaign.threshold_points,
                     remaining_points=progress["remaining_points"],
-                    is_completed=progress["is_completed"],
+                    is_completed=status["progress_state"] in {"completed", "limit_reached"},
                     is_repeatable=campaign.is_repeatable,
                     completed_cycles=progress["completed_cycles"],
                     current_cycle_number=progress["current_cycle_number"],
                     max_completions_per_customer=campaign.max_completions_per_customer,
+                    campaign_time_status=status["campaign_time_status"],
+                    progress_state=status["progress_state"],
+                    display_label=status["display_label"],
+                    badge_label=status["badge_label"],
+                    badge_tone=status["badge_tone"],
                 )
             )
         return progress_reads
@@ -257,6 +269,123 @@ class CampaignService:
             "completed_cycles": completed_cycles,
             "current_cycle_number": current_cycle_number,
         }
+
+    def _campaign_progress_status(
+        self, campaign: Campaign, progress: dict[str, int | bool], now: datetime
+    ) -> dict[str, str]:
+        time_status = self._campaign_time_status(campaign, now)
+        progress_points = int(progress["progress_points"])
+        remaining_points = int(progress["remaining_points"])
+        threshold_points = campaign.threshold_points
+        completed_cycles = int(progress["completed_cycles"])
+        current_cycle_number = int(progress["current_cycle_number"])
+
+        if time_status == "upcoming":
+            return {
+                "campaign_time_status": "upcoming",
+                "progress_state": "in_progress",
+                "display_label": self._display_label(
+                    campaign=campaign,
+                    current_cycle_number=current_cycle_number,
+                    progress_points=progress_points,
+                    threshold_points=threshold_points,
+                    suffix="Upcoming",
+                ),
+                "badge_label": "Upcoming",
+                "badge_tone": "warning",
+            }
+
+        if time_status == "ended":
+            return {
+                "campaign_time_status": "ended",
+                "progress_state": "ended",
+                "display_label": self._display_label(
+                    campaign=campaign,
+                    current_cycle_number=current_cycle_number,
+                    progress_points=progress_points,
+                    threshold_points=threshold_points,
+                    suffix="Ended",
+                ),
+                "badge_label": "Ended",
+                "badge_tone": "neutral",
+            }
+
+        if not campaign.is_repeatable and completed_cycles > 0:
+            return {
+                "campaign_time_status": "active",
+                "progress_state": "completed",
+                "display_label": self._display_label(
+                    campaign=campaign,
+                    current_cycle_number=current_cycle_number,
+                    progress_points=progress_points,
+                    threshold_points=threshold_points,
+                    suffix="Completed",
+                ),
+                "badge_label": "Completed",
+                "badge_tone": "success",
+            }
+
+        has_reached_limit = (
+            campaign.is_repeatable
+            and campaign.max_completions_per_customer is not None
+            and completed_cycles >= campaign.max_completions_per_customer
+        )
+        if has_reached_limit:
+            return {
+                "campaign_time_status": "active",
+                "progress_state": "limit_reached",
+                "display_label": self._display_label(
+                    campaign=campaign,
+                    current_cycle_number=current_cycle_number,
+                    progress_points=progress_points,
+                    threshold_points=threshold_points,
+                    suffix="Limit reached",
+                ),
+                "badge_label": "Limit reached",
+                "badge_tone": "success",
+            }
+
+        suffix = f"{remaining_points} pts to reward"
+        return {
+            "campaign_time_status": "active",
+            "progress_state": "in_progress",
+            "display_label": self._display_label(
+                campaign=campaign,
+                current_cycle_number=current_cycle_number,
+                progress_points=progress_points,
+                threshold_points=threshold_points,
+                suffix=suffix,
+            ),
+            "badge_label": "Active",
+            "badge_tone": "info",
+        }
+
+    def _campaign_time_status(self, campaign: Campaign, now: datetime) -> str:
+        starts_at = self._as_utc(campaign.starts_at)
+        ends_at = self._as_utc(campaign.ends_at)
+        if now < starts_at:
+            return "upcoming"
+        if now > ends_at:
+            return "ended"
+        return "active"
+
+    @staticmethod
+    def _display_label(
+        *,
+        campaign: Campaign,
+        current_cycle_number: int,
+        progress_points: int,
+        threshold_points: int,
+        suffix: str,
+    ) -> str:
+        cycle_prefix = f"Cycle {current_cycle_number} · " if campaign.is_repeatable else ""
+        return f"{cycle_prefix}{progress_points}/{threshold_points} pts · {suffix}"
+
+    @staticmethod
+    def _as_utc(value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
 
     @staticmethod
     def _require_role(user: User, role: UserRole) -> None:

@@ -92,8 +92,11 @@ class CustomerHomeView extends StatelessWidget {
                     title: campaignProgresses.first.campaignName,
                     subtitle: campaignProgresses.first.businessName,
                     value: campaignProgresses.first.progressRatio,
-                    label: customerProgressLabel(campaignProgresses.first),
-                    isCompleted: campaignProgresses.first.isCompleted,
+                    label: campaignProgresses.first.displayLabel,
+                    badgeLabel: campaignProgresses.first.badgeLabel,
+                    badgeTone: customerBadgeTone(
+                      campaignProgresses.first.badgeTone,
+                    ),
                   ),
                 if (activeRewardsCount > 0) ...[
                   const SizedBox(height: 12),
@@ -154,8 +157,9 @@ class CustomerCampaignView extends StatelessWidget {
               title: progress.campaignName,
               subtitle: progress.businessName,
               value: progress.progressRatio,
-              label: customerProgressLabel(progress),
-              isCompleted: progress.isCompleted,
+              label: progress.displayLabel,
+              badgeLabel: progress.badgeLabel,
+              badgeTone: customerBadgeTone(progress.badgeTone),
             ),
           ),
         ),
@@ -380,14 +384,13 @@ class _CustomerRewardEntry {
   final CustomerReward reward;
 }
 
-String customerProgressLabel(CustomerCampaignProgress progress) {
-  final cyclePrefix = progress.isRepeatable
-      ? 'Cycle ${progress.currentCycleNumber} · '
-      : '';
-  final label = progress.isCompleted
-      ? 'Completed'
-      : '${progress.remainingPoints} pts to reward';
-  return '$cyclePrefix${progress.progressPoints}/${progress.thresholdPoints} pts · $label';
+BadgeTone customerBadgeTone(String value) {
+  return switch (value) {
+    'success' => BadgeTone.success,
+    'warning' => BadgeTone.warning,
+    'neutral' => BadgeTone.neutral,
+    _ => BadgeTone.info,
+  };
 }
 
 String customerFormatDateTime(DateTime value) {
