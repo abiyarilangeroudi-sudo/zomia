@@ -135,7 +135,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.40 (41)'), findsOneWidget);
+    expect(find.text('Version 1.0.41 (42)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -186,7 +186,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.40 (41)'));
+    await tester.tap(find.text('Version 1.0.41 (42)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -298,14 +298,13 @@ void main() {
   testWidgets('signs in and renders customer QR screen', (tester) async {
     final tokenStore = _MemoryTokenStore();
     final qrRepository = _FakeCustomerQrRepository();
+    final authRepository = _FakeAuthRepository(role: 'customer');
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           secureTokenStoreProvider.overrideWithValue(tokenStore),
-          authRepositoryProvider.overrideWithValue(
-            _FakeAuthRepository(role: 'customer'),
-          ),
+          authRepositoryProvider.overrideWithValue(authRepository),
           customerQrRepositoryProvider.overrideWithValue(qrRepository),
         ],
         child: const ZomiaApp(),
@@ -333,9 +332,7 @@ void main() {
       ProviderScope(
         overrides: [
           secureTokenStoreProvider.overrideWithValue(tokenStore),
-          authRepositoryProvider.overrideWithValue(
-            _FakeAuthRepository(role: 'customer'),
-          ),
+          authRepositoryProvider.overrideWithValue(authRepository),
           customerQrRepositoryProvider.overrideWithValue(qrRepository),
         ],
         child: const ZomiaApp(),
@@ -359,6 +356,17 @@ void main() {
     expect(find.text('Active Rewards'), findsOneWidget);
     expect(find.text('Free Coffee'), findsWidgets);
     expect(find.text('Zomia Cafe · Free coffee'), findsOneWidget);
+
+    await tester.tap(find.text('Profile'));
+    await pumpAppFrames(tester);
+
+    await _enterTextByLabel(tester, 'Name', 'Customer Updated');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save profile'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Profile updated.'), findsOneWidget);
+    expect(find.text('Customer Updated'), findsWidgets);
+    expect(authRepository.updatedCustomerName, 'Customer Updated');
 
     await tester.tap(find.byTooltip('Show QR code'));
     await pumpAppFrames(tester);
@@ -804,6 +812,7 @@ class _FakeAuthRepository extends AuthRepository {
 
   final String role;
   bool registeredCustomer = false;
+  String? updatedCustomerName;
 
   @override
   Future<void> registerCustomer({
@@ -821,6 +830,18 @@ class _FakeAuthRepository extends AuthRepository {
     required String password,
   }) async {
     return 'access-token';
+  }
+
+  @override
+  Future<CurrentUser> updateCustomerProfile({required String fullName}) async {
+    updatedCustomerName = fullName;
+    return CurrentUser(
+      id: '$role-id',
+      email: '$role@example.com',
+      fullName: fullName,
+      role: role,
+      isActive: true,
+    );
   }
 
   @override

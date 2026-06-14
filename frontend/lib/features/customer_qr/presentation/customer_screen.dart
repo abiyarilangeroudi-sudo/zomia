@@ -106,6 +106,9 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
             DashboardScroll(
               child: CustomerProfileView(
                 user: widget.user,
+                onUpdateName: (fullName) => ref
+                    .read(authControllerProvider.notifier)
+                    .updateCustomerProfile(fullName: fullName),
                 onSignOut: () =>
                     ref.read(authControllerProvider.notifier).signOut(),
               ),

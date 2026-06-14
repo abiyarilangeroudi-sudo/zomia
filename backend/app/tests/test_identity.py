@@ -31,6 +31,61 @@ def test_customer_registration_login_and_me(client: TestClient) -> None:
     assert me_response.json()["email"] == "customer@example.com"
 
 
+def test_customer_can_update_own_profile_name(client: TestClient) -> None:
+    register_response = client.post(
+        "/api/v1/auth/register/customer",
+        json={
+            "email": "profile-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Customer One",
+        },
+    )
+    assert register_response.status_code == 201
+    token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "profile-customer@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+
+    response = client.patch(
+        "/api/v1/customers/me/profile",
+        json={"full_name": "Customer Updated"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Customer Updated"
+    assert response.json()["email"] == "profile-customer@example.com"
+
+    me_response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_response.status_code == 200
+    assert me_response.json()["full_name"] == "Customer Updated"
+
+
+def test_non_customer_cannot_update_customer_profile(client: TestClient) -> None:
+    owner_response = client.post(
+        "/api/v1/auth/register/owner",
+        json={
+            "email": "profile-owner@example.com",
+            "password": "strong-password",
+            "full_name": "Owner One",
+            "business_name": "Owner Cafe",
+        },
+    )
+    assert owner_response.status_code == 201
+    token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "profile-owner@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+
+    response = client.patch(
+        "/api/v1/customers/me/profile",
+        json={"full_name": "Not Customer"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 403
+
+
 def test_owner_can_create_business_and_staff(client: TestClient) -> None:
     owner_response = client.post(
         "/api/v1/auth/register/owner",

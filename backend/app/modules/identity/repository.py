@@ -21,6 +21,11 @@ class IdentityRepository:
         self.db.flush()
         return user
 
+    def update_user_full_name(self, *, user: User, full_name: str) -> User:
+        user.full_name = full_name
+        self.db.flush()
+        return user
+
     def add_business(self, business: Business) -> Business:
         self.db.add(business)
         self.db.flush()
@@ -53,9 +58,7 @@ class IdentityRepository:
             .options(selectinload(StaffMember.user))
         )
 
-    def set_staff_member_active(
-        self, *, staff_member: StaffMember, is_active: bool
-    ) -> StaffMember:
+    def set_staff_member_active(self, *, staff_member: StaffMember, is_active: bool) -> StaffMember:
         staff_member.is_active = is_active
         self.db.flush()
         self.db.refresh(staff_member, attribute_names=["user"])

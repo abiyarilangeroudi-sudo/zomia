@@ -71,6 +71,18 @@ class AuthRepository {
     }
   }
 
+  Future<CurrentUser> updateCustomerProfile({required String fullName}) async {
+    try {
+      final response = await _dio.patch<Map<String, dynamic>>(
+        '/customers/me/profile',
+        data: {'full_name': fullName},
+      );
+      return CurrentUser.fromJson(response.data ?? <String, dynamic>{});
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   String _messageFor(DioException error) {
     final data = error.response?.data;
     if (data is Map<String, dynamic> && data['detail'] is String) {

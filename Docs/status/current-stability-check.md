@@ -9,6 +9,7 @@ This document is the short checkpoint before the next feature phase.
 - Backend core MVP is implemented through Identity, Loyalty Foundation, Individual Campaign, Reward Engine, QR Staff Workflow, and Staff Context.
 - Flutter MVP is implemented through Auth, Customer QR, Staff Dashboard, Owner Dashboard, Customer Registration, and UI/Branding recovery.
 - Customer registration is available from the Login screen and auto-signs the customer in after successful registration.
+- Customer profile allows the customer to update their display name; email stays read-only.
 - Owner minimal setup can create Staff, Mission, Campaign, and Reward Template from Flutter.
 - Owner can view recent Staff activity for the selected business.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.
@@ -51,7 +52,7 @@ This document is the short checkpoint before the next feature phase.
 - `backend/app/modules/loyalty/service.py` is intentionally not refactored in this pass because it contains sensitive tested business logic.
 - Before Group Campaign or Cross-Network Campaign, split `LoyaltyService` into smaller services such as action registration, campaign evaluation, reward generation, reward usage, and audit orchestration.
 - Owner recent activity is live for MVP; broader audit review remains separate from owner-facing activity.
-- Phone remains out of Customer Registration and should be added later as a profile completion field.
+- Phone remains out of Customer Registration and Customer Profile editing until a product decision makes it explicit.
 - Console Hygiene / Error UX has started: Staff, Customer QR, and Owner setup now map expected backend details to clearer UI messages. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
 

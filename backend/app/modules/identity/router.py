@@ -13,6 +13,7 @@ from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import (
     BusinessCreate,
     BusinessRead,
+    CustomerProfileUpdate,
     LoginRequest,
     OwnerRegister,
     StaffContextRead,
@@ -28,7 +29,9 @@ from app.modules.identity.service import IdentityService
 router = APIRouter(tags=["identity"])
 
 
-@router.post("/auth/register/customer", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/auth/register/customer", response_model=UserRead, status_code=status.HTTP_201_CREATED
+)
 def register_customer(
     payload: UserCreate,
     db: Session = Depends(get_db),
@@ -40,7 +43,9 @@ def register_customer(
     return user
 
 
-@router.post("/auth/register/owner", response_model=BusinessRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/auth/register/owner", response_model=BusinessRead, status_code=status.HTTP_201_CREATED
+)
 def register_owner(
     payload: OwnerRegister,
     db: Session = Depends(get_db),
@@ -53,13 +58,30 @@ def register_owner(
 
 
 @router.post("/auth/login", response_model=TokenResponse)
-def login(payload: LoginRequest, service: IdentityService = Depends(get_identity_service)) -> TokenResponse:
-    return TokenResponse(access_token=service.authenticate(email=payload.email, password=payload.password))
+def login(
+    payload: LoginRequest, service: IdentityService = Depends(get_identity_service)
+) -> TokenResponse:
+    return TokenResponse(
+        access_token=service.authenticate(email=payload.email, password=payload.password)
+    )
 
 
 @router.get("/auth/me", response_model=UserRead)
 def me(current_user: User = Depends(get_current_user)) -> User:
     return current_user
+
+
+@router.patch("/customers/me/profile", response_model=UserRead)
+def update_customer_profile(
+    payload: CustomerProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> User:
+    user = service.update_customer_profile(current_user, payload)
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @router.get("/staff/me/context", response_model=StaffContextRead)

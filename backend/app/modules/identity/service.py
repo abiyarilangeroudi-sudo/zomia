@@ -10,6 +10,7 @@ from app.modules.identity.models import Business, StaffMember, User, UserRole
 from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import (
     BusinessCreate,
+    CustomerProfileUpdate,
     OwnerRegister,
     StaffContextBusinessRead,
     StaffContextRead,
@@ -42,7 +43,9 @@ class IdentityService:
 
     def create_business(self, owner: User, payload: BusinessCreate) -> Business:
         self._require_role(owner, UserRole.OWNER)
-        return self.repository.add_business(self._build_business(owner_id=owner.id, payload=payload))
+        return self.repository.add_business(
+            self._build_business(owner_id=owner.id, payload=payload)
+        )
 
     def create_staff(self, owner: User, payload: StaffCreate) -> StaffMember:
         self._require_role(owner, UserRole.OWNER)
@@ -65,7 +68,9 @@ class IdentityService:
             staff_member_id=staff_member_id, owner_id=owner.id
         )
         if staff_member is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff member not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Staff member not found"
+            )
         return self.repository.set_staff_member_active(
             staff_member=staff_member, is_active=is_active
         )
@@ -88,6 +93,10 @@ class IdentityService:
                 for membership in memberships
             ],
         )
+
+    def update_customer_profile(self, customer: User, payload: CustomerProfileUpdate) -> User:
+        self._require_role(customer, UserRole.CUSTOMER)
+        return self.repository.update_user_full_name(user=customer, full_name=payload.full_name)
 
     def authenticate(self, *, email: str, password: str) -> str:
         user = self.repository.get_user_by_email(email)
@@ -121,7 +130,9 @@ class IdentityService:
     def _build_business(self, *, owner_id, payload: BusinessCreate) -> Business:
         slug = self._make_slug(payload.name)
         if self.repository.get_business_by_slug(slug) is not None:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Business slug already exists")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Business slug already exists"
+            )
         return Business(
             owner_id=owner_id,
             name=payload.name,

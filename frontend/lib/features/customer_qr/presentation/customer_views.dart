@@ -233,21 +233,59 @@ class CustomerRewardView extends StatelessWidget {
   }
 }
 
-class CustomerProfileView extends StatelessWidget {
+class CustomerProfileView extends StatefulWidget {
   const CustomerProfileView({
     super.key,
     required this.user,
+    required this.onUpdateName,
     required this.onSignOut,
   });
 
   final CurrentUser user;
+  final Future<void> Function(String fullName) onUpdateName;
   final VoidCallback onSignOut;
+
+  @override
+  State<CustomerProfileView> createState() => _CustomerProfileViewState();
+}
+
+class _CustomerProfileViewState extends State<CustomerProfileView> {
+  late final TextEditingController _nameController;
+  String? _error;
+  String? _success;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.user.fullName);
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomerProfileView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.user.fullName != widget.user.fullName &&
+        _nameController.text != widget.user.fullName) {
+      _nameController.text = widget.user.fullName;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (_error != null)
+          InlineBanner(message: _error!, tone: BannerTone.error),
+        if (_success != null)
+          InlineBanner(message: _success!, tone: BannerTone.success),
+        if (_error != null || _success != null) const SizedBox(height: 16),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -258,21 +296,77 @@ class CustomerProfileView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               AppListRow(
-                title: user.fullName,
-                subtitle: user.email,
+                title: widget.user.fullName,
+                subtitle: widget.user.email,
                 leadingIcon: Icons.person_rounded,
+              ),
+              const SizedBox(height: 16),
+              AppTextField(
+                controller: _nameController,
+                label: 'Name',
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _saveName(),
+              ),
+              const SizedBox(height: 12),
+              PrimaryButton(
+                label: 'Save profile',
+                icon: Icons.check_rounded,
+                isLoading: _isSaving,
+                onPressed: _isSaving ? null : _saveName,
               ),
               const SizedBox(height: 12),
               SecondaryButton(
                 label: 'Sign out',
                 icon: Icons.logout_rounded,
-                onPressed: onSignOut,
+                onPressed: widget.onSignOut,
               ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _saveName() async {
+    final nextName = _nameController.text.trim();
+    if (nextName.length < 2) {
+      setState(() {
+        _error = 'Name must be at least 2 characters.';
+        _success = null;
+      });
+      return;
+    }
+    if (nextName == widget.user.fullName) {
+      setState(() {
+        _error = null;
+        _success = 'Profile is already up to date.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+      _error = null;
+      _success = null;
+    });
+    try {
+      await widget.onUpdateName(nextName);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSaving = false;
+        _success = 'Profile updated.';
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSaving = false;
+        _error = error.toString();
+      });
+    }
   }
 }
 

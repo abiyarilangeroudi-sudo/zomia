@@ -76,6 +76,19 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = const AsyncData(AuthState.unauthenticated());
   }
 
+  Future<void> updateCustomerProfile({required String fullName}) async {
+    final value = state.asData?.value;
+    final user = value?.user;
+    if (value == null || user == null || !user.isCustomer) {
+      return;
+    }
+
+    final updatedUser = await ref
+        .read(authRepositoryProvider)
+        .updateCustomerProfile(fullName: fullName);
+    state = AsyncData(value.copyWith(user: updatedUser));
+  }
+
   void selectBusiness(StaffBusiness business) {
     final value = state.asData?.value;
     if (value == null || !value.isAuthenticated) {

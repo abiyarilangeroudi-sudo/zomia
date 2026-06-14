@@ -41,6 +41,10 @@ class UserRead(BaseModel):
     created_at: datetime
 
 
+class CustomerProfileUpdate(BaseModel):
+    full_name: str = Field(min_length=2, max_length=120)
+
+
 class BusinessCreate(BaseModel):
     name: str = Field(min_length=2, max_length=160)
     legal_name: str | None = Field(default=None, max_length=180)

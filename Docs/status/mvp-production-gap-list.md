@@ -181,12 +181,19 @@ F10.4 progress:
 
 ## Should Fix Soon, But Not Production Blockers
 
-- Add phone as optional profile completion, not registration requirement.
-- Add better Customer profile editing.
+- Add phone as optional profile completion later, not registration requirement.
 - Improve Owner setup forms after the current MVP workflow remains stable.
 - Add more realistic empty states for businesses with no activity.
 - Add a formal manual QA checklist file for future release candidates.
 - Add Customer-facing explanation for repeatable vs completed campaigns after repeatable rules are defined.
+
+## Recently Completed Feature Direction
+
+Customer Profile completion:
+
+- Customer can update their display name from Profile.
+- Phone remains out of the MVP edit flow until the product decision is explicit.
+- Email remains read-only in the Customer Profile view.
 
 ## Explicitly Out Of Current MVP
 
