@@ -147,6 +147,8 @@ class CampaignRead(BaseModel):
 class CampaignProgressRead(BaseModel):
     campaign_id: uuid.UUID
     customer_id: uuid.UUID
+    starts_at: datetime
+    ends_at: datetime
     progress_points: int
     threshold_points: int
     remaining_points: int
@@ -167,6 +169,8 @@ class CustomerCampaignProgressRead(BaseModel):
     business_name: str
     campaign_id: uuid.UUID
     campaign_name: str
+    starts_at: datetime
+    ends_at: datetime
     progress_points: int
     threshold_points: int
     remaining_points: int

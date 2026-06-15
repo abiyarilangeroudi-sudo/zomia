@@ -515,12 +515,16 @@ def test_action_below_threshold_updates_campaign_progress_without_completion(
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
     customer_token, customer_id = register_customer(client)
     mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    starts_at = datetime.now(UTC) - timedelta(days=1)
+    ends_at = datetime.now(UTC) + timedelta(days=30)
     campaign = create_campaign(
         client,
         owner_token,
         business_id,
         mission_ids=[mission["id"]],
         threshold_points=5,
+        starts_at=starts_at,
+        ends_at=ends_at,
     )
 
     response = client.post(
@@ -542,6 +546,10 @@ def test_action_below_threshold_updates_campaign_progress_without_completion(
         headers=auth(customer_token),
     )
     assert progress.status_code == 200
+    expected_starts_at = starts_at.replace(tzinfo=None).isoformat()
+    expected_ends_at = ends_at.replace(tzinfo=None).isoformat()
+    assert progress.json()["starts_at"] == expected_starts_at
+    assert progress.json()["ends_at"] == expected_ends_at
     assert progress.json()["progress_points"] == 2
     assert progress.json()["is_completed"] is False
     assert progress.json()["campaign_time_status"] == "active"
@@ -561,6 +569,8 @@ def test_action_below_threshold_updates_campaign_progress_without_completion(
             "business_name": "Zomia Cafe",
             "campaign_id": campaign["id"],
             "campaign_name": campaign["name"],
+            "starts_at": expected_starts_at,
+            "ends_at": expected_ends_at,
             "progress_points": 2,
             "threshold_points": 5,
             "remaining_points": 3,

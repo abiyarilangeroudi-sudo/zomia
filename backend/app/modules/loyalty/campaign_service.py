@@ -108,6 +108,8 @@ class CampaignService:
         return CampaignProgressRead(
             campaign_id=campaign.id,
             customer_id=customer.id,
+            starts_at=campaign.starts_at,
+            ends_at=campaign.ends_at,
             progress_points=progress["progress_points"],
             threshold_points=campaign.threshold_points,
             remaining_points=progress["remaining_points"],
@@ -158,6 +160,8 @@ class CampaignService:
                     business_name=business.name,
                     campaign_id=campaign.id,
                     campaign_name=campaign.name,
+                    starts_at=campaign.starts_at,
+                    ends_at=campaign.ends_at,
                     progress_points=progress["progress_points"],
                     threshold_points=campaign.threshold_points,
                     remaining_points=progress["remaining_points"],

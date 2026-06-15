@@ -55,6 +55,8 @@ class CustomerCampaignProgress {
     required this.businessName,
     required this.campaignId,
     required this.campaignName,
+    required this.startsAt,
+    required this.endsAt,
     required this.progressPoints,
     required this.thresholdPoints,
     required this.remainingPoints,
@@ -76,6 +78,8 @@ class CustomerCampaignProgress {
       businessName: json['business_name'] as String,
       campaignId: json['campaign_id'] as String,
       campaignName: json['campaign_name'] as String,
+      startsAt: DateTime.parse(json['starts_at'] as String),
+      endsAt: DateTime.parse(json['ends_at'] as String),
       progressPoints: json['progress_points'] as int,
       thresholdPoints: json['threshold_points'] as int,
       remainingPoints: json['remaining_points'] as int,
@@ -96,6 +100,8 @@ class CustomerCampaignProgress {
   final String businessName;
   final String campaignId;
   final String campaignName;
+  final DateTime startsAt;
+  final DateTime endsAt;
   final int progressPoints;
   final int thresholdPoints;
   final int remainingPoints;

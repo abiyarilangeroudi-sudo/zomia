@@ -203,7 +203,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.49 (50)'), findsOneWidget);
+    expect(find.text('Version 1.0.50 (51)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -254,7 +254,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.49 (50)'));
+    await tester.tap(find.text('Version 1.0.50 (51)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -417,6 +417,7 @@ void main() {
     expect(find.text('Campaign Progress'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
     expect(find.text('2/10 pts · 8 pts to reward'), findsOneWidget);
+    expect(find.text('2026-06-14 - 2026-09-14'), findsOneWidget);
 
     await tester.tap(find.text('Reward'));
     await pumpAppFrames(tester);
@@ -724,12 +725,14 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
 
   @override
   Future<List<CustomerCampaignProgress>> getCampaignProgresses() async {
-    return const [
+    return [
       CustomerCampaignProgress(
         businessId: 'business-id',
         businessName: 'Zomia Cafe',
         campaignId: 'campaign-id',
         campaignName: 'Coffee Reward',
+        startsAt: DateTime.utc(2026, 6, 14),
+        endsAt: DateTime.utc(2026, 9, 14),
         progressPoints: 2,
         thresholdPoints: 10,
         remainingPoints: 8,

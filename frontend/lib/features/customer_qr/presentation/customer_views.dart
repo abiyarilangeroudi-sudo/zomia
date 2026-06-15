@@ -11,17 +11,11 @@ class CustomerHomeView extends StatelessWidget {
     required this.user,
     required this.status,
     required this.campaignProgresses,
-    required this.isLoadingStatus,
-    required this.statusError,
-    required this.onRefreshStatus,
   });
 
   final CurrentUser user;
   final CustomerStatus? status;
   final List<CustomerCampaignProgress> campaignProgresses;
-  final bool isLoadingStatus;
-  final String? statusError;
-  final VoidCallback onRefreshStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +31,6 @@ class CustomerHomeView extends StatelessWidget {
                 'Welcome, ${user.fullName}',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              const SizedBox(height: 4),
-              Text(user.email),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 8,
@@ -59,55 +51,6 @@ class CustomerHomeView extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        if (isLoadingStatus)
-          const AppCard(child: LoadingState(label: 'Loading status'))
-        else if (statusError != null)
-          InlineBanner(message: statusError!, tone: BannerTone.error)
-        else if (campaignProgresses.isEmpty && activeRewardsCount == 0)
-          const AppCard(
-            child: EmptyStateView(
-              icon: Icons.loyalty_outlined,
-              title: 'No loyalty activity yet',
-              message: 'Campaign progress and active rewards will appear here.',
-            ),
-          )
-        else
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SectionHeader(
-                  title: 'Current Status',
-                  subtitle: 'Refresh after staff registers an action.',
-                  trailing: IconButton(
-                    tooltip: 'Refresh status',
-                    onPressed: isLoadingStatus ? null : onRefreshStatus,
-                    icon: const Icon(Icons.refresh_rounded),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (campaignProgresses.isNotEmpty)
-                  ProgressCard(
-                    title: campaignProgresses.first.campaignName,
-                    subtitle: campaignProgresses.first.businessName,
-                    value: campaignProgresses.first.progressRatio,
-                    label: campaignProgresses.first.displayLabel,
-                    badgeLabel: campaignProgresses.first.badgeLabel,
-                    badgeTone: customerBadgeTone(
-                      campaignProgresses.first.badgeTone,
-                    ),
-                  ),
-                if (activeRewardsCount > 0) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    '$activeRewardsCount active rewards available',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ],
-            ),
-          ),
       ],
     );
   }
@@ -158,6 +101,10 @@ class CustomerCampaignView extends StatelessWidget {
               subtitle: progress.businessName,
               value: progress.progressRatio,
               label: progress.displayLabel,
+              timeRangeLabel: customerFormatDateRange(
+                progress.startsAt,
+                progress.endsAt,
+              ),
               badgeLabel: progress.badgeLabel,
               badgeTone: customerBadgeTone(progress.badgeTone),
             ),
@@ -401,4 +348,15 @@ String customerFormatDateTime(DateTime value) {
   final time =
       '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
   return '$date $time';
+}
+
+String customerFormatDateRange(DateTime startsAt, DateTime endsAt) {
+  return '${customerFormatDate(startsAt)} - ${customerFormatDate(endsAt)}';
+}
+
+String customerFormatDate(DateTime value) {
+  final local = value.toLocal();
+  final month = local.month.toString().padLeft(2, '0');
+  final day = local.day.toString().padLeft(2, '0');
+  return '${local.year}-$month-$day';
 }

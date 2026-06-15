@@ -27,6 +27,7 @@ This document is the short checkpoint before the next feature phase.
 - Shared UI components live in `frontend/lib/app/ui/`.
 - Auth screens share `auth_form_layout.dart`.
 - Customer dashboard is split into `customer_screen.dart`, `customer_views.dart`, and `customer_qr_dialog.dart`.
+- Customer Home is intentionally summary-only for now; detailed campaign progress stays in the Campaign tab, and final Home composition will be decided before production.
 - Staff dashboard/service UI is split into `staff_home_screen.dart`, `staff_panel.dart`, `staff_service_cards.dart`, and `qr_scanner_sheet.dart`.
 - Owner dashboard is split into:
   - `owner_screen.dart`

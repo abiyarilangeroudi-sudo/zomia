@@ -1,7 +1,7 @@
 class AppVersion {
   const AppVersion._();
 
-  static const name = '1.0.49';
-  static const build = '50';
+  static const name = '1.0.50';
+  static const build = '51';
   static const label = 'Version $name ($build)';
 }

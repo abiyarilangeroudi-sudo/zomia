@@ -84,9 +84,6 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
                 user: widget.user,
                 status: _status,
                 campaignProgresses: _campaignProgresses,
-                isLoadingStatus: _isLoadingStatus,
-                statusError: _statusError,
-                onRefreshStatus: _loadStatus,
               ),
             ),
             DashboardScroll(
