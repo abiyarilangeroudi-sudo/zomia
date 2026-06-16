@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/ui/ui.dart';
 import '../domain/owner_setup_models.dart';
+import 'owner_presenter.dart';
 import 'owner_setup_shared_widgets.dart';
 
 class OwnerStaffSetupCard extends StatelessWidget {
@@ -104,10 +105,8 @@ class OwnerStaffList extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     StatusBadge(
-                      label: staffMember.isActive ? 'Active' : 'Inactive',
-                      tone: staffMember.isActive
-                          ? BadgeTone.success
-                          : BadgeTone.neutral,
+                      label: ownerStaffStatusLabel(staffMember),
+                      tone: ownerStaffStatusTone(staffMember),
                     ),
                     IconButton(
                       tooltip: staffMember.isActive
@@ -136,14 +135,13 @@ class OwnerStaffList extends StatelessWidget {
     OwnerStaffMember staffMember,
   ) async {
     final nextActive = !staffMember.isActive;
+    final presentation = ownerStaffTogglePresentation(nextActive);
     final confirmed = await showConfirmDialog(
       context: context,
-      title: nextActive ? 'Activate Staff?' : 'Deactivate Staff?',
-      message: nextActive
-          ? 'This staff member will regain access to this business.'
-          : 'This staff member will lose access to this business. History remains unchanged.',
-      confirmLabel: nextActive ? 'Activate' : 'Deactivate',
-      tone: nextActive ? ConfirmTone.standard : ConfirmTone.destructive,
+      title: presentation.title,
+      message: presentation.message,
+      confirmLabel: presentation.confirmLabel,
+      tone: presentation.tone,
     );
     if (!confirmed) {
       return;

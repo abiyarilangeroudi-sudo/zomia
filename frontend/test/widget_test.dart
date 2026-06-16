@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:zomia_frontend/app/router.dart';
 import 'package:zomia_frontend/app/ui/app_text_field.dart';
+import 'package:zomia_frontend/app/ui/confirm_dialog.dart';
 import 'package:zomia_frontend/app/ui/status_badge.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/http/api_client.dart';
@@ -18,6 +19,7 @@ import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dar
 import 'package:zomia_frontend/features/customer_qr/presentation/customer_presenter.dart';
 import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
 import 'package:zomia_frontend/features/owner_setup/domain/owner_setup_models.dart';
+import 'package:zomia_frontend/features/owner_setup/presentation/owner_presenter.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_controller.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_profile_widgets.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
@@ -242,6 +244,53 @@ void main() {
     expect(customerBadgeTone('unknown'), BadgeTone.info);
   });
 
+  test('owner presenter describes campaign repeatability', () {
+    expect(
+      ownerCampaignSubtitle(
+        OwnerCampaign(
+          id: 'campaign-id',
+          name: 'Coffee Reward',
+          thresholdPoints: 10,
+          isRepeatable: true,
+          maxCompletionsPerCustomer: null,
+          status: 'active',
+          startsAt: DateTime(2026, 6, 14),
+          endsAt: DateTime(2026, 9, 14),
+        ),
+      ),
+      '10 pts · repeatable · unlimited within dates · active',
+    );
+  });
+
+  test('owner presenter maps activity badge', () {
+    final presentation = ownerActivityPresentation(
+      OwnerActivity(
+        actionId: 'action-id',
+        businessId: 'business-id',
+        actionType: 'reward_use',
+        staffName: 'Staff One',
+        staffEmail: 'staff@example.com',
+        customerName: 'Customer One',
+        customerEmail: 'customer@example.com',
+        pointsGranted: 0,
+        summary: 'Reward used',
+        createdAt: DateTime(2026, 1, 1, 10, 30),
+      ),
+    );
+
+    expect(presentation.badgeLabel, 'reward use');
+    expect(presentation.badgeTone, BadgeTone.neutral);
+    expect(presentation.subtitle, contains('Customer One · Staff One'));
+  });
+
+  test('owner presenter maps staff toggle confirmation', () {
+    final presentation = ownerStaffTogglePresentation(false);
+
+    expect(presentation.title, 'Deactivate Staff?');
+    expect(presentation.confirmLabel, 'Deactivate');
+    expect(presentation.tone, ConfirmTone.destructive);
+  });
+
   test('owner campaign creation defaults to repeatable unlimited', () async {
     final repository = _FakeOwnerSetupRepository();
     final controller = OwnerSetupController(repository: repository);
@@ -327,7 +376,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.53 (54)'), findsOneWidget);
+    expect(find.text('Version 1.0.54 (55)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -378,7 +427,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.53 (54)'));
+    await tester.tap(find.text('Version 1.0.54 (55)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);

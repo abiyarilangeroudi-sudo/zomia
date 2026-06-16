@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/ui/ui.dart';
 import '../data/owner_setup_repository.dart';
 import '../domain/owner_setup_models.dart';
+import 'owner_presenter.dart';
 
 class OwnerRecentActionsDialog extends ConsumerStatefulWidget {
   const OwnerRecentActionsDialog({super.key, required this.businessId});
@@ -90,25 +91,21 @@ class _OwnerRecentActionsDialogState
                       subtitle: 'Latest staff actions for this business.',
                     ),
                     const SizedBox(height: 12),
-                    ...activities.map(
-                      (activity) => Padding(
+                    ...activities.map((activity) {
+                      final presentation = ownerActivityPresentation(activity);
+                      return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: AppListRow(
                           title: activity.summary,
-                          subtitle:
-                              '${activity.customerName} · ${activity.staffName} · ${_formatActivityTime(activity.createdAt)}',
+                          subtitle: presentation.subtitle,
                           leadingIcon: Icons.history_rounded,
                           trailing: StatusBadge(
-                            label: activity.pointsGranted > 0
-                                ? '+${activity.pointsGranted} pts'
-                                : activity.actionType.replaceAll('_', ' '),
-                            tone: activity.pointsGranted > 0
-                                ? BadgeTone.success
-                                : BadgeTone.neutral,
+                            label: presentation.badgeLabel,
+                            tone: presentation.badgeTone,
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 ),
               );
@@ -117,14 +114,5 @@ class _OwnerRecentActionsDialogState
         ),
       ),
     );
-  }
-
-  String _formatActivityTime(DateTime value) {
-    final local = value.toLocal();
-    final month = local.month.toString().padLeft(2, '0');
-    final day = local.day.toString().padLeft(2, '0');
-    final hour = local.hour.toString().padLeft(2, '0');
-    final minute = local.minute.toString().padLeft(2, '0');
-    return '$month/$day $hour:$minute';
   }
 }

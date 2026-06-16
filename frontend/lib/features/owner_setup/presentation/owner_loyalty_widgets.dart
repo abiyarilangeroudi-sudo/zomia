@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/ui/ui.dart';
 import '../domain/owner_setup_models.dart';
+import 'owner_presenter.dart';
 import 'owner_setup_shared_widgets.dart';
 
 class OwnerMissionSetupCard extends StatelessWidget {
@@ -201,22 +202,13 @@ class OwnerCampaignSetupCard extends StatelessWidget {
               .map(
                 (campaign) => OwnerSimpleListItem(
                   title: campaign.name,
-                  subtitle: _campaignSubtitle(campaign),
+                  subtitle: ownerCampaignSubtitle(campaign),
                 ),
               )
               .toList(),
         ),
       ],
     );
-  }
-
-  String _campaignSubtitle(OwnerCampaign campaign) {
-    final repeatableLabel = campaign.isRepeatable
-        ? campaign.maxCompletionsPerCustomer == null
-              ? 'repeatable · unlimited within dates'
-              : 'repeatable · max ${campaign.maxCompletionsPerCustomer}'
-        : 'non-repeatable';
-    return '${campaign.thresholdPoints} pts · $repeatableLabel · ${campaign.status}';
   }
 }
 
@@ -296,8 +288,7 @@ class OwnerRewardTemplateSetupCard extends StatelessWidget {
               .map(
                 (template) => OwnerSimpleListItem(
                   title: template.name,
-                  subtitle:
-                      '${template.giftName ?? template.rewardType} · ${template.validDays} days',
+                  subtitle: ownerRewardTemplateSubtitle(template),
                 ),
               )
               .toList(),
