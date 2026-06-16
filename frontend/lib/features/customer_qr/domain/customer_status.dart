@@ -43,10 +43,6 @@ class CustomerBusinessStatus {
   final String businessId;
   final String businessName;
   final List<CustomerReward> rewards;
-
-  List<CustomerReward> get activeRewards {
-    return rewards.where((reward) => reward.status == 'active').toList();
-  }
 }
 
 class CustomerCampaignProgress {

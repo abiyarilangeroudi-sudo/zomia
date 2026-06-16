@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:zomia_frontend/app/router.dart';
 import 'package:zomia_frontend/app/ui/app_text_field.dart';
+import 'package:zomia_frontend/app/ui/status_badge.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/http/api_client.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
@@ -14,6 +15,7 @@ import 'package:zomia_frontend/features/customer_qr/data/customer_qr_repository.
 import 'package:zomia_frontend/features/customer_qr/data/customer_qr_token_store.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_status.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dart';
+import 'package:zomia_frontend/features/customer_qr/presentation/customer_presenter.dart';
 import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
 import 'package:zomia_frontend/features/owner_setup/domain/owner_setup_models.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_controller.dart';
@@ -183,6 +185,63 @@ void main() {
     );
   });
 
+  test(
+    'customer presenter returns active reward entries with business name',
+    () {
+      final status = CustomerStatus(
+        customerId: 'customer-id',
+        activeRewardsCount: 1,
+        businesses: [
+          CustomerBusinessStatus(
+            businessId: 'business-id',
+            businessName: 'Zomia Cafe',
+            rewards: [
+              CustomerReward(
+                id: 'reward-active',
+                title: 'Free Coffee',
+                description: null,
+                rewardType: 'gift',
+                status: 'active',
+                giftName: 'Free Coffee',
+                discountPercent: null,
+                discountAmountMinor: null,
+                currencyCode: null,
+                expiresAt: DateTime(2027),
+                usedAt: null,
+              ),
+              CustomerReward(
+                id: 'reward-used',
+                title: 'Used Coffee',
+                description: null,
+                rewardType: 'gift',
+                status: 'used',
+                giftName: 'Used Coffee',
+                discountPercent: null,
+                discountAmountMinor: null,
+                currencyCode: null,
+                expiresAt: DateTime(2027),
+                usedAt: DateTime(2026),
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final entries = customerActiveRewardEntries(status);
+
+      expect(entries, hasLength(1));
+      expect(entries.first.businessName, 'Zomia Cafe');
+      expect(entries.first.reward.id, 'reward-active');
+    },
+  );
+
+  test('customer presenter maps backend badge tone tokens', () {
+    expect(customerBadgeTone('success'), BadgeTone.success);
+    expect(customerBadgeTone('warning'), BadgeTone.warning);
+    expect(customerBadgeTone('neutral'), BadgeTone.neutral);
+    expect(customerBadgeTone('unknown'), BadgeTone.info);
+  });
+
   test('owner campaign creation defaults to repeatable unlimited', () async {
     final repository = _FakeOwnerSetupRepository();
     final controller = OwnerSetupController(repository: repository);
@@ -268,7 +327,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.52 (53)'), findsOneWidget);
+    expect(find.text('Version 1.0.53 (54)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -319,7 +378,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.52 (53)'));
+    await tester.tap(find.text('Version 1.0.53 (54)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);

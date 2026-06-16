@@ -4,6 +4,7 @@ import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
 import '../domain/customer_status.dart';
+import 'customer_presenter.dart';
 
 class CustomerHomeView extends StatelessWidget {
   const CustomerHomeView({
@@ -160,8 +161,7 @@ class CustomerRewardView extends StatelessWidget {
               title: entry.reward.title,
               businessName: entry.businessName,
               subtitle: entry.reward.displayValue,
-              expiresLabel:
-                  'Expires ${customerFormatDateTime(entry.reward.expiresAt)}',
+              expiresLabel: customerRewardExpiresLabel(entry.reward),
             ),
           ),
         ),
@@ -169,20 +169,8 @@ class CustomerRewardView extends StatelessWidget {
     );
   }
 
-  List<_CustomerRewardEntry> _activeRewards() {
-    final status = this.status;
-    if (status == null) {
-      return const [];
-    }
-    return [
-      for (final business in status.businesses)
-        for (final reward in business.activeRewards)
-          _CustomerRewardEntry(
-            businessName: business.businessName,
-            reward: reward,
-          ),
-    ];
-  }
+  List<CustomerRewardEntry> _activeRewards() =>
+      customerActiveRewardEntries(status);
 }
 
 class CustomerProfileView extends StatefulWidget {
@@ -320,43 +308,4 @@ class _CustomerProfileViewState extends State<CustomerProfileView> {
       });
     }
   }
-}
-
-class _CustomerRewardEntry {
-  const _CustomerRewardEntry({
-    required this.businessName,
-    required this.reward,
-  });
-
-  final String businessName;
-  final CustomerReward reward;
-}
-
-BadgeTone customerBadgeTone(String value) {
-  return switch (value) {
-    'success' => BadgeTone.success,
-    'warning' => BadgeTone.warning,
-    'neutral' => BadgeTone.neutral,
-    _ => BadgeTone.info,
-  };
-}
-
-String customerFormatDateTime(DateTime value) {
-  final local = value.toLocal();
-  final date =
-      '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-  final time =
-      '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-  return '$date $time';
-}
-
-String customerFormatDateRange(DateTime startsAt, DateTime endsAt) {
-  return '${customerFormatDate(startsAt)} - ${customerFormatDate(endsAt)}';
-}
-
-String customerFormatDate(DateTime value) {
-  final local = value.toLocal();
-  final month = local.month.toString().padLeft(2, '0');
-  final day = local.day.toString().padLeft(2, '0');
-  return '${local.year}-$month-$day';
 }
