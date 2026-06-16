@@ -166,12 +166,11 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
   }
 
   Future<void> _scanQr() async {
-    final token = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const QrScannerSheet(),
+    final token = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        fullscreenDialog: true,
+        builder: (context) => const QrScannerSheet(),
+      ),
     );
 
     if (!mounted || token == null || token.trim().isEmpty) {
