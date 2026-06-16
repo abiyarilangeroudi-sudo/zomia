@@ -9,4 +9,6 @@ class BrandSpacing {
 
   static const cardRadius = 12.0;
   static const smallRadius = 8.0;
+  static const buttonHeight = 52.0;
+  static const pillRadius = 26.0;
 }

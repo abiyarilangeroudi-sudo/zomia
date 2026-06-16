@@ -72,8 +72,9 @@ This document is the short checkpoint before the next feature phase.
 ## Continue Rules
 
 - Before new UI work, agree on a short execution text first.
-- If a new UI feature needs a new reusable component, add it to the UI catalog first, get approval, and then use it in product screens.
-- The UI catalog is the approval source of truth: `Approved` components may be reused, `Needs review` components may stay only where already introduced, and `Draft` components must not be used in product screens until approved.
+- If a new UI feature needs a new reusable component, add it to the UI catalog first, extract its direction from `frontend/zomia_Branding/` when relevant, get manual approval, and then use it in product screens.
+- The UI catalog is the approval source of truth: `Approved` means explicitly approved by manual review, `Needs review` means visible in the catalog but not final, and `Draft` means exploration only.
+- New components must not receive an `Approved` badge by default. Drawer, tab, navigation, dialog, and dashboard layout components require explicit approval before product usage.
 - `Brand Palette` is approved: product UI must use `BrandColors` only, with no one-off colors outside the catalog.
 - `Typography` is approved: product UI text must use the theme text scale instead of one-off font styles.
 - Customer Dashboard cleanup must start from the catalog `ProgressCard` review before changing product screens.

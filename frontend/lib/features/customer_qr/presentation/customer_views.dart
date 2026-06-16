@@ -21,6 +21,7 @@ class CustomerHomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activeRewardsCount = status?.activeRewardsCount ?? 0;
+    final activeCampaignCount = customerActiveCampaignCount(campaignProgresses);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -29,7 +30,7 @@ class CustomerHomeView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome, ${user.fullName}',
+                'Hi, ${user.fullName}',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
@@ -39,7 +40,7 @@ class CustomerHomeView extends StatelessWidget {
                 children: [
                   MetricPill(
                     icon: Icons.campaign_rounded,
-                    label: '${campaignProgresses.length} campaigns',
+                    label: '$activeCampaignCount active campaigns',
                     color: BrandColors.teal,
                   ),
                   MetricPill(
@@ -50,6 +51,17 @@ class CustomerHomeView extends StatelessWidget {
                 ],
               ),
             ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        AppCard(
+          child: EmptyStateView(
+            icon: Icons.qr_code_rounded,
+            title: activeCampaignCount == 0 && activeRewardsCount == 0
+                ? 'Ready to start'
+                : 'Ready for your next visit',
+            message:
+                'Use the QR button when staff asks to scan your customer account.',
           ),
         ),
       ],
@@ -63,11 +75,15 @@ class CustomerCampaignView extends StatelessWidget {
     required this.campaignProgresses,
     required this.isLoadingStatus,
     required this.statusError,
+    required this.selectedTabIndex,
+    required this.onTabChanged,
   });
 
   final List<CustomerCampaignProgress> campaignProgresses;
   final bool isLoadingStatus;
   final String? statusError;
+  final int selectedTabIndex;
+  final ValueChanged<int> onTabChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -89,26 +105,43 @@ class CustomerCampaignView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionHeader(
-          title: 'Campaign Progress',
-          subtitle: 'Only campaign-based progress is shown here.',
+        SegmentedTabs(
+          items: const ['All', 'Archive'],
+          selectedIndex: selectedTabIndex,
+          onChanged: onTabChanged,
         ),
-        const SizedBox(height: 12),
-        ...campaignProgresses.map(
-          (progress) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ProgressCard(
-              title: progress.campaignName,
-              subtitle: progress.businessName,
-              value: progress.progressRatio,
-              label: progress.displayLabel,
-              timeRangeLabel: customerFormatDateRange(
-                progress.startsAt,
-                progress.endsAt,
-              ),
-              badgeLabel: progress.badgeLabel,
-              badgeTone: customerBadgeTone(progress.badgeTone),
-            ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (selectedTabIndex == 1)
+                const AppCard(
+                  child: EmptyStateView(
+                    icon: Icons.archive_outlined,
+                    title: 'No archived campaigns',
+                    message: 'Archived campaigns will appear here later.',
+                  ),
+                )
+              else
+                ...campaignProgresses.map(
+                  (progress) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: ProgressCard(
+                      title: progress.campaignName,
+                      subtitle: progress.businessName,
+                      value: progress.progressRatio,
+                      label: progress.displayLabel,
+                      timeRangeLabel: customerFormatDateRange(
+                        progress.startsAt,
+                        progress.endsAt,
+                      ),
+                      badgeLabel: progress.badgeLabel,
+                      badgeTone: customerBadgeTone(progress.badgeTone),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -122,11 +155,15 @@ class CustomerRewardView extends StatelessWidget {
     required this.status,
     required this.isLoadingStatus,
     required this.statusError,
+    required this.selectedTabIndex,
+    required this.onTabChanged,
   });
 
   final CustomerStatus? status;
   final bool isLoadingStatus;
   final String? statusError;
+  final int selectedTabIndex;
+  final ValueChanged<int> onTabChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -149,20 +186,37 @@ class CustomerRewardView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionHeader(
-          title: 'Active Rewards',
-          subtitle: 'Show available rewards to staff during service.',
+        SegmentedTabs(
+          items: const ['All', 'Archive'],
+          selectedIndex: selectedTabIndex,
+          onChanged: onTabChanged,
         ),
-        const SizedBox(height: 12),
-        ...rewards.map(
-          (entry) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: RewardCard(
-              title: entry.reward.title,
-              businessName: entry.businessName,
-              subtitle: entry.reward.displayValue,
-              expiresLabel: customerRewardExpiresLabel(entry.reward),
-            ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (selectedTabIndex == 1)
+                const AppCard(
+                  child: EmptyStateView(
+                    icon: Icons.archive_outlined,
+                    title: 'No archived rewards',
+                    message: 'Archived rewards will appear here later.',
+                  ),
+                )
+              else
+                ...rewards.map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: RewardCard(
+                      title: entry.reward.title,
+                      businessName: entry.businessName,
+                      subtitle: entry.reward.displayValue,
+                      expiresLabel: customerRewardExpiresLabel(entry.reward),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -173,23 +227,74 @@ class CustomerRewardView extends StatelessWidget {
       customerActiveRewardEntries(status);
 }
 
-class CustomerProfileView extends StatefulWidget {
-  const CustomerProfileView({
+class CustomerProfileDialog extends StatelessWidget {
+  const CustomerProfileDialog({
     super.key,
     required this.user,
     required this.onUpdateName,
-    required this.onSignOut,
   });
 
   final CurrentUser user;
   final Future<void> Function(String fullName) onUpdateName;
-  final VoidCallback onSignOut;
 
   @override
-  State<CustomerProfileView> createState() => _CustomerProfileViewState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const AppTopBar(
+        title: 'Profile',
+        variant: AppTopBarVariant.modal,
+      ),
+      body: SafeArea(
+        child: DashboardScroll(
+          maxWidth: 640,
+          child: AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppListRow(
+                  title: user.fullName,
+                  subtitle: user.email,
+                  leadingIcon: Icons.person_rounded,
+                ),
+                const SizedBox(height: 16),
+                PrimaryButton(
+                  label: 'Edit Profile',
+                  icon: Icons.edit_rounded,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      fullscreenDialog: true,
+                      builder: (context) => CustomerEditProfileDialog(
+                        user: user,
+                        onUpdateName: onUpdateName,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _CustomerProfileViewState extends State<CustomerProfileView> {
+class CustomerEditProfileDialog extends StatefulWidget {
+  const CustomerEditProfileDialog({
+    super.key,
+    required this.user,
+    required this.onUpdateName,
+  });
+
+  final CurrentUser user;
+  final Future<void> Function(String fullName) onUpdateName;
+
+  @override
+  State<CustomerEditProfileDialog> createState() =>
+      _CustomerEditProfileDialogState();
+}
+
+class _CustomerEditProfileDialogState extends State<CustomerEditProfileDialog> {
   late final TextEditingController _nameController;
   String? _error;
   String? _success;
@@ -202,7 +307,7 @@ class _CustomerProfileViewState extends State<CustomerProfileView> {
   }
 
   @override
-  void didUpdateWidget(covariant CustomerProfileView oldWidget) {
+  void didUpdateWidget(covariant CustomerEditProfileDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.user.fullName != widget.user.fullName &&
         _nameController.text != widget.user.fullName) {
@@ -218,52 +323,47 @@ class _CustomerProfileViewState extends State<CustomerProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (_error != null)
-          InlineBanner(message: _error!, tone: BannerTone.error),
-        if (_success != null)
-          InlineBanner(message: _success!, tone: BannerTone.success),
-        if (_error != null || _success != null) const SizedBox(height: 16),
-        AppCard(
+    return Scaffold(
+      appBar: const AppTopBar(
+        title: 'Edit Profile',
+        variant: AppTopBarVariant.modal,
+      ),
+      body: SafeArea(
+        child: DashboardScroll(
+          maxWidth: 640,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SectionHeader(
-                title: 'Profile',
-                subtitle: 'Customer account for this MVP session.',
-              ),
-              const SizedBox(height: 12),
-              AppListRow(
-                title: widget.user.fullName,
-                subtitle: widget.user.email,
-                leadingIcon: Icons.person_rounded,
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: _nameController,
-                label: 'Name',
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _saveName(),
-              ),
-              const SizedBox(height: 12),
-              PrimaryButton(
-                label: 'Save profile',
-                icon: Icons.check_rounded,
-                isLoading: _isSaving,
-                onPressed: _isSaving ? null : _saveName,
-              ),
-              const SizedBox(height: 12),
-              SecondaryButton(
-                label: 'Sign out',
-                icon: Icons.logout_rounded,
-                onPressed: widget.onSignOut,
+              if (_error != null)
+                InlineBanner(message: _error!, tone: BannerTone.error),
+              if (_success != null)
+                InlineBanner(message: _success!, tone: BannerTone.success),
+              if (_error != null || _success != null)
+                const SizedBox(height: 16),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AppTextField(
+                      controller: _nameController,
+                      label: 'Name',
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _saveName(),
+                    ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      label: 'Save profile',
+                      icon: Icons.check_rounded,
+                      isLoading: _isSaving,
+                      onPressed: _isSaving ? null : _saveName,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 

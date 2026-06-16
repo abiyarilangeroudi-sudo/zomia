@@ -20,6 +20,7 @@ class CustomerScreen extends ConsumerStatefulWidget {
 }
 
 class _CustomerScreenState extends ConsumerState<CustomerScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   CustomerQrToken? _token;
   CustomerStatus? _status;
   List<CustomerCampaignProgress> _campaignProgresses = [];
@@ -28,6 +29,8 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
   bool _isLoadingQr = true;
   bool _isLoadingStatus = true;
   int _selectedIndex = 0;
+  int _campaignTabIndex = 0;
+  int _rewardTabIndex = 0;
 
   static const _tabs = [
     NavItem(
@@ -45,12 +48,9 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
       icon: Icons.card_giftcard_outlined,
       activeIcon: Icons.card_giftcard_rounded,
     ),
-    NavItem(
-      label: 'Profile',
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-    ),
   ];
+
+  static const _titles = ['Home', 'Campaign', 'Reward'];
 
   @override
   void initState() {
@@ -64,9 +64,49 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: AppDrawer(
+        items: [
+          AppDrawerItem(
+            label: 'Profile',
+            icon: Icons.person_outline_rounded,
+            onTap: _openProfileDialogFromDrawer,
+          ),
+          AppDrawerItem(
+            label: 'Setting',
+            icon: Icons.settings_outlined,
+            onTap: () => _openDrawerInfoDialog(
+              title: 'Setting',
+              message: 'Customer settings will be completed before production.',
+            ),
+          ),
+          AppDrawerItem(
+            label: 'MStV',
+            icon: Icons.policy_outlined,
+            onTap: () => _openDrawerInfoDialog(
+              title: 'MStV',
+              message: 'MStV information will be completed before production.',
+            ),
+          ),
+          AppDrawerItem(
+            label: 'Impressum',
+            icon: Icons.info_outline_rounded,
+            onTap: () => _openDrawerInfoDialog(
+              title: 'Impressum',
+              message:
+                  'Impressum information will be completed before production.',
+            ),
+          ),
+          AppDrawerItem(
+            label: 'Sign out',
+            icon: Icons.logout_rounded,
+            onTap: _signOutFromDrawer,
+          ),
+        ],
+      ),
       appBar: AppTopBar(
-        title: 'Customer Dashboard',
-        onMenu: () {},
+        title: _titles[_selectedIndex],
+        onMenu: () => _scaffoldKey.currentState?.openDrawer(),
         actions: [
           IconButton(
             tooltip: 'Show QR code',
@@ -87,27 +127,25 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
               ),
             ),
             DashboardScroll(
+              padding: EdgeInsets.zero,
               child: CustomerCampaignView(
                 campaignProgresses: _campaignProgresses,
                 isLoadingStatus: _isLoadingStatus,
                 statusError: _statusError,
+                selectedTabIndex: _campaignTabIndex,
+                onTabChanged: (index) =>
+                    setState(() => _campaignTabIndex = index),
               ),
             ),
             DashboardScroll(
+              padding: EdgeInsets.zero,
               child: CustomerRewardView(
                 status: _status,
                 isLoadingStatus: _isLoadingStatus,
                 statusError: _statusError,
-              ),
-            ),
-            DashboardScroll(
-              child: CustomerProfileView(
-                user: widget.user,
-                onUpdateName: (fullName) => ref
-                    .read(authControllerProvider.notifier)
-                    .updateCustomerProfile(fullName: fullName),
-                onSignOut: () =>
-                    ref.read(authControllerProvider.notifier).signOut(),
+                selectedTabIndex: _rewardTabIndex,
+                onTabChanged: (index) =>
+                    setState(() => _rewardTabIndex = index),
               ),
             ),
           ],
@@ -203,6 +241,37 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
           },
           onRetry: _issueToken,
         ),
+      ),
+    );
+  }
+
+  void _openProfileDialogFromDrawer() {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => CustomerProfileDialog(
+          user: widget.user,
+          onUpdateName: (fullName) => ref
+              .read(authControllerProvider.notifier)
+              .updateCustomerProfile(fullName: fullName),
+        ),
+      ),
+    );
+  }
+
+  void _signOutFromDrawer() {
+    Navigator.of(context).pop();
+    ref.read(authControllerProvider.notifier).signOut();
+  }
+
+  void _openDrawerInfoDialog({required String title, required String message}) {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) =>
+            AppDrawerInfoDialog(title: title, message: message),
       ),
     );
   }

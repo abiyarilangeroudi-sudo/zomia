@@ -20,3 +20,5 @@ export 'progress_card.dart';
 export 'app_scaffold.dart';
 export 'app_date_field.dart';
 export 'app_text_field.dart';
+export 'app_drawer.dart';
+export 'segmented_tabs.dart';

@@ -24,6 +24,14 @@ List<CustomerRewardEntry> customerActiveRewardEntries(CustomerStatus? status) {
   ];
 }
 
+int customerActiveCampaignCount(
+  List<CustomerCampaignProgress> campaignProgresses,
+) {
+  return campaignProgresses
+      .where((progress) => progress.campaignTimeStatus == 'active')
+      .length;
+}
+
 BadgeTone customerBadgeTone(String value) {
   return switch (value) {
     'success' => BadgeTone.success,

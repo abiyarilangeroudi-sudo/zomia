@@ -443,6 +443,53 @@ class _NavigationExamples extends StatelessWidget {
             onChanged: (_) {},
           ),
         ),
+        const SizedBox(height: 12),
+        const _ComponentName(
+          'SegmentedTabs',
+          status: CatalogApprovalStatus.approved,
+        ),
+        SegmentedTabs(
+          items: const ['All', 'Archive'],
+          selectedIndex: 0,
+          onChanged: (_) {},
+        ),
+        const SizedBox(height: 12),
+        const _ComponentName(
+          'AppDrawer',
+          status: CatalogApprovalStatus.approved,
+        ),
+        SizedBox(
+          height: 360,
+          child: AppDrawer(
+            items: const [
+              AppDrawerItem(
+                label: 'Profile',
+                icon: Icons.person_outline_rounded,
+                onTap: _noop,
+              ),
+              AppDrawerItem(
+                label: 'Setting',
+                icon: Icons.settings_outlined,
+                onTap: _noop,
+              ),
+              AppDrawerItem(
+                label: 'MStV',
+                icon: Icons.policy_outlined,
+                onTap: _noop,
+              ),
+              AppDrawerItem(
+                label: 'Impressum',
+                icon: Icons.info_outline_rounded,
+                onTap: _noop,
+              ),
+              AppDrawerItem(
+                label: 'Sign out',
+                icon: Icons.logout_rounded,
+                onTap: _noop,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -884,9 +931,13 @@ class _DialogPreview extends StatelessWidget {
 enum CatalogApprovalStatus { approved, needsReview, draft }
 
 class _ComponentName extends StatelessWidget {
-  const _ComponentName(this.name);
+  const _ComponentName(
+    this.name, {
+    this.status = CatalogApprovalStatus.approved,
+  });
 
   final String name;
+  final CatalogApprovalStatus status;
 
   @override
   Widget build(BuildContext context) {
@@ -898,7 +949,7 @@ class _ComponentName extends StatelessWidget {
         runSpacing: 6,
         children: [
           Text(name, style: Theme.of(context).textTheme.labelLarge),
-          const _ApprovalBadge(status: CatalogApprovalStatus.approved),
+          _ApprovalBadge(status: status),
         ],
       ),
     );

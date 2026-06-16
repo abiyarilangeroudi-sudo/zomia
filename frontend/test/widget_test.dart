@@ -376,7 +376,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.54 (55)'), findsOneWidget);
+    expect(find.text('Version 1.0.59 (60)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -427,7 +427,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.54 (55)'));
+    await tester.tap(find.text('Version 1.0.59 (60)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -480,8 +480,8 @@ void main() {
 
     expect(authRepository.registeredCustomer, isTrue);
     expect(await tokenStore.readAccessToken(), 'access-token');
-    expect(find.text('Customer Dashboard'), findsOneWidget);
-    expect(find.text('Welcome, Customer One'), findsOneWidget);
+    expect(find.text('Home'), findsWidgets);
+    expect(find.text('Hi, Customer One'), findsOneWidget);
   });
 
   testWidgets('signs in and renders staff context', (tester) async {
@@ -562,11 +562,12 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
-    expect(find.text('Customer Dashboard'), findsOneWidget);
+    expect(find.text('Home'), findsWidgets);
     expect(find.byTooltip('Show QR code'), findsOneWidget);
-    expect(find.text('Welcome, Customer One'), findsOneWidget);
-    expect(find.text('1 campaigns'), findsOneWidget);
+    expect(find.text('Hi, Customer One'), findsOneWidget);
+    expect(find.text('1 active campaigns'), findsOneWidget);
     expect(find.text('1 active rewards'), findsOneWidget);
+    expect(find.text('Ready for your next visit'), findsOneWidget);
     expect(qrRepository.issueCount, 1);
 
     await tester.pumpWidget(
@@ -581,26 +582,52 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    expect(find.text('Customer Dashboard'), findsOneWidget);
+    expect(find.text('Home'), findsWidgets);
     expect(qrRepository.issueCount, 1);
 
     await tester.tap(find.text('Campaign'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Campaign Progress'), findsOneWidget);
+    expect(find.text('Campaign'), findsWidgets);
+    expect(find.text('All'), findsWidgets);
+    expect(find.text('Archive'), findsWidgets);
+    expect(find.text('Campaign Progress'), findsNothing);
     expect(find.text('Coffee Reward'), findsWidgets);
     expect(find.text('2/10 pts · 8 pts to reward'), findsOneWidget);
     expect(find.text('2026-06-14 - 2026-09-14'), findsOneWidget);
 
+    await tester.tap(find.text('Archive'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('No archived campaigns'), findsOneWidget);
+
     await tester.tap(find.text('Reward'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Active Rewards'), findsOneWidget);
+    expect(find.text('Reward'), findsWidgets);
+    expect(find.text('Active Rewards'), findsNothing);
     expect(find.text('Free Coffee'), findsWidgets);
     expect(find.text('Zomia Cafe'), findsOneWidget);
     expect(find.text('Free coffee'), findsOneWidget);
 
+    await tester.tap(find.byTooltip('Menu'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Customer One'), findsNothing);
+    expect(find.text('customer@example.com'), findsNothing);
+    expect(find.text('Setting'), findsOneWidget);
+    expect(find.text('MStV'), findsOneWidget);
+    expect(find.text('Impressum'), findsOneWidget);
+    expect(find.text('Sign out'), findsOneWidget);
+
     await tester.tap(find.text('Profile'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('Customer One'), findsWidgets);
+    expect(find.text('Edit Profile'), findsOneWidget);
+
+    await tester.tap(find.text('Edit Profile'));
     await pumpAppFrames(tester);
 
     await _enterTextByLabel(tester, 'Name', 'Customer Updated');
@@ -610,6 +637,11 @@ void main() {
     expect(find.text('Profile updated.'), findsOneWidget);
     expect(find.text('Customer Updated'), findsWidgets);
     expect(authRepository.updatedCustomerName, 'Customer Updated');
+
+    await tester.binding.handlePopRoute();
+    await pumpAppFrames(tester);
+    await tester.binding.handlePopRoute();
+    await pumpAppFrames(tester);
 
     await tester.tap(find.byTooltip('Show QR code'));
     await pumpAppFrames(tester);

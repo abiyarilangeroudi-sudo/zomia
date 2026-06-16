@@ -127,7 +127,8 @@ F10.9 progress:
 - Unused secondary-action API was removed from `QRCard` so manual resolve patterns do not re-enter through the shared component.
 - Owner dashboard presentation widgets were split by responsibility so Owner profile, activity, business, and staff UI can evolve separately.
 - `owner_profile_widgets.dart` remains only as a compatibility barrel.
-- New UI features that need a new component must first add it to the UI catalog, receive approval, and only then use it in product screens.
+- New UI features that need a new component must first add it to the UI catalog, extract reference direction when relevant, receive explicit manual approval, and only then use it in product screens.
+- New catalog entries must not be marked `Approved` automatically. `Approved` is a manual decision, not a default badge.
 
 F10.11 progress:
 

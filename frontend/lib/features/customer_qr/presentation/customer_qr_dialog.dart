@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/ui/ui.dart';
 import '../data/customer_qr_repository.dart';
 import '../domain/customer_qr_token.dart';
+import 'customer_presenter.dart';
 
 class CustomerQrDialog extends ConsumerStatefulWidget {
   const CustomerQrDialog({
@@ -100,7 +101,7 @@ class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
     return QRCard(
       title: 'Ready to Scan',
       message:
-          'Show this QR to staff. Expires ${_formatDateTime(token.expiresAt)}.',
+          'Show this QR to staff. Expires ${customerFormatDateTime(token.expiresAt)}.',
       token: token.token,
       primaryActionLabel: _isRotating ? 'Refreshing' : 'Refresh QR token',
       primaryActionIcon: Icons.refresh_rounded,
@@ -141,13 +142,4 @@ class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
       });
     }
   }
-}
-
-String _formatDateTime(DateTime value) {
-  final local = value.toLocal();
-  final date =
-      '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-  final time =
-      '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-  return '$date $time';
 }
