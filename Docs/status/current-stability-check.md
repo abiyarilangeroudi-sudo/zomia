@@ -1,6 +1,6 @@
 # Current Stability Check
 
-Date: 2026-06-13
+Date: 2026-06-16
 
 This document is the short checkpoint before the next feature phase.
 
@@ -26,12 +26,15 @@ This document is the short checkpoint before the next feature phase.
 
 - Shared UI components live in `frontend/lib/app/ui/`.
 - Auth screens share `auth_form_layout.dart`.
-- Customer dashboard is split into `customer_screen.dart`, `customer_views.dart`, and `customer_qr_dialog.dart`.
+- Customer dashboard is split into `customer_screen.dart`, `customer_views.dart`, `customer_presenter.dart`, and `customer_qr_dialog.dart`.
+- Customer dashboard display formatting lives in `customer_presenter.dart`; campaign progress labels and badges are backend-owned and only rendered by Flutter.
 - Customer Home is intentionally summary-only for now; detailed campaign progress stays in the Campaign tab, and final Home composition will be decided before production.
-- Staff dashboard/service UI is split into `staff_home_screen.dart`, `staff_panel.dart`, `staff_service_cards.dart`, and `qr_scanner_sheet.dart`.
+- Staff dashboard/service UI is split into `staff_home_screen.dart`, `staff_panel.dart`, `staff_service_cards.dart`, `staff_service_presenter.dart`, and `qr_scanner_sheet.dart`.
+- Staff service display formatting lives in `staff_service_presenter.dart`; action registration, campaign evaluation, reward generation, and reward use decisions remain backend-owned.
 - Owner dashboard is split into:
   - `owner_screen.dart`
   - `owner_setup_controller.dart`
+  - `owner_presenter.dart`
   - `owner_profile_widgets.dart` as a compatibility barrel
   - `owner_profile_cards.dart`
   - `owner_activity_dialog.dart`
@@ -57,6 +60,15 @@ This document is the short checkpoint before the next feature phase.
 - Console Hygiene / Error UX has started: Staff, Customer QR, and Owner setup now map expected backend details to clearer UI messages. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
 
+## Flutter Architecture Guardrail
+
+- Flutter must not own loyalty decisions.
+- Backend owns campaign eligibility, campaign time status, progress state, display labels, badge labels, badge tones, reward generation, reward use validity, and idempotency.
+- Flutter screens own only UI orchestration: loading state, route/dialog opening, API calls, and passing backend data into approved components.
+- Feature presenters may format dates, map backend display tokens to UI enums, compose subtitles, and flatten backend response data for display.
+- Presenters must not introduce new campaign/reward rules. If a display needs a new business concept, add it to the backend contract first.
+- Shared UI components remain visual only and must not encode Zomia loyalty rules.
+
 ## Continue Rules
 
 - Before new UI work, agree on a short execution text first.
@@ -68,4 +80,5 @@ This document is the short checkpoint before the next feature phase.
 - Keep frontend text in English.
 - Bump `frontend/pubspec.yaml` and `frontend/lib/app/app_version.dart` on every Flutter change.
 - Keep screen files focused on orchestration; move reusable UI to feature widgets or shared UI components.
+- Keep domain rules out of Flutter screens, widgets, and presenters. If frontend logic starts deciding campaign/reward outcomes, stop and move the rule to backend/API contract.
 - Do not add Group/Cross campaign behavior before the current individual MVP remains green.

@@ -1,6 +1,6 @@
 # MVP Production Gap List
 
-Date: 2026-06-13
+Date: 2026-06-16
 
 This document lists the remaining gaps before calling Zomia a production-ready MVP.
 
@@ -128,6 +128,14 @@ F10.9 progress:
 - Owner dashboard presentation widgets were split by responsibility so Owner profile, activity, business, and staff UI can evolve separately.
 - `owner_profile_widgets.dart` remains only as a compatibility barrel.
 - New UI features that need a new component must first add it to the UI catalog, receive approval, and only then use it in product screens.
+
+F10.11 progress:
+
+- Staff, Customer, and Owner dashboards now have feature presenters for display-only formatting and token-to-UI mapping.
+- `staff_service_presenter.dart`, `customer_presenter.dart`, and `owner_presenter.dart` keep screen/widget files focused on orchestration and approved component composition.
+- Flutter is explicitly not allowed to own loyalty decisions such as campaign eligibility, reward generation, reward use validity, repeatable cycle status, or campaign time status.
+- Customer campaign progress continues to render backend-owned `display_label`, `badge_label`, and `badge_tone`.
+- Any future UI need that requires a new campaign/reward concept must first become a backend/API contract, then be rendered by Flutter.
 
 ### 8. Staff Lifecycle Management
 

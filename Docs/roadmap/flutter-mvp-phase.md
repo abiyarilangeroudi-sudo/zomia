@@ -209,6 +209,46 @@ Register direction:
 - Owner register صفحه جداگانه خواهد داشت.
 - Staff از داخل Owner Dashboard ساخته می‌شود.
 
+## No Domain Logic In Flutter
+
+Flutter فقط presentation و API orchestration را انجام می‌دهد.
+
+Backend باید مالک این موارد بماند:
+
+- campaign eligibility
+- campaign time status
+- repeatable cycle state
+- progress state
+- reward generation
+- reward use validity
+- idempotency
+- audit/business rules
+
+Flutter می‌تواند این کارها را انجام دهد:
+
+- باز و بسته کردن screen/dialog
+- نمایش loading/error/empty states
+- فراخوانی API
+- نگه داشتن state محلی فرم و tab
+- map کردن backend display token به enumهای UI مثل `BadgeTone`
+- format تاریخ برای نمایش
+- ساخت subtitleهای نمایشی از داده آماده backend
+
+Presenterهای فعلی:
+
+```text
+Staff    -> staff_service_presenter.dart
+Customer -> customer_presenter.dart
+Owner    -> owner_presenter.dart
+```
+
+قانون مهم:
+
+```text
+اگر Flutter برای نمایش چیزی مجبور شود قانون campaign/reward حدس بزند،
+ابتدا باید backend contract اصلاح شود.
+```
+
 ### برای Owner Management آماده اما اولویت دوم
 
 ```text
