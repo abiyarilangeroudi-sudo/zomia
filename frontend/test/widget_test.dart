@@ -22,6 +22,7 @@ import 'package:zomia_frontend/features/staff_service/data/staff_service_reposit
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
 import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
 import 'package:zomia_frontend/features/staff_service/presentation/staff_service_cards.dart';
+import 'package:zomia_frontend/features/staff_service/presentation/staff_service_presenter.dart';
 import 'package:zomia_frontend/features/staff_context/domain/staff_context.dart';
 
 void main() {
@@ -118,6 +119,70 @@ void main() {
     expect(summary.customer.fullName, 'Customer One');
   });
 
+  test('staff presenter calculates selected action points', () {
+    expect(
+      selectedActionPoints(
+        missions: const [
+          StaffServiceMission(
+            id: 'coffee',
+            name: 'Coffee',
+            description: null,
+            missionType: 'purchase',
+            pointValue: 1,
+            isActive: true,
+          ),
+          StaffServiceMission(
+            id: 'cake',
+            name: 'Cake',
+            description: null,
+            missionType: 'purchase',
+            pointValue: 5,
+            isActive: true,
+          ),
+        ],
+        quantities: const {'coffee': 2, 'cake': 1},
+      ),
+      7,
+    );
+  });
+
+  test('staff presenter describes newly issued rewards', () {
+    final result = RegisterActionResult(
+      pointsGranted: 1,
+      idempotencyReplayed: false,
+      summary: StaffServiceSummary(
+        businessId: 'business-id',
+        customer: const StaffServiceCustomer(
+          id: 'customer-id',
+          fullName: 'Customer One',
+          role: 'customer',
+          isActive: true,
+        ),
+        points: 1,
+        activeRewards: [
+          GeneratedReward(
+            id: 'reward-new',
+            title: 'Free Coffee',
+            description: null,
+            rewardType: 'gift',
+            status: 'active',
+            giftName: 'Free Coffee',
+            discountPercent: null,
+            discountAmountMinor: null,
+            currencyCode: null,
+            expiresAt: DateTime(2027),
+          ),
+        ],
+        recentActions: const [],
+      ),
+    );
+
+    expect(
+      actionRegisteredMessage(result: result, activeRewardIdsBefore: const {}),
+      'Action registered. 1 point added. 1 new reward issued.',
+    );
+  });
+
   test('owner campaign creation defaults to repeatable unlimited', () async {
     final repository = _FakeOwnerSetupRepository();
     final controller = OwnerSetupController(repository: repository);
@@ -203,7 +268,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.51 (52)'), findsOneWidget);
+    expect(find.text('Version 1.0.52 (53)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -254,7 +319,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.51 (52)'));
+    await tester.tap(find.text('Version 1.0.52 (53)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);

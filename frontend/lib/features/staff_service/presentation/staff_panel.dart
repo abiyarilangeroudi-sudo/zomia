@@ -8,6 +8,7 @@ import '../domain/qr_token_input.dart';
 import '../domain/staff_service_models.dart';
 import 'qr_scanner_sheet.dart';
 import 'staff_service_cards.dart';
+import 'staff_service_presenter.dart';
 
 class StaffPanel extends ConsumerStatefulWidget {
   const StaffPanel({super.key, required this.business, this.onSummaryChanged});
@@ -81,10 +82,9 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
           quantities: _quantities,
           isLoading: _isLoadingMissions,
           isEnabled: _summary != null && !_isSubmittingAction,
-          selectedPoints: selectedItems.fold<int>(
-            0,
-            (total, item) =>
-                total + item.quantity * _pointValue(item.missionId),
+          selectedPoints: selectedActionPoints(
+            missions: _missions,
+            quantities: _quantities,
           ),
           onIncrement: _incrementMission,
           onDecrement: _decrementMission,
@@ -213,7 +213,10 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         _summary = result.summary;
         _quantities.clear();
         _isSubmittingAction = false;
-        _success = _actionSuccessMessage(result, activeRewardIdsBefore);
+        _success = actionRegisteredMessage(
+          result: result,
+          activeRewardIdsBefore: activeRewardIdsBefore,
+        );
       });
       widget.onSummaryChanged?.call(result.summary);
     } catch (error) {
@@ -258,7 +261,7 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
       setState(() {
         _summary = result.summary;
         _rewardInUseId = null;
-        _success = '${reward.title} marked as used.';
+        _success = rewardUsedMessage(reward);
       });
       widget.onSummaryChanged?.call(result.summary);
     } catch (error) {
@@ -301,32 +304,9 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         .toList();
   }
 
-  int _pointValue(String missionId) {
-    return _missions
-        .firstWhere((mission) => mission.id == missionId)
-        .pointValue;
-  }
-
   String _newIdempotencyKey(String prefix) {
     final timestamp = DateTime.now().microsecondsSinceEpoch;
     return 'staff-${widget.business.id}-$prefix-$timestamp';
-  }
-
-  String _actionSuccessMessage(
-    RegisterActionResult result,
-    Set<String> activeRewardIdsBefore,
-  ) {
-    final newRewards = result.summary.activeRewards
-        .where((reward) => !activeRewardIdsBefore.contains(reward.id))
-        .toList();
-    final pointsText = result.pointsGranted == 1 ? 'point' : 'points';
-
-    if (newRewards.isNotEmpty) {
-      final rewardText = newRewards.length == 1 ? 'reward' : 'rewards';
-      return 'Action registered. ${result.pointsGranted} $pointsText added. ${newRewards.length} new $rewardText issued.';
-    }
-
-    return 'Action registered. ${result.pointsGranted} $pointsText added. No new reward was issued for this action.';
   }
 
   Future<bool> _confirmRewardUse(GeneratedReward reward) async {

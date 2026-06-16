@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../domain/staff_service_models.dart';
+import 'staff_service_presenter.dart';
 
 class StaffCustomerSummaryCard extends StatelessWidget {
   const StaffCustomerSummaryCard({
@@ -174,7 +175,7 @@ class StaffRewardsCard extends StatelessWidget {
                 child: RewardCard(
                   title: reward.title,
                   subtitle: reward.displayValue,
-                  expiresLabel: _formatRewardExpires(reward),
+                  expiresLabel: rewardExpiresLabel(reward),
                   variant: RewardCardVariant.staffAction,
                   isLoading: rewardInUseId == reward.id,
                   onUse: () => onUseReward(reward),
@@ -211,8 +212,8 @@ class StaffRecentActionsCard extends StatelessWidget {
               (action) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: AppListRow(
-                  title: _formatActionType(action.actionType),
-                  subtitle: _formatDateTime(action.occurredAt),
+                  title: formatStaffActionType(action.actionType),
+                  subtitle: formatStaffDateTime(action.occurredAt),
                   leadingIcon: Icons.receipt_long_rounded,
                 ),
               ),
@@ -221,30 +222,4 @@ class StaffRecentActionsCard extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatRewardExpires(GeneratedReward reward) {
-  return 'Valid until ${_formatDate(reward.expiresAt)}';
-}
-
-String _formatDate(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-}
-
-String _formatDateTime(DateTime value) {
-  final local = value.toLocal();
-  final date =
-      '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-  final time =
-      '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-  return '$date $time';
-}
-
-String _formatActionType(String value) {
-  return value
-      .split('_')
-      .where((part) => part.isNotEmpty)
-      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
-      .join(' ');
 }
