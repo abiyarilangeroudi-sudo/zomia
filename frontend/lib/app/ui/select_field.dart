@@ -14,12 +14,14 @@ class SelectField<T> extends StatelessWidget {
     required this.value,
     required this.options,
     required this.onChanged,
+    this.validator,
   });
 
   final String label;
   final T? value;
   final List<SelectFieldOption<T>> options;
   final ValueChanged<T?>? onChanged;
+  final FormFieldValidator<T>? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,7 @@ class SelectField<T> extends StatelessWidget {
             )
             .toList(),
         onChanged: onChanged,
+        validator: validator,
       ),
     );
   }

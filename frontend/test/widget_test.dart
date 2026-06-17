@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.72 (73)'), findsOneWidget);
+    expect(find.text('Version 1.0.74 (75)'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
@@ -483,7 +483,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.72 (73)'));
+    await tester.tap(find.text('Version 1.0.74 (75)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -568,9 +568,13 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(find.text('Register Business'), findsOneWidget);
+    expect(find.text('Cafe'), findsNothing);
 
     await _enterTextByLabel(tester, 'Business name', 'Zomia Cafe');
-    await _enterTextByLabel(tester, 'Category', 'Cafe');
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Barbershops').last);
+    await tester.pumpAndSettle();
     await _enterTextByLabel(tester, 'Email', 'owner@example.com');
     await _enterTextByLabel(tester, 'Password', 'strong-password');
     await _enterTextByLabel(tester, 'Confirm Password', 'strong-password');
@@ -591,7 +595,7 @@ void main() {
 
     expect(authRepository.registeredOwner, isTrue);
     expect(authRepository.ownerBusinessName, 'Zomia Cafe');
-    expect(authRepository.ownerBusinessCategory, 'Cafe');
+    expect(authRepository.ownerBusinessCategory, 'barbershops');
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Owner Dashboard'), findsOneWidget);

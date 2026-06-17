@@ -18,16 +18,15 @@ class _BusinessRegisterScreenState
     extends ConsumerState<BusinessRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _businessNameController = TextEditingController();
-  final _categoryController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  String? _selectedCategory;
   bool _acceptedTerms = false;
 
   @override
   void dispose() {
     _businessNameController.dispose();
-    _categoryController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -70,10 +69,19 @@ class _BusinessRegisterScreenState
                 },
               ),
               const SizedBox(height: 16),
-              AppTextField(
-                controller: _categoryController,
+              SelectField<String>(
                 label: 'Category',
-                textInputAction: TextInputAction.next,
+                value: _selectedCategory,
+                options: _businessCategoryOptions,
+                onChanged: isLoading
+                    ? null
+                    : (value) => setState(() => _selectedCategory = value),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Category is required.';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               AppTextField(
@@ -169,9 +177,22 @@ class _BusinessRegisterScreenState
         .read(authControllerProvider.notifier)
         .registerOwner(
           businessName: _businessNameController.text.trim(),
-          businessCategory: _categoryController.text.trim(),
+          businessCategory: _selectedCategory,
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
   }
 }
+
+const _businessCategoryOptions = [
+  SelectFieldOption(value: 'cafe', label: 'Cafe'),
+  SelectFieldOption(value: 'restaurant', label: 'Restaurant'),
+  SelectFieldOption(value: 'bakery', label: 'Bakery'),
+  SelectFieldOption(value: 'retail', label: 'Retail'),
+  SelectFieldOption(value: 'beauty_wellness', label: 'Beauty & Wellness'),
+  SelectFieldOption(value: 'fitness', label: 'Fitness'),
+  SelectFieldOption(value: 'entertainment', label: 'Entertainment'),
+  SelectFieldOption(value: 'services', label: 'Services'),
+  SelectFieldOption(value: 'barbershops', label: 'Barbershops'),
+  SelectFieldOption(value: 'other', label: 'Other'),
+];

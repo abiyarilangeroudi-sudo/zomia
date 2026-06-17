@@ -1,6 +1,5 @@
 from collections.abc import Callable
 from datetime import UTC, datetime
-from typing import Any
 
 from fastapi import HTTPException, status
 
@@ -121,7 +120,7 @@ class CampaignService:
             campaign=campaign, customer_id=customer.id
         )
         progress = self._campaign_cycle_progress(campaign, progress_points, customer.id)
-        status = self._campaign_progress_status(campaign, progress, datetime.now(UTC))
+        progress_status = self._campaign_progress_status(campaign, progress, datetime.now(UTC))
         return CampaignProgressRead(
             campaign_id=campaign.id,
             customer_id=customer.id,
@@ -130,16 +129,16 @@ class CampaignService:
             progress_points=progress["progress_points"],
             threshold_points=campaign.threshold_points,
             remaining_points=progress["remaining_points"],
-            is_completed=status["progress_state"] in {"completed", "limit_reached"},
+            is_completed=progress_status["progress_state"] in {"completed", "limit_reached"},
             is_repeatable=campaign.is_repeatable,
             completed_cycles=progress["completed_cycles"],
             current_cycle_number=progress["current_cycle_number"],
             max_completions_per_customer=campaign.max_completions_per_customer,
-            campaign_time_status=status["campaign_time_status"],
-            progress_state=status["progress_state"],
-            display_label=status["display_label"],
-            badge_label=status["badge_label"],
-            badge_tone=status["badge_tone"],
+            campaign_time_status=progress_status["campaign_time_status"],
+            progress_state=progress_status["progress_state"],
+            display_label=progress_status["display_label"],
+            badge_label=progress_status["badge_label"],
+            badge_tone=progress_status["badge_tone"],
         )
 
     def list_customer_campaign_progresses(
@@ -170,7 +169,7 @@ class CampaignService:
             progress = self._campaign_cycle_progress(campaign, progress_points, customer.id)
             if progress_points <= 0 and not progress["is_completed"]:
                 continue
-            status = self._campaign_progress_status(campaign, progress, now)
+            progress_status = self._campaign_progress_status(campaign, progress, now)
             progress_reads.append(
                 CustomerCampaignProgressRead(
                     business_id=business.id,
@@ -182,16 +181,17 @@ class CampaignService:
                     progress_points=progress["progress_points"],
                     threshold_points=campaign.threshold_points,
                     remaining_points=progress["remaining_points"],
-                    is_completed=status["progress_state"] in {"completed", "limit_reached"},
+                    is_completed=progress_status["progress_state"]
+                    in {"completed", "limit_reached"},
                     is_repeatable=campaign.is_repeatable,
                     completed_cycles=progress["completed_cycles"],
                     current_cycle_number=progress["current_cycle_number"],
                     max_completions_per_customer=campaign.max_completions_per_customer,
-                    campaign_time_status=status["campaign_time_status"],
-                    progress_state=status["progress_state"],
-                    display_label=status["display_label"],
-                    badge_label=status["badge_label"],
-                    badge_tone=status["badge_tone"],
+                    campaign_time_status=progress_status["campaign_time_status"],
+                    progress_state=progress_status["progress_state"],
+                    display_label=progress_status["display_label"],
+                    badge_label=progress_status["badge_label"],
+                    badge_tone=progress_status["badge_tone"],
                 )
             )
         return progress_reads

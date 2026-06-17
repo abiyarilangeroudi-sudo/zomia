@@ -52,9 +52,7 @@ def test_refresh_token_rotates_and_raw_token_is_not_stored(
     stored_token = db_session.query(RefreshToken).one()
 
     assert stored_token.token_hash != old_refresh_token
-    assert stored_token.token_hash == hashlib.sha256(
-        old_refresh_token.encode("utf-8")
-    ).hexdigest()
+    assert stored_token.token_hash == hashlib.sha256(old_refresh_token.encode("utf-8")).hexdigest()
 
     refresh_response = client.post(
         "/api/v1/auth/refresh",
@@ -215,6 +213,41 @@ def test_owner_can_create_business_and_staff(client: TestClient) -> None:
     )
     assert staff_response.status_code == 201
     assert staff_response.json()["user"]["role"] == "staff"
+
+
+def test_owner_register_accepts_controlled_business_category(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/api/v1/auth/register/owner",
+        json={
+            "email": "barber-owner@example.com",
+            "password": "strong-password",
+            "full_name": "Barber Owner",
+            "business_name": "Sharp Cuts",
+            "business_category": "barbershops",
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.json()["category"] == "barbershops"
+
+
+def test_owner_register_rejects_unsupported_business_category(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/api/v1/auth/register/owner",
+        json={
+            "email": "invalid-category-owner@example.com",
+            "password": "strong-password",
+            "full_name": "Invalid Category Owner",
+            "business_name": "Random Shop",
+            "business_category": "random free text",
+        },
+    )
+
+    assert response.status_code == 422
 
 
 def test_staff_can_read_own_context(client: TestClient) -> None:

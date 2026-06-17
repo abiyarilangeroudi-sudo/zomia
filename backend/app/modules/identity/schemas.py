@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
+from app.modules.identity.business_categories import BUSINESS_CATEGORIES
 from app.modules.identity.models import BusinessStatus, UserRole
 
 
@@ -17,6 +18,16 @@ class OwnerRegister(UserCreate):
     business_name: str = Field(min_length=2, max_length=160)
     business_category: str | None = Field(default=None, max_length=80)
     public_phone: str | None = Field(default=None, max_length=32)
+
+    @field_validator("business_category")
+    @classmethod
+    def validate_business_category(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if normalized not in BUSINESS_CATEGORIES:
+            raise ValueError("Unsupported business category")
+        return normalized
 
 
 class LoginRequest(BaseModel):
@@ -65,6 +76,16 @@ class BusinessCreate(BaseModel):
     country_code: str = Field(default="DE", min_length=2, max_length=2)
     timezone: str = Field(default="Europe/Berlin", max_length=64)
     currency_code: str = Field(default="EUR", min_length=3, max_length=3)
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if normalized not in BUSINESS_CATEGORIES:
+            raise ValueError("Unsupported business category")
+        return normalized
 
 
 class BusinessRead(BaseModel):
