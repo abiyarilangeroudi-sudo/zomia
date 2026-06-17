@@ -76,6 +76,25 @@ class AuthController extends AsyncNotifier<AuthState> {
     });
   }
 
+  Future<void> registerOwner({
+    required String businessName,
+    required String? businessCategory,
+    required String email,
+    required String password,
+  }) async {
+    state = const AsyncLoading<AuthState>();
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(authRepositoryProvider);
+      await repository.registerOwner(
+        businessName: businessName,
+        businessCategory: businessCategory,
+        email: email,
+        password: password,
+      );
+      return _authenticate(email: email, password: password);
+    });
+  }
+
   Future<void> signOut() async {
     ref.read(sessionExpiredMessageProvider.notifier).clear();
     final tokenStore = ref.read(secureTokenStoreProvider);

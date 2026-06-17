@@ -430,7 +430,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.71 (72)'), findsOneWidget);
+    expect(find.text('Version 1.0.72 (73)'), findsOneWidget);
+    expect(find.text('New here? Create a customer account'), findsOneWidget);
+    expect(find.text('Register your business'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -481,7 +483,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.71 (72)'));
+    await tester.tap(find.text('Version 1.0.72 (73)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -510,7 +512,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('New here? Create an account'));
+    await tester.tap(find.text('New here? Create a customer account'));
     await pumpAppFrames(tester);
 
     expect(find.text('Get Started'), findsOneWidget);
@@ -537,6 +539,62 @@ void main() {
     expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Home'), findsWidgets);
     expect(find.text('Hi, Customer One'), findsOneWidget);
+  });
+
+  testWidgets('registers a business owner and opens owner dashboard', (
+    tester,
+  ) async {
+    final tokenStore = _MemoryTokenStore();
+    final authRepository = _FakeAuthRepository(role: 'owner');
+
+    await tester.binding.setSurfaceSize(const Size(900, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          ownerSetupRepositoryProvider.overrideWithValue(
+            _FakeOwnerSetupRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.text('Register your business'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Register Business'), findsOneWidget);
+
+    await _enterTextByLabel(tester, 'Business name', 'Zomia Cafe');
+    await _enterTextByLabel(tester, 'Category', 'Cafe');
+    await _enterTextByLabel(tester, 'Email', 'owner@example.com');
+    await _enterTextByLabel(tester, 'Password', 'strong-password');
+    await _enterTextByLabel(tester, 'Confirm Password', 'strong-password');
+    await tester.tap(find.text('Business Term Accept'));
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Create business account'),
+    );
+    await tester.pumpAndSettle();
+    final createButton = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Create business account'),
+    );
+    expect(createButton.onPressed, isNotNull);
+    await tester.tap(
+      find.widgetWithText(FilledButton, 'Create business account'),
+    );
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.registeredOwner, isTrue);
+    expect(authRepository.ownerBusinessName, 'Zomia Cafe');
+    expect(authRepository.ownerBusinessCategory, 'Cafe');
+    expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(await tokenStore.readRefreshToken(), 'refresh-token');
+    expect(find.text('Owner Dashboard'), findsOneWidget);
   });
 
   testWidgets('signs in and renders staff context', (tester) async {
@@ -1284,6 +1342,9 @@ class _FakeAuthRepository extends AuthRepository {
 
   final String role;
   bool registeredCustomer = false;
+  bool registeredOwner = false;
+  String? ownerBusinessName;
+  String? ownerBusinessCategory;
   String? updatedCustomerName;
   int refreshCount = 0;
   String? loggedOutRefreshToken;
@@ -1296,6 +1357,18 @@ class _FakeAuthRepository extends AuthRepository {
     String? phone,
   }) async {
     registeredCustomer = true;
+  }
+
+  @override
+  Future<void> registerOwner({
+    required String businessName,
+    required String? businessCategory,
+    required String email,
+    required String password,
+  }) async {
+    registeredOwner = true;
+    ownerBusinessName = businessName;
+    ownerBusinessCategory = businessCategory;
   }
 
   @override

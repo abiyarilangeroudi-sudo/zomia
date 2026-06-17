@@ -74,6 +74,30 @@ class AuthRepository {
     }
   }
 
+  Future<void> registerOwner({
+    required String businessName,
+    required String? businessCategory,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await _dio.post<Map<String, dynamic>>(
+        '/auth/register/owner',
+        data: {
+          'full_name': businessName,
+          'email': email,
+          'password': password,
+          'business_name': businessName,
+          'business_category': businessCategory?.isEmpty ?? true
+              ? null
+              : businessCategory,
+        },
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<StaffContext> getStaffContext() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
