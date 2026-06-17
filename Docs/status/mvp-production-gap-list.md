@@ -1,6 +1,6 @@
 # MVP Production Gap List
 
-Date: 2026-06-16
+Date: 2026-06-17
 
 This document lists the remaining gaps before calling Zomia a production-ready MVP.
 
@@ -48,6 +48,13 @@ F10.7 progress:
 - Expected backend `400` responses can still appear as red network entries in the browser console; the MVP goal is that users see clear UI messages instead of raw backend details.
 - Source-map/WebGL/camera warnings remain tracked as local/dev console noise unless they produce a broken user flow.
 
+F10.12 progress:
+
+- Frontend error mapping no longer exposes unknown backend `detail` text directly in the UI.
+- Auth, Customer QR, Staff Service, and Owner Setup now use generic fallback messages for unknown backend details.
+- Mapper tests confirm unknown backend details do not leak to users.
+- Browser red network entries for real rejected requests remain expected browser behavior; product UX must show clear UI messages.
+
 ### 2. Auth and Session Hardening
 
 Current MVP uses simple JWT access token storage.
@@ -76,6 +83,13 @@ F10.10.1 progress:
 - `CampaignService` now owns campaign creation, campaign listing, customer campaign progress, action evaluation, cycle calculation, and campaign completion creation.
 - `LoyaltyService` remains the orchestration layer for action registration and still triggers reward generation after Campaign completions are returned.
 - Reward generation and reward usage still need a later `RewardService` extraction before Group/Cross-Network Campaign work.
+
+F10.12 architecture progress:
+
+- Reward Template is now independent from Campaign.
+- Campaign selects a Reward Template through `campaign_reward_templates`.
+- MVP still enforces one Reward Template per Campaign, but the join table leaves room for later multi-reward Campaigns.
+- Owner UX now follows the intended setup order: create Mission, create Reward Template, then create Campaign by selecting both.
 
 ### 4. Owner Activity Endpoint
 
@@ -273,15 +287,16 @@ Outcome:
 
 ## Current Recommended Phase
 
-F10.7 should continue with:
+F10.13 should start with:
 
 ```text
-Console Hygiene / Error UX manual review
+Data and Audit Review
 ```
 
 Focus:
 
-- Confirm the UI message is clear when Staff uses an old QR token.
-- Confirm reward-used and reward-expired errors are clear.
-- Confirm Owner activity error state uses mapped messages.
-- Keep browser/dev warnings documented without overengineering around harmless local noise.
+- Confirm which actions create audit events.
+- Confirm owner-visible vs internal-only audit data.
+- Confirm idempotency coverage for mission action registration and reward use.
+- Confirm QR token storage does not keep raw QR tokens.
+- Avoid implementing Group/Cross features during this review.

@@ -1,6 +1,6 @@
 # Current Stability Check
 
-Date: 2026-06-16
+Date: 2026-06-17
 
 This document is the short checkpoint before the next feature phase.
 
@@ -10,7 +10,8 @@ This document is the short checkpoint before the next feature phase.
 - Flutter MVP is implemented through Auth, Customer QR, Staff Dashboard, Owner Dashboard, Customer Registration, and UI/Branding recovery.
 - Customer registration is available from the Login screen and auto-signs the customer in after successful registration.
 - Customer profile allows the customer to update their display name; email stays read-only.
-- Owner minimal setup can create Staff, Mission, Campaign, and Reward Template from Flutter.
+- Owner minimal setup can create Staff, Mission, Reward Template, and Campaign from Flutter.
+- Owner Campaign creation now follows the current domain flow: select a Reward Template and included Missions when creating the Campaign.
 - Owner can view recent Staff activity for the selected business.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.
 - Customer can view QR, campaign progress, active rewards, and profile basics.
@@ -18,7 +19,7 @@ This document is the short checkpoint before the next feature phase.
 ## Verification Snapshot
 
 - Backend tests: `45 passed`
-- Frontend tests: `11 passed`
+- Frontend tests: `26 passed`
 - Flutter analyze: no issues
 - Git status before this stability pass: clean
 
@@ -48,16 +49,18 @@ This document is the short checkpoint before the next feature phase.
 
 - Identity module owns users, owner registration, customer registration, staff creation, and staff context.
 - Loyalty module owns missions, actions, points ledger, campaigns, rewards, reward use, and audit events.
+- `CampaignService` owns campaign creation, campaign listing, customer campaign progress, action evaluation, cycle calculation, and campaign completion creation.
+- `LoyaltyService` still orchestrates action registration and reward generation after campaign completions.
 - QR module owns customer QR tokens and staff QR workflow wrappers.
 
 ## Watch Items
 
 - MVP production gaps are tracked in `Docs/status/mvp-production-gap-list.md`.
-- `backend/app/modules/loyalty/service.py` is intentionally not refactored in this pass because it contains sensitive tested business logic.
-- Before Group Campaign or Cross-Network Campaign, split `LoyaltyService` into smaller services such as action registration, campaign evaluation, reward generation, reward usage, and audit orchestration.
+- Reward generation and reward usage still need a later `RewardService` extraction before Group Campaign or Cross-Network Campaign.
+- Before Group Campaign or Cross-Network Campaign, continue splitting `LoyaltyService` into smaller services without changing individual campaign behavior.
 - Owner recent activity is live for MVP; broader audit review remains separate from owner-facing activity.
 - Phone remains out of Customer Registration and Customer Profile editing until a product decision makes it explicit.
-- Console Hygiene / Error UX has started: Staff, Customer QR, and Owner setup now map expected backend details to clearer UI messages. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
+- Console Hygiene / Error UX now maps known backend details to clearer UI messages and hides unknown backend details behind generic user-facing fallbacks. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
 
 ## Flutter Architecture Guardrail
