@@ -1,58 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
 import '../domain/owner_setup_models.dart';
-
-class OwnerHeader extends StatelessWidget {
-  const OwnerHeader({
-    super.key,
-    required this.user,
-    required this.selectedBusiness,
-  });
-
-  final CurrentUser user;
-  final OwnerBusiness? selectedBusiness;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Owner Setup', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 4),
-          Text('Signed in as ${user.fullName}'),
-          if (selectedBusiness != null) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                MetricPill(
-                  icon: Icons.storefront_rounded,
-                  label: selectedBusiness!.name,
-                  color: BrandColors.teal,
-                ),
-                MetricPill(
-                  icon: Icons.payments_rounded,
-                  label: selectedBusiness!.currencyCode,
-                  color: BrandColors.orange,
-                ),
-                MetricPill(
-                  icon: Icons.verified_rounded,
-                  label: selectedBusiness!.status,
-                  color: BrandColors.purple,
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
 
 class OwnerProfileCard extends StatelessWidget {
   const OwnerProfileCard({

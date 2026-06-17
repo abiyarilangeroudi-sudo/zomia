@@ -162,7 +162,7 @@ class OwnerSetupController extends ChangeNotifier {
     });
   }
 
-  Future<void> createStaff() async {
+  Future<bool> createStaff() async {
     final business = selectedBusiness;
     final email = staffEmailController.text.trim();
     final fullName = staffNameController.text.trim();
@@ -172,9 +172,9 @@ class OwnerSetupController extends ChangeNotifier {
         fullName.isEmpty ||
         password.length < 8) {
       _showError('Enter a valid staff email, name, and password.');
-      return;
+      return false;
     }
-    await _save(
+    return _save(
       () => repository.createStaff(
         businessId: business.id,
         email: email,
@@ -198,15 +198,15 @@ class OwnerSetupController extends ChangeNotifier {
     );
   }
 
-  Future<void> createMission() async {
+  Future<bool> createMission() async {
     final business = selectedBusiness;
     final points = int.tryParse(missionPointsController.text.trim());
     final name = missionNameController.text.trim();
     if (business == null || name.isEmpty || points == null || points <= 0) {
       _showError('Enter a valid mission point value.');
-      return;
+      return false;
     }
-    await _save(
+    return _save(
       () => repository.createMission(
         businessId: business.id,
         name: name,
@@ -217,7 +217,7 @@ class OwnerSetupController extends ChangeNotifier {
     );
   }
 
-  Future<void> createCampaign() async {
+  Future<bool> createCampaign() async {
     final business = selectedBusiness;
     final threshold = int.tryParse(campaignThresholdController.text.trim());
     final maxCompletions = int.tryParse(
@@ -230,19 +230,19 @@ class OwnerSetupController extends ChangeNotifier {
         threshold == null ||
         threshold <= 0) {
       _showError('Select a mission and enter a valid threshold.');
-      return;
+      return false;
     }
     if (!campaignStartDate.isBefore(campaignEndDate)) {
       _showError('Enter a valid campaign date range.');
-      return;
+      return false;
     }
     if (campaignIsRepeatable &&
         campaignHasCompletionLimit &&
         (maxCompletions == null || maxCompletions < 2)) {
       _showError('Completion limit must be at least 2.');
-      return;
+      return false;
     }
-    await _save(
+    return _save(
       () => repository.createCampaign(
         businessId: business.id,
         name: name,
@@ -260,7 +260,7 @@ class OwnerSetupController extends ChangeNotifier {
     );
   }
 
-  Future<void> createRewardTemplate() async {
+  Future<bool> createRewardTemplate() async {
     final business = selectedBusiness;
     final campaignId = selectedCampaignId;
     final name = rewardNameController.text.trim();
@@ -273,9 +273,9 @@ class OwnerSetupController extends ChangeNotifier {
         validDays == null ||
         validDays <= 0) {
       _showError('Select a campaign and enter valid reward details.');
-      return;
+      return false;
     }
-    await _save(
+    return _save(
       () => repository.createGiftRewardTemplate(
         businessId: business.id,
         campaignId: campaignId,
@@ -287,7 +287,7 @@ class OwnerSetupController extends ChangeNotifier {
     );
   }
 
-  Future<void> _save(Future<void> Function() action, String message) async {
+  Future<bool> _save(Future<void> Function() action, String message) async {
     _setState(() {
       isSaving = true;
       error = null;
@@ -300,11 +300,13 @@ class OwnerSetupController extends ChangeNotifier {
         isSaving = false;
       });
       await load();
+      return true;
     } catch (saveError) {
       _setState(() {
         error = saveError.toString();
         isSaving = false;
       });
+      return false;
     }
   }
 

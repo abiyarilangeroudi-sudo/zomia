@@ -179,6 +179,7 @@ class _IconSet extends StatelessWidget {
         _IconToken(Icons.close_rounded, 'Close'),
         _IconToken(Icons.calendar_month_rounded, 'Calendar'),
         _IconToken(Icons.refresh_rounded, 'Refresh'),
+        _IconToken(Icons.add_rounded, 'Create'),
       ],
     );
   }
@@ -596,6 +597,47 @@ class _FormExamples extends StatelessWidget {
           onPressed: _noop,
         ),
         SizedBox(height: 12),
+        _ComponentName(
+          'FloatingCreateButton',
+          status: CatalogApprovalStatus.approved,
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FloatingCreateButton(
+            tooltip: 'Create loyalty item',
+            onPressed: _noop,
+          ),
+        ),
+        SizedBox(height: 12),
+        _ComponentName(
+          'CreateActionSheet',
+          status: CatalogApprovalStatus.approved,
+        ),
+        SecondaryButton(
+          label: 'Open create menu',
+          icon: Icons.add_rounded,
+          onPressed: () => showCreateActionSheet<_CatalogCreateAction>(
+            context: context,
+            items: const [
+              CreateActionSheetItem(
+                value: _CatalogCreateAction.mission,
+                title: 'Create Mission',
+                icon: Icons.task_alt_rounded,
+              ),
+              CreateActionSheetItem(
+                value: _CatalogCreateAction.campaign,
+                title: 'Create Campaign',
+                icon: Icons.flag_rounded,
+              ),
+              CreateActionSheetItem(
+                value: _CatalogCreateAction.rewardTemplate,
+                title: 'Create Reward Template',
+                icon: Icons.card_giftcard_rounded,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 12),
         _ComponentName('Campaign repeatability controls'),
         AppDateField(
           label: 'Start date',
@@ -634,6 +676,8 @@ class _FormExamples extends StatelessWidget {
     );
   }
 }
+
+enum _CatalogCreateAction { mission, campaign, rewardTemplate }
 
 void _noop() {}
 

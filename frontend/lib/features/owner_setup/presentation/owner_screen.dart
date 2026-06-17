@@ -28,9 +28,14 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
       activeIcon: Icons.dashboard_rounded,
     ),
     NavItem(
-      label: 'Campaigns',
+      label: 'Loyalty',
       icon: Icons.flag_outlined,
       activeIcon: Icons.flag_rounded,
+    ),
+    NavItem(
+      label: 'Team',
+      icon: Icons.group_outlined,
+      activeIcon: Icons.group_rounded,
     ),
     NavItem(
       label: 'Profile',
@@ -61,7 +66,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
       builder: (context, _) {
         return Scaffold(
           appBar: AppTopBar(
-            title: 'Owner Dashboard',
+            title: _appBarTitle,
             variant: AppTopBarVariant.business,
             onMenu: () {},
             actions: [
@@ -78,6 +83,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
               children: [
                 DashboardScroll(maxWidth: 760, child: _buildHomeView()),
                 DashboardScroll(maxWidth: 760, child: _buildCampaignView()),
+                DashboardScroll(maxWidth: 760, child: _buildTeamView()),
                 DashboardScroll(maxWidth: 760, child: _buildProfileView()),
               ],
             ),
@@ -87,20 +93,31 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             selectedIndex: _selectedIndex,
             onChanged: (index) => setState(() => _selectedIndex = index),
           ),
+          floatingActionButton: _selectedIndex == 1 && !_controller.isLoading
+              ? FloatingCreateButton(
+                  tooltip: 'Create loyalty item',
+                  onPressed: () =>
+                      openOwnerLoyaltyCreateDialog(context, _controller),
+                )
+              : null,
         );
       },
     );
+  }
+
+  String get _appBarTitle {
+    return switch (_selectedIndex) {
+      0 => 'Owner Dashboard',
+      1 => 'Loyalty',
+      2 => 'Team',
+      _ => 'Profile',
+    };
   }
 
   Widget _buildHomeView() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        OwnerHeader(
-          user: widget.user,
-          selectedBusiness: _controller.selectedBusiness,
-        ),
-        const SizedBox(height: 16),
         if (_controller.error != null)
           InlineBanner(message: _controller.error!, tone: BannerTone.error),
         if (_controller.success != null)
@@ -122,14 +139,6 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             businesses: _controller.businesses,
             selectedBusiness: _controller.selectedBusiness,
             onChanged: _controller.selectBusiness,
-          ),
-          const SizedBox(height: 16),
-          OwnerMissionSetupCard(
-            controller: _controller.missionNameController,
-            pointsController: _controller.missionPointsController,
-            missions: _controller.missions,
-            isSaving: _controller.isSaving,
-            onCreate: _controller.createMission,
           ),
         ],
       ],
@@ -157,37 +166,12 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             ),
           )
         else ...[
-          OwnerCampaignSetupCard(
-            controller: _controller.campaignNameController,
-            thresholdController: _controller.campaignThresholdController,
-            startDate: _controller.campaignStartDate,
-            endDate: _controller.campaignEndDate,
-            maxCompletionsController:
-                _controller.campaignMaxCompletionsController,
-            missions: _controller.missions,
-            campaigns: _controller.campaigns,
-            selectedMissionIds: _controller.selectedMissionIds,
-            isRepeatable: _controller.campaignIsRepeatable,
-            hasCompletionLimit: _controller.campaignHasCompletionLimit,
-            isSaving: _controller.isSaving,
-            onMissionToggled: _controller.toggleMission,
-            onRepeatableChanged: _controller.setCampaignRepeatable,
-            onCompletionLimitChanged: _controller.setCampaignCompletionLimit,
-            onStartDateChanged: _controller.setCampaignStartDate,
-            onEndDateChanged: _controller.setCampaignEndDate,
-            onCreate: _controller.createCampaign,
-          ),
+          OwnerMissionListCard(missions: _controller.missions),
           const SizedBox(height: 16),
-          OwnerRewardTemplateSetupCard(
-            rewardNameController: _controller.rewardNameController,
-            giftNameController: _controller.giftNameController,
-            validDaysController: _controller.validDaysController,
-            campaigns: _controller.campaigns,
+          OwnerCampaignListCard(campaigns: _controller.campaigns),
+          const SizedBox(height: 16),
+          OwnerRewardTemplateListCard(
             rewardTemplates: _controller.rewardTemplates,
-            selectedCampaignId: _controller.selectedCampaignId,
-            isSaving: _controller.isSaving,
-            onCampaignChanged: _controller.selectCampaign,
-            onCreate: _controller.createRewardTemplate,
           ),
         ],
       ],
@@ -203,7 +187,14 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
           selectedBusiness: _controller.selectedBusiness,
           onSignOut: () => ref.read(authControllerProvider.notifier).signOut(),
         ),
-        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildTeamView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
         if (_controller.error != null)
           InlineBanner(message: _controller.error!, tone: BannerTone.error),
         if (_controller.success != null)

@@ -376,7 +376,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.65 (66)'), findsOneWidget);
+    expect(find.text('Version 1.0.67 (68)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -427,7 +427,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.65 (66)'));
+    await tester.tap(find.text('Version 1.0.67 (68)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -705,37 +705,37 @@ void main() {
 
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(find.text('Owner Dashboard'), findsOneWidget);
-    expect(find.text('Owner Setup'), findsOneWidget);
-    expect(find.text('Signed in as Owner One'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.byTooltip('Staff recent actions'), findsOneWidget);
+    expect(find.text('Create Mission'), findsNothing);
+    expect(find.text('Buy Coffee'), findsNothing);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.tap(find.text('Loyalty'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Create Mission'), findsOneWidget);
-    expect(find.text('Buy Coffee'), findsWidgets);
-
-    await tester.tap(find.text('Campaigns'));
-    await pumpAppFrames(tester);
-
-    expect(find.text('Create Campaign'), findsOneWidget);
+    expect(find.text('Missions'), findsOneWidget);
+    expect(find.text('Campaigns'), findsOneWidget);
+    expect(find.text('Reward Templates'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
-    expect(find.text('Repeatable campaign'), findsOneWidget);
     expect(find.text('10 pts · non-repeatable · active'), findsOneWidget);
-
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
-    await pumpAppFrames(tester);
-
-    expect(find.text('Create Gift Reward'), findsOneWidget);
     expect(find.text('Free Coffee'), findsWidgets);
     expect(find.text('Free coffee · 30 days'), findsOneWidget);
 
-    await tester.tap(find.text('Profile'));
+    await tester.tap(find.byTooltip('Create loyalty item'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Profile'), findsWidgets);
-    expect(find.text('owner@example.com'), findsOneWidget);
+    expect(find.text('Create'), findsOneWidget);
+    await tester.tap(find.text('Create Campaign'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Repeatable campaign'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Team'));
+    await pumpAppFrames(tester);
+
     expect(find.text('Create Staff'), findsOneWidget);
     expect(find.text('Setup Staff'), findsOneWidget);
     expect(find.text('setup-staff@example.com'), findsOneWidget);
@@ -757,6 +757,13 @@ void main() {
     expect(find.text('Staff deactivated.'), findsOneWidget);
     expect(find.text('Inactive'), findsOneWidget);
     expect(find.byTooltip('Activate staff'), findsOneWidget);
+
+    await tester.tap(find.text('Profile'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Profile'), findsWidgets);
+    expect(find.text('owner@example.com'), findsOneWidget);
+    expect(find.text('Create Staff'), findsNothing);
 
     await tester.tap(find.byTooltip('Staff recent actions'));
     await pumpAppFrames(tester);
