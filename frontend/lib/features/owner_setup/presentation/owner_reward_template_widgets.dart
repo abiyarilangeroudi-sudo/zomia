@@ -38,22 +38,16 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
     required this.rewardNameController,
     required this.giftNameController,
     required this.validDaysController,
-    required this.campaigns,
-    required this.selectedCampaignId,
     this.errorMessage,
     required this.isSaving,
-    required this.onCampaignChanged,
     required this.onCreate,
   });
 
   final TextEditingController rewardNameController;
   final TextEditingController giftNameController;
   final TextEditingController validDaysController;
-  final List<OwnerCampaign> campaigns;
-  final String? selectedCampaignId;
   final String? errorMessage;
   final bool isSaving;
-  final ValueChanged<String?> onCampaignChanged;
   final Future<bool> Function() onCreate;
 
   @override
@@ -91,26 +85,12 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
                 hint: '30',
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 12),
-              SelectField<String>(
-                label: 'Campaign',
-                value: selectedCampaignId,
-                options: campaigns
-                    .map(
-                      (campaign) => SelectFieldOption(
-                        value: campaign.id,
-                        label: campaign.name,
-                      ),
-                    )
-                    .toList(),
-                onChanged: onCampaignChanged,
-              ),
               const SizedBox(height: 16),
               PrimaryButton(
                 label: 'Create Reward Template',
                 icon: Icons.card_giftcard_rounded,
                 isLoading: isSaving,
-                onPressed: isSaving || campaigns.isEmpty
+                onPressed: isSaving
                     ? null
                     : () async {
                         final saved = await onCreate();

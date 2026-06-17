@@ -9,6 +9,7 @@ from app.modules.loyalty.models import (
     Campaign,
     CampaignCompletion,
     CampaignMission,
+    CampaignRewardTemplate,
     CampaignParticipationMode,
     CampaignProgressMetric,
     CampaignScopeType,
@@ -81,10 +82,18 @@ class LoyaltyRepository:
         self.db.flush()
         return campaign_mission
 
+    def add_campaign_reward_template(
+        self, campaign_reward_template: CampaignRewardTemplate
+    ) -> CampaignRewardTemplate:
+        self.db.add(campaign_reward_template)
+        self.db.flush()
+        return campaign_reward_template
+
     def list_business_campaigns(self, business_id: uuid.UUID) -> list[Campaign]:
         return list(
             self.db.scalars(
                 select(Campaign)
+                .options(selectinload(Campaign.reward_template_links))
                 .where(Campaign.creator_business_id == business_id)
                 .order_by(Campaign.created_at.desc())
             )
@@ -133,7 +142,11 @@ class LoyaltyRepository:
         )
 
     def get_campaign(self, campaign_id: uuid.UUID) -> Campaign | None:
-        return self.db.get(Campaign, campaign_id)
+        return self.db.scalar(
+            select(Campaign)
+            .options(selectinload(Campaign.reward_template_links))
+            .where(Campaign.id == campaign_id)
+        )
 
     def get_active_individual_campaigns_for_action(
         self, *, business_id: uuid.UUID, mission_ids: set[uuid.UUID], occurred_at
@@ -143,6 +156,7 @@ class LoyaltyRepository:
         return list(
             self.db.scalars(
                 select(Campaign)
+                .options(selectinload(Campaign.reward_template_links))
                 .join(CampaignMission, CampaignMission.campaign_id == Campaign.id)
                 .where(
                     Campaign.creator_business_id == business_id,
@@ -223,9 +237,9 @@ class LoyaltyRepository:
         self, *, campaign_id: uuid.UUID, business_id: uuid.UUID
     ) -> Campaign | None:
         return self.db.scalar(
-            select(Campaign).where(
-                Campaign.id == campaign_id,
-                Campaign.creator_business_id == business_id,
+                select(Campaign).where(
+                    Campaign.id == campaign_id,
+                    Campaign.creator_business_id == business_id,
             )
         )
 
@@ -243,12 +257,28 @@ class LoyaltyRepository:
             )
         )
 
+    def get_active_reward_template_for_business(
+        self, *, reward_template_id: uuid.UUID, business_id: uuid.UUID
+    ) -> RewardTemplate | None:
+        return self.db.scalar(
+            select(RewardTemplate).where(
+                RewardTemplate.id == reward_template_id,
+                RewardTemplate.business_id == business_id,
+                RewardTemplate.is_active.is_(True),
+            )
+        )
+
     def get_active_reward_template_for_campaign(
         self, campaign_id: uuid.UUID
     ) -> RewardTemplate | None:
         return self.db.scalar(
-            select(RewardTemplate).where(
-                RewardTemplate.campaign_id == campaign_id,
+            select(RewardTemplate)
+            .join(
+                CampaignRewardTemplate,
+                CampaignRewardTemplate.reward_template_id == RewardTemplate.id,
+            )
+            .where(
+                CampaignRewardTemplate.campaign_id == campaign_id,
                 RewardTemplate.is_active.is_(True),
             )
         )

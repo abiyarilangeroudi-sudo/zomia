@@ -16,6 +16,7 @@ from app.modules.loyalty.models import (
     CampaignScopeType,
     CampaignStatus,
     CampaignType,
+    CampaignRewardTemplate,
     GeneratedReward,
     Mission,
     MissionType,
@@ -134,7 +135,6 @@ def seed_reward_use_demo(db: Session) -> dict[str, str]:
     template = RewardTemplate(
         business_id=business.id,
         issuer_business_id=business.id,
-        campaign_id=campaign.id,
         name="Reward QA Free Coffee",
         description="Free coffee reward for manual QA",
         reward_type=RewardType.GIFT,
@@ -145,6 +145,8 @@ def seed_reward_use_demo(db: Session) -> dict[str, str]:
         is_active=True,
     )
     db.add(template)
+    db.flush()
+    db.add(CampaignRewardTemplate(campaign_id=campaign.id, reward_template_id=template.id))
     db.flush()
 
     reward = GeneratedReward(

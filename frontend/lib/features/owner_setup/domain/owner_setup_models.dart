@@ -102,6 +102,7 @@ class OwnerMission {
 class OwnerCampaign {
   const OwnerCampaign({
     required this.id,
+    required this.rewardTemplateId,
     required this.name,
     required this.thresholdPoints,
     required this.isRepeatable,
@@ -114,6 +115,7 @@ class OwnerCampaign {
   factory OwnerCampaign.fromJson(Map<String, dynamic> json) {
     return OwnerCampaign(
       id: json['id'] as String,
+      rewardTemplateId: json['reward_template_id'] as String,
       name: json['name'] as String,
       thresholdPoints: json['threshold_points'] as int,
       isRepeatable: json['is_repeatable'] as bool? ?? false,
@@ -125,6 +127,7 @@ class OwnerCampaign {
   }
 
   final String id;
+  final String rewardTemplateId;
   final String name;
   final int thresholdPoints;
   final bool isRepeatable;

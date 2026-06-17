@@ -173,11 +173,11 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
         else ...[
           OwnerMissionListCard(missions: _controller.missions),
           const SizedBox(height: 16),
-          OwnerCampaignListCard(campaigns: _controller.campaigns),
-          const SizedBox(height: 16),
           OwnerRewardTemplateListCard(
             rewardTemplates: _controller.rewardTemplates,
           ),
+          const SizedBox(height: 16),
+          OwnerCampaignListCard(campaigns: _controller.campaigns),
         ],
       ],
     );

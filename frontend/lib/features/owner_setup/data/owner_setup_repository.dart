@@ -160,6 +160,7 @@ class OwnerSetupRepository {
 
   Future<void> createCampaign({
     required String businessId,
+    required String rewardTemplateId,
     required String name,
     required int thresholdPoints,
     required DateTime startsAt,
@@ -170,6 +171,7 @@ class OwnerSetupRepository {
   }) async {
     final payload = <String, dynamic>{
       'creator_business_id': businessId,
+      'reward_template_id': rewardTemplateId,
       'name': name,
       'threshold_points': thresholdPoints,
       'is_repeatable': isRepeatable,
@@ -189,7 +191,6 @@ class OwnerSetupRepository {
 
   Future<void> createGiftRewardTemplate({
     required String businessId,
-    required String campaignId,
     required String name,
     required String giftName,
     required int validDays,
@@ -199,7 +200,6 @@ class OwnerSetupRepository {
         '/owner/reward-templates',
         data: {
           'business_id': businessId,
-          'campaign_id': campaignId,
           'name': name,
           'reward_type': 'gift',
           'gift_name': giftName,

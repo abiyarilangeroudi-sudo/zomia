@@ -10,6 +10,7 @@ from app.modules.loyalty.models import (
     Campaign,
     CampaignCompletion,
     CampaignMission,
+    CampaignRewardTemplate,
     CampaignParticipationMode,
     CampaignProgressMetric,
     CampaignScopeType,
@@ -50,6 +51,15 @@ class CampaignService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="One or more missions were not found",
             )
+        reward_template = self.repository.get_active_reward_template_for_business(
+            reward_template_id=payload.reward_template_id,
+            business_id=payload.creator_business_id,
+        )
+        if reward_template is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reward template not found",
+            )
 
         campaign = self.repository.add_campaign(
             Campaign(
@@ -72,6 +82,12 @@ class CampaignService:
             self.repository.add_campaign_mission(
                 CampaignMission(campaign_id=campaign.id, mission_id=mission_id)
             )
+        self.repository.add_campaign_reward_template(
+            CampaignRewardTemplate(
+                campaign_id=campaign.id,
+                reward_template_id=payload.reward_template_id,
+            )
+        )
 
         self._audit(
             event_type=AuditEventType.CAMPAIGN_CREATED,
@@ -84,6 +100,7 @@ class CampaignService:
                 "is_repeatable": payload.is_repeatable,
                 "max_completions_per_customer": payload.max_completions_per_customer,
                 "mission_ids": [str(mission_id) for mission_id in mission_ids],
+                "reward_template_id": str(payload.reward_template_id),
             },
         )
         return campaign

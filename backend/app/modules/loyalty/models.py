@@ -200,8 +200,16 @@ class Campaign(Base, TimestampMixin):
     mission_links: Mapped[list["CampaignMission"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
+    reward_template_links: Mapped[list["CampaignRewardTemplate"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
     completions: Mapped[list["CampaignCompletion"]] = relationship(back_populates="campaign")
-    reward_templates: Mapped[list["RewardTemplate"]] = relationship(back_populates="campaign")
+
+    @property
+    def reward_template_id(self) -> uuid.UUID | None:
+        if not self.reward_template_links:
+            return None
+        return self.reward_template_links[0].reward_template_id
 
 
 class CampaignMission(Base):
@@ -215,6 +223,24 @@ class CampaignMission(Base):
 
     campaign: Mapped["Campaign"] = relationship(back_populates="mission_links")
     mission: Mapped[Mission] = relationship(back_populates="campaign_links")
+
+
+class CampaignRewardTemplate(Base):
+    __tablename__ = "campaign_reward_templates"
+    __table_args__ = (
+        UniqueConstraint("campaign_id"),
+        UniqueConstraint("campaign_id", "reward_template_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=new_uuid)
+    campaign_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("campaigns.id"), index=True)
+    reward_template_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("reward_templates.id"), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+    campaign: Mapped["Campaign"] = relationship(back_populates="reward_template_links")
+    reward_template: Mapped["RewardTemplate"] = relationship(back_populates="campaign_links")
 
 
 class CampaignCompletion(Base):
@@ -254,7 +280,6 @@ class CampaignCompletion(Base):
 class RewardTemplate(Base, TimestampMixin):
     __tablename__ = "reward_templates"
     __table_args__ = (
-        UniqueConstraint("campaign_id"),
         CheckConstraint("valid_days > 0", name="reward_template_valid_days_positive"),
         CheckConstraint(
             "discount_percent IS NULL OR (discount_percent > 0 AND discount_percent <= 100)",
@@ -269,7 +294,6 @@ class RewardTemplate(Base, TimestampMixin):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=new_uuid)
     business_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("businesses.id"), index=True)
     issuer_business_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("businesses.id"), index=True)
-    campaign_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("campaigns.id"), index=True)
     name: Mapped[str] = mapped_column(String(160))
     description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     reward_type: Mapped[RewardType] = mapped_column(
@@ -294,7 +318,9 @@ class RewardTemplate(Base, TimestampMixin):
     valid_days: Mapped[int] = mapped_column(Integer)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    campaign: Mapped[Campaign] = relationship(back_populates="reward_templates")
+    campaign_links: Mapped[list["CampaignRewardTemplate"]] = relationship(
+        back_populates="reward_template"
+    )
     generated_rewards: Mapped[list["GeneratedReward"]] = relationship(
         back_populates="reward_template"
     )

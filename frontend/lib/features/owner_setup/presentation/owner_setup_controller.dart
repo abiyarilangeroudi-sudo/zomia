@@ -30,7 +30,7 @@ class OwnerSetupController extends ChangeNotifier {
   List<OwnerRewardTemplate> rewardTemplates = [];
   OwnerBusiness? selectedBusiness;
   final Set<String> selectedMissionIds = {};
-  String? selectedCampaignId;
+  String? selectedRewardTemplateId;
   String? error;
   String? success;
   late DateTime campaignStartDate = DateTime(
@@ -92,9 +92,9 @@ class OwnerSetupController extends ChangeNotifier {
         if (selectedMissionIds.isEmpty && nextMissions.isNotEmpty) {
           selectedMissionIds.add(nextMissions.first.id);
         }
-        selectedCampaignId = nextCampaigns.isEmpty
+        selectedRewardTemplateId = nextTemplates.isEmpty
             ? null
-            : nextCampaigns.first.id;
+            : nextTemplates.first.id;
         isLoading = false;
       });
     } catch (loadError) {
@@ -109,7 +109,7 @@ class OwnerSetupController extends ChangeNotifier {
     _setState(() {
       selectedBusiness = business;
       selectedMissionIds.clear();
-      selectedCampaignId = null;
+      selectedRewardTemplateId = null;
     });
     await load();
   }
@@ -124,8 +124,8 @@ class OwnerSetupController extends ChangeNotifier {
     });
   }
 
-  void selectCampaign(String? value) {
-    _setState(() => selectedCampaignId = value);
+  void selectRewardTemplate(String? value) {
+    _setState(() => selectedRewardTemplateId = value);
   }
 
   void setCampaignRepeatable(bool value) {
@@ -219,6 +219,7 @@ class OwnerSetupController extends ChangeNotifier {
 
   Future<bool> createCampaign() async {
     final business = selectedBusiness;
+    final rewardTemplateId = selectedRewardTemplateId;
     final threshold = int.tryParse(campaignThresholdController.text.trim());
     final maxCompletions = int.tryParse(
       campaignMaxCompletionsController.text.trim(),
@@ -226,10 +227,11 @@ class OwnerSetupController extends ChangeNotifier {
     final name = campaignNameController.text.trim();
     if (business == null ||
         name.isEmpty ||
+        rewardTemplateId == null ||
         selectedMissionIds.isEmpty ||
         threshold == null ||
         threshold <= 0) {
-      _showError('Select a mission and enter a valid threshold.');
+      _showError('Select a mission, reward template, and valid threshold.');
       return false;
     }
     if (!campaignStartDate.isBefore(campaignEndDate)) {
@@ -245,6 +247,7 @@ class OwnerSetupController extends ChangeNotifier {
     return _save(
       () => repository.createCampaign(
         businessId: business.id,
+        rewardTemplateId: rewardTemplateId,
         name: name,
         thresholdPoints: threshold,
         startsAt: _startOfUtcDay(campaignStartDate),
@@ -262,23 +265,20 @@ class OwnerSetupController extends ChangeNotifier {
 
   Future<bool> createRewardTemplate() async {
     final business = selectedBusiness;
-    final campaignId = selectedCampaignId;
     final name = rewardNameController.text.trim();
     final giftName = giftNameController.text.trim();
     final validDays = int.tryParse(validDaysController.text.trim());
     if (business == null ||
-        campaignId == null ||
         name.isEmpty ||
         giftName.isEmpty ||
         validDays == null ||
         validDays <= 0) {
-      _showError('Select a campaign and enter valid reward details.');
+      _showError('Enter valid reward details.');
       return false;
     }
     return _save(
       () => repository.createGiftRewardTemplate(
         businessId: business.id,
-        campaignId: campaignId,
         name: name,
         giftName: giftName,
         validDays: validDays,

@@ -249,6 +249,7 @@ void main() {
       ownerCampaignSubtitle(
         OwnerCampaign(
           id: 'campaign-id',
+          rewardTemplateId: 'template-id',
           name: 'Coffee Reward',
           thresholdPoints: 10,
           isRepeatable: true,
@@ -376,7 +377,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.69 (70)'), findsOneWidget);
+    expect(find.text('Version 1.0.70 (71)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -427,7 +428,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.69 (70)'));
+    await tester.tap(find.text('Version 1.0.70 (71)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -1122,6 +1123,7 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
     return [
       OwnerCampaign(
         id: 'campaign-id',
+        rewardTemplateId: 'template-id',
         name: 'Coffee Reward',
         thresholdPoints: 10,
         isRepeatable: false,
@@ -1136,6 +1138,7 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
   @override
   Future<void> createCampaign({
     required String businessId,
+    required String rewardTemplateId,
     required String name,
     required int thresholdPoints,
     required DateTime startsAt,

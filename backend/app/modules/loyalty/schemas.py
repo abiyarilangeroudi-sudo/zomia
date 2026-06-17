@@ -108,6 +108,7 @@ class CustomerStatusRead(BaseModel):
 
 class CampaignCreate(BaseModel):
     creator_business_id: uuid.UUID
+    reward_template_id: uuid.UUID
     name: str = Field(min_length=2, max_length=160)
     description: str | None = Field(default=None, max_length=500)
     threshold_points: int = Field(gt=0)
@@ -129,6 +130,7 @@ class CampaignRead(BaseModel):
 
     id: uuid.UUID
     creator_business_id: uuid.UUID
+    reward_template_id: uuid.UUID
     name: str
     description: str | None
     campaign_type: CampaignType
@@ -188,7 +190,6 @@ class CustomerCampaignProgressRead(BaseModel):
 
 class RewardTemplateCreate(BaseModel):
     business_id: uuid.UUID
-    campaign_id: uuid.UUID
     name: str = Field(min_length=2, max_length=160)
     description: str | None = Field(default=None, max_length=500)
     reward_type: RewardType
@@ -228,7 +229,6 @@ class RewardTemplateRead(BaseModel):
     id: uuid.UUID
     business_id: uuid.UUID
     issuer_business_id: uuid.UUID
-    campaign_id: uuid.UUID
     name: str
     description: str | None
     reward_type: RewardType

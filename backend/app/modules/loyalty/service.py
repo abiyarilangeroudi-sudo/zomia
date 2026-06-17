@@ -110,17 +110,10 @@ class LoyaltyService:
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
 
-        campaign = self.repository.get_campaign_for_business(
-            campaign_id=payload.campaign_id, business_id=payload.business_id
-        )
-        if campaign is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Campaign not found")
-
         template = self.repository.add_reward_template(
             RewardTemplate(
                 business_id=payload.business_id,
                 issuer_business_id=payload.business_id,
-                campaign_id=payload.campaign_id,
                 name=payload.name,
                 description=payload.description,
                 reward_type=payload.reward_type,
@@ -141,7 +134,6 @@ class LoyaltyService:
             entity_type="reward_template",
             entity_id=template.id,
             metadata={
-                "campaign_id": str(payload.campaign_id),
                 "reward_type": payload.reward_type.value,
                 "redeem_scope": RewardRedeemScope.ISSUER_BUSINESS_ONLY.value,
                 "settlement_policy": RewardSettlementPolicy.ISSUER_PAYS.value,

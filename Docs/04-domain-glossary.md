@@ -123,7 +123,11 @@ Campaign آینده که بین چند Business اجرا می‌شود. خارج
 
 ### Reward Template
 
-تعریف Owner از نوع، مقدار، مدت اعتبار، صادرکننده، محدوده مصرف و سیاست هزینه پاداش. در MVP هر Template به یک Campaign وصل می‌شود.
+تعریف Owner از نوع، مقدار، مدت اعتبار، صادرکننده، محدوده مصرف و سیاست هزینه پاداش.
+
+Reward Template مستقل از Campaign است. Campaign از طریق رابطه `campaign_reward_templates` یک Template را برای صدور Reward انتخاب می‌کند.
+
+در MVP هر Campaign دقیقاً یک Reward Template دارد. این محدودیت برای ساده نگه داشتن MVP است و بعداً برای multi-reward Campaign قابل گسترش است.
 
 ### Generated Reward
 

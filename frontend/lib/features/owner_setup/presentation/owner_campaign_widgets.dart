@@ -41,12 +41,15 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
     required this.endDate,
     required this.maxCompletionsController,
     required this.missions,
+    required this.rewardTemplates,
     required this.selectedMissionIds,
+    required this.selectedRewardTemplateId,
     required this.isRepeatable,
     required this.hasCompletionLimit,
     this.errorMessage,
     required this.isSaving,
     required this.onMissionToggled,
+    required this.onRewardTemplateChanged,
     required this.onRepeatableChanged,
     required this.onCompletionLimitChanged,
     required this.onStartDateChanged,
@@ -60,12 +63,15 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
   final DateTime endDate;
   final TextEditingController maxCompletionsController;
   final List<OwnerMission> missions;
+  final List<OwnerRewardTemplate> rewardTemplates;
   final Set<String> selectedMissionIds;
+  final String? selectedRewardTemplateId;
   final bool isRepeatable;
   final bool hasCompletionLimit;
   final String? errorMessage;
   final bool isSaving;
   final void Function(String missionId, bool selected) onMissionToggled;
+  final ValueChanged<String?> onRewardTemplateChanged;
   final ValueChanged<bool> onRepeatableChanged;
   final ValueChanged<bool> onCompletionLimitChanged;
   final ValueChanged<DateTime> onStartDateChanged;
@@ -100,6 +106,20 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                 label: 'Threshold points',
                 hint: '10',
                 keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 12),
+              SelectField<String>(
+                label: 'Reward Template',
+                value: selectedRewardTemplateId,
+                options: rewardTemplates
+                    .map(
+                      (template) => SelectFieldOption(
+                        value: template.id,
+                        label: template.name,
+                      ),
+                    )
+                    .toList(),
+                onChanged: onRewardTemplateChanged,
               ),
               const SizedBox(height: 12),
               AppDateField(
@@ -167,7 +187,11 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                 icon: Icons.flag_rounded,
                 isLoading: isSaving,
                 onPressed:
-                    isSaving || missions.isEmpty || selectedMissionIds.isEmpty
+                    isSaving ||
+                        missions.isEmpty ||
+                        rewardTemplates.isEmpty ||
+                        selectedMissionIds.isEmpty ||
+                        selectedRewardTemplateId == null
                     ? null
                     : () async {
                         final saved = await onCreate();

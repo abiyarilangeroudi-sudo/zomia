@@ -40,18 +40,18 @@ Reward Template تعریف پاداش توسط Owner است.
 مثال:
 
 ```text
-Campaign: Coffee Lover
 Reward Template: 1 free coffee
 ```
 
 یا:
 
 ```text
-Campaign: Monthly Visit
 Reward Template: 10% discount
 ```
 
-Template توسط یک Business صادر می‌شود و در Sprint 4 به یک Campaign وصل می‌شود.
+Template توسط یک Business تعریف/صادر می‌شود و مستقل از Campaign می‌ماند.
+
+Campaign بعداً از طریق `campaign_reward_templates` یک Template را انتخاب می‌کند. در MVP برای هر Campaign فقط یک Template مجاز است.
 
 برای جلوگیری از ابهام در Cross Campaign، Reward Template سه مفهوم را از هم جدا می‌کند:
 
@@ -414,15 +414,15 @@ Reward Usage
 
 ### آیا هر Campaign باید Reward Template داشته باشد؟
 
-برای MVP عملی بهتر است بله، اما schema نباید مجبور کند Campaign بدون Template غیرممکن شود.
+برای MVP بله. Campaign هنگام ساخت باید یک Reward Template انتخاب کند.
 
 در Sprint 4:
 
-- Owner می‌تواند برای Campaign یک Reward Template بسازد
+- Owner می‌تواند Reward Template مستقل بسازد
+- Owner هنگام ساخت Campaign یک Reward Template انتخاب می‌کند
 - اگر Campaign Completion رخ دهد و Template فعال باشد، Reward ساخته می‌شود
-- اگر Template وجود نداشته باشد، Completion باقی می‌ماند و Reward ساخته نمی‌شود
 
-این رفتار برای migration و داده‌های Sprint 3 امن‌تر است.
+این مدل برای Group و Cross-Network Campaign آینده ابهام کمتری دارد، چون Campaign مسئول orchestration است و Reward Template فقط تعریف پاداش را نگه می‌دارد.
 
 ### Reward Generation چه زمانی اتفاق می‌افتد؟
 
@@ -434,7 +434,7 @@ Flow:
 Staff registers Action
 -> Points Ledger entries are created
 -> Campaign Evaluation creates Campaign Completion
--> Reward Engine creates Generated Reward if active template exists
+-> Reward Engine creates Generated Reward from the Campaign-linked template
 ```
 
 برای safety، Generated Reward با ترکیب `source_type + source_id + customer_id` unique می‌شود.
@@ -493,7 +493,6 @@ backend/app/modules/loyalty/
 id
 business_id
 issuer_business_id
-campaign_id
 name
 description
 reward_type
@@ -513,16 +512,28 @@ Notes:
 
 - `business_id` مالک مدیریتی Template در Sprint 4 است
 - `issuer_business_id` کسب‌وکاری است که Reward را صادر می‌کند
-- `campaign_id` در Sprint 4 به یک Campaign وصل است
 - `redeem_scope` در Sprint 4 فقط `issuer_business_only`
 - `settlement_policy` در Sprint 4 فقط `issuer_pays`
-- برای هر Campaign در MVP فقط یک active template کافی است
 - `gift_name` فقط برای `gift`
 - `discount_percent` فقط برای `percentage_discount` و به شکل عدد صحیح ۱ تا ۱۰۰ ذخیره می‌شود
 - `discount_amount_minor` و `currency_code` فقط برای `fixed_discount`
 - `discount_amount_minor` مقدار پول در کوچک‌ترین واحد ارز است؛ مثلا ۵ یورو یعنی `500`
 - `valid_days` مدت اعتبار reward بعد از generation است
-- در MVP ترکیب `campaign_id` unique است؛ یعنی هر Campaign فقط یک Reward Template دارد
+
+### campaign_reward_templates
+
+```text
+id
+campaign_id
+reward_template_id
+created_at
+```
+
+Notes:
+
+- Campaign از این جدول Reward Template خود را انتخاب می‌کند
+- در MVP، `campaign_id` unique است؛ یعنی هر Campaign فقط یک Reward Template دارد
+- این unique constraint بعداً می‌تواند برای multi-reward Campaign حذف شود
 
 ### generated_rewards
 

@@ -103,6 +103,7 @@ def create_campaign(
     business_id: str,
     *,
     mission_ids: list[str],
+    reward_template_id: str | None = None,
     threshold_points: int = 5,
     starts_at: datetime | None = None,
     ends_at: datetime | None = None,
@@ -111,10 +112,14 @@ def create_campaign(
 ) -> dict:
     starts_at = starts_at or datetime.now(UTC) - timedelta(days=1)
     ends_at = ends_at or datetime.now(UTC) + timedelta(days=30)
+    if reward_template_id is None:
+        reward_template = create_reward_template(client, owner_token, business_id)
+        reward_template_id = reward_template["id"]
     response = client.post(
         "/api/v1/owner/campaigns",
         json={
             "creator_business_id": business_id,
+            "reward_template_id": reward_template_id,
             "name": "Coffee Lover",
             "description": "Reach the threshold",
             "threshold_points": threshold_points,
@@ -134,7 +139,7 @@ def create_reward_template(
     client: TestClient,
     owner_token: str,
     business_id: str,
-    campaign_id: str,
+    legacy_campaign_id: str | None = None,
     *,
     reward_type: str = "gift",
     name: str = "Free Coffee",
@@ -144,9 +149,30 @@ def create_reward_template(
     currency_code: str | None = None,
     valid_days: int = 30,
 ) -> dict:
+    if legacy_campaign_id is not None:
+        campaigns = client.get(
+            "/api/v1/owner/campaigns",
+            params={"business_id": business_id},
+            headers=auth(owner_token),
+        )
+        assert campaigns.status_code == 200
+        campaign = next(
+            item for item in campaigns.json() if item["id"] == legacy_campaign_id
+        )
+        templates = client.get(
+            "/api/v1/owner/reward-templates",
+            params={"business_id": business_id},
+            headers=auth(owner_token),
+        )
+        assert templates.status_code == 200
+        return next(
+            item
+            for item in templates.json()
+            if item["id"] == campaign["reward_template_id"]
+        )
+
     payload = {
         "business_id": business_id,
-        "campaign_id": campaign_id,
         "name": name,
         "description": f"{name} reward",
         "reward_type": reward_type,
@@ -515,11 +541,13 @@ def test_owner_cannot_create_campaign_with_foreign_mission(client: TestClient) -
     foreign_mission = create_mission(
         client, other_owner_token, other_business_id, name="Foreign Mission"
     )
+    reward_template = create_reward_template(client, owner_token, business_id)
 
     response = client.post(
         "/api/v1/owner/campaigns",
         json={
             "creator_business_id": business_id,
+            "reward_template_id": reward_template["id"],
             "name": "Invalid Campaign",
             "threshold_points": 5,
             "starts_at": (datetime.now(UTC) - timedelta(days=1)).isoformat(),
@@ -642,7 +670,7 @@ def test_action_reaching_threshold_creates_campaign_completion(
     completion = db_session.scalar(select(CampaignCompletion))
     assert completion is not None
     assert completion.progress_points == 5
-    assert completion.reward_generated_at is None
+    assert completion.reward_generated_at is not None
 
     progress = client.get(
         f"/api/v1/customers/me/campaigns/{campaign['id']}/progress",
@@ -1079,15 +1107,10 @@ def test_repeatable_campaign_idempotency_replay_does_not_duplicate_cycles(
 
 def test_owner_creates_reward_templates_for_all_mvp_types(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
-    first_mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
-    first_campaign = create_campaign(
-        client, owner_token, business_id, mission_ids=[first_mission["id"]]
-    )
     gift = create_reward_template(
         client,
         owner_token,
         business_id,
-        first_campaign["id"],
         reward_type="gift",
         gift_name="Free coffee",
     )
@@ -1096,15 +1119,10 @@ def test_owner_creates_reward_templates_for_all_mvp_types(client: TestClient) ->
     assert gift["redeem_scope"] == "issuer_business_only"
     assert gift["settlement_policy"] == "issuer_pays"
 
-    second_mission = create_mission(client, owner_token, business_id, name="Buy Cake")
-    second_campaign = create_campaign(
-        client, owner_token, business_id, mission_ids=[second_mission["id"]]
-    )
     percentage = create_reward_template(
         client,
         owner_token,
         business_id,
-        second_campaign["id"],
         reward_type="percentage_discount",
         name="Ten Percent Off",
         gift_name=None,
@@ -1113,15 +1131,10 @@ def test_owner_creates_reward_templates_for_all_mvp_types(client: TestClient) ->
     assert percentage["reward_type"] == "percentage_discount"
     assert percentage["discount_percent"] == 10
 
-    third_mission = create_mission(client, owner_token, business_id, name="Visit")
-    third_campaign = create_campaign(
-        client, owner_token, business_id, mission_ids=[third_mission["id"]]
-    )
     fixed = create_reward_template(
         client,
         owner_token,
         business_id,
-        third_campaign["id"],
         reward_type="fixed_discount",
         name="Five Euro Off",
         gift_name=None,
@@ -1133,23 +1146,28 @@ def test_owner_creates_reward_templates_for_all_mvp_types(client: TestClient) ->
     assert fixed["currency_code"] == "EUR"
 
 
-def test_owner_cannot_create_reward_template_for_foreign_campaign(client: TestClient) -> None:
+def test_owner_cannot_create_campaign_with_foreign_reward_template(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com", "Owner Cafe")
     other_owner_token, other_business_id = register_owner(client, "other@example.com", "Other Cafe")
-    other_mission = create_mission(client, other_owner_token, other_business_id, name="Other Visit")
-    other_campaign = create_campaign(
-        client, other_owner_token, other_business_id, mission_ids=[other_mission["id"]]
+    owner_mission = create_mission(client, owner_token, business_id, name="Owner Visit")
+    other_template = create_reward_template(
+        client,
+        other_owner_token,
+        other_business_id,
+        name="Other Reward",
+        gift_name="Other Gift",
     )
 
     response = client.post(
-        "/api/v1/owner/reward-templates",
+        "/api/v1/owner/campaigns",
         json={
-            "business_id": business_id,
-            "campaign_id": other_campaign["id"],
-            "name": "Invalid Reward",
-            "reward_type": "gift",
-            "gift_name": "Nope",
-            "valid_days": 30,
+            "creator_business_id": business_id,
+            "reward_template_id": other_template["id"],
+            "name": "Invalid Campaign",
+            "threshold_points": 5,
+            "starts_at": (datetime.now(UTC) - timedelta(days=1)).isoformat(),
+            "ends_at": (datetime.now(UTC) + timedelta(days=30)).isoformat(),
+            "mission_ids": [owner_mission["id"]],
         },
         headers=auth(owner_token),
     )
@@ -1206,31 +1224,24 @@ def test_campaign_completion_generates_reward_when_template_exists(
     assert [item["id"] for item in rewards_response.json()] == [str(reward.id)]
 
 
-def test_campaign_completion_without_template_does_not_generate_reward(
-    client: TestClient, db_session: Session
-) -> None:
+def test_owner_cannot_create_campaign_without_reward_template(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
-    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
-    _, customer_id = register_customer(client)
     mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
-    create_campaign(
-        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=5
-    )
 
     response = client.post(
-        "/api/v1/staff/actions",
+        "/api/v1/owner/campaigns",
         json={
-            "business_id": business_id,
-            "customer_id": customer_id,
-            "idempotency_key": "completion-no-template",
-            "items": [{"mission_id": mission["id"], "quantity": 1}],
+            "creator_business_id": business_id,
+            "name": "Invalid Campaign",
+            "threshold_points": 5,
+            "starts_at": (datetime.now(UTC) - timedelta(days=1)).isoformat(),
+            "ends_at": (datetime.now(UTC) + timedelta(days=30)).isoformat(),
+            "mission_ids": [mission["id"]],
         },
-        headers=auth(staff_token),
+        headers=auth(owner_token),
     )
 
-    assert response.status_code == 201
-    assert db_session.query(CampaignCompletion).count() == 1
-    assert db_session.query(GeneratedReward).count() == 0
+    assert response.status_code == 422
 
 
 def test_idempotency_replay_does_not_duplicate_generated_reward(

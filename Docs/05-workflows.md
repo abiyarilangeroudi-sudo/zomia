@@ -67,13 +67,13 @@ Reward Use باعث کم شدن Point نمی‌شود. Points در Zomia progres
 
 ```text
 Campaign completion created
--> Load active reward template for campaign
+-> Load active reward template linked to campaign
 -> Create generated reward for customer
 -> Mark completion reward_generated_at
 -> Record audit event
 ```
 
-اگر Campaign هنوز Reward Template نداشته باشد، completion باقی می‌ماند و reward ساخته نمی‌شود.
+در MVP، Campaign هنگام ساخت باید Reward Template داشته باشد. بنابراین completion یک Campaign معتبر می‌تواند Reward بسازد.
 
 ## Future Group Campaign Workflow
 

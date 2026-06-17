@@ -16,14 +16,14 @@ Future<OwnerLoyaltyCreateAction?> showOwnerLoyaltyCreateActions(
         icon: Icons.task_alt_rounded,
       ),
       CreateActionSheetItem(
-        value: OwnerLoyaltyCreateAction.campaign,
-        title: 'Create Campaign',
-        icon: Icons.flag_rounded,
-      ),
-      CreateActionSheetItem(
         value: OwnerLoyaltyCreateAction.rewardTemplate,
         title: 'Create Reward Template',
         icon: Icons.card_giftcard_rounded,
+      ),
+      CreateActionSheetItem(
+        value: OwnerLoyaltyCreateAction.campaign,
+        title: 'Create Campaign',
+        icon: Icons.flag_rounded,
       ),
     ],
   );
