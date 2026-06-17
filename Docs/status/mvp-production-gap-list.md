@@ -125,6 +125,13 @@ Required:
 - Confirm idempotency coverage for action registration and reward use.
 - Confirm no raw QR token is stored in the database.
 
+F10.13 progress:
+
+- Data and audit posture is documented in `Docs/status/data-audit-review.md`.
+- Owner-visible recent activity is explicitly separated from internal audit events.
+- QR raw token storage is covered by a backend test; only `token_hash` is stored.
+- QR issue/rotate/resolve remain outside loyalty audit for MVP unless a later security audit decision changes that.
+
 ### 7. UI Consistency Pass
 
 UI/Branding recovery reduced chaos, but production MVP still needs a final consistency pass.

@@ -1,3 +1,4 @@
+import hashlib
 from datetime import UTC, datetime, timedelta
 
 from fastapi.testclient import TestClient
@@ -35,6 +36,18 @@ def test_customer_issues_and_rotates_qr_token(client: TestClient, db_session: Se
     assert len(tokens) == 2
     assert {token.status.value for token in tokens} == {"revoked", "active"}
     assert {str(token.customer_id) for token in tokens} == {customer_id}
+
+
+def test_customer_qr_raw_token_is_not_stored(client: TestClient, db_session: Session) -> None:
+    customer_token, _ = register_customer(client)
+
+    qr = issue_qr(client, customer_token)
+    stored_token = db_session.scalar(select(CustomerQrToken))
+
+    assert stored_token is not None
+    assert stored_token.token_hash != qr["token"]
+    assert len(stored_token.token_hash) == 64
+    assert stored_token.token_hash == hashlib.sha256(qr["token"].encode("utf-8")).hexdigest()
 
 
 def test_old_qr_token_stops_working_after_rotate(client: TestClient) -> None:

@@ -59,6 +59,7 @@ This document is the short checkpoint before the next feature phase.
 - Reward generation and reward usage still need a later `RewardService` extraction before Group Campaign or Cross-Network Campaign.
 - Before Group Campaign or Cross-Network Campaign, continue splitting `LoyaltyService` into smaller services without changing individual campaign behavior.
 - Owner recent activity is live for MVP; broader audit review remains separate from owner-facing activity.
+- Data and audit posture is documented in `Docs/status/data-audit-review.md`.
 - Phone remains out of Customer Registration and Customer Profile editing until a product decision makes it explicit.
 - Console Hygiene / Error UX now maps known backend details to clearer UI messages and hides unknown backend details behind generic user-facing fallbacks. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
