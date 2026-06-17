@@ -333,7 +333,7 @@ def test_owner_cannot_read_recent_activity_for_another_owner_business(
     assert response.status_code == 404
 
 
-def test_customer_reads_active_reward_status(client: TestClient) -> None:
+def test_customer_reads_reward_status_history(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
     customer_token, customer_id = register_customer(client)
@@ -366,7 +366,31 @@ def test_customer_reads_active_reward_status(client: TestClient) -> None:
     assert body["active_rewards_count"] == 1
     assert len(body["businesses"]) == 1
     assert body["businesses"][0]["business_id"] == business_id
-    assert body["businesses"][0]["rewards"][0]["status"] == "active"
+    reward = body["businesses"][0]["rewards"][0]
+    assert reward["status"] == "active"
+
+    use_response = client.post(
+        f"/api/v1/staff/rewards/{reward['id']}/use",
+        json={
+            "business_id": business_id,
+            "idempotency_key": "customer-status-use-reward",
+        },
+        headers=auth(staff_token),
+    )
+    assert use_response.status_code == 200
+
+    used_status_response = client.get(
+        "/api/v1/customers/me/status",
+        headers=auth(customer_token),
+    )
+
+    assert used_status_response.status_code == 200
+    used_body = used_status_response.json()
+    assert used_body["active_rewards_count"] == 0
+    assert len(used_body["businesses"]) == 1
+    assert used_body["businesses"][0]["business_id"] == business_id
+    assert used_body["businesses"][0]["rewards"][0]["id"] == reward["id"]
+    assert used_body["businesses"][0]["rewards"][0]["status"] == "used"
 
 
 def test_duplicate_idempotency_key_returns_previous_action_without_extra_points(

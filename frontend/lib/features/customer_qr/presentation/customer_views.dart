@@ -102,6 +102,9 @@ class CustomerCampaignView extends StatelessWidget {
         ),
       );
     }
+    final visibleProgresses = selectedTabIndex == 1
+        ? customerArchivedCampaignProgresses(campaignProgresses)
+        : customerActiveCampaignProgresses(campaignProgresses);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -115,16 +118,17 @@ class CustomerCampaignView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (selectedTabIndex == 1)
+              if (visibleProgresses.isEmpty)
                 const AppCard(
                   child: EmptyStateView(
                     icon: Icons.archive_outlined,
-                    title: 'No archived campaigns',
-                    message: 'Archived campaigns will appear here later.',
+                    title: 'No campaigns here',
+                    message:
+                        'Campaigns move between All and Archive by status.',
                   ),
                 )
               else
-                ...campaignProgresses.map(
+                ...visibleProgresses.map(
                   (progress) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: ProgressCard(
@@ -173,16 +177,7 @@ class CustomerRewardView extends StatelessWidget {
     if (statusError != null) {
       return InlineBanner(message: statusError!, tone: BannerTone.error);
     }
-    final rewards = _activeRewards();
-    if (rewards.isEmpty) {
-      return const AppCard(
-        child: EmptyStateView(
-          icon: Icons.card_giftcard_outlined,
-          title: 'No active rewards',
-          message: 'Rewards will appear after campaign completion.',
-        ),
-      );
-    }
+    final rewards = _visibleRewards();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -196,12 +191,12 @@ class CustomerRewardView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (selectedTabIndex == 1)
+              if (rewards.isEmpty)
                 const AppCard(
                   child: EmptyStateView(
                     icon: Icons.archive_outlined,
-                    title: 'No archived rewards',
-                    message: 'Archived rewards will appear here later.',
+                    title: 'No rewards here',
+                    message: 'Rewards move between All and Archive by status.',
                   ),
                 )
               else
@@ -213,6 +208,8 @@ class CustomerRewardView extends StatelessWidget {
                       businessName: entry.businessName,
                       subtitle: entry.reward.displayValue,
                       expiresLabel: customerRewardExpiresLabel(entry.reward),
+                      badgeLabel: customerRewardBadgeLabel(entry.reward),
+                      badgeTone: customerRewardBadgeTone(entry.reward),
                     ),
                   ),
                 ),
@@ -223,11 +220,12 @@ class CustomerRewardView extends StatelessWidget {
     );
   }
 
-  List<CustomerRewardEntry> _activeRewards() =>
-      customerActiveRewardEntries(status);
+  List<CustomerRewardEntry> _visibleRewards() => selectedTabIndex == 1
+      ? customerArchivedRewardEntries(status)
+      : customerActiveRewardEntries(status);
 }
 
-class CustomerProfileDialog extends StatelessWidget {
+class CustomerProfileDialog extends StatefulWidget {
   const CustomerProfileDialog({
     super.key,
     required this.user,
@@ -236,6 +234,27 @@ class CustomerProfileDialog extends StatelessWidget {
 
   final CurrentUser user;
   final Future<void> Function(String fullName) onUpdateName;
+
+  @override
+  State<CustomerProfileDialog> createState() => _CustomerProfileDialogState();
+}
+
+class _CustomerProfileDialogState extends State<CustomerProfileDialog> {
+  late String _displayName;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayName = widget.user.fullName;
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomerProfileDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.user.fullName != widget.user.fullName) {
+      _displayName = widget.user.fullName;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -252,23 +271,15 @@ class CustomerProfileDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AppListRow(
-                  title: user.fullName,
-                  subtitle: user.email,
+                  title: _displayName,
+                  subtitle: widget.user.email,
                   leadingIcon: Icons.person_rounded,
-                ),
-                const SizedBox(height: 16),
-                PrimaryButton(
-                  label: 'Edit Profile',
-                  icon: Icons.edit_rounded,
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      fullscreenDialog: true,
-                      builder: (context) => CustomerEditProfileDialog(
-                        user: user,
-                        onUpdateName: onUpdateName,
-                      ),
-                    ),
+                  trailing: IconButton(
+                    tooltip: 'Edit profile',
+                    icon: const Icon(Icons.edit_rounded),
+                    onPressed: _openEditProfile,
                   ),
+                  onTap: _openEditProfile,
                 ),
               ],
             ),
@@ -277,16 +288,35 @@ class CustomerProfileDialog extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _openEditProfile() async {
+    final updatedName = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        fullscreenDialog: true,
+        builder: (context) => CustomerEditProfileDialog(
+          user: widget.user,
+          currentName: _displayName,
+          onUpdateName: widget.onUpdateName,
+        ),
+      ),
+    );
+    if (!mounted || updatedName == null) {
+      return;
+    }
+    setState(() => _displayName = updatedName);
+  }
 }
 
 class CustomerEditProfileDialog extends StatefulWidget {
   const CustomerEditProfileDialog({
     super.key,
     required this.user,
+    required this.currentName,
     required this.onUpdateName,
   });
 
   final CurrentUser user;
+  final String currentName;
   final Future<void> Function(String fullName) onUpdateName;
 
   @override
@@ -303,15 +333,15 @@ class _CustomerEditProfileDialogState extends State<CustomerEditProfileDialog> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.user.fullName);
+    _nameController = TextEditingController(text: widget.currentName);
   }
 
   @override
   void didUpdateWidget(covariant CustomerEditProfileDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.user.fullName != widget.user.fullName &&
-        _nameController.text != widget.user.fullName) {
-      _nameController.text = widget.user.fullName;
+    if (oldWidget.currentName != widget.currentName &&
+        _nameController.text != widget.currentName) {
+      _nameController.text = widget.currentName;
     }
   }
 
@@ -326,7 +356,7 @@ class _CustomerEditProfileDialogState extends State<CustomerEditProfileDialog> {
     return Scaffold(
       appBar: const AppTopBar(
         title: 'Edit Profile',
-        variant: AppTopBarVariant.modal,
+        variant: AppTopBarVariant.service,
       ),
       body: SafeArea(
         child: DashboardScroll(
@@ -376,7 +406,7 @@ class _CustomerEditProfileDialogState extends State<CustomerEditProfileDialog> {
       });
       return;
     }
-    if (nextName == widget.user.fullName) {
+    if (nextName == widget.currentName) {
       setState(() {
         _error = null;
         _success = 'Profile is already up to date.';
@@ -394,10 +424,7 @@ class _CustomerEditProfileDialogState extends State<CustomerEditProfileDialog> {
       if (!mounted) {
         return;
       }
-      setState(() {
-        _isSaving = false;
-        _success = 'Profile updated.';
-      });
+      Navigator.of(context).pop(nextName);
     } catch (error) {
       if (!mounted) {
         return;

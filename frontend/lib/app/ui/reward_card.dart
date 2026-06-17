@@ -16,6 +16,8 @@ class RewardCard extends StatelessWidget {
     this.businessName,
     this.variant = RewardCardVariant.customer,
     this.isLoading = false,
+    this.badgeLabel = 'Active',
+    this.badgeTone = BadgeTone.info,
     this.onUse,
   });
 
@@ -25,6 +27,8 @@ class RewardCard extends StatelessWidget {
   final String? businessName;
   final RewardCardVariant variant;
   final bool isLoading;
+  final String badgeLabel;
+  final BadgeTone badgeTone;
   final VoidCallback? onUse;
 
   @override
@@ -61,7 +65,7 @@ class RewardCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const StatusBadge(label: 'Active', tone: BadgeTone.success),
+              StatusBadge(label: badgeLabel, tone: badgeTone),
             ],
           ),
           const SizedBox(height: 12),

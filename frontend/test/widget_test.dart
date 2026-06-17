@@ -376,7 +376,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.59 (60)'), findsOneWidget);
+    expect(find.text('Version 1.0.62 (63)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -427,7 +427,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.59 (60)'));
+    await tester.tap(find.text('Version 1.0.62 (63)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -593,13 +593,16 @@ void main() {
     expect(find.text('Archive'), findsWidgets);
     expect(find.text('Campaign Progress'), findsNothing);
     expect(find.text('Coffee Reward'), findsWidgets);
+    expect(find.text('Completed Coffee'), findsNothing);
     expect(find.text('2/10 pts · 8 pts to reward'), findsOneWidget);
     expect(find.text('2026-06-14 - 2026-09-14'), findsOneWidget);
 
     await tester.tap(find.text('Archive'));
     await pumpAppFrames(tester);
 
-    expect(find.text('No archived campaigns'), findsOneWidget);
+    expect(find.text('Coffee Reward'), findsNothing);
+    expect(find.text('Completed Coffee'), findsOneWidget);
+    expect(find.text('10/10 pts · Completed'), findsOneWidget);
 
     await tester.tap(find.text('Reward'));
     await pumpAppFrames(tester);
@@ -607,8 +610,17 @@ void main() {
     expect(find.text('Reward'), findsWidgets);
     expect(find.text('Active Rewards'), findsNothing);
     expect(find.text('Free Coffee'), findsWidgets);
+    expect(find.text('Used Coffee'), findsNothing);
     expect(find.text('Zomia Cafe'), findsOneWidget);
     expect(find.text('Free coffee'), findsOneWidget);
+    expect(find.text('Active'), findsWidgets);
+
+    await tester.tap(find.text('Archive'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Free Coffee'), findsNothing);
+    expect(find.text('Used Coffee'), findsOneWidget);
+    expect(find.text('Used'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Menu'));
     await pumpAppFrames(tester);
@@ -625,21 +637,22 @@ void main() {
 
     expect(find.text('Profile'), findsOneWidget);
     expect(find.text('Customer One'), findsWidgets);
-    expect(find.text('Edit Profile'), findsOneWidget);
+    expect(find.text('Edit Profile'), findsNothing);
+    expect(find.byTooltip('Edit profile'), findsOneWidget);
 
-    await tester.tap(find.text('Edit Profile'));
+    await tester.tap(find.byTooltip('Edit profile'));
     await pumpAppFrames(tester);
 
+    expect(find.byTooltip('Back'), findsOneWidget);
     await _enterTextByLabel(tester, 'Name', 'Customer Updated');
     await tester.tap(find.widgetWithText(FilledButton, 'Save profile'));
     await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
 
-    expect(find.text('Profile updated.'), findsOneWidget);
+    expect(find.text('Edit Profile'), findsNothing);
     expect(find.text('Customer Updated'), findsWidgets);
     expect(authRepository.updatedCustomerName, 'Customer Updated');
 
-    await tester.binding.handlePopRoute();
-    await pumpAppFrames(tester);
     await tester.binding.handlePopRoute();
     await pumpAppFrames(tester);
 
@@ -922,6 +935,19 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
               expiresAt: DateTime(2027),
               usedAt: null,
             ),
+            CustomerReward(
+              id: 'used-reward-id',
+              title: 'Used Coffee',
+              description: null,
+              rewardType: 'gift',
+              status: 'used',
+              giftName: 'Used coffee',
+              discountPercent: null,
+              discountAmountMinor: null,
+              currencyCode: null,
+              expiresAt: DateTime(2027),
+              usedAt: DateTime(2026, 1, 2),
+            ),
           ],
         ),
       ],
@@ -951,6 +977,27 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
         displayLabel: '2/10 pts · 8 pts to reward',
         badgeLabel: 'Active',
         badgeTone: 'info',
+      ),
+      CustomerCampaignProgress(
+        businessId: 'business-id',
+        businessName: 'Zomia Cafe',
+        campaignId: 'completed-campaign-id',
+        campaignName: 'Completed Coffee',
+        startsAt: DateTime.utc(2026, 6, 14),
+        endsAt: DateTime.utc(2026, 9, 14),
+        progressPoints: 10,
+        thresholdPoints: 10,
+        remainingPoints: 0,
+        isCompleted: true,
+        isRepeatable: false,
+        completedCycles: 1,
+        currentCycleNumber: 1,
+        maxCompletionsPerCustomer: null,
+        campaignTimeStatus: 'active',
+        progressState: 'completed',
+        displayLabel: '10/10 pts · Completed',
+        badgeLabel: 'Completed',
+        badgeTone: 'success',
       ),
     ];
   }

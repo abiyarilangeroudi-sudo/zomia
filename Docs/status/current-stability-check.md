@@ -78,6 +78,7 @@ This document is the short checkpoint before the next feature phase.
 - `Brand Palette` is approved: product UI must use `BrandColors` only, with no one-off colors outside the catalog.
 - `Typography` is approved: product UI text must use the theme text scale instead of one-off font styles.
 - Customer Dashboard cleanup must start from the catalog `ProgressCard` review before changing product screens.
+- Customer Setting is intentionally placeholder for now. Before production, it needs an `Account` section with `Change Password`, `Change Email`, and `Remove Account`.
 - Keep frontend text in English.
 - Bump `frontend/pubspec.yaml` and `frontend/lib/app/app_version.dart` on every Flutter change.
 - Keep screen files focused on orchestration; move reusable UI to feature widgets or shared UI components.

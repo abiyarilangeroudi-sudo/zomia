@@ -313,7 +313,7 @@ class LoyaltyService:
                 )
             ]
             active_rewards = [reward for reward in rewards if reward.status == RewardStatus.ACTIVE]
-            if not active_rewards:
+            if not rewards:
                 continue
 
             active_rewards_count += len(active_rewards)
@@ -321,7 +321,7 @@ class LoyaltyService:
                 CustomerBusinessStatusRead(
                     business_id=business.id,
                     business_name=business.name,
-                    rewards=active_rewards,
+                    rewards=rewards,
                 )
             )
 

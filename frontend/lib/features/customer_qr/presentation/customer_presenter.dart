@@ -9,6 +9,19 @@ class CustomerRewardEntry {
 }
 
 List<CustomerRewardEntry> customerActiveRewardEntries(CustomerStatus? status) {
+  return customerRewardEntriesByStatus(status, isActive: true);
+}
+
+List<CustomerRewardEntry> customerArchivedRewardEntries(
+  CustomerStatus? status,
+) {
+  return customerRewardEntriesByStatus(status, isActive: false);
+}
+
+List<CustomerRewardEntry> customerRewardEntriesByStatus(
+  CustomerStatus? status, {
+  required bool isActive,
+}) {
   if (status == null) {
     return const [];
   }
@@ -16,7 +29,7 @@ List<CustomerRewardEntry> customerActiveRewardEntries(CustomerStatus? status) {
   return [
     for (final business in status.businesses)
       for (final reward in business.rewards)
-        if (reward.status == 'active')
+        if ((reward.status == 'active') == isActive)
           CustomerRewardEntry(
             businessName: business.businessName,
             reward: reward,
@@ -24,12 +37,48 @@ List<CustomerRewardEntry> customerActiveRewardEntries(CustomerStatus? status) {
   ];
 }
 
-int customerActiveCampaignCount(
+String customerRewardBadgeLabel(CustomerReward reward) {
+  return switch (reward.status) {
+    'active' => 'Active',
+    'used' => 'Used',
+    'expired' => 'Expired',
+    _ => reward.status.replaceAll('_', ' '),
+  };
+}
+
+BadgeTone customerRewardBadgeTone(CustomerReward reward) {
+  return switch (reward.status) {
+    'active' => BadgeTone.info,
+    'used' => BadgeTone.neutral,
+    'expired' => BadgeTone.warning,
+    _ => BadgeTone.neutral,
+  };
+}
+
+bool customerIsActiveCampaignProgress(CustomerCampaignProgress progress) {
+  return progress.campaignTimeStatus == 'active' &&
+      progress.progressState == 'in_progress' &&
+      progress.badgeLabel == 'Active';
+}
+
+List<CustomerCampaignProgress> customerActiveCampaignProgresses(
+  List<CustomerCampaignProgress> campaignProgresses,
+) {
+  return campaignProgresses.where(customerIsActiveCampaignProgress).toList();
+}
+
+List<CustomerCampaignProgress> customerArchivedCampaignProgresses(
   List<CustomerCampaignProgress> campaignProgresses,
 ) {
   return campaignProgresses
-      .where((progress) => progress.campaignTimeStatus == 'active')
-      .length;
+      .where((progress) => !customerIsActiveCampaignProgress(progress))
+      .toList();
+}
+
+int customerActiveCampaignCount(
+  List<CustomerCampaignProgress> campaignProgresses,
+) {
+  return customerActiveCampaignProgresses(campaignProgresses).length;
 }
 
 BadgeTone customerBadgeTone(String value) {
