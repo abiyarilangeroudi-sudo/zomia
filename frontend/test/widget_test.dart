@@ -376,7 +376,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.67 (68)'), findsOneWidget);
+    expect(find.text('Version 1.0.68 (69)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -427,7 +427,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.67 (68)'));
+    await tester.tap(find.text('Version 1.0.68 (69)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -736,11 +736,21 @@ void main() {
     await tester.tap(find.text('Team'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Create Staff'), findsOneWidget);
+    expect(find.text('Create Staff'), findsNothing);
     expect(find.text('Setup Staff'), findsOneWidget);
     expect(find.text('setup-staff@example.com'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
     expect(find.byTooltip('Deactivate staff'), findsOneWidget);
+    expect(find.byTooltip('Create staff'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Create staff'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Create Staff'), findsWidgets);
+    expect(find.text('Staff email'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close').last);
+    await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
       find.byTooltip('Deactivate staff'),

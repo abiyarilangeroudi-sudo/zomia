@@ -5,24 +5,16 @@ import '../domain/owner_setup_models.dart';
 import 'owner_presenter.dart';
 import 'owner_setup_shared_widgets.dart';
 
-class OwnerStaffSetupCard extends StatelessWidget {
-  const OwnerStaffSetupCard({
+class OwnerStaffListCard extends StatelessWidget {
+  const OwnerStaffListCard({
     super.key,
-    required this.emailController,
-    required this.fullNameController,
-    required this.passwordController,
     required this.staffMembers,
     required this.isSaving,
-    required this.onCreate,
     required this.onSetStaffActive,
   });
 
-  final TextEditingController emailController;
-  final TextEditingController fullNameController;
-  final TextEditingController passwordController;
   final List<OwnerStaffMember> staffMembers;
   final bool isSaving;
-  final VoidCallback onCreate;
   final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
   onSetStaffActive;
 
@@ -30,40 +22,88 @@ class OwnerStaffSetupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return OwnerSetupCard(
       title: 'Staff',
-      subtitle: 'Create staff access for the selected business.',
       children: [
-        AppTextField(
-          controller: emailController,
-          label: 'Staff email',
-          hint: 'staff@example.com',
-          keyboardType: TextInputType.emailAddress,
-        ),
-        const SizedBox(height: 12),
-        AppTextField(
-          controller: fullNameController,
-          label: 'Staff name',
-          hint: 'Staff One',
-        ),
-        const SizedBox(height: 12),
-        AppTextField(
-          controller: passwordController,
-          label: 'Temporary password',
-          obscureText: true,
-        ),
-        const SizedBox(height: 12),
-        PrimaryButton(
-          label: 'Create Staff',
-          icon: Icons.person_add_alt_1_rounded,
-          onPressed: isSaving ? null : onCreate,
-          isLoading: isSaving,
-        ),
-        const SizedBox(height: 12),
         OwnerStaffList(
           staffMembers: staffMembers,
           isSaving: isSaving,
           onSetStaffActive: onSetStaffActive,
         ),
       ],
+    );
+  }
+}
+
+class OwnerCreateStaffDialog extends StatelessWidget {
+  const OwnerCreateStaffDialog({
+    super.key,
+    required this.emailController,
+    required this.fullNameController,
+    required this.passwordController,
+    this.errorMessage,
+    required this.isSaving,
+    required this.onCreate,
+  });
+
+  final TextEditingController emailController;
+  final TextEditingController fullNameController;
+  final TextEditingController passwordController;
+  final String? errorMessage;
+  final bool isSaving;
+  final Future<bool> Function() onCreate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const AppTopBar(
+        title: 'Create Staff',
+        variant: AppTopBarVariant.modal,
+      ),
+      body: SafeArea(
+        child: DashboardScroll(
+          maxWidth: 640,
+          child: OwnerSetupCard(
+            title: 'Staff',
+            children: [
+              if (errorMessage != null) ...[
+                InlineBanner(message: errorMessage!, tone: BannerTone.error),
+                const SizedBox(height: 12),
+              ],
+              AppTextField(
+                controller: emailController,
+                label: 'Staff email',
+                hint: 'staff@example.com',
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: fullNameController,
+                label: 'Staff name',
+                hint: 'Staff One',
+              ),
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: passwordController,
+                label: 'Temporary password',
+                obscureText: true,
+              ),
+              const SizedBox(height: 16),
+              PrimaryButton(
+                label: 'Create Staff',
+                icon: Icons.person_add_alt_1_rounded,
+                isLoading: isSaving,
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final saved = await onCreate();
+                        if (saved && context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

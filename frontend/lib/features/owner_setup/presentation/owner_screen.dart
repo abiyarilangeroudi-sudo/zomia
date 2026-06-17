@@ -99,6 +99,11 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                   onPressed: () =>
                       openOwnerLoyaltyCreateDialog(context, _controller),
                 )
+              : _selectedIndex == 2 && !_controller.isLoading
+              ? FloatingCreateButton(
+                  tooltip: 'Create staff',
+                  onPressed: _openCreateStaffDialog,
+                )
               : null,
         );
       },
@@ -212,13 +217,9 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             ),
           )
         else
-          OwnerStaffSetupCard(
-            emailController: _controller.staffEmailController,
-            fullNameController: _controller.staffNameController,
-            passwordController: _controller.staffPasswordController,
+          OwnerStaffListCard(
             staffMembers: _controller.staffForSelectedBusiness,
             isSaving: _controller.isSaving,
-            onCreate: _controller.createStaff,
             onSetStaffActive: _controller.setStaffActive,
           ),
       ],
@@ -235,6 +236,25 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
         fullscreenDialog: true,
         builder: (context) =>
             OwnerRecentActionsDialog(businessId: selectedBusiness.id),
+      ),
+    );
+  }
+
+  void _openCreateStaffDialog() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => OwnerCreateStaffDialog(
+            emailController: _controller.staffEmailController,
+            fullNameController: _controller.staffNameController,
+            passwordController: _controller.staffPasswordController,
+            errorMessage: _controller.error,
+            isSaving: _controller.isSaving,
+            onCreate: _controller.createStaff,
+          ),
+        ),
       ),
     );
   }
