@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import HTTPException, status
 
 from app.modules.identity.models import User, UserRole
+from app.modules.loyalty.models import LoyaltyAction, LoyaltyActionType
 from app.modules.loyalty.schemas import RegisterActionRequest, UseRewardRequest
 from app.modules.loyalty.service import LoyaltyService
 from app.modules.qr.models import CustomerQrToken, CustomerQrTokenStatus
@@ -67,6 +68,27 @@ class QrService:
         missions = self.loyalty_service.list_staff_missions(staff, business_id)
         return [StaffServiceMissionRead.model_validate(mission) for mission in missions]
 
+    def list_staff_recent_actions(
+        self, staff: User, business_id: uuid.UUID, limit: int = 20
+    ) -> list[StaffRecentActionRead]:
+        self._require_active_staff_membership(staff=staff, business_id=business_id)
+        return [
+            StaffRecentActionRead(
+                id=action.id,
+                action_type=action.action_type.value,
+                customer_name=customer.full_name,
+                points_granted=sum(entry.points for entry in action.points_entries),
+                summary=self._activity_summary(action),
+                occurred_at=action.occurred_at,
+                created_at=action.created_at,
+            )
+            for action, customer in self.repository.list_recent_actions_for_staff(
+                business_id=business_id,
+                staff_id=staff.id,
+                limit=limit,
+            )
+        ]
+
     def register_action_by_qr(
         self, staff: User, payload: RegisterActionByQrRequest
     ) -> RegisterActionByQrResponse:
@@ -124,15 +146,7 @@ class QrService:
     def _resolve_customer_from_token(
         self, *, staff: User, business_id: uuid.UUID, raw_token: str
     ) -> User:
-        self._require_role(staff, UserRole.STAFF)
-        if (
-            self.repository.get_staff_membership(business_id=business_id, staff_user_id=staff.id)
-            is None
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Staff does not belong to this business",
-            )
+        self._require_active_staff_membership(staff=staff, business_id=business_id)
 
         token = self.repository.get_token_by_hash(self._hash_token(raw_token))
         if token is None:
@@ -156,6 +170,17 @@ class QrService:
         self.repository.mark_token_used(token, now)
         return customer
 
+    def _require_active_staff_membership(self, *, staff: User, business_id: uuid.UUID) -> None:
+        self._require_role(staff, UserRole.STAFF)
+        if (
+            self.repository.get_staff_membership(business_id=business_id, staff_user_id=staff.id)
+            is None
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Staff does not belong to this business",
+            )
+
     def _service_summary(self, *, business_id: uuid.UUID, customer: User) -> StaffServiceSummary:
         points = self.loyalty_service.get_customer_points(customer, business_id).points
         rewards = [
@@ -167,6 +192,9 @@ class QrService:
             StaffRecentActionRead(
                 id=action.id,
                 action_type=action.action_type.value,
+                customer_name=customer.full_name,
+                points_granted=sum(entry.points for entry in action.points_entries),
+                summary=self._activity_summary(action),
                 occurred_at=action.occurred_at,
                 created_at=action.created_at,
             )
@@ -200,3 +228,15 @@ class QrService:
     def _require_role(user: User, role: UserRole) -> None:
         if user.role != role:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient role")
+
+    @staticmethod
+    def _activity_summary(action: LoyaltyAction) -> str:
+        if action.action_type == LoyaltyActionType.REWARD_USE:
+            return "Reward used"
+        if action.action_type == LoyaltyActionType.MISSION_PROGRESS:
+            items = []
+            for item in action.items:
+                mission_name = item.mission.name if item.mission is not None else "Mission"
+                items.append(f"{mission_name} x{item.quantity}")
+            return ", ".join(items) if items else "Mission progress"
+        return action.action_type.value.replace("_", " ").title()

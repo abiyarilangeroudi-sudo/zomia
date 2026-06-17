@@ -214,6 +214,52 @@ def test_staff_registers_action_using_qr_and_gets_updated_summary(
     assert db_session.query(GeneratedReward).count() == 1
 
 
+def test_staff_lists_own_recent_service_actions(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    other_staff_token, _ = create_staff(
+        client, owner_token, business_id, "other-staff@example.com"
+    )
+    customer_token, _ = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    qr = issue_qr(client, customer_token)
+    first = client.post(
+        "/api/v1/staff/service/actions",
+        json={
+            "business_id": business_id,
+            "qr_token": qr["token"],
+            "idempotency_key": "qr-staff-recent-own",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    other = client.post(
+        "/api/v1/staff/service/actions",
+        json={
+            "business_id": business_id,
+            "qr_token": qr["token"],
+            "idempotency_key": "qr-staff-recent-other",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(other_staff_token),
+    )
+    assert first.status_code == 200
+    assert other.status_code == 200
+
+    response = client.get(
+        f"/api/v1/staff/service/recent-actions?business_id={business_id}",
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert [action["id"] for action in body] == [first.json()["action"]["action_id"]]
+    assert body[0]["action_type"] == "mission_progress"
+    assert body[0]["customer_name"] == "Customer"
+    assert body[0]["points_granted"] == 5
+    assert body[0]["summary"] == "Visit x1"
+
+
 def test_staff_uses_reward_using_qr_service_endpoint(
     client: TestClient, db_session: Session
 ) -> None:

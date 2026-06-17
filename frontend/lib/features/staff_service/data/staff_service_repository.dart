@@ -48,6 +48,24 @@ class StaffServiceRepository {
     }
   }
 
+  Future<List<StaffRecentAction>> listRecentActions({
+    required String businessId,
+  }) async {
+    try {
+      final response = await _dio.get<List<dynamic>>(
+        '/staff/service/recent-actions',
+        queryParameters: {'business_id': businessId},
+      );
+      return (response.data ?? [])
+          .map(
+            (item) => StaffRecentAction.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<RegisterActionResult> registerAction({
     required String businessId,
     required String qrToken,

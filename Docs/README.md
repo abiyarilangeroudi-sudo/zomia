@@ -24,6 +24,7 @@ Customer QR
 - [Workflowها](./05-workflows.md)
 - [Roadmap](./06-roadmap.md)
 - [Local Development](./07-local-development.md)
+- [API Endpoint Inventory](./api/api-endpoint-inventory.md)
 - [Current Stability Check](./status/current-stability-check.md)
 - [MVP Production Gap List](./status/mvp-production-gap-list.md)
 - [Auth Recovery and Email Verification Contract](./status/auth-recovery-verification-contract.md)

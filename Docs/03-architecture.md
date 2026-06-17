@@ -166,3 +166,6 @@ Audit باید append-only باشد.
 - Repository دسترسی دیتابیس را جدا کند.
 - OpenAPI بعد از هر Sprint باید قابل استفاده باشد.
 - هر endpoint دارای role protection باید تست داشته باشد.
+- قبل از ساخت endpoint جدید، [API Endpoint Inventory](./api/api-endpoint-inventory.md) و OpenAPI بررسی شود.
+- اگر endpoint موجود همان role، permission boundary و product meaning را پوشش می‌دهد، endpoint جدید ساخته نشود.
+- endpointهای بدون مصرف باید در inventory با وضعیت `deprecated` یا `candidate for removal` مشخص شوند.

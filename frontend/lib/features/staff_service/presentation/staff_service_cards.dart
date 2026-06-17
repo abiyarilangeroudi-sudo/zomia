@@ -10,10 +10,16 @@ class StaffCustomerSummaryCard extends StatelessWidget {
     super.key,
     required this.summary,
     required this.isLoading,
+    required this.isConfirmed,
+    required this.onConfirm,
+    required this.onReject,
   });
 
   final StaffServiceSummary? summary;
   final bool isLoading;
+  final bool isConfirmed;
+  final VoidCallback onConfirm;
+  final VoidCallback onReject;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +38,9 @@ class StaffCustomerSummaryCard extends StatelessWidget {
               children: [
                 SectionHeader(
                   title: summary.customer.fullName,
-                  trailing: const StatusBadge(
-                    label: 'Loaded',
-                    tone: BadgeTone.success,
+                  trailing: StatusBadge(
+                    label: isConfirmed ? 'Confirmed' : 'Confirm customer',
+                    tone: isConfirmed ? BadgeTone.success : BadgeTone.info,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -59,6 +65,28 @@ class StaffCustomerSummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (!isConfirmed) ...[
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SecondaryButton(
+                          label: 'Reject',
+                          icon: Icons.close_rounded,
+                          onPressed: onReject,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: PrimaryButton(
+                          label: 'Confirm customer',
+                          icon: Icons.check_rounded,
+                          onPressed: onConfirm,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
     );
@@ -189,9 +217,18 @@ class StaffRewardsCard extends StatelessWidget {
 }
 
 class StaffRecentActionsCard extends StatelessWidget {
-  const StaffRecentActionsCard({super.key, required this.actions});
+  const StaffRecentActionsCard({
+    super.key,
+    required this.actions,
+    this.isLoading = false,
+    this.errorMessage,
+    this.onRetry,
+  });
 
   final List<StaffRecentAction> actions;
+  final bool isLoading;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -199,22 +236,44 @@ class StaffRecentActionsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionHeader(title: 'Recent Actions'),
+          const SectionHeader(title: 'Staff recent actions'),
           const SizedBox(height: 12),
-          if (actions.isEmpty)
+          if (isLoading)
+            const LoadingState(label: 'Loading staff actions')
+          else if (errorMessage != null) ...[
+            InlineBanner(message: errorMessage!, tone: BannerTone.error),
+            if (onRetry != null) ...[
+              const SizedBox(height: 12),
+              SecondaryButton(
+                label: 'Retry',
+                icon: Icons.refresh_rounded,
+                onPressed: onRetry,
+              ),
+            ],
+          ] else if (actions.isEmpty)
             const EmptyStateView(
               icon: Icons.history_rounded,
-              title: 'No recent actions',
-              message: 'Customer activity will appear after service starts.',
+              title: 'No staff actions yet',
+              message:
+                  'Staff activity will appear after actions are registered.',
             )
           else
             ...actions.map(
               (action) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: AppListRow(
-                  title: formatStaffActionType(action.actionType),
-                  subtitle: formatStaffDateTime(action.occurredAt),
-                  leadingIcon: Icons.receipt_long_rounded,
+                  title: action.summary,
+                  subtitle:
+                      '${action.customerName} · ${formatStaffDateTime(action.occurredAt)}',
+                  leadingIcon: Icons.history_rounded,
+                  trailing: StatusBadge(
+                    label: action.pointsGranted > 0
+                        ? '+${action.pointsGranted} pts'
+                        : formatStaffActionType(action.actionType),
+                    tone: action.pointsGranted > 0
+                        ? BadgeTone.success
+                        : BadgeTone.neutral,
+                  ),
                 ),
               ),
             ),

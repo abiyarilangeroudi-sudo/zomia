@@ -2,10 +2,15 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload
 
 from app.modules.identity.models import StaffMember, User, UserRole
-from app.modules.loyalty.models import GeneratedReward, LoyaltyAction, RewardStatus
+from app.modules.loyalty.models import (
+    GeneratedReward,
+    LoyaltyAction,
+    LoyaltyActionItem,
+    RewardStatus,
+)
 from app.modules.qr.models import CustomerQrToken, CustomerQrTokenStatus
 
 
@@ -98,6 +103,26 @@ class QrRepository:
                 .limit(limit)
             )
         )
+
+    def list_recent_actions_for_staff(
+        self, *, business_id: uuid.UUID, staff_id: uuid.UUID, limit: int = 20
+    ) -> list[tuple[LoyaltyAction, User]]:
+        customer_user = aliased(User)
+        rows = self.db.execute(
+            select(LoyaltyAction, customer_user)
+            .join(customer_user, customer_user.id == LoyaltyAction.customer_id)
+            .where(
+                LoyaltyAction.business_id == business_id,
+                LoyaltyAction.staff_id == staff_id,
+            )
+            .options(
+                selectinload(LoyaltyAction.items).selectinload(LoyaltyActionItem.mission),
+                selectinload(LoyaltyAction.points_entries),
+            )
+            .order_by(LoyaltyAction.created_at.desc())
+            .limit(limit)
+        )
+        return [(action, customer) for action, customer in rows.all()]
 
     @staticmethod
     def is_customer(user: User) -> bool:

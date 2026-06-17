@@ -18,21 +18,11 @@ String actionRegisteredMessage({
   required RegisterActionResult result,
   required Set<String> activeRewardIdsBefore,
 }) {
-  final newRewards = result.summary.activeRewards
-      .where((reward) => !activeRewardIdsBefore.contains(reward.id))
-      .length;
-  final pointsText = result.pointsGranted == 1 ? 'point' : 'points';
-
-  if (newRewards > 0) {
-    final rewardText = newRewards == 1 ? 'reward' : 'rewards';
-    return 'Action registered. ${result.pointsGranted} $pointsText added. $newRewards new $rewardText issued.';
-  }
-
-  return 'Action registered. ${result.pointsGranted} $pointsText added. No new reward was issued for this action.';
+  return 'Action registered.';
 }
 
 String rewardUsedMessage(GeneratedReward reward) {
-  return '${reward.title} marked as used.';
+  return 'Reward used.';
 }
 
 String rewardExpiresLabel(GeneratedReward reward) {

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../staff_service/data/staff_service_repository.dart';
 import '../../staff_service/domain/staff_service_models.dart';
 import '../../staff_service/presentation/staff_panel.dart';
 import '../../staff_service/presentation/staff_service_cards.dart';
@@ -26,6 +28,8 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
   final _servicePanelKey = GlobalKey<StaffPanelState>();
   List<StaffRecentAction> _recentActions = const [];
   int _selectedIndex = 0;
+  bool _isLoadingRecentActions = true;
+  String? _recentActionsError;
 
   static const _tabs = [
     NavItem(
@@ -46,10 +50,27 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadRecentActions());
+  }
+
+  @override
+  void didUpdateWidget(covariant StaffHomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.business.id != widget.business.id) {
+      _recentActions = const [];
+      _loadRecentActions();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppTopBar(
-        title: 'Staff Dashboard',
+        title: _selectedIndex == 0
+            ? 'Staff Dashboard'
+            : _tabs[_selectedIndex].label,
         variant: AppTopBarVariant.business,
         onMenu: () {},
         actions: [
@@ -76,13 +97,18 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                   StaffPanel(
                     key: _servicePanelKey,
                     business: widget.business,
-                    onSummaryChanged: _handleSummaryChanged,
+                    onServiceActivityChanged: _loadRecentActions,
                   ),
                 ],
               ),
             ),
             DashboardScroll(
-              child: StaffRecentActionsCard(actions: _recentActions),
+              child: StaffRecentActionsCard(
+                actions: _recentActions,
+                isLoading: _isLoadingRecentActions,
+                errorMessage: _recentActionsError,
+                onRetry: _loadRecentActions,
+              ),
             ),
             DashboardScroll(
               child: _StaffProfileCard(
@@ -98,13 +124,44 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
       bottomNavigationBar: BottomNavBar(
         items: _tabs,
         selectedIndex: _selectedIndex,
-        onChanged: (index) => setState(() => _selectedIndex = index),
+        onChanged: (index) {
+          setState(() => _selectedIndex = index);
+          if (index == 1) {
+            _loadRecentActions();
+          }
+        },
       ),
     );
   }
 
-  void _handleSummaryChanged(StaffServiceSummary? summary) {
-    setState(() => _recentActions = summary?.recentActions ?? const []);
+  Future<void> _loadRecentActions() async {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isLoadingRecentActions = true;
+      _recentActionsError = null;
+    });
+    try {
+      final actions = await ref
+          .read(staffServiceRepositoryProvider)
+          .listRecentActions(businessId: widget.business.id);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _recentActions = actions;
+        _isLoadingRecentActions = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _recentActionsError = error.toString();
+        _isLoadingRecentActions = false;
+      });
+    }
   }
 }
 
@@ -163,10 +220,7 @@ class _StaffProfileCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionHeader(
-            title: 'Profile',
-            subtitle: 'Staff context for the current service session.',
-          ),
+          const SectionHeader(title: 'Profile'),
           const SizedBox(height: 12),
           AppListRow(
             title: staff.fullName,
@@ -180,10 +234,17 @@ class _StaffProfileCard extends StatelessWidget {
             leadingIcon: Icons.storefront_rounded,
           ),
           const SizedBox(height: 16),
-          SecondaryButton(
-            label: 'Sign out',
-            icon: Icons.logout_rounded,
-            onPressed: onSignOut,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: onSignOut,
+              icon: const Icon(Icons.logout_rounded, size: 18),
+              label: const Text('Sign out'),
+              style: TextButton.styleFrom(
+                foregroundColor: BrandColors.textSecondary,
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+            ),
           ),
         ],
       ),

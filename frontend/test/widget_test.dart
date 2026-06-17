@@ -150,7 +150,7 @@ void main() {
     );
   });
 
-  test('staff presenter describes newly issued rewards', () {
+  test('staff presenter describes registered actions', () {
     final result = RegisterActionResult(
       pointsGranted: 1,
       idempotencyReplayed: false,
@@ -183,7 +183,7 @@ void main() {
 
     expect(
       actionRegisteredMessage(result: result, activeRewardIdsBefore: const {}),
-      'Action registered. 1 point added. 1 new reward issued.',
+      'Action registered.',
     );
   });
 
@@ -376,7 +376,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.62 (63)'), findsOneWidget);
+    expect(find.text('Version 1.0.65 (66)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -427,7 +427,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.62 (63)'));
+    await tester.tap(find.text('Version 1.0.65 (66)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -513,20 +513,23 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
-    expect(find.text('Staff Dashboard'), findsOneWidget);
+    expect(find.text('Home'), findsWidgets);
     expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
     expect(find.byTooltip('Scan customer QR'), findsOneWidget);
     expect(find.text('Customer QR'), findsNothing);
     expect(find.text('Scan with Camera'), findsNothing);
     expect(find.text('No customer loaded'), findsOneWidget);
-    expect(find.text('Buy Coffee'), findsOneWidget);
+    expect(find.text('Buy Coffee'), findsNothing);
+    expect(find.text('Active Rewards'), findsNothing);
+    expect(find.text('Register Action'), findsNothing);
 
     await tester.tap(find.text('Recent Actions'));
     await pumpAppFrames(tester);
 
     expect(find.text('Recent Actions'), findsWidgets);
-    expect(find.text('No recent actions'), findsOneWidget);
+    expect(find.text('Staff recent actions'), findsOneWidget);
+    expect(find.text('No staff actions yet'), findsOneWidget);
 
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);
@@ -793,6 +796,9 @@ void main() {
         home: Scaffold(
           body: StaffCustomerSummaryCard(
             isLoading: false,
+            isConfirmed: false,
+            onConfirm: _noop,
+            onReject: _noop,
             summary: StaffServiceSummary(
               businessId: 'business-id',
               customer: StaffServiceCustomer(
@@ -813,8 +819,12 @@ void main() {
 
     expect(find.text('Customer One'), findsOneWidget);
     expect(find.text('customer@example.com'), findsNothing);
+    expect(find.text('Confirm customer'), findsWidgets);
+    expect(find.text('Reject'), findsOneWidget);
   });
 }
+
+void _noop() {}
 
 Future<void> _enterTextByLabel(
   WidgetTester tester,
@@ -872,6 +882,13 @@ class _FakeStaffServiceRepository extends StaffServiceRepository {
         isActive: true,
       ),
     ];
+  }
+
+  @override
+  Future<List<StaffRecentAction>> listRecentActions({
+    required String businessId,
+  }) async {
+    return const [];
   }
 }
 

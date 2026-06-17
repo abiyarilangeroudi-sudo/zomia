@@ -108,6 +108,9 @@ class StaffRecentAction {
   const StaffRecentAction({
     required this.id,
     required this.actionType,
+    required this.customerName,
+    required this.pointsGranted,
+    required this.summary,
     required this.occurredAt,
     required this.createdAt,
   });
@@ -116,6 +119,11 @@ class StaffRecentAction {
     return StaffRecentAction(
       id: json['id'] as String,
       actionType: json['action_type'] as String,
+      customerName: json['customer_name'] as String? ?? 'Customer',
+      pointsGranted: json['points_granted'] as int? ?? 0,
+      summary:
+          json['summary'] as String? ??
+          (json['action_type'] as String).replaceAll('_', ' '),
       occurredAt: DateTime.parse(json['occurred_at'] as String),
       createdAt: DateTime.parse(json['created_at'] as String),
     );
@@ -123,6 +131,9 @@ class StaffRecentAction {
 
   final String id;
   final String actionType;
+  final String customerName;
+  final int pointsGranted;
+  final String summary;
   final DateTime occurredAt;
   final DateTime createdAt;
 }

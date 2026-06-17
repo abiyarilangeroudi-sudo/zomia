@@ -11,10 +11,14 @@ import 'staff_service_cards.dart';
 import 'staff_service_presenter.dart';
 
 class StaffPanel extends ConsumerStatefulWidget {
-  const StaffPanel({super.key, required this.business, this.onSummaryChanged});
+  const StaffPanel({
+    super.key,
+    required this.business,
+    this.onServiceActivityChanged,
+  });
 
   final StaffBusiness business;
-  final ValueChanged<StaffServiceSummary?>? onSummaryChanged;
+  final VoidCallback? onServiceActivityChanged;
 
   @override
   ConsumerState<StaffPanel> createState() => StaffPanelState();
@@ -31,6 +35,7 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
   bool _isLoadingMissions = true;
   bool _isResolving = false;
   bool _isSubmittingAction = false;
+  bool _isCustomerConfirmed = false;
   String? _rewardInUseId;
 
   @override
@@ -44,7 +49,7 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.business.id != widget.business.id) {
       _summary = null;
-      widget.onSummaryChanged?.call(null);
+      _isCustomerConfirmed = false;
       _quantities.clear();
       _qrTokenController.clear();
       _loadMissions();
@@ -69,28 +74,38 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         if (_success != null)
           InlineBanner(message: _success!, tone: BannerTone.success),
         if (_error != null || _success != null) const SizedBox(height: 16),
-        StaffCustomerSummaryCard(summary: _summary, isLoading: _isResolving),
-        const SizedBox(height: 16),
-        StaffRewardsCard(
-          rewards: _summary?.activeRewards ?? const [],
-          rewardInUseId: _rewardInUseId,
-          onUseReward: _useReward,
+        StaffCustomerSummaryCard(
+          summary: _summary,
+          isLoading: _isResolving,
+          isConfirmed: _isCustomerConfirmed,
+          onConfirm: _confirmCustomer,
+          onReject: _rejectCustomer,
         ),
-        const SizedBox(height: 16),
-        StaffMissionCard(
-          missions: _missions,
-          quantities: _quantities,
-          isLoading: _isLoadingMissions,
-          isEnabled: _summary != null && !_isSubmittingAction,
-          selectedPoints: selectedActionPoints(
+        if (_isCustomerConfirmed) ...[
+          if ((_summary?.activeRewards ?? const []).isNotEmpty) ...[
+            const SizedBox(height: 16),
+            StaffRewardsCard(
+              rewards: _summary?.activeRewards ?? const [],
+              rewardInUseId: _rewardInUseId,
+              onUseReward: _useReward,
+            ),
+          ],
+          const SizedBox(height: 16),
+          StaffMissionCard(
             missions: _missions,
             quantities: _quantities,
+            isLoading: _isLoadingMissions,
+            isEnabled: _summary != null && !_isSubmittingAction,
+            selectedPoints: selectedActionPoints(
+              missions: _missions,
+              quantities: _quantities,
+            ),
+            onIncrement: _incrementMission,
+            onDecrement: _decrementMission,
+            onSubmit: selectedItems.isEmpty ? null : _submitAction,
+            isSubmitting: _isSubmittingAction,
           ),
-          onIncrement: _incrementMission,
-          onDecrement: _decrementMission,
-          onSubmit: selectedItems.isEmpty ? null : _submitAction,
-          isSubmitting: _isSubmittingAction,
-        ),
+        ],
       ],
     );
   }
@@ -149,11 +164,11 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
       setState(() {
         _qrTokenController.text = token;
         _summary = summary;
+        _isCustomerConfirmed = false;
         _quantities.clear();
         _isResolving = false;
         _success = 'Customer loaded.';
       });
-      widget.onSummaryChanged?.call(summary);
     } catch (error) {
       if (!mounted) {
         return;
@@ -210,15 +225,14 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         return;
       }
       setState(() {
-        _summary = result.summary;
-        _quantities.clear();
+        _clearCustomerContext();
         _isSubmittingAction = false;
         _success = actionRegisteredMessage(
           result: result,
           activeRewardIdsBefore: activeRewardIdsBefore,
         );
       });
-      widget.onSummaryChanged?.call(result.summary);
+      widget.onServiceActivityChanged?.call();
     } catch (error) {
       if (!mounted) {
         return;
@@ -247,7 +261,7 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
       _success = null;
     });
     try {
-      final result = await ref
+      await ref
           .read(staffServiceRepositoryProvider)
           .useReward(
             businessId: widget.business.id,
@@ -259,11 +273,11 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         return;
       }
       setState(() {
-        _summary = result.summary;
+        _clearCustomerContext();
         _rewardInUseId = null;
         _success = rewardUsedMessage(reward);
       });
-      widget.onSummaryChanged?.call(result.summary);
+      widget.onServiceActivityChanged?.call();
     } catch (error) {
       if (!mounted) {
         return;
@@ -290,6 +304,32 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         _quantities[mission.id] = next;
       }
     });
+  }
+
+  void _confirmCustomer() {
+    if (_summary == null) {
+      return;
+    }
+    setState(() {
+      _isCustomerConfirmed = true;
+      _success = null;
+      _error = null;
+    });
+  }
+
+  void _rejectCustomer() {
+    setState(() {
+      _clearCustomerContext();
+      _success = null;
+      _error = null;
+    });
+  }
+
+  void _clearCustomerContext() {
+    _summary = null;
+    _isCustomerConfirmed = false;
+    _quantities.clear();
+    _qrTokenController.clear();
   }
 
   List<StaffServiceActionItem> _selectedItems() {

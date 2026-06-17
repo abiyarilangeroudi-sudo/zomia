@@ -12,6 +12,7 @@ from app.modules.qr.schemas import (
     RegisterActionByQrRequest,
     RegisterActionByQrResponse,
     ResolveQrRequest,
+    StaffRecentActionRead,
     StaffServiceMissionRead,
     StaffServiceSummary,
     UseRewardByQrRequest,
@@ -63,6 +64,16 @@ def list_service_missions(
     service: QrService = Depends(get_qr_service),
 ) -> list[StaffServiceMissionRead]:
     return service.list_service_missions(current_user, business_id)
+
+
+@router.get("/staff/service/recent-actions", response_model=list[StaffRecentActionRead])
+def list_staff_recent_actions(
+    business_id: uuid.UUID,
+    limit: int = 20,
+    current_user: User = Depends(get_current_user),
+    service: QrService = Depends(get_qr_service),
+) -> list[StaffRecentActionRead]:
+    return service.list_staff_recent_actions(current_user, business_id, limit=limit)
 
 
 @router.post("/staff/service/actions", response_model=RegisterActionByQrResponse)

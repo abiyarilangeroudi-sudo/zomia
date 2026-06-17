@@ -27,6 +27,9 @@ class ResolveQrRequest(BaseModel):
 class StaffRecentActionRead(BaseModel):
     id: uuid.UUID
     action_type: str
+    customer_name: str
+    points_granted: int
+    summary: str
     occurred_at: datetime
     created_at: datetime
 
