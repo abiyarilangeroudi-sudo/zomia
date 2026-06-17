@@ -100,26 +100,55 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                 label: 'Campaign name',
                 hint: 'Coffee Reward',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+              const SectionHeader(title: 'Reward Template'),
+              const SizedBox(height: 8),
+              if (rewardTemplates.isEmpty)
+                const EmptyStateView(
+                  icon: Icons.card_giftcard_rounded,
+                  title: 'No reward templates yet',
+                )
+              else
+                SelectField<String>(
+                  label: 'Reward Template',
+                  value: selectedRewardTemplateId,
+                  options: rewardTemplates
+                      .map(
+                        (template) => SelectFieldOption(
+                          value: template.id,
+                          label: template.name,
+                        ),
+                      )
+                      .toList(),
+                  onChanged: onRewardTemplateChanged,
+                ),
+              const SizedBox(height: 16),
+              const SectionHeader(title: 'Included missions'),
+              const SizedBox(height: 8),
+              if (missions.isEmpty)
+                const EmptyStateView(
+                  icon: Icons.task_alt_rounded,
+                  title: 'No missions available',
+                )
+              else
+                ...missions.map(
+                  (mission) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: CheckboxRow(
+                      title: mission.name,
+                      subtitle: '${mission.pointValue} pts',
+                      value: selectedMissionIds.contains(mission.id),
+                      onChanged: (selected) =>
+                          onMissionToggled(mission.id, selected ?? false),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
               AppTextField(
                 controller: thresholdController,
                 label: 'Threshold points',
                 hint: '10',
                 keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 12),
-              SelectField<String>(
-                label: 'Reward Template',
-                value: selectedRewardTemplateId,
-                options: rewardTemplates
-                    .map(
-                      (template) => SelectFieldOption(
-                        value: template.id,
-                        label: template.name,
-                      ),
-                    )
-                    .toList(),
-                onChanged: onRewardTemplateChanged,
               ),
               const SizedBox(height: 12),
               AppDateField(
@@ -160,27 +189,6 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                   ),
                 ],
               ],
-              const SizedBox(height: 16),
-              const SectionHeader(title: 'Included missions'),
-              const SizedBox(height: 8),
-              if (missions.isEmpty)
-                const EmptyStateView(
-                  icon: Icons.task_alt_rounded,
-                  title: 'No missions available',
-                )
-              else
-                ...missions.map(
-                  (mission) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: CheckboxRow(
-                      title: mission.name,
-                      subtitle: '${mission.pointValue} pts',
-                      value: selectedMissionIds.contains(mission.id),
-                      onChanged: (selected) =>
-                          onMissionToggled(mission.id, selected ?? false),
-                    ),
-                  ),
-                ),
               const SizedBox(height: 16),
               PrimaryButton(
                 label: 'Create Campaign',
