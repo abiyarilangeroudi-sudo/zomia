@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.modules.identity.models import Business, StaffMember, User
+from app.modules.identity.models import Business, RefreshToken, StaffMember, User
 
 
 class IdentityRepository:
@@ -25,6 +25,23 @@ class IdentityRepository:
         user.full_name = full_name
         self.db.flush()
         return user
+
+    def add_refresh_token(self, refresh_token: RefreshToken) -> RefreshToken:
+        self.db.add(refresh_token)
+        self.db.flush()
+        return refresh_token
+
+    def get_refresh_token_by_hash(self, token_hash: str) -> RefreshToken | None:
+        return self.db.scalar(
+            select(RefreshToken)
+            .where(RefreshToken.token_hash == token_hash)
+            .options(selectinload(RefreshToken.user))
+        )
+
+    def revoke_refresh_token(self, *, refresh_token: RefreshToken, revoked_at) -> RefreshToken:
+        refresh_token.revoked_at = revoked_at
+        self.db.flush()
+        return refresh_token
 
     def add_business(self, business: Business) -> Business:
         self.db.add(business)

@@ -39,7 +39,9 @@ Unused endpoint policy:
 | --- | --- | --- | --- | --- | --- |
 | POST | `/auth/register/customer` | public | Flutter register | active | Customer self-registration. |
 | POST | `/auth/register/owner` | public/admin-seed style | API/dev setup | active | Owner registration remains separate from customer registration. |
-| POST | `/auth/login` | public | Flutter login | active | Returns JWT access token. |
+| POST | `/auth/login` | public | Flutter login | active | Returns access token and refresh token. |
+| POST | `/auth/refresh` | public/token-held | Flutter session refresh | active | Rotates refresh token and returns a new token pair. |
+| POST | `/auth/logout` | public/token-held | Flutter sign out | active | Revokes the provided refresh token. |
 | GET | `/auth/me` | authenticated | Auth gate | active | Current user identity. |
 | PATCH | `/customers/me/profile` | customer | Customer profile | active | Customer can update display name. |
 | GET | `/staff/me/context` | staff | Staff login context | active | Returns staff business context after login. |

@@ -18,8 +18,8 @@ This document is the short checkpoint before the next feature phase.
 
 ## Verification Snapshot
 
-- Backend tests: `45 passed`
-- Frontend tests: `26 passed`
+- Backend tests: `57 passed`
+- Frontend tests: `28 passed`
 - Flutter analyze: no issues
 - Git status before this stability pass: clean
 
@@ -48,6 +48,7 @@ This document is the short checkpoint before the next feature phase.
 ## Current Backend Structure
 
 - Identity module owns users, owner registration, customer registration, staff creation, and staff context.
+- Identity now issues short-lived access tokens with rotating refresh tokens; only refresh token hashes are stored server-side.
 - Loyalty module owns missions, actions, points ledger, campaigns, rewards, reward use, and audit events.
 - `CampaignService` owns campaign creation, campaign listing, customer campaign progress, action evaluation, cycle calculation, and campaign completion creation.
 - `LoyaltyService` still orchestrates action registration and reward generation after campaign completions.
@@ -60,6 +61,7 @@ This document is the short checkpoint before the next feature phase.
 - Before Group Campaign or Cross-Network Campaign, continue splitting `LoyaltyService` into smaller services without changing individual campaign behavior.
 - Owner recent activity is live for MVP; broader audit review remains separate from owner-facing activity.
 - Data and audit posture is documented in `Docs/status/data-audit-review.md`.
+- Auth and session hardening now includes refresh token rotation and server-side refresh token revocation on sign out.
 - Phone remains out of Customer Registration and Customer Profile editing until a product decision makes it explicit.
 - Console Hygiene / Error UX now maps known backend details to clearer UI messages and hides unknown backend details behind generic user-facing fallbacks. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.

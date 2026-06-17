@@ -50,7 +50,43 @@ final dioProvider = Provider<Dio>((ref) {
         handler.next(options);
       },
       onError: (error, handler) async {
-        if (_shouldExpireSession(error)) {
+        if (_shouldTryRefresh(error)) {
+          final refreshToken = await tokenStore.readRefreshToken();
+          if (refreshToken != null) {
+            try {
+              final response =
+                  await Dio(
+                    BaseOptions(
+                      baseUrl: config.apiBaseUrl,
+                      connectTimeout: const Duration(seconds: 10),
+                      receiveTimeout: const Duration(seconds: 20),
+                      sendTimeout: const Duration(seconds: 20),
+                      headers: const {'Accept': 'application/json'},
+                    ),
+                  ).post<Map<String, dynamic>>(
+                    '/auth/refresh',
+                    data: {'refresh_token': refreshToken},
+                  );
+              final data = response.data ?? <String, dynamic>{};
+              final accessToken = data['access_token'] as String;
+              final newRefreshToken = data['refresh_token'] as String;
+              await tokenStore.writeTokens(
+                accessToken: accessToken,
+                refreshToken: newRefreshToken,
+              );
+              error.requestOptions.headers['Authorization'] =
+                  'Bearer $accessToken';
+              error.requestOptions.extra['zomia_refresh_retried'] = true;
+              return handler.resolve(await dio.fetch(error.requestOptions));
+            } on DioException {
+              await tokenStore.clear();
+              ref.read(sessionExpiredMessageProvider.notifier).setExpired();
+            }
+          } else {
+            await tokenStore.clear();
+            ref.read(sessionExpiredMessageProvider.notifier).setExpired();
+          }
+        } else if (_shouldExpireSession(error)) {
           await tokenStore.clear();
           ref.read(sessionExpiredMessageProvider.notifier).setExpired();
         }
@@ -68,4 +104,15 @@ bool _shouldExpireSession(DioException error) {
   }
   final path = error.requestOptions.path;
   return path != '/auth/login' && !path.startsWith('/auth/register');
+}
+
+bool _shouldTryRefresh(DioException error) {
+  if (!_shouldExpireSession(error)) {
+    return false;
+  }
+  final path = error.requestOptions.path;
+  if (path == '/auth/refresh' || path == '/auth/logout') {
+    return false;
+  }
+  return error.requestOptions.extra['zomia_refresh_retried'] != true;
 }

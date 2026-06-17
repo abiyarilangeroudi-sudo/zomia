@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 import uuid
 from sqlalchemy.orm import Session
 
@@ -16,6 +16,7 @@ from app.modules.identity.schemas import (
     CustomerProfileUpdate,
     LoginRequest,
     OwnerRegister,
+    RefreshTokenRequest,
     StaffContextRead,
     StaffCreate,
     StaffRead,
@@ -59,11 +60,37 @@ def register_owner(
 
 @router.post("/auth/login", response_model=TokenResponse)
 def login(
-    payload: LoginRequest, service: IdentityService = Depends(get_identity_service)
+    payload: LoginRequest,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
 ) -> TokenResponse:
-    return TokenResponse(
-        access_token=service.authenticate(email=payload.email, password=payload.password)
+    access_token, refresh_token = service.authenticate(
+        email=payload.email, password=payload.password
     )
+    db.commit()
+    return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/auth/refresh", response_model=TokenResponse)
+def refresh_session(
+    payload: RefreshTokenRequest,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> TokenResponse:
+    access_token, refresh_token = service.refresh_session(payload.refresh_token)
+    db.commit()
+    return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/auth/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(
+    payload: RefreshTokenRequest,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.logout(payload.refresh_token)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/auth/me", response_model=UserRead)

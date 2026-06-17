@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     jwt_secret_key: str = Field(default="change-me-in-production", alias="JWT_SECRET_KEY")
     jwt_issuer: str = Field(default="zomia-api", alias="JWT_ISSUER")
     access_token_minutes: int = Field(default=60, alias="ACCESS_TOKEN_MINUTES")
+    refresh_token_days: int = Field(default=30, alias="REFRESH_TOKEN_DAYS")
     cors_allowed_origins: str = Field(
         default="http://localhost:8080,http://127.0.0.1:8080",
         alias="CORS_ALLOWED_ORIGINS",

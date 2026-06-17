@@ -15,7 +15,7 @@ class AuthRepository {
 
   final Dio _dio;
 
-  Future<String> login({
+  Future<AuthTokens> login({
     required String email,
     required String password,
   }) async {
@@ -24,9 +24,32 @@ class AuthRepository {
         '/auth/login',
         data: {'email': email, 'password': password},
       );
-      return response.data?['access_token'] as String;
+      return AuthTokens.fromJson(response.data ?? <String, dynamic>{});
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<AuthTokens> refreshSession({required String refreshToken}) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/auth/refresh',
+        data: {'refresh_token': refreshToken},
+      );
+      return AuthTokens.fromJson(response.data ?? <String, dynamic>{});
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<void> logout({required String refreshToken}) async {
+    try {
+      await _dio.post<void>(
+        '/auth/logout',
+        data: {'refresh_token': refreshToken},
+      );
+    } on DioException {
+      // Local sign-out must still complete if the server session is already gone.
     }
   }
 
@@ -98,6 +121,20 @@ class AuthRepository {
     }
     return 'Something went wrong. Please try again.';
   }
+}
+
+class AuthTokens {
+  const AuthTokens({required this.accessToken, required this.refreshToken});
+
+  factory AuthTokens.fromJson(Map<String, dynamic> json) {
+    return AuthTokens(
+      accessToken: json['access_token'] as String,
+      refreshToken: json['refresh_token'] as String,
+    );
+  }
+
+  final String accessToken;
+  final String refreshToken;
 }
 
 String mapAuthErrorDetail(String detail) {

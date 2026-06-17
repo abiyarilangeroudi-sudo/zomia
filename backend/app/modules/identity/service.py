@@ -1,12 +1,14 @@
+import hashlib
 import re
+import secrets
 import uuid
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException, status
 
 from app.core.config import Settings
 from app.core.security import create_access_token, hash_password, verify_password
-from app.modules.identity.models import Business, StaffMember, User, UserRole
+from app.modules.identity.models import Business, RefreshToken, StaffMember, User, UserRole
 from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import (
     BusinessCreate,
@@ -98,7 +100,7 @@ class IdentityService:
         self._require_role(customer, UserRole.CUSTOMER)
         return self.repository.update_user_full_name(user=customer, full_name=payload.full_name)
 
-    def authenticate(self, *, email: str, password: str) -> str:
+    def authenticate(self, *, email: str, password: str) -> tuple[str, str]:
         user = self.repository.get_user_by_email(email)
         if user is None or not user.is_active or not verify_password(password, user.password_hash):
             raise HTTPException(
@@ -106,13 +108,60 @@ class IdentityService:
                 detail="Incorrect email or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return create_access_token(
+        return self._issue_token_pair(user)
+
+    def refresh_session(self, raw_refresh_token: str) -> tuple[str, str]:
+        now = datetime.now(UTC)
+        refresh_token = self.repository.get_refresh_token_by_hash(
+            self._hash_refresh_token(raw_refresh_token)
+        )
+        if (
+            refresh_token is None
+            or refresh_token.revoked_at is not None
+            or self._as_utc(refresh_token.expires_at) <= now
+            or not refresh_token.user.is_active
+        ):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+        self.repository.revoke_refresh_token(refresh_token=refresh_token, revoked_at=now)
+        return self._issue_token_pair(refresh_token.user)
+
+    def logout(self, raw_refresh_token: str) -> None:
+        refresh_token = self.repository.get_refresh_token_by_hash(
+            self._hash_refresh_token(raw_refresh_token)
+        )
+        if refresh_token is not None and refresh_token.revoked_at is None:
+            self.repository.revoke_refresh_token(
+                refresh_token=refresh_token, revoked_at=datetime.now(UTC)
+            )
+
+    def _issue_token_pair(self, user: User) -> tuple[str, str]:
+        access_token = create_access_token(
             subject=str(user.id),
             role=user.role.value,
             secret_key=self.settings.jwt_secret_key,
             issuer=self.settings.jwt_issuer,
             expires_delta=timedelta(minutes=self.settings.access_token_minutes),
         )
+        raw_refresh_token = secrets.token_urlsafe(32)
+        self.repository.add_refresh_token(
+            RefreshToken(
+                user_id=user.id,
+                token_hash=self._hash_refresh_token(raw_refresh_token),
+                expires_at=datetime.now(UTC) + timedelta(days=self.settings.refresh_token_days),
+            )
+        )
+        return access_token, raw_refresh_token
+
+    @staticmethod
+    def _hash_refresh_token(raw_refresh_token: str) -> str:
+        return hashlib.sha256(raw_refresh_token.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def _as_utc(value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
 
     def _create_user(self, payload: UserCreate, role: UserRole) -> User:
         if self.repository.get_user_by_email(payload.email) is not None:

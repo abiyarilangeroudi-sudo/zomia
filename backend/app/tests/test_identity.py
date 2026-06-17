@@ -1,9 +1,10 @@
+import hashlib
 from uuid import UUID
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.modules.identity.models import StaffMember
+from app.modules.identity.models import RefreshToken, StaffMember
 
 
 def test_customer_registration_login_and_me(client: TestClient) -> None:
@@ -25,10 +26,77 @@ def test_customer_registration_login_and_me(client: TestClient) -> None:
     )
     assert login_response.status_code == 200
     token = login_response.json()["access_token"]
+    assert login_response.json()["refresh_token"]
 
     me_response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert me_response.status_code == 200
     assert me_response.json()["email"] == "customer@example.com"
+
+
+def test_refresh_token_rotates_and_raw_token_is_not_stored(
+    client: TestClient, db_session: Session
+) -> None:
+    client.post(
+        "/api/v1/auth/register/customer",
+        json={
+            "email": "refresh-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Customer One",
+        },
+    )
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "refresh-customer@example.com", "password": "strong-password"},
+    )
+    old_refresh_token = login_response.json()["refresh_token"]
+    stored_token = db_session.query(RefreshToken).one()
+
+    assert stored_token.token_hash != old_refresh_token
+    assert stored_token.token_hash == hashlib.sha256(
+        old_refresh_token.encode("utf-8")
+    ).hexdigest()
+
+    refresh_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": old_refresh_token},
+    )
+
+    assert refresh_response.status_code == 200
+    assert refresh_response.json()["access_token"]
+    assert refresh_response.json()["refresh_token"] != old_refresh_token
+    db_session.refresh(stored_token)
+    assert stored_token.revoked_at is not None
+
+    replay_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": old_refresh_token},
+    )
+    assert replay_response.status_code == 401
+
+
+def test_logout_revokes_refresh_token(client: TestClient, db_session: Session) -> None:
+    client.post(
+        "/api/v1/auth/register/customer",
+        json={
+            "email": "logout-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Customer One",
+        },
+    )
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "logout-customer@example.com", "password": "strong-password"},
+    )
+    refresh_token = login_response.json()["refresh_token"]
+    stored_token = db_session.query(RefreshToken).one()
+
+    logout_response = client.post("/api/v1/auth/logout", json={"refresh_token": refresh_token})
+
+    assert logout_response.status_code == 204
+    db_session.refresh(stored_token)
+    assert stored_token.revoked_at is not None
+    refresh_response = client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
+    assert refresh_response.status_code == 401
 
 
 def test_customer_can_update_own_profile_name(client: TestClient) -> None:

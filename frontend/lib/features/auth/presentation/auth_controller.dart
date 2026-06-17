@@ -14,12 +14,23 @@ final authControllerProvider = AsyncNotifierProvider<AuthController, AuthState>(
 class AuthController extends AsyncNotifier<AuthState> {
   @override
   Future<AuthState> build() async {
-    final token = await ref.read(secureTokenStoreProvider).readAccessToken();
-    if (token == null) {
+    final tokenStore = ref.read(secureTokenStoreProvider);
+    final token = await tokenStore.readAccessToken();
+    final refreshToken = await tokenStore.readRefreshToken();
+    if (token == null && refreshToken == null) {
       return const AuthState.unauthenticated();
     }
 
     try {
+      if (token == null && refreshToken != null) {
+        final tokens = await ref
+            .read(authRepositoryProvider)
+            .refreshSession(refreshToken: refreshToken);
+        await tokenStore.writeTokens(
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        );
+      }
       final repository = ref.read(authRepositoryProvider);
       final user = await repository.getCurrentUser();
       if (!user.isStaff) {
@@ -32,7 +43,9 @@ class AuthController extends AsyncNotifier<AuthState> {
         selectedBusiness: _defaultBusiness(context),
       );
     } catch (_) {
-      await ref.read(secureTokenStoreProvider).clear();
+      await tokenStore.clear();
+      await ref.read(customerQrRepositoryProvider).clearCachedToken();
+      ref.read(sessionExpiredMessageProvider.notifier).setExpired();
       return const AuthState.unauthenticated();
     }
   }
@@ -65,7 +78,12 @@ class AuthController extends AsyncNotifier<AuthState> {
 
   Future<void> signOut() async {
     ref.read(sessionExpiredMessageProvider.notifier).clear();
-    await ref.read(secureTokenStoreProvider).clear();
+    final tokenStore = ref.read(secureTokenStoreProvider);
+    final refreshToken = await tokenStore.readRefreshToken();
+    if (refreshToken != null) {
+      await ref.read(authRepositoryProvider).logout(refreshToken: refreshToken);
+    }
+    await tokenStore.clear();
     await ref.read(customerQrRepositoryProvider).clearCachedToken();
     state = const AsyncData(AuthState.unauthenticated());
   }
@@ -109,9 +127,14 @@ class AuthController extends AsyncNotifier<AuthState> {
     required String password,
   }) async {
     final repository = ref.read(authRepositoryProvider);
-    final token = await repository.login(email: email, password: password);
+    final tokens = await repository.login(email: email, password: password);
     ref.read(sessionExpiredMessageProvider.notifier).clear();
-    await ref.read(secureTokenStoreProvider).writeAccessToken(token);
+    await ref
+        .read(secureTokenStoreProvider)
+        .writeTokens(
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        );
     final user = await repository.getCurrentUser();
     if (!user.isStaff) {
       return AuthState.authenticated(user: user);

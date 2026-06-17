@@ -12,6 +12,7 @@ import 'package:zomia_frontend/core/http/api_client.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
 import 'package:zomia_frontend/features/auth/domain/current_user.dart';
+import 'package:zomia_frontend/features/auth/presentation/auth_controller.dart';
 import 'package:zomia_frontend/features/customer_qr/data/customer_qr_repository.dart';
 import 'package:zomia_frontend/features/customer_qr/data/customer_qr_token_store.dart';
 import 'package:zomia_frontend/features/customer_qr/domain/customer_status.dart';
@@ -107,6 +108,55 @@ void main() {
       mapAuthErrorDetail('Custom auth detail'),
       'Something went wrong. Please try again.',
     );
+  });
+
+  test('auth controller refreshes session from stored refresh token', () async {
+    final tokenStore = _MemoryTokenStore();
+    await tokenStore.writeRefreshToken('stored-refresh-token');
+    final authRepository = _FakeAuthRepository(role: 'customer');
+    final container = ProviderContainer(
+      overrides: [
+        secureTokenStoreProvider.overrideWithValue(tokenStore),
+        authRepositoryProvider.overrideWithValue(authRepository),
+        customerQrRepositoryProvider.overrideWithValue(
+          _FakeCustomerQrRepository(),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final state = await container.read(authControllerProvider.future);
+
+    expect(state.isAuthenticated, isTrue);
+    expect(authRepository.refreshCount, 1);
+    expect(await tokenStore.readAccessToken(), 'refreshed-access-token');
+    expect(await tokenStore.readRefreshToken(), 'refreshed-refresh-token');
+  });
+
+  test('auth controller revokes refresh token on sign out', () async {
+    final tokenStore = _MemoryTokenStore();
+    await tokenStore.writeTokens(
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+    );
+    final authRepository = _FakeAuthRepository(role: 'customer');
+    final container = ProviderContainer(
+      overrides: [
+        secureTokenStoreProvider.overrideWithValue(tokenStore),
+        authRepositoryProvider.overrideWithValue(authRepository),
+        customerQrRepositoryProvider.overrideWithValue(
+          _FakeCustomerQrRepository(),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(authControllerProvider.future);
+
+    await container.read(authControllerProvider.notifier).signOut();
+
+    expect(authRepository.loggedOutRefreshToken, 'refresh-token');
+    expect(await tokenStore.readAccessToken(), isNull);
+    expect(await tokenStore.readRefreshToken(), isNull);
   });
 
   test('parses staff service customer without email', () {
@@ -380,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.70 (71)'), findsOneWidget);
+    expect(find.text('Version 1.0.71 (72)'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -431,7 +481,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.70 (71)'));
+    await tester.tap(find.text('Version 1.0.71 (72)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -484,6 +534,7 @@ void main() {
 
     expect(authRepository.registeredCustomer, isTrue);
     expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Home'), findsWidgets);
     expect(find.text('Hi, Customer One'), findsOneWidget);
   });
@@ -517,6 +568,7 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Home'), findsWidgets);
     expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
@@ -569,6 +621,7 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Home'), findsWidgets);
     expect(find.byTooltip('Show QR code'), findsOneWidget);
     expect(find.text('Hi, Customer One'), findsOneWidget);
@@ -708,6 +761,7 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Owner Dashboard'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.byTooltip('Staff recent actions'), findsOneWidget);
@@ -864,10 +918,12 @@ Future<void> _enterTextByLabel(
 
 class _MemoryTokenStore implements TokenStore {
   String? _token;
+  String? _refreshToken;
 
   @override
   Future<void> clear() async {
     _token = null;
+    _refreshToken = null;
   }
 
   @override
@@ -876,8 +932,27 @@ class _MemoryTokenStore implements TokenStore {
   }
 
   @override
+  Future<String?> readRefreshToken() async {
+    return _refreshToken;
+  }
+
+  @override
   Future<void> writeAccessToken(String token) async {
     _token = token;
+  }
+
+  @override
+  Future<void> writeRefreshToken(String token) async {
+    _refreshToken = token;
+  }
+
+  @override
+  Future<void> writeTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    _token = accessToken;
+    _refreshToken = refreshToken;
   }
 }
 
@@ -1210,6 +1285,8 @@ class _FakeAuthRepository extends AuthRepository {
   final String role;
   bool registeredCustomer = false;
   String? updatedCustomerName;
+  int refreshCount = 0;
+  String? loggedOutRefreshToken;
 
   @override
   Future<void> registerCustomer({
@@ -1222,11 +1299,28 @@ class _FakeAuthRepository extends AuthRepository {
   }
 
   @override
-  Future<String> login({
+  Future<AuthTokens> login({
     required String email,
     required String password,
   }) async {
-    return 'access-token';
+    return const AuthTokens(
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+    );
+  }
+
+  @override
+  Future<AuthTokens> refreshSession({required String refreshToken}) async {
+    refreshCount += 1;
+    return const AuthTokens(
+      accessToken: 'refreshed-access-token',
+      refreshToken: 'refreshed-refresh-token',
+    );
+  }
+
+  @override
+  Future<void> logout({required String refreshToken}) async {
+    loggedOutRefreshToken = refreshToken;
   }
 
   @override

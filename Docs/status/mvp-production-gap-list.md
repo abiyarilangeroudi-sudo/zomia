@@ -57,15 +57,23 @@ F10.12 progress:
 
 ### 2. Auth and Session Hardening
 
-Current MVP uses simple JWT access token storage.
+Current MVP uses JWT access tokens plus rotating opaque refresh tokens.
 
 Required:
 
-- Define token expiry behavior clearly.
-- Decide whether refresh tokens are needed before production MVP.
+- Keep token expiry behavior clear.
 - Ensure sign out clears all local role/session-related caches.
-- Standardize 401/403 handling in Flutter.
-- Add user-friendly expired-session messaging.
+- Keep 401/403 handling standardized in Flutter.
+- Keep expired-session messaging user-friendly.
+
+F10.14 progress:
+
+- Login now returns an access token and refresh token.
+- Refresh tokens are opaque random tokens; only their SHA-256 hash is stored server-side.
+- `/auth/refresh` rotates refresh tokens and rejects replay of revoked refresh tokens.
+- `/auth/logout` revokes the provided refresh token.
+- Flutter stores access and refresh tokens separately, retries one failed authenticated request after refresh, and clears local auth/QR cache if refresh fails.
+- App startup can recover a session from a stored refresh token when access token is absent.
 
 ### 3. Backend Service Split Before Advanced Campaigns
 
