@@ -17,7 +17,6 @@ class OwnerCampaignListCard extends StatelessWidget {
       children: [
         OwnerSimpleList(
           emptyTitle: 'No campaigns yet',
-          emptyMessage: 'Created campaigns will appear here.',
           leadingIcon: Icons.campaign_rounded,
           items: campaigns
               .map(
@@ -148,7 +147,6 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                 const EmptyStateView(
                   icon: Icons.task_alt_rounded,
                   title: 'No missions available',
-                  message: 'Create a mission before creating a campaign.',
                 )
               else
                 ...missions.map(

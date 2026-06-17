@@ -16,7 +16,6 @@ class OwnerMissionListCard extends StatelessWidget {
       children: [
         OwnerSimpleList(
           emptyTitle: 'No missions yet',
-          emptyMessage: 'Created missions will appear here.',
           leadingIcon: Icons.task_alt_rounded,
           items: missions
               .map(

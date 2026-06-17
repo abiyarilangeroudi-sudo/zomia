@@ -33,13 +33,13 @@ class OwnerSimpleList extends StatelessWidget {
   const OwnerSimpleList({
     super.key,
     required this.emptyTitle,
-    required this.emptyMessage,
     required this.items,
     required this.leadingIcon,
+    this.emptyMessage,
   });
 
   final String emptyTitle;
-  final String emptyMessage;
+  final String? emptyMessage;
   final List<OwnerSimpleListItem> items;
   final IconData leadingIcon;
 

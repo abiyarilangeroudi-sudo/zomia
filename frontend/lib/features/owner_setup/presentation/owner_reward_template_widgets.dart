@@ -17,7 +17,6 @@ class OwnerRewardTemplateListCard extends StatelessWidget {
       children: [
         OwnerSimpleList(
           emptyTitle: 'No reward templates yet',
-          emptyMessage: 'Created reward templates will appear here.',
           leadingIcon: Icons.card_giftcard_rounded,
           items: rewardTemplates
               .map(
@@ -108,7 +107,7 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               PrimaryButton(
-                label: 'Create Gift Reward',
+                label: 'Create Reward Template',
                 icon: Icons.card_giftcard_rounded,
                 isLoading: isSaving,
                 onPressed: isSaving || campaigns.isEmpty
