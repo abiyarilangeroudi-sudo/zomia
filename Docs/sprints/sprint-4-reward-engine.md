@@ -7,7 +7,7 @@
 در پایان این Sprint سیستم باید بتواند:
 
 ```text
-Owner برای یک Campaign یک Reward Template تعریف کند
+Owner بتواند Reward Template مستقل تعریف کند و Campaign هنگام ساخت یک Template انتخاب کند
 Campaign Completion بتواند Generated Reward بسازد
 Customer بتواند Rewardهای خودش را ببیند
 Staff بتواند Reward فعال را use کند

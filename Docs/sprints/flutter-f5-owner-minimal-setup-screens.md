@@ -17,9 +17,9 @@ Frontend برای نقش Owner بعد از login وارد `Owner Dashboard` حد
 - Staffهای Business انتخاب‌شده را ببیند
 - Mission جدید بسازد
 - Missionهای موجود را ببیند
-- Campaign جدید با یک یا چند Mission بسازد
+- Campaign جدید با یک یا چند Mission و یک Reward Template انتخاب‌شده بسازد
 - Campaignهای موجود را ببیند
-- Gift Reward Template جدید برای Campaign بسازد
+- Gift Reward Template مستقل بسازد
 - Reward Templateهای موجود را ببیند
 
 ## Architecture

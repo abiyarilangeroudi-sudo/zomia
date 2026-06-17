@@ -57,36 +57,39 @@ def upgrade() -> None:
     )
 
     bind = op.get_bind()
-    reward_templates = bind.execute(
-        sa.text("SELECT id, campaign_id, created_at FROM reward_templates")
-    ).mappings()
-    bind.execute(
-        sa.text(
-            """
-            INSERT INTO campaign_reward_templates (
-                id,
-                campaign_id,
-                reward_template_id,
-                created_at
-            )
-            VALUES (
-                :id,
-                :campaign_id,
-                :reward_template_id,
-                :created_at
-            )
-            """
-        ),
-        [
-            {
-                "id": uuid4(),
-                "campaign_id": row["campaign_id"],
-                "reward_template_id": row["id"],
-                "created_at": row["created_at"],
-            }
-            for row in reward_templates
-        ],
+    reward_templates = list(
+        bind.execute(
+            sa.text("SELECT id, campaign_id, created_at FROM reward_templates")
+        ).mappings()
     )
+    if reward_templates:
+        bind.execute(
+            sa.text(
+                """
+                INSERT INTO campaign_reward_templates (
+                    id,
+                    campaign_id,
+                    reward_template_id,
+                    created_at
+                )
+                VALUES (
+                    :id,
+                    :campaign_id,
+                    :reward_template_id,
+                    :created_at
+                )
+                """
+            ),
+            [
+                {
+                    "id": uuid4(),
+                    "campaign_id": row["campaign_id"],
+                    "reward_template_id": row["id"],
+                    "created_at": row["created_at"],
+                }
+                for row in reward_templates
+            ],
+        )
 
     op.drop_constraint(
         op.f("uq_reward_templates_campaign_id"),
