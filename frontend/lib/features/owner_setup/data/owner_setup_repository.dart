@@ -236,6 +236,6 @@ String mapOwnerSetupErrorDetail(String detail) {
       'One or more selected missions are no longer available.',
     'Email already exists' => 'This email is already registered.',
     'Insufficient role' => 'You do not have access to this area.',
-    _ => detail,
+    _ => 'Setup action could not be completed. Please try again.',
   };
 }

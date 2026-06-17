@@ -105,6 +105,6 @@ String mapAuthErrorDetail(String detail) {
     'Incorrect email or password' => 'Incorrect email or password.',
     'Email already exists' => 'This email is already registered.',
     'Insufficient role' => 'You do not have access to this area.',
-    _ => detail,
+    _ => 'Something went wrong. Please try again.',
   };
 }

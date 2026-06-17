@@ -60,7 +60,7 @@ void main() {
     );
     expect(
       mapStaffServiceErrorDetail('Custom backend detail'),
-      'Custom backend detail',
+      'Service action could not be completed. Please try again.',
     );
   });
 
@@ -75,7 +75,7 @@ void main() {
     );
     expect(
       mapCustomerQrErrorDetail('Custom customer detail'),
-      'Custom customer detail',
+      'QR code is unavailable. Please try again.',
     );
   });
 
@@ -90,7 +90,7 @@ void main() {
     );
     expect(
       mapOwnerSetupErrorDetail('Custom owner detail'),
-      'Custom owner detail',
+      'Setup action could not be completed. Please try again.',
     );
   });
 
@@ -103,7 +103,10 @@ void main() {
       mapAuthErrorDetail('Email already exists'),
       'This email is already registered.',
     );
-    expect(mapAuthErrorDetail('Custom auth detail'), 'Custom auth detail');
+    expect(
+      mapAuthErrorDetail('Custom auth detail'),
+      'Something went wrong. Please try again.',
+    );
   });
 
   test('parses staff service customer without email', () {

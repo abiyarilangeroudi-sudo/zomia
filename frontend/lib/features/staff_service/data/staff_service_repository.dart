@@ -141,7 +141,7 @@ String mapStaffServiceErrorDetail(String detail) {
     'Reward is expired' => 'This reward has expired.',
     'Reward is already used' => 'This reward was already used.',
     'Reward is not active' => 'This reward is no longer active.',
-    _ => detail,
+    _ => 'Service action could not be completed. Please try again.',
   };
 }
 

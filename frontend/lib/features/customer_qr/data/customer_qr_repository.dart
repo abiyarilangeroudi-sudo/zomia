@@ -110,6 +110,6 @@ String mapCustomerQrErrorDetail(String detail) {
     'QR token is not active' =>
       'This QR code is no longer active. Refresh your QR code.',
     'QR token is expired' => 'This QR code has expired. Refresh your QR code.',
-    _ => detail,
+    _ => 'QR code is unavailable. Please try again.',
   };
 }
