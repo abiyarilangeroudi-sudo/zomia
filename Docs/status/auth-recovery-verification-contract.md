@@ -15,6 +15,7 @@ Included:
 - Email Verification request contract
 - Email Verification confirm contract
 - Change Email contract
+- Remove Account contract
 - Candidate database tables
 - Flutter UX flow
 - Delivery strategy hold rule
@@ -213,6 +214,39 @@ Rules:
 - OTP payload must belong to the authenticated user.
 - On success, update `users.email` and `email_verified_at`.
 - Do not revoke existing refresh tokens after a successful email change.
+
+## Remove Account Flow
+
+### Remove Customer Account
+
+```text
+POST /api/v1/auth/remove-account
+```
+
+Request:
+
+```json
+{
+  "current_password": "strong-password"
+}
+```
+
+Rules:
+
+- User must be authenticated.
+- MVP implementation is Customer-only.
+- Current password must be verified.
+- Account removal is a soft delete with anonymization, not a hard delete.
+- Set `users.is_active = false`.
+- Remove direct personal identifiers from the account record:
+  - replace real email with an internal deleted-account email
+  - clear phone
+  - replace name with `Deleted customer`
+  - clear `email_verified_at`
+- Revoke existing refresh tokens.
+- Revoke active Customer QR tokens.
+- Keep loyalty actions, points ledger, rewards, campaign completions, and audit/history records.
+- Owner and Staff removal need separate future contracts because they affect business ownership and staff membership history.
 
 ## Candidate Database Schema
 

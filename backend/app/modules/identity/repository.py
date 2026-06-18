@@ -10,6 +10,7 @@ from app.modules.identity.models import (
     StaffMember,
     User,
 )
+from app.modules.qr.models import CustomerQrToken, CustomerQrTokenStatus
 
 
 class IdentityRepository:
@@ -40,6 +41,18 @@ class IdentityRepository:
     def update_user_email(self, *, user: User, email: str, email_verified_at) -> User:
         user.email = email.lower()
         user.email_verified_at = email_verified_at
+        self.db.flush()
+        return user
+
+    def anonymize_customer_account(
+        self, *, user: User, email: str, full_name: str, password_hash: str
+    ) -> User:
+        user.email = email.lower()
+        user.phone = None
+        user.full_name = full_name
+        user.password_hash = password_hash
+        user.email_verified_at = None
+        user.is_active = False
         self.db.flush()
         return user
 
@@ -111,6 +124,18 @@ class IdentityRepository:
         )
         for refresh_token in refresh_tokens:
             refresh_token.revoked_at = revoked_at
+        self.db.flush()
+
+    def revoke_customer_qr_tokens(self, *, customer_id: uuid.UUID, revoked_at) -> None:
+        qr_tokens = self.db.scalars(
+            select(CustomerQrToken).where(
+                CustomerQrToken.customer_id == customer_id,
+                CustomerQrToken.status == CustomerQrTokenStatus.ACTIVE,
+            )
+        )
+        for token in qr_tokens:
+            token.status = CustomerQrTokenStatus.REVOKED
+            token.revoked_at = revoked_at
         self.db.flush()
 
     def add_business(self, business: Business) -> Business:

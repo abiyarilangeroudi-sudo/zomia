@@ -13,6 +13,7 @@ from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import (
     BusinessCreate,
     BusinessRead,
+    AccountRemove,
     CustomerProfileUpdate,
     EmailChangeStart,
     EmailChangeVerify,
@@ -210,6 +211,21 @@ def verify_email_change(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.post("/auth/remove-account", status_code=status.HTTP_204_NO_CONTENT)
+def remove_account(
+    payload: AccountRemove,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.remove_customer_account(
+        user=current_user,
+        current_password=payload.current_password,
+    )
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/auth/refresh", response_model=TokenResponse)

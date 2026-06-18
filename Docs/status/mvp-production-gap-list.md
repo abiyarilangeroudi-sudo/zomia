@@ -275,6 +275,15 @@ F10.18 progress:
 - Successful email change updates the Customer email and keeps existing refresh tokens valid.
 - Owner and Staff email change remain future extensions of the same Identity flow.
 
+F10.19 progress:
+
+- `Settings > Account > Remove Account` now has a Customer-only MVP flow.
+- Removal requires the current password and explicit confirmation.
+- Customer removal is a GDPR-oriented soft delete: the account is deactivated, direct personal fields are anonymized, and loyalty/audit history remains intact.
+- The real email is removed from `users.email` by replacing it with an internal deleted-account email, so the original email can be registered again.
+- Existing refresh tokens and active Customer QR tokens are revoked after account removal.
+- Owner and Staff account removal remain separate future flows because they affect business ownership and staff membership history.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion later, not registration requirement.

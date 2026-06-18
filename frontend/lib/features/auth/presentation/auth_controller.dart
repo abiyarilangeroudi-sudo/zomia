@@ -190,6 +190,15 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = AsyncData(value.copyWith(user: updatedUser));
   }
 
+  Future<void> removeAccount({required String currentPassword}) async {
+    await ref
+        .read(authRepositoryProvider)
+        .removeAccount(currentPassword: currentPassword);
+    await ref.read(secureTokenStoreProvider).clear();
+    await ref.read(customerQrRepositoryProvider).clearCachedToken();
+    state = const AsyncData(AuthState.unauthenticated());
+  }
+
   void selectBusiness(StaffBusiness business) {
     final value = state.asData?.value;
     if (value == null || !value.isAuthenticated) {

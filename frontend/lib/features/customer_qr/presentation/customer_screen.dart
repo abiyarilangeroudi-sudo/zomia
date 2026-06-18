@@ -285,6 +285,9 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
               ({required String newEmail, required String code}) => ref
                   .read(authControllerProvider.notifier)
                   .verifyEmailChange(newEmail: newEmail, code: code),
+          onRemoveAccount: ({required String currentPassword}) => ref
+              .read(authControllerProvider.notifier)
+              .removeAccount(currentPassword: currentPassword),
         ),
       ),
     );

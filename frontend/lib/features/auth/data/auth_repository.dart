@@ -214,6 +214,17 @@ class AuthRepository {
     }
   }
 
+  Future<void> removeAccount({required String currentPassword}) async {
+    try {
+      await _dio.post<void>(
+        '/auth/remove-account',
+        data: {'current_password': currentPassword},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<StaffContext> getStaffContext() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(

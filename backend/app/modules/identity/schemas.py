@@ -73,6 +73,10 @@ class EmailChangeVerify(BaseModel):
     code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
 
 
+class AccountRemove(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+
+
 class PendingRegistrationRead(BaseModel):
     email: EmailStr
     expires_at: datetime

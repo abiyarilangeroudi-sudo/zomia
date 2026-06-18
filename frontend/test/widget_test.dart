@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.80 (81)'), findsOneWidget);
+    expect(find.text('Version 1.0.81 (82)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.80 (81)'));
+    await tester.tap(find.text('Version 1.0.81 (82)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -984,6 +984,54 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(find.text('new-customer@example.com'), findsOneWidget);
+  });
+
+  testWidgets('removes customer account and returns to login', (tester) async {
+    final tokenStore = _MemoryTokenStore();
+    final authRepository = _FakeAuthRepository(role: 'customer');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'customer@example.com',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.byTooltip('Menu'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Setting'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Remove Account'));
+    await pumpAppFrames(tester);
+
+    await _enterTextByLabel(tester, 'Current Password', 'strong-password');
+    await tester.tap(find.text('I understand this cannot be undone.'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.widgetWithText(FilledButton, 'Remove account'));
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.removedAccount, isTrue);
+    expect(authRepository.removedAccountCurrentPassword, 'strong-password');
+    expect(await tokenStore.readAccessToken(), isNull);
+    expect(await tokenStore.readRefreshToken(), isNull);
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Account removed.'), findsOneWidget);
   });
 
   testWidgets('signs in and renders owner setup screen', (tester) async {
@@ -1548,6 +1596,7 @@ class _FakeAuthRepository extends AuthRepository {
   bool changedPassword = false;
   bool startedEmailChange = false;
   bool verifiedEmailChange = false;
+  bool removedAccount = false;
   String? ownerBusinessName;
   String? ownerBusinessCategory;
   String? updatedCustomerName;
@@ -1557,6 +1606,7 @@ class _FakeAuthRepository extends AuthRepository {
   String? emailChangeNewEmail;
   String? emailChangeCurrentPassword;
   String? currentEmail;
+  String? removedAccountCurrentPassword;
   int refreshCount = 0;
   String? loggedOutRefreshToken;
 
@@ -1667,6 +1717,12 @@ class _FakeAuthRepository extends AuthRepository {
       role: role,
       isActive: true,
     );
+  }
+
+  @override
+  Future<void> removeAccount({required String currentPassword}) async {
+    removedAccount = true;
+    removedAccountCurrentPassword = currentPassword;
   }
 
   @override

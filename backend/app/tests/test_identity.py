@@ -6,10 +6,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.modules.identity.models import EmailVerificationOtp, RefreshToken, StaffMember
+from app.modules.identity.models import EmailVerificationOtp, RefreshToken, StaffMember, User
 from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import UserCreate
 from app.modules.identity.service import IdentityService
+from app.modules.qr.models import CustomerQrToken, CustomerQrTokenStatus
 
 
 class FakeEmailSender:
@@ -503,6 +504,87 @@ def test_change_email_updates_email_without_revoking_refresh_token(client: TestC
         json={"refresh_token": refresh_token},
     )
     assert refresh_response.status_code == 200
+
+
+def test_remove_account_requires_current_password(client: TestClient) -> None:
+    register_customer(client, email="remove-password@example.com")
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "remove-password@example.com", "password": "strong-password"},
+    )
+    access_token = login_response.json()["access_token"]
+
+    response = client.post(
+        "/api/v1/auth/remove-account",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"current_password": "wrong-password"},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Incorrect current password"
+
+
+def test_remove_account_anonymizes_customer_and_revokes_tokens(
+    client: TestClient, db_session: Session
+) -> None:
+    customer = register_customer(
+        client,
+        email="remove-customer@example.com",
+        phone="+4912345678",
+    )
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "remove-customer@example.com", "password": "strong-password"},
+    )
+    access_token = login_response.json()["access_token"]
+    refresh_token = login_response.json()["refresh_token"]
+    qr_response = client.post(
+        "/api/v1/customers/me/qr-token",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert qr_response.status_code == 200
+
+    response = client.post(
+        "/api/v1/auth/remove-account",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"current_password": "strong-password"},
+    )
+
+    assert response.status_code == 204
+    db_session.expire_all()
+    stored_user = db_session.get(User, UUID(customer["id"]))
+    assert stored_user is not None
+    assert stored_user.is_active is False
+    assert stored_user.email == f"deleted+{customer['id']}@deleted.zomia.local"
+    assert stored_user.phone is None
+    assert stored_user.full_name == "Deleted customer"
+    assert stored_user.email_verified_at is None
+    active_qr_tokens = [
+        token
+        for token in db_session.query(CustomerQrToken).all()
+        if token.customer_id == UUID(customer["id"])
+        and token.status == CustomerQrTokenStatus.ACTIVE
+    ]
+    assert active_qr_tokens == []
+    refresh_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh_token},
+    )
+    assert refresh_response.status_code == 401
+    old_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "remove-customer@example.com", "password": "strong-password"},
+    )
+    assert old_login_response.status_code == 401
+    reregister_response = client.post(
+        "/api/v1/auth/register/customer/start",
+        json={
+            "email": "remove-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Customer Again",
+        },
+    )
+    assert reregister_response.status_code == 202
 
 
 def test_customer_can_update_own_profile_name(client: TestClient) -> None:
