@@ -19,11 +19,16 @@ def get_identity_repository(db: Session = Depends(get_db)) -> IdentityRepository
     return IdentityRepository(db)
 
 
+def get_email_sender(settings: Settings = Depends(get_settings)) -> EmailSender:
+    return EmailSender(settings)
+
+
 def get_identity_service(
     repository: IdentityRepository = Depends(get_identity_repository),
     settings: Settings = Depends(get_settings),
+    email_sender: EmailSender = Depends(get_email_sender),
 ) -> IdentityService:
-    return IdentityService(repository, settings, EmailSender(settings))
+    return IdentityService(repository, settings, email_sender)
 
 
 def get_current_user(

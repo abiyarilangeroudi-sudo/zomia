@@ -91,25 +91,38 @@ class OwnerStaffMember {
     required this.id,
     required this.businessId,
     required this.userId,
+    required this.staffMemberId,
+    required this.invitationId,
+    required this.email,
+    required this.fullName,
+    required this.status,
     required this.isActive,
-    required this.user,
   });
 
   factory OwnerStaffMember.fromJson(Map<String, dynamic> json) {
     return OwnerStaffMember(
       id: json['id'] as String,
       businessId: json['business_id'] as String,
-      userId: json['user_id'] as String,
+      userId: json['user_id'] as String?,
+      staffMemberId: json['staff_member_id'] as String?,
+      invitationId: json['invitation_id'] as String?,
+      email: json['email'] as String,
+      fullName: json['full_name'] as String?,
+      status: json['status'] as String,
       isActive: json['is_active'] as bool,
-      user: OwnerStaffUser.fromJson(json['user'] as Map<String, dynamic>),
     );
   }
 
   final String id;
   final String businessId;
-  final String userId;
+  final String? userId;
+  final String? staffMemberId;
+  final String? invitationId;
+  final String email;
+  final String? fullName;
+  final String status;
   final bool isActive;
-  final OwnerStaffUser user;
+  bool get isPending => status == 'pending';
 }
 
 class OwnerMission {

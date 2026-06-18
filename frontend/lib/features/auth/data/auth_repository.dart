@@ -225,6 +225,36 @@ class AuthRepository {
     }
   }
 
+  Future<StaffInvitationPreview> previewStaffInvitation({
+    required String token,
+  }) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/auth/staff-invitations/preview',
+        queryParameters: {'token': token},
+      );
+      return StaffInvitationPreview.fromJson(
+        response.data ?? <String, dynamic>{},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<void> acceptStaffInvitation({
+    required String token,
+    required String password,
+  }) async {
+    try {
+      await _dio.post<void>(
+        '/auth/staff-invitations/accept',
+        data: {'token': token, 'password': password},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<StaffContext> getStaffContext() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -301,7 +331,33 @@ String mapAuthErrorDetail(String detail) {
     'Incorrect current password' => 'Current password is incorrect.',
     'Email is unchanged' => 'Enter a different email address.',
     'Email change already pending' => 'This email is already being verified.',
+    'Invalid invitation' => 'This invitation link is invalid.',
+    'Invitation used' => 'This invitation has already been used.',
+    'Invitation expired' => 'This invitation has expired.',
     'Insufficient role' => 'You do not have access to this area.',
     _ => 'Something went wrong. Please try again.',
   };
+}
+
+class StaffInvitationPreview {
+  const StaffInvitationPreview({
+    required this.email,
+    required this.businessName,
+    required this.status,
+    required this.expiresAt,
+  });
+
+  factory StaffInvitationPreview.fromJson(Map<String, dynamic> json) {
+    return StaffInvitationPreview(
+      email: json['email'] as String,
+      businessName: json['business_name'] as String,
+      status: json['status'] as String,
+      expiresAt: DateTime.parse(json['expires_at'] as String),
+    );
+  }
+
+  final String email;
+  final String businessName;
+  final String status;
+  final DateTime expiresAt;
 }

@@ -14,6 +14,8 @@ from app.modules.identity.models import (
     Business,
     EmailVerificationOtp,
     RefreshToken,
+    StaffInvitation,
+    StaffInvitationStatus,
     StaffMember,
     User,
     UserRole,
@@ -27,6 +29,10 @@ from app.modules.identity.schemas import (
     StaffContextBusinessRead,
     StaffContextRead,
     StaffCreate,
+    StaffInvitationAccept,
+    StaffInvitationPreviewRead,
+    StaffInviteCreate,
+    OwnerStaffRead,
     UserCreate,
     UserRead,
 )
@@ -133,21 +139,134 @@ class IdentityService:
         return self.repository.update_business(business=business, values=values)
 
     def create_staff(self, owner: User, payload: StaffCreate) -> StaffMember:
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Use staff invitation flow",
+        )
+
+    def invite_staff(self, owner: User, payload: StaffInviteCreate) -> StaffInvitation:
         self._require_role(owner, UserRole.OWNER)
         business = self.repository.get_owner_business(
             business_id=payload.business_id, owner_id=owner.id
         )
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        normalized_email = str(payload.email).lower()
+        if (
+            self.repository.get_staff_member_by_business_email(
+                business_id=business.id, email=normalized_email
+            )
+            is not None
+        ):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Staff already exists")
+        if (
+            self.repository.get_pending_staff_invitation(
+                business_id=business.id, invited_email=normalized_email
+            )
+            is not None
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Staff invitation already pending",
+            )
 
-        staff_user = self._create_user(
-            payload,
-            UserRole.STAFF,
-            email_verified_at=datetime.now(UTC),
+        raw_token = secrets.token_urlsafe(32)
+        invitation = self.repository.add_staff_invitation(
+            StaffInvitation(
+                business_id=business.id,
+                invited_email=normalized_email,
+                invited_by_owner_id=owner.id,
+                token_hash=self._hash_invitation_token(raw_token),
+                expires_at=datetime.now(UTC)
+                + timedelta(hours=self.settings.staff_invitation_expires_hours),
+            )
         )
-        return self.repository.add_staff_member(
-            StaffMember(business_id=business.id, user_id=staff_user.id)
+        invite_url = (
+            f"{self.settings.frontend_base_url.rstrip('/')}"
+            f"/#/accept-staff-invitation?token={raw_token}"
         )
+        self.email_sender.send_email(
+            to_email=normalized_email,
+            subject="Zomia Staff Invitation",
+            body=(
+                "Zomia Staff Invitation\n\n"
+                "Hello,\n\n"
+                f"You have been invited to join {business.name} as Staff on Zomia.\n\n"
+                "Open this secure invitation link to accept the invitation and set your password:\n\n"
+                f"{invite_url}\n\n"
+                "This invitation link is single-use and will expire soon.\n\n"
+                "If you did not expect this invitation, please ignore this email.\n\n"
+                "Best regards,\n"
+                "The Zomia Team\n\n"
+                "© 2026 Zomia. All rights reserved."
+            ),
+        )
+        return invitation
+
+    def preview_staff_invitation(self, *, token: str) -> StaffInvitationPreviewRead:
+        invitation = self._get_valid_pending_staff_invitation(token=token)
+        return StaffInvitationPreviewRead(
+            email=invitation.invited_email,
+            business_name=invitation.business.name,
+            status=invitation.status,
+            expires_at=invitation.expires_at,
+        )
+
+    def accept_staff_invitation(self, payload: StaffInvitationAccept) -> None:
+        invitation = self._get_valid_pending_staff_invitation(token=payload.token)
+        if self.repository.get_user_by_email(invitation.invited_email) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+        now = datetime.now(UTC)
+        staff_user = self.repository.add_user(
+            User(
+                email=invitation.invited_email,
+                phone=None,
+                password_hash=hash_password(payload.password),
+                full_name=invitation.invited_email.split("@")[0],
+                role=UserRole.STAFF,
+                email_verified_at=now,
+            )
+        )
+        self.repository.add_staff_member(
+            StaffMember(business_id=invitation.business_id, user_id=staff_user.id)
+        )
+        invitation.status = StaffInvitationStatus.ACCEPTED
+        invitation.accepted_at = now
+
+    def list_owner_staff(self, owner: User) -> list[OwnerStaffRead]:
+        self._require_role(owner, UserRole.OWNER)
+        accepted = [
+            OwnerStaffRead(
+                id=staff_member.id,
+                business_id=staff_member.business_id,
+                user_id=staff_member.user_id,
+                staff_member_id=staff_member.id,
+                invitation_id=None,
+                email=staff_member.user.email,
+                full_name=staff_member.user.full_name,
+                status="active" if staff_member.is_active else "inactive",
+                is_active=staff_member.is_active,
+                created_at=staff_member.created_at,
+            )
+            for staff_member in self.repository.list_staff_members(owner.id)
+        ]
+        pending = [
+            OwnerStaffRead(
+                id=invitation.id,
+                business_id=invitation.business_id,
+                user_id=None,
+                staff_member_id=None,
+                invitation_id=invitation.id,
+                email=invitation.invited_email,
+                full_name=None,
+                status="pending",
+                is_active=False,
+                created_at=invitation.created_at,
+            )
+            for invitation in self.repository.list_staff_invitations(owner.id)
+            if self._as_utc(invitation.expires_at) > datetime.now(UTC)
+        ]
+        return sorted(accepted + pending, key=lambda item: item.created_at, reverse=True)
 
     def set_staff_active(
         self, owner: User, staff_member_id: uuid.UUID, *, is_active: bool
@@ -523,6 +642,29 @@ class IdentityService:
             reset_token.encode("utf-8"),
             hashlib.sha256,
         ).hexdigest()
+
+    def _hash_invitation_token(self, invitation_token: str) -> str:
+        return hmac.new(
+            self.settings.jwt_secret_key.encode("utf-8"),
+            invitation_token.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+
+    def _get_valid_pending_staff_invitation(self, *, token: str) -> StaffInvitation:
+        invitation = self.repository.get_staff_invitation_by_token_hash(
+            token_hash=self._hash_invitation_token(token)
+        )
+        if invitation is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid invitation")
+        now = datetime.now(UTC)
+        if invitation.status != StaffInvitationStatus.PENDING:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invitation used")
+        if self._as_utc(invitation.expires_at) <= now:
+            invitation.status = StaffInvitationStatus.EXPIRED
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invitation expired"
+            )
+        return invitation
 
     def _create_user(
         self,

@@ -8,9 +8,10 @@ import 'auth_form_layout.dart';
 import 'auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key, this.initialError});
+  const LoginScreen({super.key, this.initialError, this.initialMessage});
 
   final String? initialError;
+  final String? initialMessage;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -103,6 +104,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               if (error != null) ...[
                 const SizedBox(height: 16),
                 InlineBanner(message: error, tone: BannerTone.error),
+              ] else if (widget.initialMessage != null) ...[
+                const SizedBox(height: 16),
+                InlineBanner(
+                  message: widget.initialMessage!,
+                  tone: BannerTone.success,
+                ),
               ],
               const SizedBox(height: 24),
               PrimaryButton(

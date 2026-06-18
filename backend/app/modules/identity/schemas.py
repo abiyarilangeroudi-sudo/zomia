@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.modules.identity.business_categories import BUSINESS_CATEGORIES
-from app.modules.identity.models import BusinessStatus, UserRole
+from app.modules.identity.models import BusinessStatus, StaffInvitationStatus, UserRole
 
 
 class UserCreate(BaseModel):
@@ -189,6 +189,23 @@ class StaffCreate(UserCreate):
     business_id: uuid.UUID
 
 
+class StaffInviteCreate(BaseModel):
+    business_id: uuid.UUID
+    email: EmailStr
+
+
+class StaffInvitationAccept(BaseModel):
+    token: str = Field(min_length=24, max_length=256)
+    password: str = Field(min_length=8, max_length=128)
+
+
+class StaffInvitationPreviewRead(BaseModel):
+    email: EmailStr
+    business_name: str
+    status: StaffInvitationStatus
+    expires_at: datetime
+
+
 class StaffUpdate(BaseModel):
     is_active: bool
 
@@ -202,6 +219,19 @@ class StaffRead(BaseModel):
     is_active: bool
     created_at: datetime
     user: UserRead
+
+
+class OwnerStaffRead(BaseModel):
+    id: uuid.UUID
+    business_id: uuid.UUID
+    user_id: uuid.UUID | None
+    staff_member_id: uuid.UUID | None
+    invitation_id: uuid.UUID | None
+    email: EmailStr
+    full_name: str | None
+    status: str
+    is_active: bool
+    created_at: datetime
 
 
 class StaffContextBusinessRead(BaseModel):

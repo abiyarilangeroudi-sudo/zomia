@@ -20,6 +20,13 @@ class BusinessStatus(str, enum.Enum):
     SUSPENDED = "suspended"
 
 
+class StaffInvitationStatus(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    CANCELLED = "cancelled"
+    EXPIRED = "expired"
+
+
 def new_uuid() -> uuid.UUID:
     return uuid.uuid4()
 
@@ -121,3 +128,24 @@ class StaffMember(Base, TimestampMixin):
 
     business: Mapped[Business] = relationship(back_populates="staff_members")
     user: Mapped[User] = relationship(back_populates="staff_memberships")
+
+
+class StaffInvitation(Base, TimestampMixin):
+    __tablename__ = "staff_invitations"
+    __table_args__ = (UniqueConstraint("token_hash"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=new_uuid)
+    business_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("businesses.id"), index=True)
+    invited_email: Mapped[str] = mapped_column(String(255), index=True)
+    invited_by_owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[StaffInvitationStatus] = mapped_column(
+        Enum(StaffInvitationStatus, name="staff_invitation_status"),
+        default=StaffInvitationStatus.PENDING,
+        index=True,
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    business: Mapped[Business] = relationship()
+    invited_by_owner: Mapped[User] = relationship()

@@ -33,36 +33,32 @@ class OwnerStaffListCard extends StatelessWidget {
   }
 }
 
-class OwnerCreateStaffDialog extends StatelessWidget {
-  const OwnerCreateStaffDialog({
+class OwnerInviteStaffDialog extends StatelessWidget {
+  const OwnerInviteStaffDialog({
     super.key,
     required this.emailController,
-    required this.fullNameController,
-    required this.passwordController,
     this.errorMessage,
     required this.isSaving,
-    required this.onCreate,
+    required this.onSend,
   });
 
   final TextEditingController emailController;
-  final TextEditingController fullNameController;
-  final TextEditingController passwordController;
   final String? errorMessage;
   final bool isSaving;
-  final Future<bool> Function() onCreate;
+  final Future<bool> Function() onSend;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const AppTopBar(
-        title: 'Create Staff',
+        title: 'Invite Staff',
         variant: AppTopBarVariant.modal,
       ),
       body: SafeArea(
         child: DashboardScroll(
           maxWidth: 640,
           child: OwnerSetupCard(
-            title: 'Staff',
+            title: 'Staff invitation',
             children: [
               if (errorMessage != null) ...[
                 InlineBanner(message: errorMessage!, tone: BannerTone.error),
@@ -74,27 +70,15 @@ class OwnerCreateStaffDialog extends StatelessWidget {
                 hint: 'staff@example.com',
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: fullNameController,
-                label: 'Staff name',
-                hint: 'Staff One',
-              ),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: passwordController,
-                label: 'Temporary password',
-                obscureText: true,
-              ),
               const SizedBox(height: 16),
               PrimaryButton(
-                label: 'Create Staff',
-                icon: Icons.person_add_alt_1_rounded,
+                label: 'Send invitation',
+                icon: Icons.mark_email_read_rounded,
                 isLoading: isSaving,
                 onPressed: isSaving
                     ? null
                     : () async {
-                        final saved = await onCreate();
+                        final saved = await onSend();
                         if (saved && context.mounted) {
                           Navigator.of(context).pop();
                         }
@@ -127,7 +111,7 @@ class OwnerStaffList extends StatelessWidget {
       return const EmptyStateView(
         icon: Icons.person_rounded,
         title: 'No staff yet',
-        message: 'Created staff users will appear here.',
+        message: 'Staff invitations and members will appear here.',
       );
     }
 
@@ -137,9 +121,11 @@ class OwnerStaffList extends StatelessWidget {
             (staffMember) => Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: AppListRow(
-                title: staffMember.user.fullName,
-                subtitle: staffMember.user.email,
-                leadingIcon: Icons.person_rounded,
+                title: staffMember.fullName ?? staffMember.email,
+                subtitle: staffMember.email,
+                leadingIcon: staffMember.isPending
+                    ? Icons.mark_email_unread_rounded
+                    : Icons.person_rounded,
                 trailing: Wrap(
                   spacing: 8,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -148,19 +134,20 @@ class OwnerStaffList extends StatelessWidget {
                       label: ownerStaffStatusLabel(staffMember),
                       tone: ownerStaffStatusTone(staffMember),
                     ),
-                    IconButton(
-                      tooltip: staffMember.isActive
-                          ? 'Deactivate staff'
-                          : 'Activate staff',
-                      onPressed: isSaving
-                          ? null
-                          : () => _confirmToggle(context, staffMember),
-                      icon: Icon(
-                        staffMember.isActive
-                            ? Icons.person_off_rounded
-                            : Icons.person_add_alt_1_rounded,
+                    if (!staffMember.isPending)
+                      IconButton(
+                        tooltip: staffMember.isActive
+                            ? 'Deactivate staff'
+                            : 'Activate staff',
+                        onPressed: isSaving
+                            ? null
+                            : () => _confirmToggle(context, staffMember),
+                        icon: Icon(
+                          staffMember.isActive
+                              ? Icons.person_off_rounded
+                              : Icons.person_add_alt_1_rounded,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),

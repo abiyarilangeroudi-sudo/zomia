@@ -10,14 +10,14 @@ Use it before adding Identity UI, endpoints, or account policies so role behavio
 | --- | --- | --- | --- |
 | Customer | Self-registration with email OTP | Customer dashboard, QR, rewards, campaign progress | Change password, change email, remove account |
 | Owner | Business registration with email OTP | Owner dashboard, business setup, staff tools, loyalty setup | Change password, change email |
-| Staff | Created by Owner | Staff service panel, QR scan, action/reward use | Change password |
+| Staff | Invited by Owner, accepted through secure email link | Staff service panel, QR scan, action/reward use | Change password |
 | Admin | Future/back-office role | Not implemented in MVP UI | Not implemented |
 
 ## Account Actions
 
 | Action | Customer | Owner | Staff | MVP policy |
 | --- | --- | --- | --- | --- |
-| Sign up | Yes | Yes | No | Staff is created by Owner. Admin remains out of MVP. |
+| Sign up | Yes | Yes | Invitation only | Staff is invited by Owner and becomes usable only after accepting the secure email link and setting a password. Admin remains out of MVP. |
 | Sign in | Yes | Yes | Yes | Email/password login requires verified email for self-registered accounts. |
 | Sign out | Yes | Yes | Yes | Revokes the provided refresh token and clears local session. |
 | Refresh session | Yes | Yes | Yes | Uses opaque refresh token rotation. |
@@ -55,7 +55,10 @@ These endpoints intentionally serve multiple roles:
 | `POST /api/v1/auth/change-email/verify` | Customer, Owner | Applies verified email change without revoking refresh tokens. |
 | `POST /api/v1/auth/remove-account` | Customer | Customer-only account anonymization and deactivation. |
 | `PATCH /api/v1/customers/me/profile` | Customer | Updates Customer display name. |
-| `POST /api/v1/owner/staff` | Owner | Creates Staff account/membership. |
+| `POST /api/v1/owner/staff` | Owner | Deprecated; disabled with `410`. |
+| `POST /api/v1/owner/staff/invitations` | Owner | Sends secure Staff invitation link. |
+| `GET /api/v1/auth/staff-invitations/preview` | Public invite token | Shows locked invitation email/business before password setup. |
+| `POST /api/v1/auth/staff-invitations/accept` | Public invite token | Sets Staff password and activates Staff membership. |
 | `PATCH /api/v1/owner/staff/{staff_member_id}` | Owner | Toggles Staff active/inactive. |
 | `GET /api/v1/staff/me/context` | Staff | Loads Staff business context after login. |
 
@@ -64,6 +67,7 @@ These endpoints intentionally serve multiple roles:
 - Owner account removal is not implemented because it affects business ownership, staff membership, loyalty configuration, rewards, and audit history.
 - Staff account removal is not self-service. Owner manages staff availability through Active/Inactive membership.
 - Staff email change is not self-service until product policy decides whether staff email is a personal account identity or an owner-managed workplace credential.
+- Staff invitation resend/cancel controls are not part of F13. Pending, accepted, and inactive states are visible.
 - Admin identity is not part of current MVP UI.
 - Social login is out of scope until email/password Identity is stable.
 - Immediate invalidation of already-issued access tokens after password reset/change remains a production hardening item. Refresh tokens are already revoked.

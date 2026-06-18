@@ -51,6 +51,8 @@ Unused endpoint policy:
 | POST | `/auth/change-email/start` | customer/owner | Customer/Owner settings | active | Verifies current password, reserves the new email temporarily, and sends OTP to the new email. |
 | POST | `/auth/change-email/verify` | customer/owner | Customer/Owner settings | active | Verifies OTP, updates the account email, and keeps existing refresh tokens valid. |
 | POST | `/auth/remove-account` | customer | Customer settings | active | Verifies current password, anonymizes/deactivates the Customer account, revokes refresh/QR tokens. |
+| GET | `/auth/staff-invitations/preview` | public/invite-token | Staff invitation accept | active | Reads non-sensitive invitation details from a secure invite token. |
+| POST | `/auth/staff-invitations/accept` | public/invite-token | Staff invitation accept | active | Verifies single-use invite token, sets Staff password, creates Staff user/membership. |
 | POST | `/auth/refresh` | public/token-held | Flutter session refresh | active | Rotates refresh token and returns a new token pair. |
 | POST | `/auth/logout` | public/token-held | Flutter sign out | active | Revokes the provided refresh token. |
 | GET | `/auth/me` | authenticated | Auth gate | active | Current user identity. |
@@ -59,9 +61,10 @@ Unused endpoint policy:
 | POST | `/owner/businesses` | owner | Owner setup | active | Create owner business. |
 | GET | `/owner/businesses` | owner | Owner setup | active | List owner businesses. |
 | PATCH | `/owner/businesses/{business_id}` | owner | Owner business settings | active | Update safe business profile fields owned by the current Owner. Does not change slug, status, currency, owner, transfer, or deletion policy. |
-| POST | `/owner/staff` | owner | Owner staff tools | active | Create staff user/membership. |
+| POST | `/owner/staff` | owner | legacy clients | deprecated | Disabled with `410`; use Staff Invitation flow. |
+| POST | `/owner/staff/invitations` | owner | Owner staff tools | active | Sends secure Staff invitation link; does not create a login-ready account. |
 | PATCH | `/owner/staff/{staff_member_id}` | owner | Owner staff tools | active | Toggle staff active/inactive. |
-| GET | `/owner/staff` | owner | Owner staff tools | active | List staff memberships. |
+| GET | `/owner/staff` | owner | Owner staff tools | active | Lists accepted staff memberships and pending invitations. |
 
 ## Loyalty Endpoints
 

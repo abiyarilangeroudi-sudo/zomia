@@ -41,10 +41,16 @@ String ownerRewardTemplateSubtitle(OwnerRewardTemplate template) {
 }
 
 String ownerStaffStatusLabel(OwnerStaffMember staffMember) {
+  if (staffMember.isPending) {
+    return 'Pending';
+  }
   return staffMember.isActive ? 'Active' : 'Inactive';
 }
 
 BadgeTone ownerStaffStatusTone(OwnerStaffMember staffMember) {
+  if (staffMember.isPending) {
+    return BadgeTone.neutral;
+  }
   return staffMember.isActive ? BadgeTone.success : BadgeTone.neutral;
 }
 

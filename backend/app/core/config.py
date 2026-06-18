@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     email_delivery_mode: str = Field(default="disabled", alias="EMAIL_DELIVERY_MODE")
     otp_expires_minutes: int = Field(default=10, alias="OTP_EXPIRES_MINUTES")
     otp_test_code: str | None = Field(default=None, alias="OTP_TEST_CODE")
+    frontend_base_url: str = Field(default="http://localhost:8080", alias="FRONTEND_BASE_URL")
+    staff_invitation_expires_hours: int = Field(
+        default=24, alias="STAFF_INVITATION_EXPIRES_HOURS"
+    )
     smtp_host: str | None = Field(default=None, alias="SMTP_HOST")
     smtp_port: int = Field(default=587, alias="SMTP_PORT")
     smtp_username: str | None = Field(default=None, alias="SMTP_USERNAME")

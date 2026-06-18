@@ -31,7 +31,7 @@ The MVP is not production-ready yet. The remaining work is less about proving th
 
 - Customer self-registration with email OTP.
 - Owner/business registration with email OTP.
-- Staff creation by Owner.
+- Staff invitation by Owner with secure email link acceptance.
 - Login, logout, refresh token rotation, and session recovery.
 - Password recovery by email OTP.
 - Account Settings by role:
@@ -43,7 +43,7 @@ The MVP is not production-ready yet. The remaining work is less about proving th
 ### Owner Workflow
 
 - Owner can view/select business context.
-- Owner can create Staff.
+- Owner can send Staff invitation.
 - Owner can switch Staff Active/Inactive.
 - Owner can create Mission.
 - Owner can create Reward Template.
@@ -53,6 +53,7 @@ The MVP is not production-ready yet. The remaining work is less about proving th
 ### Staff Workflow
 
 - Staff login loads Staff business context.
+- Staff account becomes usable only after accepting the secure invitation link and setting a password.
 - Staff can scan Customer QR.
 - Staff can resolve Customer context.
 - Staff can confirm Customer context.

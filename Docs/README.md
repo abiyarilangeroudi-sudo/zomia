@@ -217,7 +217,7 @@ Flutter F2.9:
 
 Flutter F5 تا F8:
 
-- Owner Dashboard حداقلی برای ساخت Staff, Mission, Campaign و Reward Template اضافه شد
+- Owner Dashboard حداقلی برای دعوت Staff و ساخت Mission, Campaign و Reward Template اضافه شد
 - Customer Campaign Progress طراحی و پیاده‌سازی شد، بدون نمایش `total points` عمومی
 - UI/Branding Recovery انجام شد و component catalog به‌عنوان مرجع UI اضافه شد
 - صفحه‌های اصلی Flutter به ساختار فعلی منتقل شدند:

@@ -18,7 +18,7 @@ It is not a feature backlog. If a scenario fails, record the failure, fix the sm
 
 ## Build And Startup
 
-Status: Pending
+Status: Passed
 
 - Backend starts on `http://127.0.0.1:8000`.
 - Flutter web starts on `http://127.0.0.1:8080`.
@@ -28,7 +28,7 @@ Status: Pending
 
 ## Authentication
 
-Status: Pending
+Status: Passed through F13 implementation
 
 - Customer registration requires email OTP before account creation/login.
 - Owner business registration requires email OTP before account creation/login.
@@ -38,6 +38,15 @@ Status: Pending
 - Expired/invalid session returns to Login with a user-friendly message.
 - Forgot Password sends OTP and allows password reset without auto-login.
 - Password reset revokes old refresh tokens.
+
+F13 progress:
+
+- Owner-created Staff is replaced by Staff Invitation.
+- Owner sends a secure single-use invitation link to Staff email.
+- Staff email is locked by the invitation token; Staff sets only password and confirm password.
+- Staff membership becomes usable only after invitation accept.
+- Owner sees Staff states: `Pending`, `Active`, and `Inactive`.
+- `Resend` and `Cancel` invitation controls remain future Gap items.
 
 ## Customer Account
 
@@ -86,7 +95,9 @@ Status: Pending
 
 Status: Pending
 
-- Owner can create Staff.
+- Owner can send Staff invitation.
+- Pending Staff invitation is visible before accept.
+- Staff invitation accept sets password and activates Staff membership.
 - Owner can switch Staff between Active and Inactive.
 - Owner can create Mission.
 - Owner can create Reward Template independently from Campaign.
@@ -176,4 +187,3 @@ Use this section at the end of a QA pass.
 - Date:
 - Result: Pending / Passed / Failed / Blocked
 - Notes:
-

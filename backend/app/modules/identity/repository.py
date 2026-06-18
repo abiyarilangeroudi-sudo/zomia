@@ -7,6 +7,8 @@ from app.modules.identity.models import (
     Business,
     EmailVerificationOtp,
     RefreshToken,
+    StaffInvitation,
+    StaffInvitationStatus,
     StaffMember,
     User,
 )
@@ -166,6 +168,42 @@ class IdentityRepository:
         self.db.refresh(staff_member, attribute_names=["user"])
         return staff_member
 
+    def add_staff_invitation(self, invitation: StaffInvitation) -> StaffInvitation:
+        self.db.add(invitation)
+        self.db.flush()
+        self.db.refresh(invitation, attribute_names=["business"])
+        return invitation
+
+    def get_staff_invitation_by_token_hash(
+        self, *, token_hash: str
+    ) -> StaffInvitation | None:
+        return self.db.scalar(
+            select(StaffInvitation)
+            .where(StaffInvitation.token_hash == token_hash)
+            .options(selectinload(StaffInvitation.business))
+        )
+
+    def get_pending_staff_invitation(
+        self, *, business_id: uuid.UUID, invited_email: str
+    ) -> StaffInvitation | None:
+        return self.db.scalar(
+            select(StaffInvitation).where(
+                StaffInvitation.business_id == business_id,
+                StaffInvitation.invited_email == invited_email.lower(),
+                StaffInvitation.status == StaffInvitationStatus.PENDING,
+            )
+        )
+
+    def get_staff_member_by_business_email(
+        self, *, business_id: uuid.UUID, email: str
+    ) -> StaffMember | None:
+        return self.db.scalar(
+            select(StaffMember)
+            .join(StaffMember.user)
+            .where(StaffMember.business_id == business_id, User.email == email.lower())
+            .options(selectinload(StaffMember.user))
+        )
+
     def get_owner_staff_member(
         self, *, staff_member_id: uuid.UUID, owner_id: uuid.UUID
     ) -> StaffMember | None:
@@ -189,6 +227,19 @@ class IdentityRepository:
                 .join(StaffMember.business)
                 .where(Business.owner_id == owner_id)
                 .options(selectinload(StaffMember.user))
+            )
+        )
+
+    def list_staff_invitations(self, owner_id: uuid.UUID) -> list[StaffInvitation]:
+        return list(
+            self.db.scalars(
+                select(StaffInvitation)
+                .join(StaffInvitation.business)
+                .where(
+                    Business.owner_id == owner_id,
+                    StaffInvitation.status == StaffInvitationStatus.PENDING,
+                )
+                .options(selectinload(StaffInvitation.business))
             )
         )
 

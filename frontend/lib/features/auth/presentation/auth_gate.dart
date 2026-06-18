@@ -11,7 +11,9 @@ import 'auth_controller.dart';
 import 'login_screen.dart';
 
 class AuthGate extends ConsumerWidget {
-  const AuthGate({super.key});
+  const AuthGate({super.key, this.initialMessage});
+
+  final String? initialMessage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +31,10 @@ class AuthGate extends ConsumerWidget {
       error: (error, _) => LoginScreen(initialError: error.toString()),
       data: (state) {
         if (!state.isAuthenticated) {
-          return LoginScreen(initialError: sessionExpiredMessage);
+          return LoginScreen(
+            initialError: sessionExpiredMessage,
+            initialMessage: initialMessage,
+          );
         }
         if (state.isCustomer) {
           return CustomerScreen(user: state.user!);

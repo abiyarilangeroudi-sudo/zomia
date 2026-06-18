@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+import re
 from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
@@ -66,17 +67,36 @@ def create_staff(
     client: TestClient, owner_token: str, business_id: str, email: str
 ) -> tuple[str, str]:
     response = client.post(
-        "/api/v1/owner/staff",
+        "/api/v1/owner/staff/invitations",
         json={
             "business_id": business_id,
             "email": email,
-            "password": "strong-password",
-            "full_name": "Staff",
         },
         headers=auth(owner_token),
     )
     assert response.status_code == 201
-    return login(client, email), response.json()["user_id"]
+    token = latest_invitation_token(client)
+    preview_response = client.get(
+        "/api/v1/auth/staff-invitations/preview",
+        params={"token": token},
+    )
+    assert preview_response.status_code == 200
+    accept_response = client.post(
+        "/api/v1/auth/staff-invitations/accept",
+        json={"token": token, "password": "strong-password"},
+    )
+    assert accept_response.status_code == 204
+    staff_token = login(client, email)
+    me_response = client.get("/api/v1/auth/me", headers=auth(staff_token))
+    assert me_response.status_code == 200
+    return staff_token, me_response.json()["id"]
+
+
+def latest_invitation_token(client: TestClient) -> str:
+    body = client.app.state.email_sender.sent[-1]["body"]
+    match = re.search(r"accept-staff-invitation\?token=([A-Za-z0-9_-]+)", body)
+    assert match is not None
+    return match.group(1)
 
 
 def login(client: TestClient, email: str) -> str:
@@ -330,7 +350,7 @@ def test_owner_reads_recent_activity_for_business(client: TestClient) -> None:
     assert len(body) == 1
     assert body[0]["action_id"] == action_response.json()["action_id"]
     assert body[0]["action_type"] == "mission_progress"
-    assert body[0]["staff_name"] == "Staff"
+    assert body[0]["staff_name"] == "staff"
     assert body[0]["staff_email"] == "staff@example.com"
     assert body[0]["customer_name"] == "Customer"
     assert body[0]["customer_email"] == "customer@example.com"

@@ -9,10 +9,6 @@ class OwnerSetupController extends ChangeNotifier {
   final OwnerSetupRepository repository;
 
   final staffEmailController = TextEditingController(text: 'staff@example.com');
-  final staffNameController = TextEditingController(text: 'Staff One');
-  final staffPasswordController = TextEditingController(
-    text: 'strong-password',
-  );
   final missionNameController = TextEditingController(text: 'Buy Coffee');
   final missionPointsController = TextEditingController(text: '1');
   final DateTime _today = DateTime.now();
@@ -162,26 +158,17 @@ class OwnerSetupController extends ChangeNotifier {
     });
   }
 
-  Future<bool> createStaff() async {
+  Future<bool> sendStaffInvitation() async {
     final business = selectedBusiness;
     final email = staffEmailController.text.trim();
-    final fullName = staffNameController.text.trim();
-    final password = staffPasswordController.text;
-    if (business == null ||
-        email.isEmpty ||
-        fullName.isEmpty ||
-        password.length < 8) {
-      _showError('Enter a valid staff email, name, and password.');
+    if (business == null || email.isEmpty || !email.contains('@')) {
+      _showError('Enter a valid staff email.');
       return false;
     }
     return _save(
-      () => repository.createStaff(
-        businessId: business.id,
-        email: email,
-        password: password,
-        fullName: fullName,
-      ),
-      'Staff created.',
+      () =>
+          repository.sendStaffInvitation(businessId: business.id, email: email),
+      'Staff invitation sent.',
     );
   }
 
@@ -191,7 +178,7 @@ class OwnerSetupController extends ChangeNotifier {
   ) async {
     await _save(
       () => repository.setStaffActive(
-        staffMemberId: staffMember.id,
+        staffMemberId: staffMember.staffMemberId ?? staffMember.id,
         isActive: isActive,
       ),
       isActive ? 'Staff activated.' : 'Staff deactivated.',
@@ -375,8 +362,6 @@ class OwnerSetupController extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     staffEmailController.dispose();
-    staffNameController.dispose();
-    staffPasswordController.dispose();
     missionNameController.dispose();
     missionPointsController.dispose();
     campaignNameController.dispose();

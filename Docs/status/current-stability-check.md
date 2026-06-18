@@ -10,7 +10,7 @@ This document is the short checkpoint before the next feature phase.
 - Flutter MVP is implemented through Auth, Customer QR, Staff Dashboard, Owner Dashboard, Customer Registration, and UI/Branding recovery.
 - Customer registration is available from the Login screen and auto-signs the customer in after successful registration.
 - Customer profile allows the customer to update their display name; email stays read-only.
-- Owner minimal setup can create Staff, Mission, Reward Template, and Campaign from Flutter.
+- Owner minimal setup can invite Staff and create Mission, Reward Template, and Campaign from Flutter.
 - Owner Campaign creation now follows the current domain flow: select a Reward Template and included Missions when creating the Campaign.
 - Owner can view recent Staff activity for the selected business.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.

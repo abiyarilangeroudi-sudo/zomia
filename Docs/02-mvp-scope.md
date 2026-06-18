@@ -24,7 +24,7 @@ MVP باید کوچک باشد، اما معماری نهایی را خراب ن
 
 - ثبت‌نام Customer
 - ثبت‌نام Owner
-- ساخت Staff توسط Owner
+- دعوت Staff توسط Owner با لینک امن ایمیلی
 - JWT Authentication
 - Role-based access control
 

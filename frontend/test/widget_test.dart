@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.85 (86)'), findsOneWidget);
+    expect(find.text('Version 1.0.86 (87)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.85 (86)'));
+    await tester.tap(find.text('Version 1.0.86 (87)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -1129,12 +1129,12 @@ void main() {
     expect(find.text('setup-staff@example.com'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
     expect(find.byTooltip('Deactivate staff'), findsOneWidget);
-    expect(find.byTooltip('Create staff'), findsOneWidget);
+    expect(find.byTooltip('Invite staff'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Create staff'));
+    await tester.tap(find.byTooltip('Invite staff'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Create Staff'), findsWidgets);
+    expect(find.text('Invite Staff'), findsWidgets);
     expect(find.text('Staff email'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Close').last);
@@ -1594,13 +1594,12 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         id: 'staff-member-id',
         businessId: 'business-id',
         userId: 'staff-user-id',
+        staffMemberId: 'staff-member-id',
+        invitationId: null,
+        email: 'setup-staff@example.com',
+        fullName: 'Setup Staff',
+        status: _staffIsActive ? 'active' : 'inactive',
         isActive: _staffIsActive,
-        user: const OwnerStaffUser(
-          id: 'staff-user-id',
-          email: 'setup-staff@example.com',
-          fullName: 'Setup Staff',
-          isActive: true,
-        ),
       ),
     ];
   }

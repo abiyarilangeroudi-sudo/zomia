@@ -9,6 +9,15 @@ from sqlalchemy.pool import StaticPool
 from app.core.config import Settings, get_settings
 from app.core.database import Base, get_db
 from app.main import create_app
+from app.modules.identity.dependencies import get_email_sender
+
+
+class CapturingEmailSender:
+    def __init__(self) -> None:
+        self.sent: list[dict[str, str]] = []
+
+    def send_email(self, *, to_email: str, subject: str, body: str) -> None:
+        self.sent.append({"to_email": to_email, "subject": subject, "body": body})
 
 
 @pytest.fixture
@@ -28,6 +37,7 @@ def db_session() -> Generator[Session, None, None]:
 @pytest.fixture
 def client(db_session: Session) -> Generator[TestClient, None, None]:
     app = create_app()
+    email_sender = CapturingEmailSender()
 
     def override_db() -> Generator[Session, None, None]:
         yield db_session
@@ -43,5 +53,7 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
 
     app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_settings] = override_settings
+    app.dependency_overrides[get_email_sender] = lambda: email_sender
+    app.state.email_sender = email_sender
     with TestClient(app) as test_client:
         yield test_client

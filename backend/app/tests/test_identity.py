@@ -1,4 +1,5 @@
 import hashlib
+import re
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
@@ -6,7 +7,13 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.modules.identity.models import EmailVerificationOtp, RefreshToken, StaffMember, User
+from app.modules.identity.models import (
+    EmailVerificationOtp,
+    RefreshToken,
+    StaffInvitation,
+    StaffMember,
+    User,
+)
 from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import UserCreate
 from app.modules.identity.service import IdentityService
@@ -79,6 +86,40 @@ def register_owner(
     )
     assert business_response.status_code == 200
     return business_response.json()[0]
+
+
+def latest_staff_invitation_token(client: TestClient) -> str:
+    body = client.app.state.email_sender.sent[-1]["body"]
+    match = re.search(r"accept-staff-invitation\?token=([A-Za-z0-9_-]+)", body)
+    assert match is not None
+    return match.group(1)
+
+
+def invite_and_accept_staff(
+    client: TestClient, *, owner_token: str, business_id: str, email: str
+) -> tuple[str, dict]:
+    invite_response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json={"business_id": business_id, "email": email},
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
+    assert invite_response.status_code == 201
+    token = latest_staff_invitation_token(client)
+    accept_response = client.post(
+        "/api/v1/auth/staff-invitations/accept",
+        json={"token": token, "password": "strong-password"},
+    )
+    assert accept_response.status_code == 204
+    staff_token = client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": "strong-password"},
+    ).json()["access_token"]
+    staff_list = client.get(
+        "/api/v1/owner/staff",
+        headers={"Authorization": f"Bearer {owner_token}"},
+    ).json()
+    accepted_staff = next(item for item in staff_list if item["email"] == email)
+    return staff_token, accepted_staff
 
 
 def test_customer_registration_login_and_me(client: TestClient) -> None:
@@ -665,7 +706,7 @@ def test_non_customer_cannot_update_customer_profile(client: TestClient) -> None
     assert response.status_code == 403
 
 
-def test_owner_can_create_business_and_staff(client: TestClient) -> None:
+def test_owner_can_create_business_and_send_staff_invitation(client: TestClient) -> None:
     owner_business = register_owner(
         client,
         email="owner@example.com",
@@ -710,17 +751,141 @@ def test_owner_can_create_business_and_staff(client: TestClient) -> None:
     assert business["currency_code"] == "EUR"
 
     staff_response = client.post(
-        "/api/v1/owner/staff",
-        json={
-            "business_id": business_id,
-            "email": "staff@example.com",
-            "password": "strong-password",
-            "full_name": "Staff One",
-        },
+        "/api/v1/owner/staff/invitations",
+        json={"business_id": business_id, "email": "staff@example.com"},
         headers=headers,
     )
     assert staff_response.status_code == 201
-    assert staff_response.json()["user"]["role"] == "staff"
+    assert staff_response.json()["status"] == "pending"
+    assert staff_response.json()["email"] == "staff@example.com"
+
+
+def test_staff_invitation_accepts_secure_link(client: TestClient) -> None:
+    business = register_owner(
+        client,
+        email="invite-owner@example.com",
+        business_name="Invite Cafe",
+    )
+    owner_token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "invite-owner@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+    invite_response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json={"business_id": business["id"], "email": "invited-staff@example.com"},
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
+    assert invite_response.status_code == 201
+    assert invite_response.json()["status"] == "pending"
+
+    login_before_accept = client.post(
+        "/api/v1/auth/login",
+        json={"email": "invited-staff@example.com", "password": "strong-password"},
+    )
+    assert login_before_accept.status_code == 401
+
+    token = latest_staff_invitation_token(client)
+    preview_response = client.get(
+        "/api/v1/auth/staff-invitations/preview",
+        params={"token": token},
+    )
+    assert preview_response.status_code == 200
+    assert preview_response.json()["email"] == "invited-staff@example.com"
+    assert preview_response.json()["business_name"] == "Invite Cafe"
+
+    accept_response = client.post(
+        "/api/v1/auth/staff-invitations/accept",
+        json={"token": token, "password": "strong-password"},
+    )
+    assert accept_response.status_code == 204
+
+    login_after_accept = client.post(
+        "/api/v1/auth/login",
+        json={"email": "invited-staff@example.com", "password": "strong-password"},
+    )
+    assert login_after_accept.status_code == 200
+    staff_token = login_after_accept.json()["access_token"]
+    context_response = client.get(
+        "/api/v1/staff/me/context",
+        headers={"Authorization": f"Bearer {staff_token}"},
+    )
+    assert context_response.status_code == 200
+    assert context_response.json()["businesses"][0]["id"] == business["id"]
+
+    accept_again_response = client.post(
+        "/api/v1/auth/staff-invitations/accept",
+        json={"token": token, "password": "strong-password"},
+    )
+    assert accept_again_response.status_code == 400
+
+
+def test_staff_invitation_rejects_duplicate_pending_and_existing_staff(
+    client: TestClient,
+) -> None:
+    business = register_owner(
+        client,
+        email="duplicate-invite-owner@example.com",
+        business_name="Duplicate Invite Cafe",
+    )
+    owner_token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "duplicate-invite-owner@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+    headers = {"Authorization": f"Bearer {owner_token}"}
+    payload = {"business_id": business["id"], "email": "duplicate-staff@example.com"}
+    first_response = client.post("/api/v1/owner/staff/invitations", json=payload, headers=headers)
+    assert first_response.status_code == 201
+
+    pending_duplicate_response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json=payload,
+        headers=headers,
+    )
+    assert pending_duplicate_response.status_code == 409
+
+    token = latest_staff_invitation_token(client)
+    accept_response = client.post(
+        "/api/v1/auth/staff-invitations/accept",
+        json={"token": token, "password": "strong-password"},
+    )
+    assert accept_response.status_code == 204
+
+    existing_staff_response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json=payload,
+        headers=headers,
+    )
+    assert existing_staff_response.status_code == 409
+
+
+def test_staff_invitation_rejects_expired_token(
+    client: TestClient, db_session: Session
+) -> None:
+    business = register_owner(
+        client,
+        email="expired-invite-owner@example.com",
+        business_name="Expired Invite Cafe",
+    )
+    owner_token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "expired-invite-owner@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+    invite_response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json={"business_id": business["id"], "email": "expired-staff@example.com"},
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
+    assert invite_response.status_code == 201
+    token = latest_staff_invitation_token(client)
+    invitation = db_session.query(StaffInvitation).one()
+    invitation.expires_at = datetime.now(UTC) - timedelta(minutes=1)
+    db_session.flush()
+
+    accept_response = client.post(
+        "/api/v1/auth/staff-invitations/accept",
+        json={"token": token, "password": "strong-password"},
+    )
+    assert accept_response.status_code == 400
 
 
 def test_owner_can_update_own_business_profile(client: TestClient) -> None:
@@ -841,21 +1006,12 @@ def test_staff_can_read_own_context(client: TestClient) -> None:
         json={"email": "owner-context@example.com", "password": "strong-password"},
     ).json()["access_token"]
 
-    staff_response = client.post(
-        "/api/v1/owner/staff",
-        json={
-            "business_id": business["id"],
-            "email": "staff-context@example.com",
-            "password": "strong-password",
-            "full_name": "Staff Context",
-        },
-        headers={"Authorization": f"Bearer {owner_token}"},
+    staff_token, staff_member = invite_and_accept_staff(
+        client,
+        owner_token=owner_token,
+        business_id=business["id"],
+        email="staff-context@example.com",
     )
-    assert staff_response.status_code == 201
-    staff_token = client.post(
-        "/api/v1/auth/login",
-        json={"email": "staff-context@example.com", "password": "strong-password"},
-    ).json()["access_token"]
 
     response = client.get(
         "/api/v1/staff/me/context",
@@ -873,7 +1029,7 @@ def test_staff_can_read_own_context(client: TestClient) -> None:
             "status": "active",
             "timezone": "Europe/Berlin",
             "currency_code": "EUR",
-            "staff_membership_id": staff_response.json()["id"],
+            "staff_membership_id": staff_member["staff_member_id"],
         }
     ]
 
@@ -890,22 +1046,13 @@ def test_owner_can_toggle_staff_active_status(client: TestClient) -> None:
         json={"email": "owner-toggle@example.com", "password": "strong-password"},
     ).json()["access_token"]
     owner_headers = {"Authorization": f"Bearer {owner_token}"}
-    staff_response = client.post(
-        "/api/v1/owner/staff",
-        json={
-            "business_id": business["id"],
-            "email": "staff-toggle@example.com",
-            "password": "strong-password",
-            "full_name": "Staff Toggle",
-        },
-        headers=owner_headers,
+    staff_token, staff_member = invite_and_accept_staff(
+        client,
+        owner_token=owner_token,
+        business_id=business["id"],
+        email="staff-toggle@example.com",
     )
-    assert staff_response.status_code == 201
-    staff_id = staff_response.json()["id"]
-    staff_token = client.post(
-        "/api/v1/auth/login",
-        json={"email": "staff-toggle@example.com", "password": "strong-password"},
-    ).json()["access_token"]
+    staff_id = staff_member["staff_member_id"]
 
     inactive_response = client.patch(
         f"/api/v1/owner/staff/{staff_id}",
@@ -959,28 +1106,19 @@ def test_staff_context_can_return_multiple_businesses(
         json={"name": "Second Context Cafe"},
         headers=headers,
     ).json()
-    staff_response = client.post(
-        "/api/v1/owner/staff",
-        json={
-            "business_id": first_business["id"],
-            "email": "staff-multi-context@example.com",
-            "password": "strong-password",
-            "full_name": "Staff Multi Context",
-        },
-        headers=headers,
+    staff_token, staff_member = invite_and_accept_staff(
+        client,
+        owner_token=owner_token,
+        business_id=first_business["id"],
+        email="staff-multi-context@example.com",
     )
-    assert staff_response.status_code == 201
     db_session.add(
         StaffMember(
             business_id=UUID(second_business["id"]),
-            user_id=UUID(staff_response.json()["user_id"]),
+            user_id=UUID(staff_member["user_id"]),
         )
     )
     db_session.flush()
-    staff_token = client.post(
-        "/api/v1/auth/login",
-        json={"email": "staff-multi-context@example.com", "password": "strong-password"},
-    ).json()["access_token"]
 
     response = client.get(
         "/api/v1/staff/me/context",

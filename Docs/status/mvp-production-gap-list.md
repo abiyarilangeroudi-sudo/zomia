@@ -169,7 +169,7 @@ F10.11 progress:
 
 ### 8. Staff Lifecycle Management
 
-Owner can create Staff and F10.2 adds Active/Inactive switching.
+Owner can invite Staff and F10.2 adds Active/Inactive switching.
 
 Required:
 
@@ -177,6 +177,9 @@ Required:
 - Make inactive Staff unable to access Staff workflows for that business.
 - Show clear active/inactive Staff status in Owner dashboard.
 - Add tests for inactive Staff access denial.
+- Staff Invitation must remain the only MVP path for new Staff account activation.
+- Staff must accept the secure email invitation link and set password before the Staff membership becomes usable.
+- Owner should see Staff invitation states such as `Pending`, `Active`, and `Inactive`; resend/cancel invitation can be added as MVP-safe controls later.
 
 F10.2 progress:
 
@@ -184,6 +187,21 @@ F10.2 progress:
 - Inactive Staff are removed from Staff context for that business.
 - Inactive Staff cannot resolve Customer QR for that business.
 - Owner UI shows Active/Inactive state and confirms the switch.
+
+F12 gap:
+
+- Manual QA found that Owner-created Staff currently becomes an account without Staff email verification.
+- Production MVP direction is Staff Invitation, not direct Staff account creation.
+
+F13 progress:
+
+- Direct Owner-created Staff account activation is disabled.
+- Owner now sends secure Staff invitation links.
+- Staff invitation token is single-use, time-limited, and stored hashed.
+- Staff email is locked by the invitation; Staff sets password only during accept.
+- Staff membership becomes active only after invitation accept.
+- Owner Staff list includes pending invitations alongside active/inactive memberships.
+- Resend/cancel invitation controls remain future work.
 
 ### 9. Repeatable Campaign Cycles
 

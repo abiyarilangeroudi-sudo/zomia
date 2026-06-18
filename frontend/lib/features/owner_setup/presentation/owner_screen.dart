@@ -102,7 +102,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 )
               : _selectedIndex == 2 && !_controller.isLoading
               ? FloatingCreateButton(
-                  tooltip: 'Create staff',
+                  tooltip: 'Invite staff',
                   onPressed: _openCreateStaffDialog,
                 )
               : null,
@@ -251,13 +251,11 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
         fullscreenDialog: true,
         builder: (context) => AnimatedBuilder(
           animation: _controller,
-          builder: (context, _) => OwnerCreateStaffDialog(
+          builder: (context, _) => OwnerInviteStaffDialog(
             emailController: _controller.staffEmailController,
-            fullNameController: _controller.staffNameController,
-            passwordController: _controller.staffPasswordController,
             errorMessage: _controller.error,
             isSaving: _controller.isSaving,
-            onCreate: _controller.createStaff,
+            onSend: _controller.sendStaffInvitation,
           ),
         ),
       ),

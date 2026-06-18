@@ -162,21 +162,14 @@ class OwnerSetupRepository {
     }
   }
 
-  Future<void> createStaff({
+  Future<void> sendStaffInvitation({
     required String businessId,
     required String email,
-    required String password,
-    required String fullName,
   }) async {
     try {
       await _dio.post<Map<String, dynamic>>(
-        '/owner/staff',
-        data: {
-          'business_id': businessId,
-          'email': email,
-          'password': password,
-          'full_name': fullName,
-        },
+        '/owner/staff/invitations',
+        data: {'business_id': businessId, 'email': email},
       );
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
@@ -282,6 +275,9 @@ String mapOwnerSetupErrorDetail(String detail) {
     'One or more missions were not found' =>
       'One or more selected missions are no longer available.',
     'Email already exists' => 'This email is already registered.',
+    'Staff already exists' => 'This staff member already exists.',
+    'Staff invitation already pending' =>
+      'A staff invitation is already pending for this email.',
     'Insufficient role' => 'You do not have access to this area.',
     _ => 'Setup action could not be completed. Please try again.',
   };

@@ -6,6 +6,7 @@ import '../features/auth/presentation/business_register_screen.dart';
 import '../features/auth/presentation/customer_register_screen.dart';
 import '../features/auth/presentation/email_verification_screen.dart';
 import '../features/auth/presentation/password_recovery_screens.dart';
+import '../features/auth/presentation/staff_invitation_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -13,7 +14,12 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/',
       name: 'auth-gate',
-      builder: (context, state) => const AuthGate(),
+      builder: (context, state) => AuthGate(
+        initialMessage:
+            state.uri.queryParameters['message'] == 'staff_invitation_accepted'
+            ? 'Invitation accepted. Please sign in.'
+            : null,
+      ),
     ),
     GoRoute(
       path: '/ui-catalog',
@@ -56,6 +62,13 @@ final appRouter = GoRouter(
       name: 'password-recovery-reset',
       builder: (context, state) => SetNewPasswordScreen(
         resetToken: state.uri.queryParameters['reset_token'] ?? '',
+      ),
+    ),
+    GoRoute(
+      path: '/accept-staff-invitation',
+      name: 'accept-staff-invitation',
+      builder: (context, state) => StaffInvitationScreen(
+        token: state.uri.queryParameters['token'] ?? '',
       ),
     ),
   ],

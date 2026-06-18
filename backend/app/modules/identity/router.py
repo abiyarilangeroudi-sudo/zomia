@@ -30,6 +30,10 @@ from app.modules.identity.schemas import (
     RefreshTokenRequest,
     StaffContextRead,
     StaffCreate,
+    StaffInvitationAccept,
+    StaffInvitationPreviewRead,
+    StaffInviteCreate,
+    OwnerStaffRead,
     StaffRead,
     StaffUpdate,
     TokenResponse,
@@ -325,6 +329,53 @@ def create_staff(
     return staff_member
 
 
+@router.post(
+    "/owner/staff/invitations",
+    response_model=OwnerStaffRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def invite_staff(
+    payload: StaffInviteCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> OwnerStaffRead:
+    invitation = service.invite_staff(current_user, payload)
+    db.commit()
+    db.refresh(invitation)
+    return OwnerStaffRead(
+        id=invitation.id,
+        business_id=invitation.business_id,
+        user_id=None,
+        staff_member_id=None,
+        invitation_id=invitation.id,
+        email=invitation.invited_email,
+        full_name=None,
+        status="pending",
+        is_active=False,
+        created_at=invitation.created_at,
+    )
+
+
+@router.get("/auth/staff-invitations/preview", response_model=StaffInvitationPreviewRead)
+def preview_staff_invitation(
+    token: str,
+    service: IdentityService = Depends(get_identity_service),
+) -> StaffInvitationPreviewRead:
+    return service.preview_staff_invitation(token=token)
+
+
+@router.post("/auth/staff-invitations/accept", status_code=status.HTTP_204_NO_CONTENT)
+def accept_staff_invitation(
+    payload: StaffInvitationAccept,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.accept_staff_invitation(payload)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.patch("/owner/staff/{staff_member_id}", response_model=StaffRead)
 def update_staff(
     staff_member_id: uuid.UUID,
@@ -340,10 +391,9 @@ def update_staff(
     return staff_member
 
 
-@router.get("/owner/staff", response_model=list[StaffRead])
+@router.get("/owner/staff", response_model=list[OwnerStaffRead])
 def list_staff(
     current_user: User = Depends(get_current_user),
-    repository: IdentityRepository = Depends(get_identity_repository),
-) -> list:
-    IdentityService._require_role(current_user, UserRole.OWNER)
-    return repository.list_staff_members(current_user.id)
+    service: IdentityService = Depends(get_identity_service),
+) -> list[OwnerStaffRead]:
+    return service.list_owner_staff(current_user)
