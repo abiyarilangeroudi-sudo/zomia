@@ -2,9 +2,9 @@
 
 Date: 2026-06-13
 
-This document defines the future contract for password recovery and email verification.
+This document defines the contract for password recovery, email verification, and account email changes.
 
-No backend endpoint, migration, or Flutter screen is implemented in F10.4. This is a design checkpoint to prevent rushed authentication work.
+F10.4 created the initial design checkpoint. Later F10 work implemented the core email/password account flows while keeping this document as the product/security contract reference.
 
 ## Scope
 
@@ -14,6 +14,7 @@ Included:
 - Reset Password contract
 - Email Verification request contract
 - Email Verification confirm contract
+- Change Email contract
 - Candidate database tables
 - Flutter UX flow
 - Delivery strategy hold rule
@@ -162,6 +163,56 @@ Rules:
 - Token/code must be valid, unused, and unexpired.
 - Mark user email as verified.
 - Mark token/code as used.
+
+## Change Email Flow
+
+### 1. Start Change Email
+
+```text
+POST /api/v1/auth/change-email/start
+```
+
+Request:
+
+```json
+{
+  "new_email": "new-customer@example.com",
+  "current_password": "strong-password"
+}
+```
+
+Rules:
+
+- User must be authenticated.
+- MVP implementation is Customer-only first.
+- Current password must be verified before sending OTP.
+- OTP is sent to the new email address.
+- Existing email remains active until OTP verification succeeds.
+- New email must not already exist in `users.email`.
+- New email is temporarily reserved while an unexpired `email_change` OTP exists.
+- Reservation expires with the OTP window so an email cannot be blocked permanently.
+
+### 2. Verify Change Email
+
+```text
+POST /api/v1/auth/change-email/verify
+```
+
+Request:
+
+```json
+{
+  "new_email": "new-customer@example.com",
+  "code": "123456"
+}
+```
+
+Rules:
+
+- OTP must be valid, unused, and unexpired.
+- OTP payload must belong to the authenticated user.
+- On success, update `users.email` and `email_verified_at`.
+- Do not revoke existing refresh tokens after a successful email change.
 
 ## Candidate Database Schema
 

@@ -37,6 +37,12 @@ class IdentityRepository:
         self.db.flush()
         return user
 
+    def update_user_email(self, *, user: User, email: str, email_verified_at) -> User:
+        user.email = email.lower()
+        user.email_verified_at = email_verified_at
+        self.db.flush()
+        return user
+
     def add_refresh_token(self, refresh_token: RefreshToken) -> RefreshToken:
         self.db.add(refresh_token)
         self.db.flush()
@@ -68,6 +74,19 @@ class IdentityRepository:
                 EmailVerificationOtp.code_hash == code_hash,
                 EmailVerificationOtp.purpose == purpose,
                 EmailVerificationOtp.consumed_at.is_(None),
+            )
+        )
+
+    def list_active_email_verification_otps(
+        self, *, purpose: str, now
+    ) -> list[EmailVerificationOtp]:
+        return list(
+            self.db.scalars(
+                select(EmailVerificationOtp).where(
+                    EmailVerificationOtp.purpose == purpose,
+                    EmailVerificationOtp.consumed_at.is_(None),
+                    EmailVerificationOtp.expires_at > now,
+                )
             )
         )
 

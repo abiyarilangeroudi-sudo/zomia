@@ -34,6 +34,7 @@ CUSTOMER_REGISTRATION_PURPOSE = "customer_registration"
 OWNER_REGISTRATION_PURPOSE = "owner_registration"
 PASSWORD_RESET_PURPOSE = "password_reset"
 PASSWORD_RESET_VERIFIED_PURPOSE = "password_reset_verified"
+EMAIL_CHANGE_PURPOSE = "email_change"
 
 
 class IdentityService:
@@ -280,6 +281,67 @@ class IdentityService:
         )
         self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
 
+    def start_email_change(self, *, user: User, new_email: str, current_password: str) -> None:
+        self._require_role(user, UserRole.CUSTOMER)
+        normalized_email = new_email.lower()
+        if not user.is_active or not verify_password(current_password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect current password",
+            )
+        if normalized_email == user.email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Email is unchanged"
+            )
+        if self.repository.get_user_by_email(normalized_email) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+        self._ensure_email_change_not_reserved(new_email=normalized_email, user_id=user.id)
+        code = self._generate_otp_code()
+        self.repository.add_email_verification_otp(
+            EmailVerificationOtp(
+                email=normalized_email,
+                purpose=EMAIL_CHANGE_PURPOSE,
+                code_hash=self._hash_otp_code(code),
+                payload_json={"user_id": str(user.id), "new_email": normalized_email},
+                expires_at=datetime.now(UTC) + timedelta(minutes=self.settings.otp_expires_minutes),
+            )
+        )
+        self.email_sender.send_email(
+            to_email=normalized_email,
+            subject="Email Change Verification",
+            body=(
+                "Email Change Verification\n\n"
+                "Hello,\n\n"
+                "Please use the following verification code to confirm your new Zomia email:\n\n"
+                f"{code}\n"
+                "This code will expire in 10 minutes.\n\n"
+                "If you didn't request this change, please ignore this email.\n\n"
+                "Best regards,\n"
+                "The Zomia Team\n\n"
+                "© 2026 Zomia. All rights reserved."
+            ),
+        )
+
+    def verify_email_change(self, *, user: User, new_email: str, code: str) -> User:
+        self._require_role(user, UserRole.CUSTOMER)
+        normalized_email = new_email.lower()
+        otp = self._consume_otp(
+            email=normalized_email,
+            code=code,
+            purpose=EMAIL_CHANGE_PURPOSE,
+        )
+        if otp.payload_json.get("user_id") != str(user.id):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OTP")
+        if otp.payload_json.get("new_email") != normalized_email:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OTP")
+        if self.repository.get_user_by_email(normalized_email) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+        return self.repository.update_user_email(
+            user=user,
+            email=normalized_email,
+            email_verified_at=datetime.now(UTC),
+        )
+
     def refresh_session(self, raw_refresh_token: str) -> tuple[str, str]:
         now = datetime.now(UTC)
         refresh_token = self.repository.get_refresh_token_by_hash(
@@ -395,6 +457,21 @@ class IdentityService:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OTP")
         otp.consumed_at = now
         return otp
+
+    def _ensure_email_change_not_reserved(self, *, new_email: str, user_id: uuid.UUID) -> None:
+        active_otps = self.repository.list_active_email_verification_otps(
+            purpose=EMAIL_CHANGE_PURPOSE,
+            now=datetime.now(UTC),
+        )
+        for otp in active_otps:
+            if otp.payload_json.get("new_email") != new_email:
+                continue
+            if otp.payload_json.get("user_id") == str(user_id):
+                continue
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email change already pending",
+            )
 
     def _generate_otp_code(self) -> str:
         if self.settings.otp_test_code is not None:

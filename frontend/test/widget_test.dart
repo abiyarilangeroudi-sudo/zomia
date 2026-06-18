@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.79 (80)'), findsOneWidget);
+    expect(find.text('Version 1.0.80 (81)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.79 (80)'));
+    await tester.tap(find.text('Version 1.0.80 (81)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -919,6 +919,71 @@ void main() {
       find.text('Password changed. Please sign in again.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('changes customer email and keeps the session active', (
+    tester,
+  ) async {
+    final tokenStore = _MemoryTokenStore();
+    final authRepository = _FakeAuthRepository(role: 'customer');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'customer@example.com',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.byTooltip('Menu'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Setting'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Change Email'));
+    await pumpAppFrames(tester);
+
+    await _enterTextByLabel(tester, 'New Email', 'new-customer@example.com');
+    await _enterTextByLabel(tester, 'Current Password', 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+    await pumpAppFrames(tester);
+
+    expect(authRepository.startedEmailChange, isTrue);
+    expect(authRepository.emailChangeNewEmail, 'new-customer@example.com');
+    expect(find.text('Code sent to new-customer@example.com.'), findsOneWidget);
+
+    await _enterTextByLabel(tester, 'Verification code', '123456');
+    await tester.tap(find.widgetWithText(FilledButton, 'Verify email'));
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.verifiedEmailChange, isTrue);
+    expect(await tokenStore.readAccessToken(), 'access-token');
+    expect(await tokenStore.readRefreshToken(), 'refresh-token');
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Email changed.'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.byTooltip('Menu'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Profile'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('new-customer@example.com'), findsOneWidget);
   });
 
   testWidgets('signs in and renders owner setup screen', (tester) async {
@@ -1481,12 +1546,17 @@ class _FakeAuthRepository extends AuthRepository {
   bool verifiedPasswordRecovery = false;
   bool completedPasswordRecovery = false;
   bool changedPassword = false;
+  bool startedEmailChange = false;
+  bool verifiedEmailChange = false;
   String? ownerBusinessName;
   String? ownerBusinessCategory;
   String? updatedCustomerName;
   String? completedNewPassword;
   String? changedCurrentPassword;
   String? changedNewPassword;
+  String? emailChangeNewEmail;
+  String? emailChangeCurrentPassword;
+  String? currentEmail;
   int refreshCount = 0;
   String? loggedOutRefreshToken;
 
@@ -1570,6 +1640,36 @@ class _FakeAuthRepository extends AuthRepository {
   }
 
   @override
+  Future<void> startEmailChange({
+    required String newEmail,
+    required String currentPassword,
+  }) async {
+    startedEmailChange = true;
+    emailChangeNewEmail = newEmail;
+    emailChangeCurrentPassword = currentPassword;
+  }
+
+  @override
+  Future<CurrentUser> verifyEmailChange({
+    required String newEmail,
+    required String code,
+  }) async {
+    verifiedEmailChange = true;
+    currentEmail = newEmail;
+    return CurrentUser(
+      id: '$role-id',
+      email: newEmail,
+      fullName: switch (role) {
+        'owner' => 'Owner One',
+        'staff' => 'Staff One',
+        _ => updatedCustomerName ?? 'Customer One',
+      },
+      role: role,
+      isActive: true,
+    );
+  }
+
+  @override
   Future<AuthTokens> login({
     required String email,
     required String password,
@@ -1599,7 +1699,7 @@ class _FakeAuthRepository extends AuthRepository {
     updatedCustomerName = fullName;
     return CurrentUser(
       id: '$role-id',
-      email: '$role@example.com',
+      email: currentEmail ?? '$role@example.com',
       fullName: fullName,
       role: role,
       isActive: true,
@@ -1610,7 +1710,7 @@ class _FakeAuthRepository extends AuthRepository {
   Future<CurrentUser> getCurrentUser() async {
     return CurrentUser(
       id: '$role-id',
-      email: '$role@example.com',
+      email: currentEmail ?? '$role@example.com',
       fullName: switch (role) {
         'owner' => 'Owner One',
         'staff' => 'Staff One',

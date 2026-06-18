@@ -185,6 +185,35 @@ class AuthRepository {
     }
   }
 
+  Future<void> startEmailChange({
+    required String newEmail,
+    required String currentPassword,
+  }) async {
+    try {
+      await _dio.post<void>(
+        '/auth/change-email/start',
+        data: {'new_email': newEmail, 'current_password': currentPassword},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<CurrentUser> verifyEmailChange({
+    required String newEmail,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/auth/change-email/verify',
+        data: {'new_email': newEmail, 'code': code},
+      );
+      return CurrentUser.fromJson(response.data ?? <String, dynamic>{});
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<StaffContext> getStaffContext() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -259,6 +288,8 @@ String mapAuthErrorDetail(String detail) {
     'Reset token expired' => 'The password reset session expired.',
     'Invalid token' => 'Request a new password reset code.',
     'Incorrect current password' => 'Current password is incorrect.',
+    'Email is unchanged' => 'Enter a different email address.',
+    'Email change already pending' => 'This email is already being verified.',
     'Insufficient role' => 'You do not have access to this area.',
     _ => 'Something went wrong. Please try again.',
   };

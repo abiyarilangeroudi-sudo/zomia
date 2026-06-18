@@ -14,6 +14,8 @@ from app.modules.identity.schemas import (
     BusinessCreate,
     BusinessRead,
     CustomerProfileUpdate,
+    EmailChangeStart,
+    EmailChangeVerify,
     EmailVerificationConfirm,
     LoginRequest,
     OwnerRegister,
@@ -175,6 +177,39 @@ def change_password(
     )
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/auth/change-email/start", status_code=status.HTTP_202_ACCEPTED)
+def start_email_change(
+    payload: EmailChangeStart,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.start_email_change(
+        user=current_user,
+        new_email=str(payload.new_email),
+        current_password=payload.current_password,
+    )
+    db.commit()
+    return Response(status_code=status.HTTP_202_ACCEPTED)
+
+
+@router.post("/auth/change-email/verify", response_model=UserRead)
+def verify_email_change(
+    payload: EmailChangeVerify,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> User:
+    user = service.verify_email_change(
+        user=current_user,
+        new_email=str(payload.new_email),
+        code=payload.code,
+    )
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @router.post("/auth/refresh", response_model=TokenResponse)

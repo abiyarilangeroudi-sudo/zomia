@@ -265,6 +265,16 @@ F10.17 progress:
 - Flutter clears the local session and shows `Password changed. Please sign in again.`
 - `Change Email` and `Remove Account` remain planned account actions.
 
+F10.18 progress:
+
+- `Settings > Account > Change Email` now has a Customer-only MVP flow.
+- Starting an email change requires the current password.
+- OTP is sent to the new email address.
+- The old email remains active until OTP verification succeeds.
+- The pending new email is temporarily reserved through the active OTP window to prevent another account claiming it during verification.
+- Successful email change updates the Customer email and keeps existing refresh tokens valid.
+- Owner and Staff email change remain future extensions of the same Identity flow.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion later, not registration requirement.

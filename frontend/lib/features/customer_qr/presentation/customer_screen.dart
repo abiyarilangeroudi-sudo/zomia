@@ -273,6 +273,18 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
                     currentPassword: currentPassword,
                     newPassword: newPassword,
                   ),
+          onStartEmailChange:
+              ({required String newEmail, required String currentPassword}) =>
+                  ref
+                      .read(authControllerProvider.notifier)
+                      .startEmailChange(
+                        newEmail: newEmail,
+                        currentPassword: currentPassword,
+                      ),
+          onVerifyEmailChange:
+              ({required String newEmail, required String code}) => ref
+                  .read(authControllerProvider.notifier)
+                  .verifyEmailChange(newEmail: newEmail, code: code),
         ),
       ),
     );

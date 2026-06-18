@@ -407,6 +407,104 @@ def test_change_password_updates_password_and_revokes_refresh_tokens(
     assert refresh_response.status_code == 401
 
 
+def test_change_email_requires_current_password(client: TestClient) -> None:
+    register_customer(client, email="email-password@example.com")
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "email-password@example.com", "password": "strong-password"},
+    )
+    access_token = login_response.json()["access_token"]
+
+    response = client.post(
+        "/api/v1/auth/change-email/start",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={
+            "new_email": "email-password-new@example.com",
+            "current_password": "wrong-password",
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Incorrect current password"
+
+
+def test_change_email_reserves_pending_email_for_limited_time(client: TestClient) -> None:
+    register_customer(client, email="email-owner-a@example.com")
+    token_a = client.post(
+        "/api/v1/auth/login",
+        json={"email": "email-owner-a@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+    register_customer(client, email="email-owner-b@example.com")
+    token_b = client.post(
+        "/api/v1/auth/login",
+        json={"email": "email-owner-b@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+
+    start_response = client.post(
+        "/api/v1/auth/change-email/start",
+        headers={"Authorization": f"Bearer {token_a}"},
+        json={
+            "new_email": "reserved-email@example.com",
+            "current_password": "strong-password",
+        },
+    )
+    blocked_response = client.post(
+        "/api/v1/auth/change-email/start",
+        headers={"Authorization": f"Bearer {token_b}"},
+        json={
+            "new_email": "reserved-email@example.com",
+            "current_password": "strong-password",
+        },
+    )
+
+    assert start_response.status_code == 202
+    assert blocked_response.status_code == 409
+    assert blocked_response.json()["detail"] == "Email change already pending"
+
+
+def test_change_email_updates_email_without_revoking_refresh_token(client: TestClient) -> None:
+    register_customer(client, email="email-change@example.com")
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "email-change@example.com", "password": "strong-password"},
+    )
+    access_token = login_response.json()["access_token"]
+    refresh_token = login_response.json()["refresh_token"]
+
+    start_response = client.post(
+        "/api/v1/auth/change-email/start",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={
+            "new_email": "email-change-new@example.com",
+            "current_password": "strong-password",
+        },
+    )
+    verify_response = client.post(
+        "/api/v1/auth/change-email/verify",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"new_email": "email-change-new@example.com", "code": "123456"},
+    )
+
+    assert start_response.status_code == 202
+    assert verify_response.status_code == 200
+    assert verify_response.json()["email"] == "email-change-new@example.com"
+    old_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "email-change@example.com", "password": "strong-password"},
+    )
+    assert old_login_response.status_code == 401
+    new_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "email-change-new@example.com", "password": "strong-password"},
+    )
+    assert new_login_response.status_code == 200
+    refresh_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh_token},
+    )
+    assert refresh_response.status_code == 200
+
+
 def test_customer_can_update_own_profile_name(client: TestClient) -> None:
     register_customer(client, email="profile-customer@example.com")
     token = client.post(
