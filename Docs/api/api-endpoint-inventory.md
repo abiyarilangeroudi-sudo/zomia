@@ -47,7 +47,7 @@ Unused endpoint policy:
 | POST | `/auth/password-recovery/start` | public | Flutter forgot password | active | Sends password reset OTP with neutral response. |
 | POST | `/auth/password-recovery/verify` | public | Flutter forgot password | active | Verifies reset OTP and returns short-lived reset token. |
 | POST | `/auth/password-recovery/complete` | public/reset-token | Flutter forgot password | active | Sets new password and revokes existing refresh tokens. |
-| POST | `/auth/change-password` | authenticated | Customer/Owner settings | active | Verifies current password, sets new password, revokes existing refresh tokens. |
+| POST | `/auth/change-password` | authenticated | Customer/Owner/Staff settings | active | Verifies current password, sets new password, revokes existing refresh tokens. |
 | POST | `/auth/change-email/start` | customer/owner | Customer/Owner settings | active | Verifies current password, reserves the new email temporarily, and sends OTP to the new email. |
 | POST | `/auth/change-email/verify` | customer/owner | Customer/Owner settings | active | Verifies OTP, updates the account email, and keeps existing refresh tokens valid. |
 | POST | `/auth/remove-account` | customer | Customer settings | active | Verifies current password, anonymizes/deactivates the Customer account, revokes refresh/QR tokens. |

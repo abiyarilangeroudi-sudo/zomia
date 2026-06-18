@@ -307,6 +307,13 @@ F10.22 progress:
 - Staff email change remains out of MVP until Owner/business membership policy is defined.
 - Staff account removal remains Owner-managed through Active/Inactive membership controls.
 
+F10.23 review:
+
+- Identity role behavior is documented in `Docs/status/identity-role-matrix.md`.
+- API inventory now reflects that Change Password is shared by Customer, Owner, and Staff.
+- The current MVP policy is explicit: Customer has full self-service account lifecycle, Owner has password/email changes without removal, and Staff has password change only.
+- Frontend may hide unavailable actions per role, but backend remains the source of truth for Identity policy.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion later, not registration requirement.
