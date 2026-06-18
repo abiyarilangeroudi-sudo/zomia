@@ -7,8 +7,8 @@ class AccountSettingsDialog extends StatelessWidget {
   const AccountSettingsDialog({
     super.key,
     required this.onChangePassword,
-    required this.onStartEmailChange,
-    required this.onVerifyEmailChange,
+    this.onStartEmailChange,
+    this.onVerifyEmailChange,
     this.onRemoveAccount,
   });
 
@@ -20,9 +20,9 @@ class AccountSettingsDialog extends StatelessWidget {
   final Future<void> Function({
     required String newEmail,
     required String currentPassword,
-  })
+  })?
   onStartEmailChange;
-  final Future<void> Function({required String newEmail, required String code})
+  final Future<void> Function({required String newEmail, required String code})?
   onVerifyEmailChange;
   final Future<void> Function({required String currentPassword})?
   onRemoveAccount;
@@ -48,12 +48,15 @@ class AccountSettingsDialog extends StatelessWidget {
                   leadingIcon: Icons.lock_reset_rounded,
                   onTap: () => _openChangePasswordDialog(context),
                 ),
-                const SizedBox(height: 12),
-                AppListRow(
-                  title: 'Change Email',
-                  leadingIcon: Icons.alternate_email_rounded,
-                  onTap: () => _openChangeEmailDialog(context),
-                ),
+                if (onStartEmailChange != null &&
+                    onVerifyEmailChange != null) ...[
+                  const SizedBox(height: 12),
+                  AppListRow(
+                    title: 'Change Email',
+                    leadingIcon: Icons.alternate_email_rounded,
+                    onTap: () => _openChangeEmailDialog(context),
+                  ),
+                ],
                 if (onRemoveAccount != null) ...[
                   const SizedBox(height: 12),
                   AppListRow(
@@ -81,12 +84,17 @@ class AccountSettingsDialog extends StatelessWidget {
   }
 
   void _openChangeEmailDialog(BuildContext context) {
+    final startHandler = onStartEmailChange;
+    final verifyHandler = onVerifyEmailChange;
+    if (startHandler == null || verifyHandler == null) {
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (context) => AccountChangeEmailDialog(
-          onStartEmailChange: onStartEmailChange,
-          onVerifyEmailChange: onVerifyEmailChange,
+          onStartEmailChange: startHandler,
+          onVerifyEmailChange: verifyHandler,
         ),
       ),
     );

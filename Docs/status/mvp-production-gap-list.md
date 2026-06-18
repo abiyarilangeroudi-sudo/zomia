@@ -299,6 +299,14 @@ F10.21 progress:
 - Owner can change email through the same OTP-based email change flow as Customer.
 - Owner account removal remains intentionally out of MVP until business ownership, staff membership, and campaign history policy is defined.
 
+F10.22 progress:
+
+- Staff Profile now links to Account Settings.
+- Staff can change password through the existing authenticated change-password endpoint.
+- Staff Account Settings intentionally shows only Change Password.
+- Staff email change remains out of MVP until Owner/business membership policy is defined.
+- Staff account removal remains Owner-managed through Active/Inactive membership controls.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion later, not registration requirement.

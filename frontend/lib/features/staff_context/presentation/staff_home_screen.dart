@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
+import '../../auth/presentation/account_settings_dialog.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../staff_service/data/staff_service_repository.dart';
 import '../../staff_service/domain/staff_service_models.dart';
@@ -114,6 +115,7 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
               child: _StaffProfileCard(
                 staff: widget.staff,
                 business: widget.business,
+                onOpenAccountSettings: _openAccountSettingsDialog,
                 onSignOut: () =>
                     ref.read(authControllerProvider.notifier).signOut(),
               ),
@@ -163,6 +165,26 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
       });
     }
   }
+
+  void _openAccountSettingsDialog() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => AccountSettingsDialog(
+          onChangePassword:
+              ({
+                required String currentPassword,
+                required String newPassword,
+              }) => ref
+                  .read(authControllerProvider.notifier)
+                  .changePassword(
+                    currentPassword: currentPassword,
+                    newPassword: newPassword,
+                  ),
+        ),
+      ),
+    );
+  }
 }
 
 class _BusinessHeader extends StatelessWidget {
@@ -207,11 +229,13 @@ class _StaffProfileCard extends StatelessWidget {
   const _StaffProfileCard({
     required this.staff,
     required this.business,
+    required this.onOpenAccountSettings,
     required this.onSignOut,
   });
 
   final StaffUser staff;
   final StaffBusiness business;
+  final VoidCallback onOpenAccountSettings;
   final VoidCallback onSignOut;
 
   @override
@@ -232,6 +256,12 @@ class _StaffProfileCard extends StatelessWidget {
             title: business.name,
             subtitle: '${business.currencyCode} · ${business.timezone}',
             leadingIcon: Icons.storefront_rounded,
+          ),
+          const SizedBox(height: 12),
+          AppListRow(
+            title: 'Account Settings',
+            leadingIcon: Icons.manage_accounts_rounded,
+            onTap: onOpenAccountSettings,
           ),
           const SizedBox(height: 16),
           Align(

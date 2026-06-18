@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.83 (84)'), findsOneWidget);
+    expect(find.text('Version 1.0.84 (85)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.83 (84)'));
+    await tester.tap(find.text('Version 1.0.84 (85)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -664,12 +664,13 @@ void main() {
 
   testWidgets('signs in and renders staff context', (tester) async {
     final tokenStore = _MemoryTokenStore();
+    final authRepository = _FakeAuthRepository();
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           secureTokenStoreProvider.overrideWithValue(tokenStore),
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          authRepositoryProvider.overrideWithValue(authRepository),
           staffServiceRepositoryProvider.overrideWithValue(
             _FakeStaffServiceRepository(),
           ),
@@ -716,6 +717,34 @@ void main() {
     expect(find.text('Profile'), findsWidgets);
     expect(find.text('Staff One'), findsOneWidget);
     expect(find.text('staff@example.com'), findsOneWidget);
+    expect(find.text('Account Settings'), findsOneWidget);
+
+    await tester.tap(find.text('Account Settings'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Change Password'), findsOneWidget);
+    expect(find.text('Change Email'), findsNothing);
+    expect(find.text('Remove Account'), findsNothing);
+
+    await tester.tap(find.text('Change Password'));
+    await pumpAppFrames(tester);
+    await _enterTextByLabel(tester, 'Current Password', 'strong-password');
+    await _enterTextByLabel(tester, 'New Password', 'new-strong-password');
+    await _enterTextByLabel(tester, 'Confirm Password', 'new-strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save password'));
+    await pumpAppFrames(tester);
+
+    expect(authRepository.changedPassword, isTrue);
+    expect(authRepository.changedCurrentPassword, 'strong-password');
+    expect(authRepository.changedNewPassword, 'new-strong-password');
+    expect(await tokenStore.readAccessToken(), isNull);
+    expect(await tokenStore.readRefreshToken(), isNull);
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(
+      find.text('Password changed. Please sign in again.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('signs in and renders customer QR screen', (tester) async {
