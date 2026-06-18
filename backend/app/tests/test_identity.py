@@ -348,6 +348,65 @@ def test_password_recovery_resets_password_and_revokes_refresh_tokens(
     assert revoked_tokens
 
 
+def test_change_password_rejects_wrong_current_password(client: TestClient) -> None:
+    register_customer(client, email="wrong-change@example.com")
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "wrong-change@example.com", "password": "strong-password"},
+    )
+    access_token = login_response.json()["access_token"]
+
+    response = client.post(
+        "/api/v1/auth/change-password",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={
+            "current_password": "wrong-password",
+            "new_password": "new-strong-password",
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Incorrect current password"
+
+
+def test_change_password_updates_password_and_revokes_refresh_tokens(
+    client: TestClient,
+) -> None:
+    register_customer(client, email="change-customer@example.com")
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "change-customer@example.com", "password": "strong-password"},
+    )
+    access_token = login_response.json()["access_token"]
+    old_refresh_token = login_response.json()["refresh_token"]
+
+    response = client.post(
+        "/api/v1/auth/change-password",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={
+            "current_password": "strong-password",
+            "new_password": "new-strong-password",
+        },
+    )
+
+    assert response.status_code == 204
+    old_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "change-customer@example.com", "password": "strong-password"},
+    )
+    assert old_login_response.status_code == 401
+    new_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "change-customer@example.com", "password": "new-strong-password"},
+    )
+    assert new_login_response.status_code == 200
+    refresh_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": old_refresh_token},
+    )
+    assert refresh_response.status_code == 401
+
+
 def test_customer_can_update_own_profile_name(client: TestClient) -> None:
     register_customer(client, email="profile-customer@example.com")
     token = client.post(

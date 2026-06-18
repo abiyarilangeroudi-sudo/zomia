@@ -37,9 +37,17 @@ Unused endpoint policy:
 
 | Method | Path | Role | Consumer | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| POST | `/auth/register/customer` | public | Flutter register | active | Customer self-registration. |
-| POST | `/auth/register/owner` | public/admin-seed style | API/dev setup | active | Owner registration remains separate from customer registration. |
+| POST | `/auth/register/customer` | public | legacy clients | deprecated | Disabled with `410`; use OTP start/verify flow. |
+| POST | `/auth/register/customer/start` | public | Flutter customer register | active | Starts customer registration and sends email OTP. |
+| POST | `/auth/register/customer/verify` | public | Flutter customer register | active | Verifies OTP, creates customer, returns token pair. |
+| POST | `/auth/register/owner` | public/admin-seed style | legacy clients | deprecated | Disabled with `410`; use OTP start/verify flow. |
+| POST | `/auth/register/owner/start` | public | Flutter business register | active | Starts owner/business registration and sends email OTP. |
+| POST | `/auth/register/owner/verify` | public | Flutter business register | active | Verifies OTP, creates owner/business, returns token pair. |
 | POST | `/auth/login` | public | Flutter login | active | Returns access token and refresh token. |
+| POST | `/auth/password-recovery/start` | public | Flutter forgot password | active | Sends password reset OTP with neutral response. |
+| POST | `/auth/password-recovery/verify` | public | Flutter forgot password | active | Verifies reset OTP and returns short-lived reset token. |
+| POST | `/auth/password-recovery/complete` | public/reset-token | Flutter forgot password | active | Sets new password and revokes existing refresh tokens. |
+| POST | `/auth/change-password` | authenticated | Customer settings | active | Verifies current password, sets new password, revokes existing refresh tokens. |
 | POST | `/auth/refresh` | public/token-held | Flutter session refresh | active | Rotates refresh token and returns a new token pair. |
 | POST | `/auth/logout` | public/token-held | Flutter sign out | active | Revokes the provided refresh token. |
 | GET | `/auth/me` | authenticated | Auth gate | active | Current user identity. |

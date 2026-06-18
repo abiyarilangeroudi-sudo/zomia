@@ -168,6 +168,23 @@ class AuthRepository {
     }
   }
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _dio.post<void>(
+        '/auth/change-password',
+        data: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<StaffContext> getStaffContext() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -241,6 +258,7 @@ String mapAuthErrorDetail(String detail) {
     'OTP not found' => 'Request a new verification code.',
     'Reset token expired' => 'The password reset session expired.',
     'Invalid token' => 'Request a new password reset code.',
+    'Incorrect current password' => 'Current password is incorrect.',
     'Insufficient role' => 'You do not have access to this area.',
     _ => 'Something went wrong. Please try again.',
   };

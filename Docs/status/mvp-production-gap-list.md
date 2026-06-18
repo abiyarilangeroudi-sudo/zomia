@@ -251,6 +251,20 @@ F10.15 progress:
 - Manual QA confirmed the expected MVP behavior: a device with an already-valid access token can remain signed in until that access token expires, but it cannot refresh with the old refresh token afterward.
 - Before production, decide whether password reset must force immediate logout on all devices by rejecting still-valid access tokens issued before `password_changed_at` or a similar session-version marker.
 
+F10.16 progress:
+
+- Customer Settings is no longer a placeholder.
+- Settings now has an `Account` section with `Change Password`, `Change Email`, and `Remove Account` entries.
+- These entries are structure-only for now; implementation should proceed one action at a time, starting with `Change Password`.
+
+F10.17 progress:
+
+- `Settings > Account > Change Password` now has a real password-change flow.
+- Backend verifies the current password before accepting the new password.
+- Successful password change updates the password hash and revokes the user's existing refresh tokens.
+- Flutter clears the local session and shows `Password changed. Please sign in again.`
+- `Change Email` and `Remove Account` remain planned account actions.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion later, not registration requirement.

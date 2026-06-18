@@ -21,6 +21,7 @@ from app.modules.identity.schemas import (
     PasswordRecoveryStart,
     PasswordRecoveryVerify,
     PasswordRecoveryVerifyRead,
+    PasswordChange,
     PendingRegistrationRead,
     RefreshTokenRequest,
     StaffContextRead,
@@ -154,6 +155,22 @@ def complete_password_recovery(
 ) -> Response:
     service.complete_password_recovery(
         reset_token=payload.reset_token,
+        new_password=payload.new_password,
+    )
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/auth/change-password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    payload: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.change_password(
+        user=current_user,
+        current_password=payload.current_password,
         new_password=payload.new_password,
     )
     db.commit()

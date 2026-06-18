@@ -267,6 +267,19 @@ class IdentityService:
         self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
         reset_otp.consumed_at = now
 
+    def change_password(self, *, user: User, current_password: str, new_password: str) -> None:
+        if not user.is_active or not verify_password(current_password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect current password",
+            )
+        now = datetime.now(UTC)
+        self.repository.update_user_password_hash(
+            user=user,
+            password_hash=hash_password(new_password),
+        )
+        self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
+
     def refresh_session(self, raw_refresh_token: str) -> tuple[str, str]:
         now = datetime.now(UTC)
         refresh_token = self.repository.get_refresh_token_by_hash(

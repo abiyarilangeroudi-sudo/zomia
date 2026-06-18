@@ -152,6 +152,21 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = AsyncData(value.copyWith(user: updatedUser));
   }
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await ref
+        .read(authRepositoryProvider)
+        .changePassword(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        );
+    await ref.read(secureTokenStoreProvider).clear();
+    await ref.read(customerQrRepositoryProvider).clearCachedToken();
+    state = const AsyncData(AuthState.unauthenticated());
+  }
+
   void selectBusiness(StaffBusiness business) {
     final value = state.asData?.value;
     if (value == null || !value.isAuthenticated) {

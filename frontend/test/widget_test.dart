@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.77 (78)'), findsOneWidget);
+    expect(find.text('Version 1.0.79 (80)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.77 (78)'));
+    await tester.tap(find.text('Version 1.0.79 (80)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -815,6 +815,21 @@ void main() {
     expect(find.text('Impressum'), findsOneWidget);
     expect(find.text('Sign out'), findsOneWidget);
 
+    await tester.tap(find.text('Setting'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Account'), findsOneWidget);
+    expect(find.text('Change Password'), findsOneWidget);
+    expect(find.text('Change Email'), findsOneWidget);
+    expect(find.text('Remove Account'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close'));
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.byTooltip('Menu'));
+    await pumpAppFrames(tester);
+
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);
 
@@ -852,6 +867,58 @@ void main() {
     expect(find.text('rotated-qr-token'), findsOneWidget);
     expect(find.text('qr-token'), findsNothing);
     expect(find.text('Old QR is invalid.'), findsOneWidget);
+  });
+
+  testWidgets('changes customer password and returns to login', (tester) async {
+    final tokenStore = _MemoryTokenStore();
+    final authRepository = _FakeAuthRepository(role: 'customer');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(tokenStore),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'customer@example.com',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.byTooltip('Menu'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Setting'));
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Change Password'));
+    await pumpAppFrames(tester);
+
+    await _enterTextByLabel(tester, 'Current Password', 'strong-password');
+    await _enterTextByLabel(tester, 'New Password', 'new-strong-password');
+    await _enterTextByLabel(tester, 'Confirm Password', 'new-strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save password'));
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.changedPassword, isTrue);
+    expect(authRepository.changedCurrentPassword, 'strong-password');
+    expect(authRepository.changedNewPassword, 'new-strong-password');
+    expect(await tokenStore.readAccessToken(), isNull);
+    expect(await tokenStore.readRefreshToken(), isNull);
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(
+      find.text('Password changed. Please sign in again.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('signs in and renders owner setup screen', (tester) async {
@@ -1413,10 +1480,13 @@ class _FakeAuthRepository extends AuthRepository {
   bool startedPasswordRecovery = false;
   bool verifiedPasswordRecovery = false;
   bool completedPasswordRecovery = false;
+  bool changedPassword = false;
   String? ownerBusinessName;
   String? ownerBusinessCategory;
   String? updatedCustomerName;
   String? completedNewPassword;
+  String? changedCurrentPassword;
+  String? changedNewPassword;
   int refreshCount = 0;
   String? loggedOutRefreshToken;
 
@@ -1487,6 +1557,16 @@ class _FakeAuthRepository extends AuthRepository {
   }) async {
     completedPasswordRecovery = true;
     completedNewPassword = newPassword;
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    changedPassword = true;
+    changedCurrentPassword = currentPassword;
+    changedNewPassword = newPassword;
   }
 
   @override

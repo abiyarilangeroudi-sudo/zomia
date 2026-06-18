@@ -75,10 +75,7 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
           AppDrawerItem(
             label: 'Setting',
             icon: Icons.settings_outlined,
-            onTap: () => _openDrawerInfoDialog(
-              title: 'Setting',
-              message: 'Customer settings will be completed before production.',
-            ),
+            onTap: _openSettingsDialogFromDrawer,
           ),
           AppDrawerItem(
             label: 'MStV',
@@ -255,6 +252,27 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
           onUpdateName: (fullName) => ref
               .read(authControllerProvider.notifier)
               .updateCustomerProfile(fullName: fullName),
+        ),
+      ),
+    );
+  }
+
+  void _openSettingsDialogFromDrawer() {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => CustomerSettingsDialog(
+          onChangePassword:
+              ({
+                required String currentPassword,
+                required String newPassword,
+              }) => ref
+                  .read(authControllerProvider.notifier)
+                  .changePassword(
+                    currentPassword: currentPassword,
+                    newPassword: newPassword,
+                  ),
         ),
       ),
     );
