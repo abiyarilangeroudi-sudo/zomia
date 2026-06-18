@@ -32,6 +32,8 @@ from app.modules.identity.schemas import (
 
 CUSTOMER_REGISTRATION_PURPOSE = "customer_registration"
 OWNER_REGISTRATION_PURPOSE = "owner_registration"
+PASSWORD_RESET_PURPOSE = "password_reset"
+PASSWORD_RESET_VERIFIED_PURPOSE = "password_reset_verified"
 
 
 class IdentityService:
@@ -184,6 +186,87 @@ class IdentityService:
             )
         return self._issue_token_pair(user)
 
+    def start_password_recovery(self, *, email: str) -> None:
+        normalized_email = email.lower()
+        user = self.repository.get_user_by_email(normalized_email)
+        if user is None or not user.is_active or user.email_verified_at is None:
+            return
+        code = self._generate_otp_code()
+        self.repository.add_email_verification_otp(
+            EmailVerificationOtp(
+                email=normalized_email,
+                purpose=PASSWORD_RESET_PURPOSE,
+                code_hash=self._hash_otp_code(code),
+                payload_json={"user_id": str(user.id)},
+                expires_at=datetime.now(UTC) + timedelta(minutes=self.settings.otp_expires_minutes),
+            )
+        )
+        self.email_sender.send_email(
+            to_email=normalized_email,
+            subject="Password Reset",
+            body=(
+                "Password Reset\n\n"
+                "Hello,\n\n"
+                "We received a request to reset your Zomia password. "
+                "Please use the following verification code:\n\n"
+                f"{code}\n"
+                "This code will expire in 10 minutes.\n\n"
+                "If you didn't request this code, please ignore this email.\n\n"
+                "Best regards,\n"
+                "The Zomia Team\n\n"
+                "© 2026 Zomia. All rights reserved."
+            ),
+        )
+
+    def verify_password_recovery(self, *, email: str, code: str) -> str:
+        otp = self._consume_otp(
+            email=email,
+            code=code,
+            purpose=PASSWORD_RESET_PURPOSE,
+        )
+        user_id = otp.payload_json.get("user_id")
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        user = self.repository.get_user_by_id(uuid.UUID(user_id))
+        if user is None or not user.is_active:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        raw_reset_token = secrets.token_urlsafe(32)
+        self.repository.add_email_verification_otp(
+            EmailVerificationOtp(
+                email=email.lower(),
+                purpose=PASSWORD_RESET_VERIFIED_PURPOSE,
+                code_hash=self._hash_reset_token(raw_reset_token),
+                payload_json={"user_id": str(user.id)},
+                expires_at=datetime.now(UTC) + timedelta(minutes=self.settings.otp_expires_minutes),
+            )
+        )
+        return raw_reset_token
+
+    def complete_password_recovery(self, *, reset_token: str, new_password: str) -> None:
+        reset_otp = self.repository.get_email_verification_otp_by_hash(
+            code_hash=self._hash_reset_token(reset_token),
+            purpose=PASSWORD_RESET_VERIFIED_PURPOSE,
+        )
+        if reset_otp is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        now = datetime.now(UTC)
+        if self._as_utc(reset_otp.expires_at) <= now:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Reset token expired"
+            )
+        user_id = reset_otp.payload_json.get("user_id")
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        user = self.repository.get_user_by_id(uuid.UUID(user_id))
+        if user is None or not user.is_active:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        self.repository.update_user_password_hash(
+            user=user,
+            password_hash=hash_password(new_password),
+        )
+        self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
+        reset_otp.consumed_at = now
+
     def refresh_session(self, raw_refresh_token: str) -> tuple[str, str]:
         now = datetime.now(UTC)
         refresh_token = self.repository.get_refresh_token_by_hash(
@@ -274,6 +357,12 @@ class IdentityService:
     def _consume_registration_otp(
         self, *, email: str, code: str, purpose: str
     ) -> EmailVerificationOtp:
+        otp = self._consume_otp(email=email, code=code, purpose=purpose)
+        if self.repository.get_user_by_email(email) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+        return otp
+
+    def _consume_otp(self, *, email: str, code: str, purpose: str) -> EmailVerificationOtp:
         otp = self.repository.get_latest_email_verification_otp(
             email=email.lower(),
             purpose=purpose,
@@ -291,8 +380,6 @@ class IdentityService:
         otp.attempt_count += 1
         if not hmac.compare_digest(otp.code_hash, self._hash_otp_code(code)):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OTP")
-        if self.repository.get_user_by_email(email) is not None:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
         otp.consumed_at = now
         return otp
 
@@ -305,6 +392,13 @@ class IdentityService:
         return hmac.new(
             self.settings.jwt_secret_key.encode("utf-8"),
             code.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+
+    def _hash_reset_token(self, reset_token: str) -> str:
+        return hmac.new(
+            self.settings.jwt_secret_key.encode("utf-8"),
+            reset_token.encode("utf-8"),
             hashlib.sha256,
         ).hexdigest()
 

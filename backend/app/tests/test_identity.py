@@ -275,6 +275,79 @@ def test_logout_revokes_refresh_token(client: TestClient, db_session: Session) -
     assert refresh_response.status_code == 401
 
 
+def test_password_recovery_start_is_neutral_for_unknown_email(client: TestClient) -> None:
+    response = client.post(
+        "/api/v1/auth/password-recovery/start",
+        json={"email": "missing@example.com"},
+    )
+
+    assert response.status_code == 202
+
+
+def test_password_recovery_rejects_wrong_otp(client: TestClient) -> None:
+    register_customer(client, email="wrong-reset@example.com")
+    start_response = client.post(
+        "/api/v1/auth/password-recovery/start",
+        json={"email": "wrong-reset@example.com"},
+    )
+    assert start_response.status_code == 202
+
+    verify_response = client.post(
+        "/api/v1/auth/password-recovery/verify",
+        json={"email": "wrong-reset@example.com", "code": "000000"},
+    )
+
+    assert verify_response.status_code == 400
+
+
+def test_password_recovery_resets_password_and_revokes_refresh_tokens(
+    client: TestClient, db_session: Session
+) -> None:
+    register_customer(client, email="reset-customer@example.com")
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "reset-customer@example.com", "password": "strong-password"},
+    )
+    old_refresh_token = login_response.json()["refresh_token"]
+    start_response = client.post(
+        "/api/v1/auth/password-recovery/start",
+        json={"email": "reset-customer@example.com"},
+    )
+    assert start_response.status_code == 202
+    verify_response = client.post(
+        "/api/v1/auth/password-recovery/verify",
+        json={"email": "reset-customer@example.com", "code": "123456"},
+    )
+    assert verify_response.status_code == 200
+    reset_token = verify_response.json()["reset_token"]
+
+    complete_response = client.post(
+        "/api/v1/auth/password-recovery/complete",
+        json={"reset_token": reset_token, "new_password": "new-strong-password"},
+    )
+
+    assert complete_response.status_code == 204
+    old_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "reset-customer@example.com", "password": "strong-password"},
+    )
+    assert old_login_response.status_code == 401
+    new_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "reset-customer@example.com", "password": "new-strong-password"},
+    )
+    assert new_login_response.status_code == 200
+    refresh_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": old_refresh_token},
+    )
+    assert refresh_response.status_code == 401
+    revoked_tokens = [
+        token for token in db_session.query(RefreshToken).all() if token.revoked_at is not None
+    ]
+    assert revoked_tokens
+
+
 def test_customer_can_update_own_profile_name(client: TestClient) -> None:
     register_customer(client, email="profile-customer@example.com")
     token = client.post(

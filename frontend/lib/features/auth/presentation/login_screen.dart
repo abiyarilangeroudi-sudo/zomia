@@ -91,6 +91,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 },
                 onSubmitted: (_) => _submit(),
               ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: AuthTextLink(
+                  text: 'Forgot password?',
+                  onPressed: isLoading
+                      ? null
+                      : () => context.push('/forgot-password'),
+                ),
+              ),
               if (error != null) ...[
                 const SizedBox(height: 16),
                 InlineBanner(message: error, tone: BannerTone.error),

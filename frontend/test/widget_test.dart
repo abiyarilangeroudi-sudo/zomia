@@ -430,7 +430,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.76 (77)'), findsOneWidget);
+    expect(find.text('Version 1.0.77 (78)'), findsOneWidget);
+    expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
@@ -483,13 +484,57 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.76 (77)'));
+    await tester.tap(find.text('Version 1.0.77 (78)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
     expect(find.text('Zomia Design System'), findsOneWidget);
     expect(find.text('AppCard / normal'), findsOneWidget);
     expect(find.text('ProgressCard / active'), findsOneWidget);
+  });
+
+  testWidgets('recovers password and returns to login', (tester) async {
+    final authRepository = _FakeAuthRepository(role: 'customer');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureTokenStoreProvider.overrideWithValue(_MemoryTokenStore()),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          customerQrRepositoryProvider.overrideWithValue(
+            _FakeCustomerQrRepository(),
+          ),
+        ],
+        child: const ZomiaApp(),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    await tester.tap(find.text('Forgot password?'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Forgot Password'), findsOneWidget);
+    await _enterTextByLabel(tester, 'Email', 'customer@example.com');
+    await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+    await pumpAppFrames(tester);
+
+    expect(authRepository.startedPasswordRecovery, isTrue);
+    expect(find.text('Verify Reset Code'), findsOneWidget);
+    await _enterTextByLabel(tester, 'Verification code', '123456');
+    await tester.tap(find.widgetWithText(FilledButton, 'Verify code'));
+    await pumpAppFrames(tester);
+
+    expect(authRepository.verifiedPasswordRecovery, isTrue);
+    expect(find.text('Set New Password'), findsOneWidget);
+    await _enterTextByLabel(tester, 'Password', 'new-strong-password');
+    await _enterTextByLabel(tester, 'Confirm Password', 'new-strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save password'));
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.completedPasswordRecovery, isTrue);
+    expect(authRepository.completedNewPassword, 'new-strong-password');
+    expect(find.text('Welcome back'), findsOneWidget);
   });
 
   testWidgets('registers a customer and opens customer dashboard', (
@@ -1365,9 +1410,13 @@ class _FakeAuthRepository extends AuthRepository {
   bool verifiedCustomerRegistration = false;
   bool startedOwnerRegistration = false;
   bool verifiedOwnerRegistration = false;
+  bool startedPasswordRecovery = false;
+  bool verifiedPasswordRecovery = false;
+  bool completedPasswordRecovery = false;
   String? ownerBusinessName;
   String? ownerBusinessCategory;
   String? updatedCustomerName;
+  String? completedNewPassword;
   int refreshCount = 0;
   String? loggedOutRefreshToken;
 
@@ -1415,6 +1464,29 @@ class _FakeAuthRepository extends AuthRepository {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
     );
+  }
+
+  @override
+  Future<void> startPasswordRecovery({required String email}) async {
+    startedPasswordRecovery = true;
+  }
+
+  @override
+  Future<String> verifyPasswordRecovery({
+    required String email,
+    required String code,
+  }) async {
+    verifiedPasswordRecovery = true;
+    return 'reset-token';
+  }
+
+  @override
+  Future<void> completePasswordRecovery({
+    required String resetToken,
+    required String newPassword,
+  }) async {
+    completedPasswordRecovery = true;
+    completedNewPassword = newPassword;
   }
 
   @override

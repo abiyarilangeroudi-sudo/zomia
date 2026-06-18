@@ -17,6 +17,10 @@ from app.modules.identity.schemas import (
     EmailVerificationConfirm,
     LoginRequest,
     OwnerRegister,
+    PasswordRecoveryComplete,
+    PasswordRecoveryStart,
+    PasswordRecoveryVerify,
+    PasswordRecoveryVerifyRead,
     PendingRegistrationRead,
     RefreshTokenRequest,
     StaffContextRead,
@@ -115,6 +119,45 @@ def login(
     )
     db.commit()
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/auth/password-recovery/start", status_code=status.HTTP_202_ACCEPTED)
+def start_password_recovery(
+    payload: PasswordRecoveryStart,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.start_password_recovery(email=str(payload.email))
+    db.commit()
+    return Response(status_code=status.HTTP_202_ACCEPTED)
+
+
+@router.post("/auth/password-recovery/verify", response_model=PasswordRecoveryVerifyRead)
+def verify_password_recovery(
+    payload: PasswordRecoveryVerify,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> PasswordRecoveryVerifyRead:
+    reset_token = service.verify_password_recovery(
+        email=str(payload.email),
+        code=payload.code,
+    )
+    db.commit()
+    return PasswordRecoveryVerifyRead(reset_token=reset_token)
+
+
+@router.post("/auth/password-recovery/complete", status_code=status.HTTP_204_NO_CONTENT)
+def complete_password_recovery(
+    payload: PasswordRecoveryComplete,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.complete_password_recovery(
+        reset_token=payload.reset_token,
+        new_password=payload.new_password,
+    )
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/auth/refresh", response_model=TokenResponse)

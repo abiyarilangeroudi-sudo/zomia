@@ -40,6 +40,24 @@ class EmailVerificationConfirm(BaseModel):
     code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
 
 
+class PasswordRecoveryStart(BaseModel):
+    email: EmailStr
+
+
+class PasswordRecoveryVerify(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
+class PasswordRecoveryVerifyRead(BaseModel):
+    reset_token: str
+
+
+class PasswordRecoveryComplete(BaseModel):
+    reset_token: str = Field(min_length=24, max_length=256)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class PendingRegistrationRead(BaseModel):
     email: EmailStr
     expires_at: datetime

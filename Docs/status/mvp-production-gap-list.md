@@ -243,6 +243,14 @@ F10.4 progress:
 - Auth recovery implementation is on hold until a real email provider and delivery strategy are chosen.
 - Temporary local/log delivery is explicitly avoided to prevent rework and unsafe habits.
 
+F10.15 progress:
+
+- Customer and Owner registration now require email OTP verification before account creation/login.
+- Password Recovery / Forgot Password is implemented with email OTP, a short-lived reset token, and no auto-login after reset.
+- Password reset revokes the user's existing refresh tokens.
+- Manual QA confirmed the expected MVP behavior: a device with an already-valid access token can remain signed in until that access token expires, but it cannot refresh with the old refresh token afterward.
+- Before production, decide whether password reset must force immediate logout on all devices by rejecting still-valid access tokens issued before `password_changed_at` or a similar session-version marker.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion later, not registration requirement.

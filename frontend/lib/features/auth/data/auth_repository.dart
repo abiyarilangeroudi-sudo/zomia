@@ -128,6 +128,46 @@ class AuthRepository {
     }
   }
 
+  Future<void> startPasswordRecovery({required String email}) async {
+    try {
+      await _dio.post<void>(
+        '/auth/password-recovery/start',
+        data: {'email': email},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<String> verifyPasswordRecovery({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/auth/password-recovery/verify',
+        data: {'email': email, 'code': code},
+      );
+      return response.data?['reset_token'] as String;
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<void> completePasswordRecovery({
+    required String resetToken,
+    required String newPassword,
+  }) async {
+    try {
+      await _dio.post<void>(
+        '/auth/password-recovery/complete',
+        data: {'reset_token': resetToken, 'new_password': newPassword},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<StaffContext> getStaffContext() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -199,6 +239,8 @@ String mapAuthErrorDetail(String detail) {
     'Invalid OTP' => 'Enter the correct verification code.',
     'OTP expired' => 'The verification code expired.',
     'OTP not found' => 'Request a new verification code.',
+    'Reset token expired' => 'The password reset session expired.',
+    'Invalid token' => 'Request a new password reset code.',
     'Insufficient role' => 'You do not have access to this area.',
     _ => 'Something went wrong. Please try again.',
   };

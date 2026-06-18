@@ -32,6 +32,11 @@ class IdentityRepository:
         self.db.flush()
         return user
 
+    def update_user_password_hash(self, *, user: User, password_hash: str) -> User:
+        user.password_hash = password_hash
+        self.db.flush()
+        return user
+
     def add_refresh_token(self, refresh_token: RefreshToken) -> RefreshToken:
         self.db.add(refresh_token)
         self.db.flush()
@@ -55,6 +60,17 @@ class IdentityRepository:
             .order_by(EmailVerificationOtp.created_at.desc())
         )
 
+    def get_email_verification_otp_by_hash(
+        self, *, code_hash: str, purpose: str
+    ) -> EmailVerificationOtp | None:
+        return self.db.scalar(
+            select(EmailVerificationOtp).where(
+                EmailVerificationOtp.code_hash == code_hash,
+                EmailVerificationOtp.purpose == purpose,
+                EmailVerificationOtp.consumed_at.is_(None),
+            )
+        )
+
     def get_refresh_token_by_hash(self, token_hash: str) -> RefreshToken | None:
         return self.db.scalar(
             select(RefreshToken)
@@ -66,6 +82,17 @@ class IdentityRepository:
         refresh_token.revoked_at = revoked_at
         self.db.flush()
         return refresh_token
+
+    def revoke_user_refresh_tokens(self, *, user_id: uuid.UUID, revoked_at) -> None:
+        refresh_tokens = self.db.scalars(
+            select(RefreshToken).where(
+                RefreshToken.user_id == user_id,
+                RefreshToken.revoked_at.is_(None),
+            )
+        )
+        for refresh_token in refresh_tokens:
+            refresh_token.revoked_at = revoked_at
+        self.db.flush()
 
     def add_business(self, business: Business) -> Business:
         self.db.add(business)
