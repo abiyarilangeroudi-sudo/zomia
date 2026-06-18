@@ -1,24 +1,93 @@
 import hashlib
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.modules.identity.models import RefreshToken, StaffMember
+from app.core.config import Settings
+from app.modules.identity.models import EmailVerificationOtp, RefreshToken, StaffMember
+from app.modules.identity.repository import IdentityRepository
+from app.modules.identity.schemas import UserCreate
+from app.modules.identity.service import IdentityService
+
+
+class FakeEmailSender:
+    def __init__(self) -> None:
+        self.sent: list[dict[str, str]] = []
+
+    def send_email(self, *, to_email: str, subject: str, body: str) -> None:
+        self.sent.append({"to_email": to_email, "subject": subject, "body": body})
+
+
+def register_customer(
+    client: TestClient,
+    *,
+    email: str,
+    password: str = "strong-password",
+    full_name: str = "Customer One",
+    phone: str | None = None,
+) -> dict:
+    payload = {"email": email, "password": password, "full_name": full_name}
+    if phone is not None:
+        payload["phone"] = phone
+    start_response = client.post("/api/v1/auth/register/customer/start", json=payload)
+    assert start_response.status_code == 202
+    verify_response = client.post(
+        "/api/v1/auth/register/customer/verify",
+        json={"email": email, "code": "123456"},
+    )
+    assert verify_response.status_code == 200
+    token = verify_response.json()["access_token"]
+    me_response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_response.status_code == 200
+    return me_response.json()
+
+
+def register_owner(
+    client: TestClient,
+    *,
+    email: str,
+    password: str = "strong-password",
+    full_name: str = "Owner One",
+    business_name: str = "Zomia Cafe",
+    business_category: str | None = None,
+    public_phone: str | None = None,
+) -> dict:
+    payload = {
+        "email": email,
+        "password": password,
+        "full_name": full_name,
+        "business_name": business_name,
+    }
+    if business_category is not None:
+        payload["business_category"] = business_category
+    if public_phone is not None:
+        payload["public_phone"] = public_phone
+    start_response = client.post("/api/v1/auth/register/owner/start", json=payload)
+    assert start_response.status_code == 202
+    verify_response = client.post(
+        "/api/v1/auth/register/owner/verify",
+        json={"email": email, "code": "123456"},
+    )
+    assert verify_response.status_code == 200
+    token = verify_response.json()["access_token"]
+    business_response = client.get(
+        "/api/v1/owner/businesses",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert business_response.status_code == 200
+    return business_response.json()[0]
 
 
 def test_customer_registration_login_and_me(client: TestClient) -> None:
-    register_response = client.post(
-        "/api/v1/auth/register/customer",
-        json={
-            "email": "customer@example.com",
-            "password": "strong-password",
-            "full_name": "Customer One",
-            "phone": "+491111111",
-        },
+    customer = register_customer(
+        client,
+        email="customer@example.com",
+        phone="+491111111",
     )
-    assert register_response.status_code == 201
-    assert register_response.json()["role"] == "customer"
+    assert customer["role"] == "customer"
+    assert customer["email_verified_at"] is not None
 
     login_response = client.post(
         "/api/v1/auth/login",
@@ -33,23 +102,135 @@ def test_customer_registration_login_and_me(client: TestClient) -> None:
     assert me_response.json()["email"] == "customer@example.com"
 
 
+def test_email_verification_message_is_branded(db_session: Session) -> None:
+    email_sender = FakeEmailSender()
+    service = IdentityService(
+        IdentityRepository(db_session),
+        Settings(
+            DATABASE_URL="sqlite+pysqlite:///:memory:",
+            JWT_SECRET_KEY="test-secret",
+            JWT_ISSUER="zomia-test",
+            EMAIL_DELIVERY_MODE="test",
+            OTP_TEST_CODE="123456",
+        ),
+        email_sender,
+    )
+
+    service.start_customer_registration(
+        UserCreate(
+            email="email-body@example.com",
+            password="strong-password",
+            full_name="Email Body",
+        )
+    )
+
+    assert email_sender.sent == [
+        {
+            "to_email": "email-body@example.com",
+            "subject": "Email Verification",
+            "body": (
+                "Email Verification\n\n"
+                "Hello,\n\n"
+                "Thank you for registering with Zomia! To complete your registration, "
+                "please use the following verification code:\n\n"
+                "123456\n"
+                "This code will expire in 10 minutes.\n\n"
+                "If you didn't request this code, please ignore this email.\n\n"
+                "Best regards,\n"
+                "The Zomia Team\n\n"
+                "© 2026 Zomia. All rights reserved."
+            ),
+        }
+    ]
+
+
+def test_direct_customer_registration_is_disabled(client: TestClient) -> None:
+    response = client.post(
+        "/api/v1/auth/register/customer",
+        json={
+            "email": "direct-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Direct Customer",
+        },
+    )
+
+    assert response.status_code == 410
+
+
+def test_customer_cannot_login_before_email_verification(client: TestClient) -> None:
+    start_response = client.post(
+        "/api/v1/auth/register/customer/start",
+        json={
+            "email": "pending-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Pending Customer",
+        },
+    )
+    assert start_response.status_code == 202
+
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "pending-customer@example.com", "password": "strong-password"},
+    )
+
+    assert login_response.status_code == 401
+
+
+def test_customer_registration_rejects_wrong_otp(client: TestClient) -> None:
+    start_response = client.post(
+        "/api/v1/auth/register/customer/start",
+        json={
+            "email": "wrong-otp-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Wrong OTP Customer",
+        },
+    )
+    assert start_response.status_code == 202
+
+    verify_response = client.post(
+        "/api/v1/auth/register/customer/verify",
+        json={"email": "wrong-otp-customer@example.com", "code": "000000"},
+    )
+
+    assert verify_response.status_code == 400
+
+
+def test_customer_registration_rejects_expired_otp(client: TestClient, db_session: Session) -> None:
+    start_response = client.post(
+        "/api/v1/auth/register/customer/start",
+        json={
+            "email": "expired-otp-customer@example.com",
+            "password": "strong-password",
+            "full_name": "Expired OTP Customer",
+        },
+    )
+    assert start_response.status_code == 202
+    otp = db_session.query(EmailVerificationOtp).one()
+    otp.expires_at = datetime.now(UTC) - timedelta(minutes=1)
+    db_session.flush()
+
+    verify_response = client.post(
+        "/api/v1/auth/register/customer/verify",
+        json={"email": "expired-otp-customer@example.com", "code": "123456"},
+    )
+
+    assert verify_response.status_code == 400
+
+
 def test_refresh_token_rotates_and_raw_token_is_not_stored(
     client: TestClient, db_session: Session
 ) -> None:
-    client.post(
-        "/api/v1/auth/register/customer",
-        json={
-            "email": "refresh-customer@example.com",
-            "password": "strong-password",
-            "full_name": "Customer One",
-        },
-    )
+    register_customer(client, email="refresh-customer@example.com")
     login_response = client.post(
         "/api/v1/auth/login",
         json={"email": "refresh-customer@example.com", "password": "strong-password"},
     )
     old_refresh_token = login_response.json()["refresh_token"]
-    stored_token = db_session.query(RefreshToken).one()
+    stored_token = (
+        db_session.query(RefreshToken)
+        .filter_by(token_hash=hashlib.sha256(old_refresh_token.encode("utf-8")).hexdigest())
+        .one()
+    )
 
     assert stored_token.token_hash != old_refresh_token
     assert stored_token.token_hash == hashlib.sha256(old_refresh_token.encode("utf-8")).hexdigest()
@@ -73,20 +254,17 @@ def test_refresh_token_rotates_and_raw_token_is_not_stored(
 
 
 def test_logout_revokes_refresh_token(client: TestClient, db_session: Session) -> None:
-    client.post(
-        "/api/v1/auth/register/customer",
-        json={
-            "email": "logout-customer@example.com",
-            "password": "strong-password",
-            "full_name": "Customer One",
-        },
-    )
+    register_customer(client, email="logout-customer@example.com")
     login_response = client.post(
         "/api/v1/auth/login",
         json={"email": "logout-customer@example.com", "password": "strong-password"},
     )
     refresh_token = login_response.json()["refresh_token"]
-    stored_token = db_session.query(RefreshToken).one()
+    stored_token = (
+        db_session.query(RefreshToken)
+        .filter_by(token_hash=hashlib.sha256(refresh_token.encode("utf-8")).hexdigest())
+        .one()
+    )
 
     logout_response = client.post("/api/v1/auth/logout", json={"refresh_token": refresh_token})
 
@@ -98,15 +276,7 @@ def test_logout_revokes_refresh_token(client: TestClient, db_session: Session) -
 
 
 def test_customer_can_update_own_profile_name(client: TestClient) -> None:
-    register_response = client.post(
-        "/api/v1/auth/register/customer",
-        json={
-            "email": "profile-customer@example.com",
-            "password": "strong-password",
-            "full_name": "Customer One",
-        },
-    )
-    assert register_response.status_code == 201
+    register_customer(client, email="profile-customer@example.com")
     token = client.post(
         "/api/v1/auth/login",
         json={"email": "profile-customer@example.com", "password": "strong-password"},
@@ -128,16 +298,11 @@ def test_customer_can_update_own_profile_name(client: TestClient) -> None:
 
 
 def test_non_customer_cannot_update_customer_profile(client: TestClient) -> None:
-    owner_response = client.post(
-        "/api/v1/auth/register/owner",
-        json={
-            "email": "profile-owner@example.com",
-            "password": "strong-password",
-            "full_name": "Owner One",
-            "business_name": "Owner Cafe",
-        },
+    register_owner(
+        client,
+        email="profile-owner@example.com",
+        business_name="Owner Cafe",
     )
-    assert owner_response.status_code == 201
     token = client.post(
         "/api/v1/auth/login",
         json={"email": "profile-owner@example.com", "password": "strong-password"},
@@ -153,20 +318,15 @@ def test_non_customer_cannot_update_customer_profile(client: TestClient) -> None
 
 
 def test_owner_can_create_business_and_staff(client: TestClient) -> None:
-    owner_response = client.post(
-        "/api/v1/auth/register/owner",
-        json={
-            "email": "owner@example.com",
-            "password": "strong-password",
-            "full_name": "Owner One",
-            "business_name": "Zomia Cafe",
-            "business_category": "cafe",
-            "public_phone": "+492222222",
-        },
+    owner_business = register_owner(
+        client,
+        email="owner@example.com",
+        business_name="Zomia Cafe",
+        business_category="cafe",
+        public_phone="+492222222",
     )
-    assert owner_response.status_code == 201
-    assert owner_response.json()["slug"] == "zomia-cafe"
-    assert owner_response.json()["category"] == "cafe"
+    assert owner_business["slug"] == "zomia-cafe"
+    assert owner_business["category"] == "cafe"
 
     token_response = client.post(
         "/api/v1/auth/login",
@@ -218,26 +378,22 @@ def test_owner_can_create_business_and_staff(client: TestClient) -> None:
 def test_owner_register_accepts_controlled_business_category(
     client: TestClient,
 ) -> None:
-    response = client.post(
-        "/api/v1/auth/register/owner",
-        json={
-            "email": "barber-owner@example.com",
-            "password": "strong-password",
-            "full_name": "Barber Owner",
-            "business_name": "Sharp Cuts",
-            "business_category": "barbershops",
-        },
+    business = register_owner(
+        client,
+        email="barber-owner@example.com",
+        full_name="Barber Owner",
+        business_name="Sharp Cuts",
+        business_category="barbershops",
     )
 
-    assert response.status_code == 201
-    assert response.json()["category"] == "barbershops"
+    assert business["category"] == "barbershops"
 
 
 def test_owner_register_rejects_unsupported_business_category(
     client: TestClient,
 ) -> None:
     response = client.post(
-        "/api/v1/auth/register/owner",
+        "/api/v1/auth/register/owner/start",
         json={
             "email": "invalid-category-owner@example.com",
             "password": "strong-password",
@@ -251,17 +407,12 @@ def test_owner_register_rejects_unsupported_business_category(
 
 
 def test_staff_can_read_own_context(client: TestClient) -> None:
-    owner_response = client.post(
-        "/api/v1/auth/register/owner",
-        json={
-            "email": "owner-context@example.com",
-            "password": "strong-password",
-            "full_name": "Owner Context",
-            "business_name": "Context Cafe",
-        },
+    business = register_owner(
+        client,
+        email="owner-context@example.com",
+        full_name="Owner Context",
+        business_name="Context Cafe",
     )
-    assert owner_response.status_code == 201
-    business = owner_response.json()
     owner_token = client.post(
         "/api/v1/auth/login",
         json={"email": "owner-context@example.com", "password": "strong-password"},
@@ -305,17 +456,12 @@ def test_staff_can_read_own_context(client: TestClient) -> None:
 
 
 def test_owner_can_toggle_staff_active_status(client: TestClient) -> None:
-    owner_response = client.post(
-        "/api/v1/auth/register/owner",
-        json={
-            "email": "owner-toggle@example.com",
-            "password": "strong-password",
-            "full_name": "Owner Toggle",
-            "business_name": "Toggle Cafe",
-        },
+    business = register_owner(
+        client,
+        email="owner-toggle@example.com",
+        full_name="Owner Toggle",
+        business_name="Toggle Cafe",
     )
-    assert owner_response.status_code == 201
-    business = owner_response.json()
     owner_token = client.post(
         "/api/v1/auth/login",
         json={"email": "owner-toggle@example.com", "password": "strong-password"},
@@ -374,17 +520,12 @@ def test_owner_can_toggle_staff_active_status(client: TestClient) -> None:
 def test_staff_context_can_return_multiple_businesses(
     client: TestClient, db_session: Session
 ) -> None:
-    owner_response = client.post(
-        "/api/v1/auth/register/owner",
-        json={
-            "email": "owner-multi-context@example.com",
-            "password": "strong-password",
-            "full_name": "Owner Multi Context",
-            "business_name": "First Context Cafe",
-        },
+    first_business = register_owner(
+        client,
+        email="owner-multi-context@example.com",
+        full_name="Owner Multi Context",
+        business_name="First Context Cafe",
     )
-    assert owner_response.status_code == 201
-    first_business = owner_response.json()
     owner_token = client.post(
         "/api/v1/auth/login",
         json={"email": "owner-multi-context@example.com", "password": "strong-password"},
@@ -431,13 +572,10 @@ def test_staff_context_can_return_multiple_businesses(
 
 
 def test_non_staff_cannot_read_staff_context(client: TestClient) -> None:
-    client.post(
-        "/api/v1/auth/register/customer",
-        json={
-            "email": "not-staff-context@example.com",
-            "password": "strong-password",
-            "full_name": "Not Staff",
-        },
+    register_customer(
+        client,
+        email="not-staff-context@example.com",
+        full_name="Not Staff",
     )
     token = client.post(
         "/api/v1/auth/login",
@@ -453,13 +591,10 @@ def test_non_staff_cannot_read_staff_context(client: TestClient) -> None:
 
 
 def test_customer_cannot_create_owner_business(client: TestClient) -> None:
-    client.post(
-        "/api/v1/auth/register/customer",
-        json={
-            "email": "customer2@example.com",
-            "password": "strong-password",
-            "full_name": "Customer Two",
-        },
+    register_customer(
+        client,
+        email="customer2@example.com",
+        full_name="Customer Two",
     )
     token_response = client.post(
         "/api/v1/auth/login",

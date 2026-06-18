@@ -20,7 +20,7 @@ def register_owner(
     client: TestClient, email: str, business_name: str = "Zomia Cafe"
 ) -> tuple[str, str]:
     response = client.post(
-        "/api/v1/auth/register/owner",
+        "/api/v1/auth/register/owner/start",
         json={
             "email": email,
             "password": "strong-password",
@@ -28,23 +28,38 @@ def register_owner(
             "business_name": business_name,
         },
     )
-    assert response.status_code == 201
-    business_id = response.json()["id"]
+    assert response.status_code == 202
+    verify_response = client.post(
+        "/api/v1/auth/register/owner/verify",
+        json={"email": email, "code": "123456"},
+    )
+    assert verify_response.status_code == 200
     token = login(client, email)
+    business_response = client.get("/api/v1/owner/businesses", headers=auth(token))
+    assert business_response.status_code == 200
+    business_id = business_response.json()[0]["id"]
     return token, business_id
 
 
 def register_customer(client: TestClient, email: str = "customer@example.com") -> tuple[str, str]:
     response = client.post(
-        "/api/v1/auth/register/customer",
+        "/api/v1/auth/register/customer/start",
         json={
             "email": email,
             "password": "strong-password",
             "full_name": "Customer",
         },
     )
-    assert response.status_code == 201
-    return login(client, email), response.json()["id"]
+    assert response.status_code == 202
+    verify_response = client.post(
+        "/api/v1/auth/register/customer/verify",
+        json={"email": email, "code": "123456"},
+    )
+    assert verify_response.status_code == 200
+    token = login(client, email)
+    me_response = client.get("/api/v1/auth/me", headers=auth(token))
+    assert me_response.status_code == 200
+    return token, me_response.json()["id"]
 
 
 def create_staff(
@@ -156,9 +171,7 @@ def create_reward_template(
             headers=auth(owner_token),
         )
         assert campaigns.status_code == 200
-        campaign = next(
-            item for item in campaigns.json() if item["id"] == legacy_campaign_id
-        )
+        campaign = next(item for item in campaigns.json() if item["id"] == legacy_campaign_id)
         templates = client.get(
             "/api/v1/owner/reward-templates",
             params={"business_id": business_id},
@@ -166,9 +179,7 @@ def create_reward_template(
         )
         assert templates.status_code == 200
         return next(
-            item
-            for item in templates.json()
-            if item["id"] == campaign["reward_template_id"]
+            item for item in templates.json() if item["id"] == campaign["reward_template_id"]
         )
 
     payload = {

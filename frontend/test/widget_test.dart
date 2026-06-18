@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.74 (75)'), findsOneWidget);
+    expect(find.text('Version 1.0.76 (77)'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
@@ -483,7 +483,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.74 (75)'));
+    await tester.tap(find.text('Version 1.0.76 (77)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -534,7 +534,15 @@ void main() {
     await pumpAppFrames(tester);
     await tester.pumpAndSettle();
 
-    expect(authRepository.registeredCustomer, isTrue);
+    expect(authRepository.startedCustomerRegistration, isTrue);
+    expect(find.text('Verify Email'), findsOneWidget);
+    expect(find.text('Back to registration'), findsOneWidget);
+    await _enterTextByLabel(tester, 'Verification code', '123456');
+    await tester.tap(find.widgetWithText(FilledButton, 'Verify email'));
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.verifiedCustomerRegistration, isTrue);
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Home'), findsWidgets);
@@ -593,9 +601,17 @@ void main() {
     await pumpAppFrames(tester);
     await tester.pumpAndSettle();
 
-    expect(authRepository.registeredOwner, isTrue);
+    expect(authRepository.startedOwnerRegistration, isTrue);
     expect(authRepository.ownerBusinessName, 'Zomia Cafe');
     expect(authRepository.ownerBusinessCategory, 'barbershops');
+    expect(find.text('Verify Email'), findsOneWidget);
+    expect(find.text('Back to registration'), findsOneWidget);
+    await _enterTextByLabel(tester, 'Verification code', '123456');
+    await tester.tap(find.widgetWithText(FilledButton, 'Verify email'));
+    await pumpAppFrames(tester);
+    await tester.pumpAndSettle();
+
+    expect(authRepository.verifiedOwnerRegistration, isTrue);
     expect(await tokenStore.readAccessToken(), 'access-token');
     expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Owner Dashboard'), findsOneWidget);
@@ -1345,8 +1361,10 @@ class _FakeAuthRepository extends AuthRepository {
   _FakeAuthRepository({this.role = 'staff'}) : super(Dio());
 
   final String role;
-  bool registeredCustomer = false;
-  bool registeredOwner = false;
+  bool startedCustomerRegistration = false;
+  bool verifiedCustomerRegistration = false;
+  bool startedOwnerRegistration = false;
+  bool verifiedOwnerRegistration = false;
   String? ownerBusinessName;
   String? ownerBusinessCategory;
   String? updatedCustomerName;
@@ -1354,25 +1372,49 @@ class _FakeAuthRepository extends AuthRepository {
   String? loggedOutRefreshToken;
 
   @override
-  Future<void> registerCustomer({
+  Future<void> startCustomerRegistration({
     required String fullName,
     required String email,
     required String password,
     String? phone,
   }) async {
-    registeredCustomer = true;
+    startedCustomerRegistration = true;
   }
 
   @override
-  Future<void> registerOwner({
+  Future<AuthTokens> verifyCustomerRegistration({
+    required String email,
+    required String code,
+  }) async {
+    verifiedCustomerRegistration = true;
+    return const AuthTokens(
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+    );
+  }
+
+  @override
+  Future<void> startOwnerRegistration({
     required String businessName,
     required String? businessCategory,
     required String email,
     required String password,
   }) async {
-    registeredOwner = true;
+    startedOwnerRegistration = true;
     ownerBusinessName = businessName;
     ownerBusinessCategory = businessCategory;
+  }
+
+  @override
+  Future<AuthTokens> verifyOwnerRegistration({
+    required String email,
+    required String code,
+  }) async {
+    verifiedOwnerRegistration = true;
+    return const AuthTokens(
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+    );
   }
 
   @override

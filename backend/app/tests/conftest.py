@@ -37,6 +37,8 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
             DATABASE_URL="sqlite+pysqlite:///:memory:",
             JWT_SECRET_KEY="test-secret",
             JWT_ISSUER="zomia-test",
+            EMAIL_DELIVERY_MODE="test",
+            OTP_TEST_CODE="123456",
         )
 
     app.dependency_overrides[get_db] = override_db

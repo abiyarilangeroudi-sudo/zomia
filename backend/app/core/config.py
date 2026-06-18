@@ -20,6 +20,16 @@ class Settings(BaseSettings):
     jwt_issuer: str = Field(default="zomia-api", alias="JWT_ISSUER")
     access_token_minutes: int = Field(default=60, alias="ACCESS_TOKEN_MINUTES")
     refresh_token_days: int = Field(default=30, alias="REFRESH_TOKEN_DAYS")
+    email_delivery_mode: str = Field(default="disabled", alias="EMAIL_DELIVERY_MODE")
+    otp_expires_minutes: int = Field(default=10, alias="OTP_EXPIRES_MINUTES")
+    otp_test_code: str | None = Field(default=None, alias="OTP_TEST_CODE")
+    smtp_host: str | None = Field(default=None, alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, alias="SMTP_PORT")
+    smtp_username: str | None = Field(default=None, alias="SMTP_USERNAME")
+    smtp_password: str | None = Field(default=None, alias="SMTP_PASSWORD")
+    smtp_from_email: str | None = Field(default=None, alias="SMTP_FROM_EMAIL")
+    smtp_from_name: str = Field(default="Zomia", alias="SMTP_FROM_NAME")
+    smtp_use_tls: bool = Field(default=True, alias="SMTP_USE_TLS")
     cors_allowed_origins: str = Field(
         default="http://localhost:8080,http://127.0.0.1:8080",
         alias="CORS_ALLOWED_ORIGINS",
@@ -27,11 +37,7 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        return [
-            origin.strip()
-            for origin in self.cors_allowed_origins.split(",")
-            if origin.strip()
-        ]
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
 
 
 @lru_cache

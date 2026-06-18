@@ -53,7 +53,7 @@ class AuthRepository {
     }
   }
 
-  Future<void> registerCustomer({
+  Future<void> startCustomerRegistration({
     required String fullName,
     required String email,
     required String password,
@@ -61,7 +61,7 @@ class AuthRepository {
   }) async {
     try {
       await _dio.post<Map<String, dynamic>>(
-        '/auth/register/customer',
+        '/auth/register/customer/start',
         data: {
           'full_name': fullName,
           'email': email,
@@ -74,7 +74,22 @@ class AuthRepository {
     }
   }
 
-  Future<void> registerOwner({
+  Future<AuthTokens> verifyCustomerRegistration({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/auth/register/customer/verify',
+        data: {'email': email, 'code': code},
+      );
+      return AuthTokens.fromJson(response.data ?? <String, dynamic>{});
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<void> startOwnerRegistration({
     required String businessName,
     required String? businessCategory,
     required String email,
@@ -82,7 +97,7 @@ class AuthRepository {
   }) async {
     try {
       await _dio.post<Map<String, dynamic>>(
-        '/auth/register/owner',
+        '/auth/register/owner/start',
         data: {
           'full_name': businessName,
           'email': email,
@@ -93,6 +108,21 @@ class AuthRepository {
               : businessCategory,
         },
       );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<AuthTokens> verifyOwnerRegistration({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/auth/register/owner/verify',
+        data: {'email': email, 'code': code},
+      );
+      return AuthTokens.fromJson(response.data ?? <String, dynamic>{});
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
     }
@@ -165,6 +195,10 @@ String mapAuthErrorDetail(String detail) {
   return switch (detail) {
     'Incorrect email or password' => 'Incorrect email or password.',
     'Email already exists' => 'This email is already registered.',
+    'Email is not verified' => 'Verify your email before signing in.',
+    'Invalid OTP' => 'Enter the correct verification code.',
+    'OTP expired' => 'The verification code expired.',
+    'OTP not found' => 'Request a new verification code.',
     'Insufficient role' => 'You do not have access to this area.',
     _ => 'Something went wrong. Please try again.',
   };

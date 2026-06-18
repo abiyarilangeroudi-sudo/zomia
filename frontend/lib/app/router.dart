@@ -4,6 +4,7 @@ import 'ui_catalog/ui_component_catalog_screen.dart';
 import '../features/auth/presentation/auth_gate.dart';
 import '../features/auth/presentation/business_register_screen.dart';
 import '../features/auth/presentation/customer_register_screen.dart';
+import '../features/auth/presentation/email_verification_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -27,6 +28,15 @@ final appRouter = GoRouter(
       path: '/register/business',
       name: 'business-register',
       builder: (context, state) => const BusinessRegisterScreen(),
+    ),
+    GoRoute(
+      path: '/verify-email',
+      name: 'email-verification',
+      builder: (context, state) => EmailVerificationScreen(
+        email: state.uri.queryParameters['email'] ?? '',
+        registrationType:
+            state.uri.queryParameters['registration_type'] ?? 'customer',
+      ),
     ),
   ],
 );

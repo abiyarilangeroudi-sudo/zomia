@@ -3,7 +3,13 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.modules.identity.models import Business, RefreshToken, StaffMember, User
+from app.modules.identity.models import (
+    Business,
+    EmailVerificationOtp,
+    RefreshToken,
+    StaffMember,
+    User,
+)
 
 
 class IdentityRepository:
@@ -30,6 +36,24 @@ class IdentityRepository:
         self.db.add(refresh_token)
         self.db.flush()
         return refresh_token
+
+    def add_email_verification_otp(self, otp: EmailVerificationOtp) -> EmailVerificationOtp:
+        self.db.add(otp)
+        self.db.flush()
+        return otp
+
+    def get_latest_email_verification_otp(
+        self, *, email: str, purpose: str
+    ) -> EmailVerificationOtp | None:
+        return self.db.scalar(
+            select(EmailVerificationOtp)
+            .where(
+                EmailVerificationOtp.email == email.lower(),
+                EmailVerificationOtp.purpose == purpose,
+                EmailVerificationOtp.consumed_at.is_(None),
+            )
+            .order_by(EmailVerificationOtp.created_at.desc())
+        )
 
     def get_refresh_token_by_hash(self, token_hash: str) -> RefreshToken | None:
         return self.db.scalar(

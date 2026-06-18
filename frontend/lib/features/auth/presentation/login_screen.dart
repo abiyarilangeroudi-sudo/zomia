@@ -107,6 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 text: 'New here? Create a customer account',
                 onPressed: isLoading ? null : () => context.push('/register'),
               ),
+              const SizedBox(height: 14),
               AuthTextLink(
                 text: 'Register your business',
                 onPressed: isLoading

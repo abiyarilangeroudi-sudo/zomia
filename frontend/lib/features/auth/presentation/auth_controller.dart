@@ -57,7 +57,7 @@ class AuthController extends AsyncNotifier<AuthState> {
     });
   }
 
-  Future<void> registerCustomer({
+  Future<void> startCustomerRegistration({
     required String fullName,
     required String email,
     required String password,
@@ -66,17 +66,30 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = const AsyncLoading<AuthState>();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(authRepositoryProvider);
-      await repository.registerCustomer(
+      await repository.startCustomerRegistration(
         fullName: fullName,
         email: email,
         password: password,
         phone: phone,
       );
-      return _authenticate(email: email, password: password);
+      return const AuthState.unauthenticated();
     });
   }
 
-  Future<void> registerOwner({
+  Future<void> verifyCustomerRegistration({
+    required String email,
+    required String code,
+  }) async {
+    state = const AsyncLoading<AuthState>();
+    state = await AsyncValue.guard(() async {
+      final tokens = await ref
+          .read(authRepositoryProvider)
+          .verifyCustomerRegistration(email: email, code: code);
+      return _authenticateWithTokens(tokens);
+    });
+  }
+
+  Future<void> startOwnerRegistration({
     required String businessName,
     required String? businessCategory,
     required String email,
@@ -85,13 +98,26 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = const AsyncLoading<AuthState>();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(authRepositoryProvider);
-      await repository.registerOwner(
+      await repository.startOwnerRegistration(
         businessName: businessName,
         businessCategory: businessCategory,
         email: email,
         password: password,
       );
-      return _authenticate(email: email, password: password);
+      return const AuthState.unauthenticated();
+    });
+  }
+
+  Future<void> verifyOwnerRegistration({
+    required String email,
+    required String code,
+  }) async {
+    state = const AsyncLoading<AuthState>();
+    state = await AsyncValue.guard(() async {
+      final tokens = await ref
+          .read(authRepositoryProvider)
+          .verifyOwnerRegistration(email: email, code: code);
+      return _authenticateWithTokens(tokens);
     });
   }
 
@@ -147,6 +173,11 @@ class AuthController extends AsyncNotifier<AuthState> {
   }) async {
     final repository = ref.read(authRepositoryProvider);
     final tokens = await repository.login(email: email, password: password);
+    return _authenticateWithTokens(tokens);
+  }
+
+  Future<AuthState> _authenticateWithTokens(AuthTokens tokens) async {
+    final repository = ref.read(authRepositoryProvider);
     ref.read(sessionExpiredMessageProvider.notifier).clear();
     await ref
         .read(secureTokenStoreProvider)

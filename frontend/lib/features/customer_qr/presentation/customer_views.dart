@@ -93,15 +93,6 @@ class CustomerCampaignView extends StatelessWidget {
     if (statusError != null) {
       return InlineBanner(message: statusError!, tone: BannerTone.error);
     }
-    if (campaignProgresses.isEmpty) {
-      return const AppCard(
-        child: EmptyStateView(
-          icon: Icons.campaign_outlined,
-          title: 'No campaign progress',
-          message: 'Progress appears after staff registers matching actions.',
-        ),
-      );
-    }
     final visibleProgresses = selectedTabIndex == 1
         ? customerArchivedCampaignProgresses(campaignProgresses)
         : customerActiveCampaignProgresses(campaignProgresses);
@@ -121,10 +112,10 @@ class CustomerCampaignView extends StatelessWidget {
               if (visibleProgresses.isEmpty)
                 const AppCard(
                   child: EmptyStateView(
-                    icon: Icons.archive_outlined,
-                    title: 'No campaigns here',
+                    icon: Icons.campaign_outlined,
+                    title: 'No campaign progress',
                     message:
-                        'Campaigns move between All and Archive by status.',
+                        'Progress appears after staff registers matching actions.',
                   ),
                 )
               else

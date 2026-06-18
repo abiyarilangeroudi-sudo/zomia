@@ -14,8 +14,10 @@ from app.modules.identity.schemas import (
     BusinessCreate,
     BusinessRead,
     CustomerProfileUpdate,
+    EmailVerificationConfirm,
     LoginRequest,
     OwnerRegister,
+    PendingRegistrationRead,
     RefreshTokenRequest,
     StaffContextRead,
     StaffCreate,
@@ -30,32 +32,76 @@ from app.modules.identity.service import IdentityService
 router = APIRouter(tags=["identity"])
 
 
+@router.post("/auth/register/customer", status_code=status.HTTP_410_GONE)
+def register_customer_disabled(
+    payload: UserCreate,
+    service: IdentityService = Depends(get_identity_service),
+) -> None:
+    service.register_customer(payload)
+
+
 @router.post(
-    "/auth/register/customer", response_model=UserRead, status_code=status.HTTP_201_CREATED
+    "/auth/register/customer/start",
+    response_model=PendingRegistrationRead,
+    status_code=status.HTTP_202_ACCEPTED,
 )
-def register_customer(
+def start_customer_registration(
     payload: UserCreate,
     db: Session = Depends(get_db),
     service: IdentityService = Depends(get_identity_service),
-) -> User:
-    user = service.register_customer(payload)
+) -> PendingRegistrationRead:
+    otp = service.start_customer_registration(payload)
     db.commit()
-    db.refresh(user)
-    return user
+    return PendingRegistrationRead(email=otp.email, expires_at=otp.expires_at)
+
+
+@router.post("/auth/register/customer/verify", response_model=TokenResponse)
+def verify_customer_registration(
+    payload: EmailVerificationConfirm,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> TokenResponse:
+    access_token, refresh_token = service.verify_customer_registration(
+        email=str(payload.email), code=payload.code
+    )
+    db.commit()
+    return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/auth/register/owner", status_code=status.HTTP_410_GONE)
+def register_owner_disabled(
+    payload: OwnerRegister,
+    service: IdentityService = Depends(get_identity_service),
+) -> None:
+    service.register_owner(payload)
 
 
 @router.post(
-    "/auth/register/owner", response_model=BusinessRead, status_code=status.HTTP_201_CREATED
+    "/auth/register/owner/start",
+    response_model=PendingRegistrationRead,
+    status_code=status.HTTP_202_ACCEPTED,
 )
-def register_owner(
+def start_owner_registration(
     payload: OwnerRegister,
     db: Session = Depends(get_db),
     service: IdentityService = Depends(get_identity_service),
-) -> BusinessRead:
-    _, business = service.register_owner(payload)
+) -> PendingRegistrationRead:
+    otp = service.start_owner_registration(payload)
     db.commit()
-    db.refresh(business)
-    return business
+    return PendingRegistrationRead(email=otp.email, expires_at=otp.expires_at)
+
+
+@router.post("/auth/register/owner/verify", response_model=TokenResponse)
+def verify_owner_registration(
+    payload: EmailVerificationConfirm,
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> TokenResponse:
+    access_token, refresh_token = service.verify_owner_registration(
+        email=str(payload.email), code=payload.code
+    )
+    db.commit()
+    return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
 @router.post("/auth/login", response_model=TokenResponse)

@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import re
 import secrets
 import uuid
@@ -7,8 +8,16 @@ from datetime import UTC, datetime, timedelta
 from fastapi import HTTPException, status
 
 from app.core.config import Settings
+from app.core.email import EmailSender
 from app.core.security import create_access_token, hash_password, verify_password
-from app.modules.identity.models import Business, RefreshToken, StaffMember, User, UserRole
+from app.modules.identity.models import (
+    Business,
+    EmailVerificationOtp,
+    RefreshToken,
+    StaffMember,
+    User,
+    UserRole,
+)
 from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import (
     BusinessCreate,
@@ -21,17 +30,73 @@ from app.modules.identity.schemas import (
     UserRead,
 )
 
+CUSTOMER_REGISTRATION_PURPOSE = "customer_registration"
+OWNER_REGISTRATION_PURPOSE = "owner_registration"
+
 
 class IdentityService:
-    def __init__(self, repository: IdentityRepository, settings: Settings) -> None:
+    def __init__(
+        self,
+        repository: IdentityRepository,
+        settings: Settings,
+        email_sender: EmailSender,
+    ) -> None:
         self.repository = repository
         self.settings = settings
+        self.email_sender = email_sender
 
     def register_customer(self, payload: UserCreate) -> User:
-        return self._create_user(payload, UserRole.CUSTOMER)
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Use email verification registration flow",
+        )
 
     def register_owner(self, payload: OwnerRegister) -> tuple[User, Business]:
-        owner = self._create_user(payload, UserRole.OWNER)
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Use email verification registration flow",
+        )
+
+    def start_customer_registration(self, payload: UserCreate) -> EmailVerificationOtp:
+        return self._start_pending_registration(
+            email=payload.email,
+            purpose=CUSTOMER_REGISTRATION_PURPOSE,
+            payload=payload.model_dump(mode="json"),
+        )
+
+    def verify_customer_registration(self, *, email: str, code: str) -> tuple[str, str]:
+        otp = self._consume_registration_otp(
+            email=email,
+            code=code,
+            purpose=CUSTOMER_REGISTRATION_PURPOSE,
+        )
+        user_payload = UserCreate.model_validate(otp.payload_json)
+        user = self._create_user(
+            user_payload,
+            UserRole.CUSTOMER,
+            email_verified_at=datetime.now(UTC),
+        )
+        return self._issue_token_pair(user)
+
+    def start_owner_registration(self, payload: OwnerRegister) -> EmailVerificationOtp:
+        return self._start_pending_registration(
+            email=payload.email,
+            purpose=OWNER_REGISTRATION_PURPOSE,
+            payload=payload.model_dump(mode="json"),
+        )
+
+    def verify_owner_registration(self, *, email: str, code: str) -> tuple[str, str]:
+        otp = self._consume_registration_otp(
+            email=email,
+            code=code,
+            purpose=OWNER_REGISTRATION_PURPOSE,
+        )
+        payload = OwnerRegister.model_validate(otp.payload_json)
+        owner = self._create_user(
+            payload,
+            UserRole.OWNER,
+            email_verified_at=datetime.now(UTC),
+        )
         business = self._build_business(
             owner_id=owner.id,
             payload=BusinessCreate(
@@ -41,7 +106,7 @@ class IdentityService:
             ),
         )
         self.repository.add_business(business)
-        return owner, business
+        return self._issue_token_pair(owner)
 
     def create_business(self, owner: User, payload: BusinessCreate) -> Business:
         self._require_role(owner, UserRole.OWNER)
@@ -57,7 +122,11 @@ class IdentityService:
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
 
-        staff_user = self._create_user(payload, UserRole.STAFF)
+        staff_user = self._create_user(
+            payload,
+            UserRole.STAFF,
+            email_verified_at=datetime.now(UTC),
+        )
         return self.repository.add_staff_member(
             StaffMember(business_id=business.id, user_id=staff_user.id)
         )
@@ -107,6 +176,11 @@ class IdentityService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect email or password",
                 headers={"WWW-Authenticate": "Bearer"},
+            )
+        if user.email_verified_at is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Email is not verified",
             )
         return self._issue_token_pair(user)
 
@@ -163,7 +237,84 @@ class IdentityService:
             return value.replace(tzinfo=UTC)
         return value.astimezone(UTC)
 
-    def _create_user(self, payload: UserCreate, role: UserRole) -> User:
+    def _start_pending_registration(
+        self, *, email: str, purpose: str, payload: dict
+    ) -> EmailVerificationOtp:
+        normalized_email = email.lower()
+        if self.repository.get_user_by_email(normalized_email) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+        code = self._generate_otp_code()
+        otp = self.repository.add_email_verification_otp(
+            EmailVerificationOtp(
+                email=normalized_email,
+                purpose=purpose,
+                code_hash=self._hash_otp_code(code),
+                payload_json=payload,
+                expires_at=datetime.now(UTC) + timedelta(minutes=self.settings.otp_expires_minutes),
+            )
+        )
+        self.email_sender.send_email(
+            to_email=normalized_email,
+            subject="Email Verification",
+            body=(
+                "Email Verification\n\n"
+                "Hello,\n\n"
+                "Thank you for registering with Zomia! To complete your registration, "
+                "please use the following verification code:\n\n"
+                f"{code}\n"
+                "This code will expire in 10 minutes.\n\n"
+                "If you didn't request this code, please ignore this email.\n\n"
+                "Best regards,\n"
+                "The Zomia Team\n\n"
+                "© 2026 Zomia. All rights reserved."
+            ),
+        )
+        return otp
+
+    def _consume_registration_otp(
+        self, *, email: str, code: str, purpose: str
+    ) -> EmailVerificationOtp:
+        otp = self.repository.get_latest_email_verification_otp(
+            email=email.lower(),
+            purpose=purpose,
+        )
+        now = datetime.now(UTC)
+        if otp is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="OTP not found")
+        if self._as_utc(otp.expires_at) <= now:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="OTP expired")
+        if otp.attempt_count >= 5:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Too many OTP attempts",
+            )
+        otp.attempt_count += 1
+        if not hmac.compare_digest(otp.code_hash, self._hash_otp_code(code)):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OTP")
+        if self.repository.get_user_by_email(email) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+        otp.consumed_at = now
+        return otp
+
+    def _generate_otp_code(self) -> str:
+        if self.settings.otp_test_code is not None:
+            return self.settings.otp_test_code
+        return str(secrets.randbelow(900000) + 100000)
+
+    def _hash_otp_code(self, code: str) -> str:
+        return hmac.new(
+            self.settings.jwt_secret_key.encode("utf-8"),
+            code.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+
+    def _create_user(
+        self,
+        payload: UserCreate,
+        role: UserRole,
+        *,
+        email_verified_at: datetime | None = None,
+    ) -> User:
         if self.repository.get_user_by_email(payload.email) is not None:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
         return self.repository.add_user(
@@ -173,6 +324,7 @@ class IdentityService:
                 password_hash=hash_password(payload.password),
                 full_name=payload.full_name,
                 role=role,
+                email_verified_at=email_verified_at,
             )
         )
 

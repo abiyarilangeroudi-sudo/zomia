@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTextField extends StatefulWidget {
   const AppTextField({
@@ -15,6 +16,8 @@ class AppTextField extends StatefulWidget {
     this.obscureText = false,
     this.maxLines = 1,
     this.enabled = true,
+    this.inputFormatters,
+    this.maxLength,
   });
 
   final TextEditingController? controller;
@@ -29,6 +32,8 @@ class AppTextField extends StatefulWidget {
   final bool obscureText;
   final int maxLines;
   final bool enabled;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -47,6 +52,8 @@ class _AppTextFieldState extends State<AppTextField> {
       textInputAction: widget.textInputAction,
       obscureText: _isObscured,
       maxLines: widget.maxLines,
+      inputFormatters: widget.inputFormatters,
+      maxLength: widget.maxLength,
       validator: widget.validator,
       onFieldSubmitted: widget.onSubmitted,
       decoration: InputDecoration(
@@ -64,6 +71,7 @@ class _AppTextFieldState extends State<AppTextField> {
                 ),
               )
             : widget.suffixIcon,
+        counterText: '',
       ),
     );
     if (widget.maxLines > 1) {

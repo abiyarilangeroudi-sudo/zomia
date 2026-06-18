@@ -145,7 +145,7 @@ class _CustomerRegisterScreenState
     );
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -155,12 +155,18 @@ class _CustomerRegisterScreenState
       );
       return;
     }
-    ref
+    final email = _emailController.text.trim();
+    await ref
         .read(authControllerProvider.notifier)
-        .registerCustomer(
+        .startCustomerRegistration(
           fullName: _nameController.text.trim(),
-          email: _emailController.text.trim(),
+          email: email,
           password: _passwordController.text,
         );
+    final hasError = ref.read(authControllerProvider).hasError;
+    if (!mounted || hasError) {
+      return;
+    }
+    context.go('/verify-email?email=$email&registration_type=customer');
   }
 }

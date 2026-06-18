@@ -35,6 +35,16 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class EmailVerificationConfirm(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
+class PendingRegistrationRead(BaseModel):
+    email: EmailStr
+    expires_at: datetime
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
@@ -54,6 +64,7 @@ class UserRead(BaseModel):
     full_name: str
     role: UserRole
     is_active: bool
+    email_verified_at: datetime | None
     created_at: datetime
 
 

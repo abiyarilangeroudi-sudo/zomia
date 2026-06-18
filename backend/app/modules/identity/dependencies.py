@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
+from app.core.email import EmailSender
 from app.core.security import decode_access_token
 from app.modules.identity.models import User
 from app.modules.identity.repository import IdentityRepository
@@ -22,7 +23,7 @@ def get_identity_service(
     repository: IdentityRepository = Depends(get_identity_repository),
     settings: Settings = Depends(get_settings),
 ) -> IdentityService:
-    return IdentityService(repository, settings)
+    return IdentityService(repository, settings, EmailSender(settings))
 
 
 def get_current_user(
