@@ -1,8 +1,21 @@
 class OwnerBusiness {
   const OwnerBusiness({
     required this.id,
+    required this.ownerId,
     required this.name,
+    required this.legalName,
     required this.slug,
+    required this.category,
+    required this.publicEmail,
+    required this.publicPhone,
+    required this.websiteUrl,
+    required this.addressLine1,
+    required this.addressLine2,
+    required this.city,
+    required this.region,
+    required this.postalCode,
+    required this.countryCode,
+    required this.timezone,
     required this.status,
     required this.currencyCode,
   });
@@ -10,16 +23,42 @@ class OwnerBusiness {
   factory OwnerBusiness.fromJson(Map<String, dynamic> json) {
     return OwnerBusiness(
       id: json['id'] as String,
+      ownerId: json['owner_id'] as String,
       name: json['name'] as String,
+      legalName: json['legal_name'] as String?,
       slug: json['slug'] as String,
+      category: json['category'] as String?,
+      publicEmail: json['public_email'] as String?,
+      publicPhone: json['public_phone'] as String?,
+      websiteUrl: json['website_url'] as String?,
+      addressLine1: json['address_line1'] as String?,
+      addressLine2: json['address_line2'] as String?,
+      city: json['city'] as String?,
+      region: json['region'] as String?,
+      postalCode: json['postal_code'] as String?,
+      countryCode: json['country_code'] as String,
+      timezone: json['timezone'] as String,
       status: json['status'] as String,
       currencyCode: json['currency_code'] as String,
     );
   }
 
   final String id;
+  final String ownerId;
   final String name;
+  final String? legalName;
   final String slug;
+  final String? category;
+  final String? publicEmail;
+  final String? publicPhone;
+  final String? websiteUrl;
+  final String? addressLine1;
+  final String? addressLine2;
+  final String? city;
+  final String? region;
+  final String? postalCode;
+  final String countryCode;
+  final String timezone;
   final String status;
   final String currencyCode;
 }

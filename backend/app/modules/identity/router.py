@@ -13,6 +13,7 @@ from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import (
     BusinessCreate,
     BusinessRead,
+    BusinessUpdate,
     AccountRemove,
     CustomerProfileUpdate,
     EmailChangeStart,
@@ -296,6 +297,20 @@ def list_businesses(
 ) -> list:
     IdentityService._require_role(current_user, UserRole.OWNER)
     return repository.list_owner_businesses(current_user.id)
+
+
+@router.patch("/owner/businesses/{business_id}", response_model=BusinessRead)
+def update_business(
+    business_id: uuid.UUID,
+    payload: BusinessUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> BusinessRead:
+    business = service.update_business(current_user, business_id, payload)
+    db.commit()
+    db.refresh(business)
+    return business
 
 
 @router.post("/owner/staff", response_model=StaffRead, status_code=status.HTTP_201_CREATED)

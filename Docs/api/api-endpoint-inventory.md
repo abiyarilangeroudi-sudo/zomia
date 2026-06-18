@@ -58,6 +58,7 @@ Unused endpoint policy:
 | GET | `/staff/me/context` | staff | Staff login context | active | Returns staff business context after login. |
 | POST | `/owner/businesses` | owner | Owner setup | active | Create owner business. |
 | GET | `/owner/businesses` | owner | Owner setup | active | List owner businesses. |
+| PATCH | `/owner/businesses/{business_id}` | owner | Owner business settings | active | Update safe business profile fields owned by the current Owner. Does not change slug, status, currency, owner, transfer, or deletion policy. |
 | POST | `/owner/staff` | owner | Owner staff tools | active | Create staff user/membership. |
 | PATCH | `/owner/staff/{staff_member_id}` | owner | Owner staff tools | active | Toggle staff active/inactive. |
 | GET | `/owner/staff` | owner | Owner staff tools | active | List staff memberships. |

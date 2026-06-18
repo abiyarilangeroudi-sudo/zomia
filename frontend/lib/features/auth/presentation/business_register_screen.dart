@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/ui/ui.dart';
+import '../domain/business_category.dart';
 import 'auth_controller.dart';
 import 'auth_form_layout.dart';
 
@@ -72,7 +73,14 @@ class _BusinessRegisterScreenState
               SelectField<String>(
                 label: 'Category',
                 value: _selectedCategory,
-                options: _businessCategoryOptions,
+                options: businessCategoryOptions
+                    .map(
+                      (option) => SelectFieldOption(
+                        value: option.value,
+                        label: option.label,
+                      ),
+                    )
+                    .toList(),
                 onChanged: isLoading
                     ? null
                     : (value) => setState(() => _selectedCategory = value),
@@ -189,16 +197,3 @@ class _BusinessRegisterScreenState
     context.go('/verify-email?email=$email&registration_type=owner');
   }
 }
-
-const _businessCategoryOptions = [
-  SelectFieldOption(value: 'cafe', label: 'Cafe'),
-  SelectFieldOption(value: 'restaurant', label: 'Restaurant'),
-  SelectFieldOption(value: 'bakery', label: 'Bakery'),
-  SelectFieldOption(value: 'retail', label: 'Retail'),
-  SelectFieldOption(value: 'beauty_wellness', label: 'Beauty & Wellness'),
-  SelectFieldOption(value: 'fitness', label: 'Fitness'),
-  SelectFieldOption(value: 'entertainment', label: 'Entertainment'),
-  SelectFieldOption(value: 'services', label: 'Services'),
-  SelectFieldOption(value: 'barbershops', label: 'Barbershops'),
-  SelectFieldOption(value: 'other', label: 'Other'),
-];

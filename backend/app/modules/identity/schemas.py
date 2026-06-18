@@ -136,6 +136,31 @@ class BusinessCreate(BaseModel):
         return normalized
 
 
+class BusinessUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=2, max_length=160)
+    category: str | None = Field(default=None, max_length=80)
+    public_email: EmailStr | None = None
+    public_phone: str | None = Field(default=None, max_length=32)
+    website_url: str | None = Field(default=None, max_length=500)
+    address_line1: str | None = Field(default=None, max_length=180)
+    address_line2: str | None = Field(default=None, max_length=180)
+    city: str | None = Field(default=None, max_length=120)
+    region: str | None = Field(default=None, max_length=120)
+    postal_code: str | None = Field(default=None, max_length=32)
+    country_code: str | None = Field(default=None, min_length=2, max_length=2)
+    timezone: str | None = Field(default=None, max_length=64)
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if normalized not in BUSINESS_CATEGORIES:
+            raise ValueError("Unsupported business category")
+        return normalized
+
+
 class BusinessRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

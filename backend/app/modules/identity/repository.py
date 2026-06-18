@@ -154,6 +154,12 @@ class IdentityRepository:
             select(Business).where(Business.id == business_id, Business.owner_id == owner_id)
         )
 
+    def update_business(self, *, business: Business, values: dict) -> Business:
+        for key, value in values.items():
+            setattr(business, key, value)
+        self.db.flush()
+        return business
+
     def add_staff_member(self, staff_member: StaffMember) -> StaffMember:
         self.db.add(staff_member)
         self.db.flush()

@@ -191,6 +191,9 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
         OwnerProfileCard(
           user: widget.user,
           selectedBusiness: _controller.selectedBusiness,
+          onOpenBusinessSettings: _controller.selectedBusiness == null
+              ? null
+              : _openBusinessSettingsDialog,
           onOpenAccountSettings: _openAccountSettingsDialog,
           onSignOut: () => ref.read(authControllerProvider.notifier).signOut(),
         ),
@@ -255,6 +258,27 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             errorMessage: _controller.error,
             isSaving: _controller.isSaving,
             onCreate: _controller.createStaff,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openBusinessSettingsDialog() {
+    final business = _controller.selectedBusiness;
+    if (business == null) {
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => OwnerBusinessSettingsDialog(
+            business: business,
+            errorMessage: _controller.error,
+            isSaving: _controller.isSaving,
+            onSave: _controller.updateBusinessProfile,
           ),
         ),
       ),

@@ -21,6 +21,7 @@ from app.modules.identity.models import (
 from app.modules.identity.repository import IdentityRepository
 from app.modules.identity.schemas import (
     BusinessCreate,
+    BusinessUpdate,
     CustomerProfileUpdate,
     OwnerRegister,
     StaffContextBusinessRead,
@@ -116,6 +117,20 @@ class IdentityService:
         return self.repository.add_business(
             self._build_business(owner_id=owner.id, payload=payload)
         )
+
+    def update_business(
+        self, owner: User, business_id: uuid.UUID, payload: BusinessUpdate
+    ) -> Business:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(
+            business_id=business_id, owner_id=owner.id
+        )
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        values = payload.model_dump(exclude_unset=True)
+        if "country_code" in values and values["country_code"] is not None:
+            values["country_code"] = values["country_code"].upper()
+        return self.repository.update_business(business=business, values=values)
 
     def create_staff(self, owner: User, payload: StaffCreate) -> StaffMember:
         self._require_role(owner, UserRole.OWNER)

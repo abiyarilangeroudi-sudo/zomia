@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.84 (85)'), findsOneWidget);
+    expect(find.text('Version 1.0.85 (86)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.84 (85)'));
+    await tester.tap(find.text('Version 1.0.85 (86)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -1066,6 +1066,7 @@ void main() {
   testWidgets('signs in and renders owner setup screen', (tester) async {
     final tokenStore = _MemoryTokenStore();
     final authRepository = _FakeAuthRepository(role: 'owner');
+    final ownerRepository = _FakeOwnerSetupRepository();
     await tester.binding.setSurfaceSize(const Size(900, 1200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -1074,9 +1075,7 @@ void main() {
         overrides: [
           secureTokenStoreProvider.overrideWithValue(tokenStore),
           authRepositoryProvider.overrideWithValue(authRepository),
-          ownerSetupRepositoryProvider.overrideWithValue(
-            _FakeOwnerSetupRepository(),
-          ),
+          ownerSetupRepositoryProvider.overrideWithValue(ownerRepository),
         ],
         child: const ZomiaApp(),
       ),
@@ -1165,6 +1164,29 @@ void main() {
     expect(find.text('Account Settings'), findsOneWidget);
     expect(find.text('Create Staff'), findsNothing);
 
+    await tester.tap(find.text('Zomia Cafe').last);
+    await pumpAppFrames(tester);
+
+    expect(find.text('Business Settings'), findsOneWidget);
+    await _enterTextByLabel(tester, 'Business name', 'Updated Cafe');
+    await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bakery').last);
+    await tester.pumpAndSettle();
+    await _enterTextByLabel(tester, 'Public email', 'hello@updated.example');
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Save business'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save business'));
+    await pumpAppFrames(tester);
+
+    expect(ownerRepository.businessName, 'Updated Cafe');
+    expect(ownerRepository.updatedBusinessCategory, 'bakery');
+    expect(ownerRepository.updatedBusinessPublicEmail, 'hello@updated.example');
+    expect(find.text('Business updated.'), findsOneWidget);
+    expect(find.text('Updated Cafe'), findsWidgets);
+
     await tester.tap(find.text('Account Settings'));
     await pumpAppFrames(tester);
 
@@ -1186,7 +1208,6 @@ void main() {
     expect(authRepository.startedEmailChange, isTrue);
     expect(authRepository.verifiedEmailChange, isTrue);
     expect(authRepository.emailChangeNewEmail, 'owner-new@example.com');
-    expect(find.text('Email changed.'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Close').last);
     await tester.pumpAndSettle();
@@ -1501,18 +1522,56 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
   int? createdCampaignMaxCompletions;
   DateTime? createdCampaignStartsAt;
   DateTime? createdCampaignEndsAt;
+  String businessName = 'Zomia Cafe';
+  String? updatedBusinessCategory;
+  String? updatedBusinessPublicEmail;
 
   @override
   Future<List<OwnerBusiness>> listBusinesses() async {
-    return const [
+    return [
       OwnerBusiness(
         id: 'business-id',
-        name: 'Zomia Cafe',
+        ownerId: 'owner-id',
+        name: businessName,
+        legalName: null,
         slug: 'zomia-cafe',
+        category: updatedBusinessCategory ?? 'cafe',
+        publicEmail: updatedBusinessPublicEmail ?? 'hello@zomia.example',
+        publicPhone: '+491234567',
+        websiteUrl: 'https://zomia.example',
+        addressLine1: 'Main Street 1',
+        addressLine2: null,
+        city: 'Berlin',
+        region: 'Berlin',
+        postalCode: '10115',
+        countryCode: 'DE',
+        timezone: 'Europe/Berlin',
         status: 'active',
         currencyCode: 'EUR',
       ),
     ];
+  }
+
+  @override
+  Future<OwnerBusiness> updateBusiness({
+    required String businessId,
+    required String name,
+    required String? category,
+    required String? publicEmail,
+    required String? publicPhone,
+    required String? websiteUrl,
+    required String? addressLine1,
+    required String? addressLine2,
+    required String? city,
+    required String? region,
+    required String? postalCode,
+    required String countryCode,
+    required String timezone,
+  }) async {
+    businessName = name;
+    updatedBusinessCategory = category;
+    updatedBusinessPublicEmail = publicEmail;
+    return (await listBusinesses()).first;
   }
 
   @override

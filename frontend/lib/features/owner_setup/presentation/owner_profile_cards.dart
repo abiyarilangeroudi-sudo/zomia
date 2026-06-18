@@ -9,12 +9,14 @@ class OwnerProfileCard extends StatelessWidget {
     super.key,
     required this.user,
     required this.selectedBusiness,
+    required this.onOpenBusinessSettings,
     required this.onOpenAccountSettings,
     required this.onSignOut,
   });
 
   final CurrentUser user;
   final OwnerBusiness? selectedBusiness;
+  final VoidCallback? onOpenBusinessSettings;
   final VoidCallback onOpenAccountSettings;
   final VoidCallback onSignOut;
 
@@ -38,6 +40,7 @@ class OwnerProfileCard extends StatelessWidget {
               subtitle:
                   '${selectedBusiness!.currencyCode} · ${selectedBusiness!.status}',
               leadingIcon: Icons.storefront_rounded,
+              onTap: onOpenBusinessSettings,
             ),
           ],
           const SizedBox(height: 12),

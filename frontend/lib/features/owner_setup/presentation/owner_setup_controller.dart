@@ -198,6 +198,52 @@ class OwnerSetupController extends ChangeNotifier {
     );
   }
 
+  Future<bool> updateBusinessProfile({
+    required String name,
+    required String? category,
+    required String? publicEmail,
+    required String? publicPhone,
+    required String? websiteUrl,
+    required String? addressLine1,
+    required String? addressLine2,
+    required String? city,
+    required String? region,
+    required String? postalCode,
+    required String countryCode,
+    required String timezone,
+  }) async {
+    final business = selectedBusiness;
+    if (business == null) {
+      _showError('Select a business first.');
+      return false;
+    }
+    if (name.trim().length < 2) {
+      _showError('Business name is required.');
+      return false;
+    }
+    if (countryCode.trim().length != 2 || timezone.trim().isEmpty) {
+      _showError('Enter valid country and timezone values.');
+      return false;
+    }
+    return _save(() async {
+      await repository.updateBusiness(
+        businessId: business.id,
+        name: name.trim(),
+        category: category,
+        publicEmail: publicEmail,
+        publicPhone: publicPhone,
+        websiteUrl: websiteUrl,
+        addressLine1: addressLine1,
+        addressLine2: addressLine2,
+        city: city,
+        region: region,
+        postalCode: postalCode,
+        countryCode: countryCode.trim().toUpperCase(),
+        timezone: timezone.trim(),
+      );
+    }, 'Business updated.');
+  }
+
   Future<bool> createMission() async {
     final business = selectedBusiness;
     final points = int.tryParse(missionPointsController.text.trim());

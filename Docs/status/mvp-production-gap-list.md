@@ -358,31 +358,30 @@ Direction:
 - Loyalty owns missions, actions, points ledger, campaigns, rewards, and audit related to loyalty behavior.
 - Do not let Loyalty become responsible for password, email verification, OAuth, or account recovery.
 
-## Recently Completed Phase
-
-F10.5:
-
-```text
-Owner Activity Endpoint
-```
-
-Outcome:
-
-- Owner can review recent staff actions for the selected business.
-- Auth recovery remains on hold until the email delivery decision.
-
 ## Current Recommended Phase
 
-F10.13 should start with:
+After F10.23, the recommended next feature is:
 
 ```text
-Data and Audit Review
+F11: Business Settings / Business Profile
 ```
+
+Reason:
+
+- Identity and Account lifecycle are now stable enough for MVP demo.
+- Owner can operate Staff, Mission, Reward Template, and Campaign, but business profile editing is still incomplete.
+- Business profile work improves production readiness without introducing Group/Cross campaign complexity.
 
 Focus:
 
-- Confirm which actions create audit events.
-- Confirm owner-visible vs internal-only audit data.
-- Confirm idempotency coverage for mission action registration and reward use.
-- Confirm QR token storage does not keep raw QR tokens.
-- Avoid implementing Group/Cross features during this review.
+- Add or reuse Owner-safe business profile endpoints.
+- Let Owner edit safe business fields only.
+- Keep business deletion and ownership transfer out of MVP.
+- Keep frontend UI catalog-based and English.
+- Avoid implementing Group/Cross features during this phase.
+
+F11 progress:
+
+- `PATCH /api/v1/owner/businesses/{business_id}` is added for Owner-safe business profile updates.
+- Owner Business Settings lets Owner edit safe profile fields from Flutter.
+- Slug, status, currency, owner transfer, and business deletion remain out of MVP editing.

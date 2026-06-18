@@ -723,6 +723,81 @@ def test_owner_can_create_business_and_staff(client: TestClient) -> None:
     assert staff_response.json()["user"]["role"] == "staff"
 
 
+def test_owner_can_update_own_business_profile(client: TestClient) -> None:
+    business = register_owner(
+        client,
+        email="profile-owner@example.com",
+        business_name="Original Cafe",
+        business_category="cafe",
+    )
+    token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "profile-owner@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+
+    response = client.patch(
+        f"/api/v1/owner/businesses/{business['id']}",
+        json={
+            "name": "Updated Cafe",
+            "category": "bakery",
+            "public_email": "hello@updated.example",
+            "public_phone": "+491234567",
+            "website_url": "https://updated.example",
+            "address_line1": "Updated Street 1",
+            "address_line2": "Back house",
+            "city": "Hamburg",
+            "region": "Hamburg",
+            "postal_code": "20095",
+            "country_code": "de",
+            "timezone": "Europe/Berlin",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["name"] == "Updated Cafe"
+    assert body["category"] == "bakery"
+    assert body["public_email"] == "hello@updated.example"
+    assert body["public_phone"] == "+491234567"
+    assert body["website_url"] == "https://updated.example"
+    assert body["address_line1"] == "Updated Street 1"
+    assert body["address_line2"] == "Back house"
+    assert body["city"] == "Hamburg"
+    assert body["region"] == "Hamburg"
+    assert body["postal_code"] == "20095"
+    assert body["country_code"] == "DE"
+    assert body["slug"] == business["slug"]
+    assert body["currency_code"] == "EUR"
+    assert body["status"] == "active"
+
+
+def test_owner_cannot_update_another_owners_business(client: TestClient) -> None:
+    business = register_owner(
+        client,
+        email="profile-owner-a@example.com",
+        business_name="Owner A Cafe",
+    )
+    register_owner(
+        client,
+        email="profile-owner-b@example.com",
+        business_name="Owner B Cafe",
+    )
+    token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "profile-owner-b@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+
+    response = client.patch(
+        f"/api/v1/owner/businesses/{business['id']}",
+        json={"name": "Stolen Cafe"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Business not found"
+
+
 def test_owner_register_accepts_controlled_business_category(
     client: TestClient,
 ) -> None:
