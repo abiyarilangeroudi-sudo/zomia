@@ -146,25 +146,22 @@ The MVP is not production-ready yet. The remaining work is less about proving th
 - Do not implement Owner removal until business ownership transfer/removal policy exists.
 - Do not replace the approved design system with one-off screens.
 
-## Recommended Next Feature
-
-The next best feature is:
+## Recently Completed Feature
 
 ```text
 F11: Business Settings / Business Profile
 ```
 
-Reason:
+Reason this was the right next feature:
 
 - Owner can create and operate loyalty tools, but business profile editing is still not a complete product experience.
 - Business identity is central to Customer, Staff, Campaign, Reward, QR, legal pages, and future marketplace/cross-network behavior.
 - It is smaller and safer than Group/Cross Campaigns.
 - It improves production readiness without creating new domain complexity.
 
-Suggested F11 scope:
+F11 completed scope:
 
-- Owner can view business profile details.
-- Owner can edit safe business fields:
+- Owner can view and edit safe business profile details:
   - business name
   - category
   - public email
@@ -172,20 +169,26 @@ Suggested F11 scope:
   - website
   - address fields
   - timezone
-- Do not add multi-owner transfer or business deletion yet.
-- Update API inventory before adding/changing endpoints.
-- Keep frontend UI English and catalog-based.
+- API inventory was updated.
+- Frontend UI remains English and catalog-based.
+- Owner cannot edit `owner_id`, `slug`, `status`, `currency_code`, ownership transfer, or business deletion from the MVP UI.
 
-F11 implementation note:
+## Recommended Next Step
 
-- Add/reuse Owner-safe business profile update endpoint.
-- Do not edit `owner_id`, `slug`, `status`, `currency_code`, ownership transfer, or business deletion from the MVP UI.
+The next step is:
 
-## Secondary Next Steps
+```text
+F12: Manual QA Release Candidate Checklist
+```
 
-After F11, likely next candidates are:
+Reason:
 
-- Manual QA checklist as a formal release candidate document.
+- The MVP now has enough moving pieces that manual testing must be repeatable.
+- Visual approval, role behavior, QR flow, account lifecycle, and campaign/reward behavior need one shared checklist.
+- This is safer than adding another feature before validating the full product path.
+
+After F12, likely next candidates are:
+
 - Production deployment preparation.
 - Final UI/Branding consistency pass.
 - RewardService extraction before advanced campaign types.
@@ -194,6 +197,7 @@ After F11, likely next candidates are:
 
 - Current product status: `Docs/status/current-stability-check.md`
 - Production gaps: `Docs/status/mvp-production-gap-list.md`
+- Manual QA release-candidate checklist: `Docs/status/manual-qa-release-candidate-checklist.md`
 - Identity role policy: `Docs/status/identity-role-matrix.md`
 - Endpoint inventory: `Docs/api/api-endpoint-inventory.md`
 - Historical sprint docs: useful for context, not the current source of truth.

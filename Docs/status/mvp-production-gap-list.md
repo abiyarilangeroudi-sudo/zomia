@@ -319,8 +319,13 @@ F10.23 review:
 - Add phone as optional profile completion later, not registration requirement.
 - Improve Owner setup forms after the current MVP workflow remains stable.
 - Add more realistic empty states for businesses with no activity.
-- Add a formal manual QA checklist file for future release candidates.
 - Add Customer-facing explanation for repeatable vs completed campaigns after repeatable rules are defined.
+
+F12 progress:
+
+- A formal manual release-candidate QA checklist is now tracked in `Docs/status/manual-qa-release-candidate-checklist.md`.
+- The checklist covers local startup, authentication, role account settings, Owner setup, Customer QR, Staff service flow, campaign/reward behavior, console/error UX, and UI catalog compliance.
+- The checklist is intentionally manual because visual approval and product flow validation still depend on human review.
 
 ## Recently Completed Feature Direction
 
@@ -358,30 +363,29 @@ Direction:
 - Loyalty owns missions, actions, points ledger, campaigns, rewards, and audit related to loyalty behavior.
 - Do not let Loyalty become responsible for password, email verification, OAuth, or account recovery.
 
-## Current Recommended Phase
+## Recent Phase Progress
 
-After F10.23, the recommended next feature is:
+F11 completed:
 
 ```text
 F11: Business Settings / Business Profile
 ```
 
-Reason:
-
-- Identity and Account lifecycle are now stable enough for MVP demo.
-- Owner can operate Staff, Mission, Reward Template, and Campaign, but business profile editing is still incomplete.
-- Business profile work improves production readiness without introducing Group/Cross campaign complexity.
-
-Focus:
-
-- Add or reuse Owner-safe business profile endpoints.
-- Let Owner edit safe business fields only.
-- Keep business deletion and ownership transfer out of MVP.
-- Keep frontend UI catalog-based and English.
-- Avoid implementing Group/Cross features during this phase.
-
-F11 progress:
-
 - `PATCH /api/v1/owner/businesses/{business_id}` is added for Owner-safe business profile updates.
 - Owner Business Settings lets Owner edit safe profile fields from Flutter.
 - Slug, status, currency, owner transfer, and business deletion remain out of MVP editing.
+
+F12 started:
+
+- Manual QA has a release-candidate checklist: `Docs/status/manual-qa-release-candidate-checklist.md`.
+- Use it before calling any local build ready for demo/release-candidate review.
+
+## Current Recommended Phase
+
+Run the manual release-candidate QA checklist before adding the next feature.
+
+After that, likely candidates are:
+
+- Production deployment preparation.
+- Final UI/Branding consistency pass.
+- RewardService extraction before advanced campaign types.

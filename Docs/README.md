@@ -27,6 +27,7 @@ Customer QR
 - [API Endpoint Inventory](./api/api-endpoint-inventory.md)
 - [Current Stability Check](./status/current-stability-check.md)
 - [MVP Production Gap List](./status/mvp-production-gap-list.md)
+- [Manual QA Release Candidate Checklist](./status/manual-qa-release-candidate-checklist.md)
 - [Auth Recovery and Email Verification Contract](./status/auth-recovery-verification-contract.md)
 - [Flutter MVP Phase](./roadmap/flutter-mvp-phase.md)
 - [Flutter Branding Extraction](./roadmap/flutter-branding-extraction.md)
