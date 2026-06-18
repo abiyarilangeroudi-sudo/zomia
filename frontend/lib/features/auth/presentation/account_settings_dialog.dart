@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 
 import '../../../app/ui/ui.dart';
 
-class CustomerSettingsDialog extends StatelessWidget {
-  const CustomerSettingsDialog({
+class AccountSettingsDialog extends StatelessWidget {
+  const AccountSettingsDialog({
     super.key,
     required this.onChangePassword,
     required this.onStartEmailChange,
     required this.onVerifyEmailChange,
-    required this.onRemoveAccount,
+    this.onRemoveAccount,
   });
 
   final Future<void> Function({
@@ -24,7 +24,7 @@ class CustomerSettingsDialog extends StatelessWidget {
   onStartEmailChange;
   final Future<void> Function({required String newEmail, required String code})
   onVerifyEmailChange;
-  final Future<void> Function({required String currentPassword})
+  final Future<void> Function({required String currentPassword})?
   onRemoveAccount;
 
   @override
@@ -54,12 +54,14 @@ class CustomerSettingsDialog extends StatelessWidget {
                   leadingIcon: Icons.alternate_email_rounded,
                   onTap: () => _openChangeEmailDialog(context),
                 ),
-                const SizedBox(height: 12),
-                AppListRow(
-                  title: 'Remove Account',
-                  leadingIcon: Icons.person_remove_alt_1_rounded,
-                  onTap: () => _openRemoveAccountDialog(context),
-                ),
+                if (onRemoveAccount != null) ...[
+                  const SizedBox(height: 12),
+                  AppListRow(
+                    title: 'Remove Account',
+                    leadingIcon: Icons.person_remove_alt_1_rounded,
+                    onTap: () => _openRemoveAccountDialog(context),
+                  ),
+                ],
               ],
             ),
           ),
@@ -73,7 +75,7 @@ class CustomerSettingsDialog extends StatelessWidget {
       MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (context) =>
-            CustomerChangePasswordDialog(onChangePassword: onChangePassword),
+            AccountChangePasswordDialog(onChangePassword: onChangePassword),
       ),
     );
   }
@@ -82,7 +84,7 @@ class CustomerSettingsDialog extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (context) => CustomerChangeEmailDialog(
+        builder: (context) => AccountChangeEmailDialog(
           onStartEmailChange: onStartEmailChange,
           onVerifyEmailChange: onVerifyEmailChange,
         ),
@@ -91,18 +93,21 @@ class CustomerSettingsDialog extends StatelessWidget {
   }
 
   void _openRemoveAccountDialog(BuildContext context) {
+    final handler = onRemoveAccount;
+    if (handler == null) {
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (context) =>
-            CustomerRemoveAccountDialog(onRemoveAccount: onRemoveAccount),
+        builder: (context) => AccountRemoveDialog(onRemoveAccount: handler),
       ),
     );
   }
 }
 
-class CustomerChangePasswordDialog extends StatefulWidget {
-  const CustomerChangePasswordDialog({
+class AccountChangePasswordDialog extends StatefulWidget {
+  const AccountChangePasswordDialog({
     super.key,
     required this.onChangePassword,
   });
@@ -114,12 +119,12 @@ class CustomerChangePasswordDialog extends StatefulWidget {
   onChangePassword;
 
   @override
-  State<CustomerChangePasswordDialog> createState() =>
-      _CustomerChangePasswordDialogState();
+  State<AccountChangePasswordDialog> createState() =>
+      _AccountChangePasswordDialogState();
 }
 
-class _CustomerChangePasswordDialogState
-    extends State<CustomerChangePasswordDialog> {
+class _AccountChangePasswordDialogState
+    extends State<AccountChangePasswordDialog> {
   final _formKey = GlobalKey<FormState>();
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -252,8 +257,8 @@ class _CustomerChangePasswordDialogState
   }
 }
 
-class CustomerChangeEmailDialog extends StatefulWidget {
-  const CustomerChangeEmailDialog({
+class AccountChangeEmailDialog extends StatefulWidget {
+  const AccountChangeEmailDialog({
     super.key,
     required this.onStartEmailChange,
     required this.onVerifyEmailChange,
@@ -268,11 +273,11 @@ class CustomerChangeEmailDialog extends StatefulWidget {
   onVerifyEmailChange;
 
   @override
-  State<CustomerChangeEmailDialog> createState() =>
-      _CustomerChangeEmailDialogState();
+  State<AccountChangeEmailDialog> createState() =>
+      _AccountChangeEmailDialogState();
 }
 
-class _CustomerChangeEmailDialogState extends State<CustomerChangeEmailDialog> {
+class _AccountChangeEmailDialogState extends State<AccountChangeEmailDialog> {
   final _formKey = GlobalKey<FormState>();
   final _newEmailController = TextEditingController();
   final _currentPasswordController = TextEditingController();
@@ -468,19 +473,17 @@ class _CustomerChangeEmailDialogState extends State<CustomerChangeEmailDialog> {
   }
 }
 
-class CustomerRemoveAccountDialog extends StatefulWidget {
-  const CustomerRemoveAccountDialog({super.key, required this.onRemoveAccount});
+class AccountRemoveDialog extends StatefulWidget {
+  const AccountRemoveDialog({super.key, required this.onRemoveAccount});
 
   final Future<void> Function({required String currentPassword})
   onRemoveAccount;
 
   @override
-  State<CustomerRemoveAccountDialog> createState() =>
-      _CustomerRemoveAccountDialogState();
+  State<AccountRemoveDialog> createState() => _AccountRemoveDialogState();
 }
 
-class _CustomerRemoveAccountDialogState
-    extends State<CustomerRemoveAccountDialog> {
+class _AccountRemoveDialogState extends State<AccountRemoveDialog> {
   final _formKey = GlobalKey<FormState>();
   final _currentPasswordController = TextEditingController();
   bool _confirmed = false;

@@ -187,7 +187,7 @@ Request:
 Rules:
 
 - User must be authenticated.
-- MVP implementation is Customer-only first.
+- MVP implementation supports Customer and Owner first.
 - Current password must be verified before sending OTP.
 - OTP is sent to the new email address.
 - Existing email remains active until OTP verification succeeds.
@@ -216,6 +216,7 @@ Rules:
 - OTP payload must belong to the authenticated user.
 - On success, update `users.email` and `email_verified_at`.
 - Do not revoke existing refresh tokens after a successful email change.
+- Staff email change remains a future extension of the same Identity flow.
 
 ## Remove Account Flow
 

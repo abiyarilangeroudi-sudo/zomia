@@ -181,7 +181,7 @@ class AuthController extends AsyncNotifier<AuthState> {
     required String code,
   }) async {
     final value = state.asData?.value;
-    if (value == null || value.user == null || !value.user!.isCustomer) {
+    if (value == null || value.user == null) {
       return;
     }
     final updatedUser = await ref

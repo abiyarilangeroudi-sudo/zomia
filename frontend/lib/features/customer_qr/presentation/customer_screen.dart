@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
+import '../../auth/presentation/account_settings_dialog.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/customer_qr_repository.dart';
 import '../domain/customer_qr_token.dart';
 import '../domain/customer_status.dart';
-import 'customer_account_settings.dart';
 import 'customer_qr_dialog.dart';
 import 'customer_views.dart';
 
@@ -263,7 +263,7 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (context) => CustomerSettingsDialog(
+        builder: (context) => AccountSettingsDialog(
           onChangePassword:
               ({
                 required String currentPassword,

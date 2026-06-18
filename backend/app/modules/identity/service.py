@@ -282,7 +282,7 @@ class IdentityService:
         self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
 
     def start_email_change(self, *, user: User, new_email: str, current_password: str) -> None:
-        self._require_role(user, UserRole.CUSTOMER)
+        self._require_account_settings_role(user)
         normalized_email = new_email.lower()
         if not user.is_active or not verify_password(current_password, user.password_hash):
             raise HTTPException(
@@ -323,7 +323,7 @@ class IdentityService:
         )
 
     def verify_email_change(self, *, user: User, new_email: str, code: str) -> User:
-        self._require_role(user, UserRole.CUSTOMER)
+        self._require_account_settings_role(user)
         normalized_email = new_email.lower()
         otp = self._consume_otp(
             email=normalized_email,
@@ -562,4 +562,9 @@ class IdentityService:
     @staticmethod
     def _require_role(user: User, role: UserRole) -> None:
         if user.role != role:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient role")
+
+    @staticmethod
+    def _require_account_settings_role(user: User) -> None:
+        if user.role not in {UserRole.CUSTOMER, UserRole.OWNER}:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient role")

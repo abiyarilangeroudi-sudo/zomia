@@ -267,13 +267,13 @@ F10.17 progress:
 
 F10.18 progress:
 
-- `Settings > Account > Change Email` now has a Customer-only MVP flow.
+- `Settings > Account > Change Email` now has a Customer and Owner MVP flow.
 - Starting an email change requires the current password.
 - OTP is sent to the new email address.
 - The old email remains active until OTP verification succeeds.
 - The pending new email is temporarily reserved through the active OTP window to prevent another account claiming it during verification.
-- Successful email change updates the Customer email and keeps existing refresh tokens valid.
-- Owner and Staff email change remain future extensions of the same Identity flow.
+- Successful email change updates the account email and keeps existing refresh tokens valid.
+- Staff email change remains a future extension of the same Identity flow.
 
 F10.19 progress:
 
@@ -289,8 +289,15 @@ F10.20 review:
 - Identity endpoint inventory is current for registration, login, refresh/logout, password recovery, change password, change email, and remove account.
 - `auth-recovery-verification-contract.md` was updated from early contract placeholders to the implemented endpoint names and OTP table direction.
 - `flutter-mvp-phase.md` was updated so it no longer says MVP has no refresh token.
-- Customer account settings dialogs were moved out of `customer_views.dart` into `customer_account_settings.dart` to keep Customer UI files from growing into one large mixed-purpose file.
+- Account settings dialogs were moved under Auth presentation ownership so Customer and Owner can reuse the same account UI without growing dashboard files into mixed-purpose files.
 - Remaining cleanup watch item: Identity backend service/router are stable but growing; split only when a real second ownership boundary appears, not as speculative churn.
+
+F10.21 progress:
+
+- Owner Profile now links to Account Settings.
+- Owner can change password through the existing authenticated change-password endpoint.
+- Owner can change email through the same OTP-based email change flow as Customer.
+- Owner account removal remains intentionally out of MVP until business ownership, staff membership, and campaign history policy is defined.
 
 ## Should Fix Soon, But Not Production Blockers
 

@@ -506,6 +506,42 @@ def test_change_email_updates_email_without_revoking_refresh_token(client: TestC
     assert refresh_response.status_code == 200
 
 
+def test_owner_change_email_updates_email_without_revoking_refresh_token(
+    client: TestClient,
+) -> None:
+    register_owner(client, email="owner-email-change@example.com")
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "owner-email-change@example.com", "password": "strong-password"},
+    )
+    access_token = login_response.json()["access_token"]
+    refresh_token = login_response.json()["refresh_token"]
+
+    start_response = client.post(
+        "/api/v1/auth/change-email/start",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={
+            "new_email": "owner-email-change-new@example.com",
+            "current_password": "strong-password",
+        },
+    )
+    verify_response = client.post(
+        "/api/v1/auth/change-email/verify",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"new_email": "owner-email-change-new@example.com", "code": "123456"},
+    )
+
+    assert start_response.status_code == 202
+    assert verify_response.status_code == 200
+    assert verify_response.json()["email"] == "owner-email-change-new@example.com"
+    assert verify_response.json()["role"] == "owner"
+    refresh_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh_token},
+    )
+    assert refresh_response.status_code == 200
+
+
 def test_remove_account_requires_current_password(client: TestClient) -> None:
     register_customer(client, email="remove-password@example.com")
     login_response = client.post(

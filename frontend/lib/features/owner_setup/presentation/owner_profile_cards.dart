@@ -9,11 +9,13 @@ class OwnerProfileCard extends StatelessWidget {
     super.key,
     required this.user,
     required this.selectedBusiness,
+    required this.onOpenAccountSettings,
     required this.onSignOut,
   });
 
   final CurrentUser user;
   final OwnerBusiness? selectedBusiness;
+  final VoidCallback onOpenAccountSettings;
   final VoidCallback onSignOut;
 
   @override
@@ -22,10 +24,7 @@ class OwnerProfileCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionHeader(
-            title: 'Profile',
-            subtitle: 'Owner context for the current setup session.',
-          ),
+          const SectionHeader(title: 'Profile'),
           const SizedBox(height: 12),
           AppListRow(
             title: user.fullName,
@@ -41,6 +40,12 @@ class OwnerProfileCard extends StatelessWidget {
               leadingIcon: Icons.storefront_rounded,
             ),
           ],
+          const SizedBox(height: 12),
+          AppListRow(
+            title: 'Account Settings',
+            leadingIcon: Icons.manage_accounts_rounded,
+            onTap: onOpenAccountSettings,
+          ),
           const SizedBox(height: 16),
           SecondaryButton(
             label: 'Sign out',

@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.82 (83)'), findsOneWidget);
+    expect(find.text('Version 1.0.83 (84)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.82 (83)'));
+    await tester.tap(find.text('Version 1.0.83 (84)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -1036,6 +1036,7 @@ void main() {
 
   testWidgets('signs in and renders owner setup screen', (tester) async {
     final tokenStore = _MemoryTokenStore();
+    final authRepository = _FakeAuthRepository(role: 'owner');
     await tester.binding.setSurfaceSize(const Size(900, 1200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -1043,9 +1044,7 @@ void main() {
       ProviderScope(
         overrides: [
           secureTokenStoreProvider.overrideWithValue(tokenStore),
-          authRepositoryProvider.overrideWithValue(
-            _FakeAuthRepository(role: 'owner'),
-          ),
+          authRepositoryProvider.overrideWithValue(authRepository),
           ownerSetupRepositoryProvider.overrideWithValue(
             _FakeOwnerSetupRepository(),
           ),
@@ -1134,7 +1133,34 @@ void main() {
 
     expect(find.text('Profile'), findsWidgets);
     expect(find.text('owner@example.com'), findsOneWidget);
+    expect(find.text('Account Settings'), findsOneWidget);
     expect(find.text('Create Staff'), findsNothing);
+
+    await tester.tap(find.text('Account Settings'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Change Password'), findsOneWidget);
+    expect(find.text('Change Email'), findsOneWidget);
+    expect(find.text('Remove Account'), findsNothing);
+
+    await tester.tap(find.text('Change Email'));
+    await pumpAppFrames(tester);
+    await _enterTextByLabel(tester, 'New Email', 'owner-new@example.com');
+    await _enterTextByLabel(tester, 'Current Password', 'strong-password');
+    await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+    await pumpAppFrames(tester);
+    await _enterTextByLabel(tester, 'Verification code', '123456');
+    await tester.tap(find.widgetWithText(FilledButton, 'Verify email'));
+    await pumpAppFrames(tester);
+
+    expect(authRepository.startedEmailChange, isTrue);
+    expect(authRepository.verifiedEmailChange, isTrue);
+    expect(authRepository.emailChangeNewEmail, 'owner-new@example.com');
+    expect(find.text('Email changed.'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close').last);
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Staff recent actions'));
     await pumpAppFrames(tester);

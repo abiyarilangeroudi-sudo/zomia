@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
+import '../../auth/presentation/account_settings_dialog.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/owner_setup_repository.dart';
 import 'owner_setup_controller.dart';
@@ -190,6 +191,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
         OwnerProfileCard(
           user: widget.user,
           selectedBusiness: _controller.selectedBusiness,
+          onOpenAccountSettings: _openAccountSettingsDialog,
           onSignOut: () => ref.read(authControllerProvider.notifier).signOut(),
         ),
       ],
@@ -254,6 +256,38 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             isSaving: _controller.isSaving,
             onCreate: _controller.createStaff,
           ),
+        ),
+      ),
+    );
+  }
+
+  void _openAccountSettingsDialog() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => AccountSettingsDialog(
+          onChangePassword:
+              ({
+                required String currentPassword,
+                required String newPassword,
+              }) => ref
+                  .read(authControllerProvider.notifier)
+                  .changePassword(
+                    currentPassword: currentPassword,
+                    newPassword: newPassword,
+                  ),
+          onStartEmailChange:
+              ({required String newEmail, required String currentPassword}) =>
+                  ref
+                      .read(authControllerProvider.notifier)
+                      .startEmailChange(
+                        newEmail: newEmail,
+                        currentPassword: currentPassword,
+                      ),
+          onVerifyEmailChange:
+              ({required String newEmail, required String code}) => ref
+                  .read(authControllerProvider.notifier)
+                  .verifyEmailChange(newEmail: newEmail, code: code),
         ),
       ),
     );
