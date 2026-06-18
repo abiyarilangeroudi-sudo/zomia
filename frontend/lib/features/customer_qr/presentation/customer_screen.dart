@@ -7,6 +7,7 @@ import '../../auth/presentation/auth_controller.dart';
 import '../data/customer_qr_repository.dart';
 import '../domain/customer_qr_token.dart';
 import '../domain/customer_status.dart';
+import 'customer_account_settings.dart';
 import 'customer_qr_dialog.dart';
 import 'customer_views.dart';
 

@@ -284,6 +284,14 @@ F10.19 progress:
 - Existing refresh tokens and active Customer QR tokens are revoked after account removal.
 - Owner and Staff account removal remain separate future flows because they affect business ownership and staff membership history.
 
+F10.20 review:
+
+- Identity endpoint inventory is current for registration, login, refresh/logout, password recovery, change password, change email, and remove account.
+- `auth-recovery-verification-contract.md` was updated from early contract placeholders to the implemented endpoint names and OTP table direction.
+- `flutter-mvp-phase.md` was updated so it no longer says MVP has no refresh token.
+- Customer account settings dialogs were moved out of `customer_views.dart` into `customer_account_settings.dart` to keep Customer UI files from growing into one large mixed-purpose file.
+- Remaining cleanup watch item: Identity backend service/router are stable but growing; split only when a real second ownership boundary appears, not as speculative churn.
+
 ## Should Fix Soon, But Not Production Blockers
 
 - Add phone as optional profile completion later, not registration requirement.

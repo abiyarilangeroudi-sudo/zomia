@@ -388,8 +388,9 @@ flutter_secure_storage
 برای:
 
 - JWT access token
+- opaque refresh token
 
-در MVP refresh token نداریم، پس logout یعنی حذف access token.
+در MVP فعلی refresh token داریم. Logout یعنی revoke کردن refresh token در backend و پاک کردن access/refresh token از secure storage.
 
 ## QR Scanning
 
@@ -578,9 +579,9 @@ Ready for MVP readiness flow review
 
 برای کاهش ریسک، ابتدا Staff workflow ساخته می‌شود. Owner setup در F5 می‌آید.
 
-### Token/session ساده
+### Token/session
 
-در MVP refresh token نداریم. برای شروع قابل قبول است، اما قبل از production باید session strategy کامل‌تر شود.
+MVP فعلی access token کوتاه‌مدت و refresh token چرخشی دارد. قبل از production باید تصمیم بگیریم آیا تغییر رمز باید access tokenهای قبلی را هم با `password_changed_at` یا session-version marker فوراً نامعتبر کند یا نه.
 
 ### API error UX
 

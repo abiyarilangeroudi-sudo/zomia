@@ -46,7 +46,7 @@ Use OWASP Forgot Password guidance as the baseline:
 ### 1. Request Password Reset
 
 ```text
-POST /api/v1/auth/password/forgot
+POST /api/v1/auth/password-recovery/start
 ```
 
 Request:
@@ -71,12 +71,12 @@ Rules:
 - If user exists, create one reset token/code.
 - If user does not exist, do not reveal that.
 - Rate limiting is required before production.
-- Do not implement reset delivery until the email provider and delivery strategy are chosen.
+- Email delivery uses the configured SMTP provider in local MVP.
 
 ### 2. Reset Password
 
 ```text
-POST /api/v1/auth/password/reset
+POST /api/v1/auth/password-recovery/complete
 ```
 
 Request:
@@ -111,7 +111,8 @@ Rules:
 ### 1. Request Verification
 
 ```text
-POST /api/v1/auth/email/verify/request
+POST /api/v1/auth/register/customer/start
+POST /api/v1/auth/register/owner/start
 ```
 
 Request:
@@ -135,12 +136,13 @@ Rules:
 - Response should not expose account existence.
 - If user exists and email is not verified, create verification token/code.
 - If already verified, keep response generic.
-- Do not implement verification delivery until the email provider and delivery strategy are chosen.
+- Email delivery uses the configured SMTP provider in local MVP.
 
 ### 2. Confirm Verification
 
 ```text
-POST /api/v1/auth/email/verify/confirm
+POST /api/v1/auth/register/customer/verify
+POST /api/v1/auth/register/owner/verify
 ```
 
 Request:
@@ -248,50 +250,53 @@ Rules:
 - Keep loyalty actions, points ledger, rewards, campaign completions, and audit/history records.
 - Owner and Staff removal need separate future contracts because they affect business ownership and staff membership history.
 
-## Candidate Database Schema
+## Implemented Database Direction
 
-### `auth_verification_tokens`
+### `email_verification_otps`
 
 Purpose:
 
-- One table for password reset and email verification tokens/codes.
+- One table for registration verification, password reset OTPs, password reset verified tokens, and email change OTPs.
 
 Fields:
 
 ```text
 id
-user_id
+email
 purpose
-token_hash
-delivery_target
+code_hash
+payload_json
 expires_at
-used_at
+consumed_at
+attempt_count
 created_at
 ```
 
 Purpose enum:
 
 ```text
+customer_registration
+owner_registration
 password_reset
-email_verification
+password_reset_verified
+email_change
 ```
 
 Indexes / constraints:
 
-- index on `user_id`
+- index on `email`
 - index on `purpose`
-- unique active token hash
 - only store hash, never raw token/code
 
-### `users` additions
+### `users.email_verified_at`
 
-Potential fields:
+Implemented field:
 
 ```text
 email_verified_at
 ```
 
-Do not add until implementation begins.
+Used for registration verification and email changes.
 
 ## Flutter UX Flow
 
