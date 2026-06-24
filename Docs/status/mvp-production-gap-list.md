@@ -411,6 +411,12 @@ F14 result:
 - Owner and Staff Profile open as fullscreen dialogs from Drawer; Profile is not a BottomNavBar tab.
 - `Docs/api/api-endpoint-inventory.md` remains the API reference to check before adding or changing endpoints.
 
+F15 started:
+
+- Production deployment preparation is now tracked in `Docs/deployment/production-deployment-plan.md`.
+- This is documentation-only at this stage.
+- Real deployment remains blocked until server, database, secrets, backup/restore, Nginx, Systemd, and GitHub Actions decisions are closed.
+
 ## Current Recommended Phase
 
 Manual release-candidate QA has passed. Choose the next phase deliberately instead of adding features opportunistically.

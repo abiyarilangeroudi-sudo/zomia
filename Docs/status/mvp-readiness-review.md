@@ -201,4 +201,5 @@ After F12, likely next candidates are:
 - Manual QA release-candidate checklist: `Docs/status/manual-qa-release-candidate-checklist.md`
 - Identity role policy: `Docs/status/identity-role-matrix.md`
 - Endpoint inventory: `Docs/api/api-endpoint-inventory.md`
+- Production deployment plan: `Docs/deployment/production-deployment-plan.md`
 - Historical sprint docs: useful for context, not the current source of truth.
