@@ -1,6 +1,6 @@
 # Current Stability Check
 
-Date: 2026-06-17
+Date: 2026-06-24
 
 This document is the short checkpoint before the next feature phase.
 
@@ -15,7 +15,8 @@ This document is the short checkpoint before the next feature phase.
 - Owner can view recent Staff activity for the selected business.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.
 - Customer can view QR, campaign progress, active rewards, and profile basics.
-- Manual release-candidate QA passed on 2026-06-24. The current known UI note is Owner Sign out styling, which remains for the final UI/Branding consistency pass.
+- Manual release-candidate QA passed on 2026-06-24.
+- F14 aligned Owner Sign out styling with Customer and Staff.
 
 ## Verification Snapshot
 
@@ -33,6 +34,8 @@ This document is the short checkpoint before the next feature phase.
 - Customer Home is intentionally summary-only for now; detailed campaign progress stays in the Campaign tab, and final Home composition will be decided before production.
 - Staff dashboard/service UI is split into `staff_home_screen.dart`, `staff_panel.dart`, `staff_service_cards.dart`, `staff_service_presenter.dart`, and `qr_scanner_sheet.dart`.
 - Staff service display formatting lives in `staff_service_presenter.dart`; action registration, campaign evaluation, reward generation, and reward use decisions remain backend-owned.
+- Customer, Staff, and Owner use the approved `AppDrawer` pattern for profile/settings/legal/sign-out navigation.
+- Staff and Owner Profile open as fullscreen dialogs from Drawer instead of BottomNavBar tabs.
 - Owner dashboard is split into:
   - `owner_screen.dart`
   - `owner_setup_controller.dart`
@@ -66,6 +69,7 @@ This document is the short checkpoint before the next feature phase.
 - Phone remains out of Customer Registration and Customer Profile editing until a product decision makes it explicit.
 - Console Hygiene / Error UX now maps known backend details to clearer UI messages and hides unknown backend details behind generic user-facing fallbacks. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
+- API endpoint inventory lives in `Docs/api/api-endpoint-inventory.md`; check it before adding or changing endpoints.
 
 ## Flutter Architecture Guardrail
 

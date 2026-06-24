@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/presentation/account_settings_dialog.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -26,6 +25,7 @@ class StaffHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _servicePanelKey = GlobalKey<StaffPanelState>();
   List<StaffRecentAction> _recentActions = const [];
   int _selectedIndex = 0;
@@ -42,11 +42,6 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
       label: 'Recent Actions',
       icon: Icons.history_outlined,
       activeIcon: Icons.history_rounded,
-    ),
-    NavItem(
-      label: 'Profile',
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
     ),
   ];
 
@@ -68,12 +63,49 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: AppDrawer(
+        items: [
+          AppDrawerItem(
+            label: 'Profile',
+            icon: Icons.person_outline_rounded,
+            onTap: _openProfileFromDrawer,
+          ),
+          AppDrawerItem(
+            label: 'Setting',
+            icon: Icons.settings_outlined,
+            onTap: _openAccountSettingsFromDrawer,
+          ),
+          AppDrawerItem(
+            label: 'MStV',
+            icon: Icons.article_outlined,
+            onTap: () => _openDrawerInfoDialog(
+              title: 'MStV',
+              message: 'MStV information will be completed before production.',
+            ),
+          ),
+          AppDrawerItem(
+            label: 'Impressum',
+            icon: Icons.info_outline_rounded,
+            onTap: () => _openDrawerInfoDialog(
+              title: 'Impressum',
+              message:
+                  'Impressum information will be completed before production.',
+            ),
+          ),
+          AppDrawerItem(
+            label: 'Sign out',
+            icon: Icons.logout_rounded,
+            onTap: _signOutFromDrawer,
+          ),
+        ],
+      ),
       appBar: AppTopBar(
         title: _selectedIndex == 0
             ? 'Staff Dashboard'
             : _tabs[_selectedIndex].label,
         variant: AppTopBarVariant.business,
-        onMenu: () {},
+        onMenu: () => _scaffoldKey.currentState?.openDrawer(),
         actions: [
           IconButton(
             tooltip: 'Scan customer QR',
@@ -109,15 +141,6 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                 isLoading: _isLoadingRecentActions,
                 errorMessage: _recentActionsError,
                 onRetry: _loadRecentActions,
-              ),
-            ),
-            DashboardScroll(
-              child: _StaffProfileCard(
-                staff: widget.staff,
-                business: widget.business,
-                onOpenAccountSettings: _openAccountSettingsDialog,
-                onSignOut: () =>
-                    ref.read(authControllerProvider.notifier).signOut(),
               ),
             ),
           ],
@@ -185,6 +208,52 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
       ),
     );
   }
+
+  void _openProfileFromDrawer() {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => Scaffold(
+          appBar: const AppTopBar(
+            title: 'Profile',
+            variant: AppTopBarVariant.modal,
+          ),
+          body: SafeArea(
+            child: DashboardScroll(
+              maxWidth: 640,
+              child: _StaffProfileCard(
+                staff: widget.staff,
+                business: widget.business,
+                onOpenAccountSettings: _openAccountSettingsDialog,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openAccountSettingsFromDrawer() {
+    Navigator.of(context).pop();
+    _openAccountSettingsDialog();
+  }
+
+  void _signOutFromDrawer() {
+    Navigator.of(context).pop();
+    ref.read(authControllerProvider.notifier).signOut();
+  }
+
+  void _openDrawerInfoDialog({required String title, required String message}) {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) =>
+            AppDrawerInfoDialog(title: title, message: message),
+      ),
+    );
+  }
 }
 
 class _BusinessHeader extends StatelessWidget {
@@ -230,13 +299,11 @@ class _StaffProfileCard extends StatelessWidget {
     required this.staff,
     required this.business,
     required this.onOpenAccountSettings,
-    required this.onSignOut,
   });
 
   final StaffUser staff;
   final StaffBusiness business;
   final VoidCallback onOpenAccountSettings;
-  final VoidCallback onSignOut;
 
   @override
   Widget build(BuildContext context) {
@@ -262,19 +329,6 @@ class _StaffProfileCard extends StatelessWidget {
             title: 'Account Settings',
             leadingIcon: Icons.manage_accounts_rounded,
             onTap: onOpenAccountSettings,
-          ),
-          const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: onSignOut,
-              icon: const Icon(Icons.logout_rounded, size: 18),
-              label: const Text('Sign out'),
-              style: TextButton.styleFrom(
-                foregroundColor: BrandColors.textSecondary,
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-            ),
           ),
         ],
       ),

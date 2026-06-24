@@ -430,7 +430,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.87 (88)'), findsOneWidget);
+    expect(find.text('Version 1.0.91 (92)'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +484,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.87 (88)'));
+    await tester.tap(find.text('Version 1.0.91 (92)'));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);
@@ -566,7 +566,9 @@ void main() {
     await _enterTextByLabel(tester, 'Email', 'customer@example.com');
     await _enterTextByLabel(tester, 'Password', 'strong-password');
     await _enterTextByLabel(tester, 'Confirm Password', 'strong-password');
-    await tester.tap(find.text('Term Accept'));
+    expect(find.text('Terms'), findsOneWidget);
+    expect(find.text('Privacy'), findsOneWidget);
+    await tester.tap(find.byType(Checkbox));
     await tester.ensureVisible(
       find.widgetWithText(FilledButton, 'Create account'),
     );
@@ -631,7 +633,9 @@ void main() {
     await _enterTextByLabel(tester, 'Email', 'owner@example.com');
     await _enterTextByLabel(tester, 'Password', 'strong-password');
     await _enterTextByLabel(tester, 'Confirm Password', 'strong-password');
-    await tester.tap(find.text('Business Term Accept'));
+    expect(find.text('Business Terms'), findsOneWidget);
+    expect(find.text('Privacy'), findsOneWidget);
+    await tester.tap(find.byType(Checkbox));
     await tester.ensureVisible(
       find.widgetWithText(FilledButton, 'Create business account'),
     );
@@ -711,6 +715,8 @@ void main() {
     expect(find.text('Staff recent actions'), findsOneWidget);
     expect(find.text('No staff actions yet'), findsOneWidget);
 
+    tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
+    await pumpAppFrames(tester);
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);
 
@@ -834,7 +840,7 @@ void main() {
     expect(find.text('Used Coffee'), findsOneWidget);
     expect(find.text('Used'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Menu'));
+    await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await pumpAppFrames(tester);
 
     expect(find.text('Customer One'), findsNothing);
@@ -856,9 +862,8 @@ void main() {
     await tester.tap(find.byTooltip('Close'));
     await pumpAppFrames(tester);
 
-    await tester.tap(find.byTooltip('Menu'));
+    await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await pumpAppFrames(tester);
-
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);
 
@@ -924,7 +929,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
     await pumpAppFrames(tester);
 
-    await tester.tap(find.byTooltip('Menu'));
+    await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await pumpAppFrames(tester);
     await tester.tap(find.text('Setting'));
     await pumpAppFrames(tester);
@@ -978,7 +983,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
     await pumpAppFrames(tester);
 
-    await tester.tap(find.byTooltip('Menu'));
+    await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await pumpAppFrames(tester);
     await tester.tap(find.text('Setting'));
     await pumpAppFrames(tester);
@@ -1007,7 +1012,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Close'));
     await pumpAppFrames(tester);
-    await tester.tap(find.byTooltip('Menu'));
+    await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await pumpAppFrames(tester);
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);
@@ -1041,7 +1046,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
     await pumpAppFrames(tester);
 
-    await tester.tap(find.byTooltip('Menu'));
+    await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await pumpAppFrames(tester);
     await tester.tap(find.text('Setting'));
     await pumpAppFrames(tester);
@@ -1156,6 +1161,8 @@ void main() {
     expect(find.text('Inactive'), findsOneWidget);
     expect(find.byTooltip('Activate staff'), findsOneWidget);
 
+    tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
+    await pumpAppFrames(tester);
     await tester.tap(find.text('Profile'));
     await pumpAppFrames(tester);
 
@@ -1209,6 +1216,8 @@ void main() {
     expect(authRepository.verifiedEmailChange, isTrue);
     expect(authRepository.emailChangeNewEmail, 'owner-new@example.com');
 
+    await tester.tap(find.byTooltip('Close').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Close').last);
     await tester.pumpAndSettle();
 

@@ -10,6 +10,19 @@ http://127.0.0.1:8000/docs
 
 Use this file before adding, changing, or removing endpoints so the project does not grow duplicate API paths.
 
+## Frontend API Consumer Map
+
+This short index maps Flutter repositories to endpoint areas. Use it before adding a new frontend API call.
+
+| Flutter repository | Endpoint area | Notes |
+| --- | --- | --- |
+| `auth_repository.dart` | `/auth/*`, `/customers/me/profile`, `/staff/me/context` | Auth, registration, account settings, Staff invitation, and current user context. |
+| `customer_qr_repository.dart` | `/customers/me/*` | Customer QR token, Customer status, and Campaign progress. |
+| `staff_service_repository.dart` | `/staff/qr/*`, `/staff/service/*` | Staff QR scan, service missions, service action registration, reward use, and Staff recent actions. |
+| `owner_setup_repository.dart` | `/owner/*` | Owner business, staff invitation/status, missions, campaigns, reward templates, and owner activity. |
+
+If a new endpoint does not fit one of these areas, define the role boundary and product meaning before adding it.
+
 ## Endpoint Lifecycle Policy
 
 Before adding a new endpoint:

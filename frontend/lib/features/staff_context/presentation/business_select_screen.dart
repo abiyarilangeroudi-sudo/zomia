@@ -16,7 +16,6 @@ class BusinessSelectScreen extends ConsumerWidget {
       appBar: AppTopBar(
         title: 'Select Business',
         variant: AppTopBarVariant.business,
-        onMenu: () {},
         actions: [
           IconButton(
             tooltip: 'Sign out',

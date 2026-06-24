@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/ui/ui.dart';
 import 'auth_form_layout.dart';
 import 'auth_controller.dart';
+import 'terms_acceptance_row.dart';
 
 class CustomerRegisterScreen extends ConsumerStatefulWidget {
   const CustomerRegisterScreen({super.key});
@@ -112,15 +113,17 @@ class _CustomerRegisterScreenState
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 8),
-              CheckboxListTile(
+              TermsAcceptanceRow(
+                prefix: 'I accept',
+                termsLabel: 'Terms',
+                privacyLabel: 'Privacy',
                 value: _acceptedTerms,
                 onChanged: isLoading
                     ? null
                     : (value) =>
                           setState(() => _acceptedTerms = value ?? false),
-                title: const Text('Term Accept'),
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: EdgeInsets.zero,
+                onTermsTap: () => _openTermsInfo('Terms'),
+                onPrivacyTap: () => _openTermsInfo('Privacy Policy'),
               ),
               if (error != null) ...[
                 const SizedBox(height: 16),
@@ -151,7 +154,7 @@ class _CustomerRegisterScreenState
     }
     if (!_acceptedTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please accept the terms first.')),
+        const SnackBar(content: Text('Please accept Terms & Privacy.')),
       );
       return;
     }
@@ -168,5 +171,17 @@ class _CustomerRegisterScreenState
       return;
     }
     context.go('/verify-email?email=$email&registration_type=customer');
+  }
+
+  void _openTermsInfo(String title) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => AppDrawerInfoDialog(
+          title: title,
+          message: 'This page will be completed before production.',
+        ),
+      ),
+    );
   }
 }

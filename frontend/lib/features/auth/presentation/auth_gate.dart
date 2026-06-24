@@ -66,7 +66,6 @@ class _UnsupportedRoleScreen extends ConsumerWidget {
       appBar: AppTopBar(
         title: 'Zomia',
         variant: AppTopBarVariant.business,
-        onMenu: () {},
         actions: [
           IconButton(
             tooltip: 'Sign out',

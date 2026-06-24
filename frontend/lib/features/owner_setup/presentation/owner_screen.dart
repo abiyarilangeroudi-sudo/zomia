@@ -19,6 +19,7 @@ class OwnerScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerScreenState extends ConsumerState<OwnerScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   late final OwnerSetupController _controller;
   int _selectedIndex = 0;
 
@@ -37,11 +38,6 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
       label: 'Team',
       icon: Icons.group_outlined,
       activeIcon: Icons.group_rounded,
-    ),
-    NavItem(
-      label: 'Profile',
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
     ),
   ];
 
@@ -66,10 +62,48 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
       animation: _controller,
       builder: (context, _) {
         return Scaffold(
+          key: _scaffoldKey,
+          drawer: AppDrawer(
+            items: [
+              AppDrawerItem(
+                label: 'Profile',
+                icon: Icons.person_outline_rounded,
+                onTap: _openProfileFromDrawer,
+              ),
+              AppDrawerItem(
+                label: 'Setting',
+                icon: Icons.settings_outlined,
+                onTap: _openAccountSettingsFromDrawer,
+              ),
+              AppDrawerItem(
+                label: 'MStV',
+                icon: Icons.article_outlined,
+                onTap: () => _openDrawerInfoDialog(
+                  title: 'MStV',
+                  message:
+                      'MStV information will be completed before production.',
+                ),
+              ),
+              AppDrawerItem(
+                label: 'Impressum',
+                icon: Icons.info_outline_rounded,
+                onTap: () => _openDrawerInfoDialog(
+                  title: 'Impressum',
+                  message:
+                      'Impressum information will be completed before production.',
+                ),
+              ),
+              AppDrawerItem(
+                label: 'Sign out',
+                icon: Icons.logout_rounded,
+                onTap: _signOutFromDrawer,
+              ),
+            ],
+          ),
           appBar: AppTopBar(
             title: _appBarTitle,
             variant: AppTopBarVariant.business,
-            onMenu: () {},
+            onMenu: () => _scaffoldKey.currentState?.openDrawer(),
             actions: [
               IconButton(
                 tooltip: 'Staff recent actions',
@@ -85,7 +119,6 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 DashboardScroll(maxWidth: 760, child: _buildHomeView()),
                 DashboardScroll(maxWidth: 760, child: _buildCampaignView()),
                 DashboardScroll(maxWidth: 760, child: _buildTeamView()),
-                DashboardScroll(maxWidth: 760, child: _buildProfileView()),
               ],
             ),
           ),
@@ -115,8 +148,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
     return switch (_selectedIndex) {
       0 => 'Owner Dashboard',
       1 => 'Loyalty',
-      2 => 'Team',
-      _ => 'Profile',
+      _ => 'Team',
     };
   }
 
@@ -180,23 +212,6 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
           const SizedBox(height: 16),
           OwnerCampaignListCard(campaigns: _controller.campaigns),
         ],
-      ],
-    );
-  }
-
-  Widget _buildProfileView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        OwnerProfileCard(
-          user: widget.user,
-          selectedBusiness: _controller.selectedBusiness,
-          onOpenBusinessSettings: _controller.selectedBusiness == null
-              ? null
-              : _openBusinessSettingsDialog,
-          onOpenAccountSettings: _openAccountSettingsDialog,
-          onSignOut: () => ref.read(authControllerProvider.notifier).signOut(),
-        ),
       ],
     );
   }
@@ -311,6 +326,55 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                   .read(authControllerProvider.notifier)
                   .verifyEmailChange(newEmail: newEmail, code: code),
         ),
+      ),
+    );
+  }
+
+  void _openProfileFromDrawer() {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => Scaffold(
+          appBar: const AppTopBar(
+            title: 'Profile',
+            variant: AppTopBarVariant.modal,
+          ),
+          body: SafeArea(
+            child: DashboardScroll(
+              maxWidth: 640,
+              child: OwnerProfileCard(
+                user: widget.user,
+                selectedBusiness: _controller.selectedBusiness,
+                onOpenBusinessSettings: _controller.selectedBusiness == null
+                    ? null
+                    : _openBusinessSettingsDialog,
+                onOpenAccountSettings: _openAccountSettingsDialog,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openAccountSettingsFromDrawer() {
+    Navigator.of(context).pop();
+    _openAccountSettingsDialog();
+  }
+
+  void _signOutFromDrawer() {
+    Navigator.of(context).pop();
+    ref.read(authControllerProvider.notifier).signOut();
+  }
+
+  void _openDrawerInfoDialog({required String title, required String message}) {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) =>
+            AppDrawerInfoDialog(title: title, message: message),
       ),
     );
   }

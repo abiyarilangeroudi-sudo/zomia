@@ -25,7 +25,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final leading = switch (variant) {
+    final Widget? leading = switch (variant) {
       AppTopBarVariant.modal => IconButton(
         tooltip: 'Close',
         onPressed: onBack ?? () => Navigator.of(context).maybePop(),
@@ -36,11 +36,14 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: onBack ?? () => Navigator.of(context).maybePop(),
         icon: const Icon(Icons.arrow_back_rounded),
       ),
-      AppTopBarVariant.main || AppTopBarVariant.business => IconButton(
-        tooltip: 'Menu',
-        onPressed: onMenu,
-        icon: const Icon(Icons.menu_rounded),
-      ),
+      AppTopBarVariant.main || AppTopBarVariant.business =>
+        onMenu == null
+            ? null
+            : IconButton(
+                tooltip: 'Menu',
+                onPressed: onMenu,
+                icon: const Icon(Icons.menu_rounded),
+              ),
     };
     final centerTitle = switch (variant) {
       AppTopBarVariant.modal || AppTopBarVariant.service => true,

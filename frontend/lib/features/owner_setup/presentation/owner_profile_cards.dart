@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
 import '../domain/owner_setup_models.dart';
@@ -12,14 +11,12 @@ class OwnerProfileCard extends StatelessWidget {
     required this.selectedBusiness,
     required this.onOpenBusinessSettings,
     required this.onOpenAccountSettings,
-    required this.onSignOut,
   });
 
   final CurrentUser user;
   final OwnerBusiness? selectedBusiness;
   final VoidCallback? onOpenBusinessSettings;
   final VoidCallback onOpenAccountSettings;
-  final VoidCallback onSignOut;
 
   @override
   Widget build(BuildContext context) {
@@ -49,19 +46,6 @@ class OwnerProfileCard extends StatelessWidget {
             title: 'Account Settings',
             leadingIcon: Icons.manage_accounts_rounded,
             onTap: onOpenAccountSettings,
-          ),
-          const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: onSignOut,
-              icon: const Icon(Icons.logout_rounded, size: 18),
-              label: const Text('Sign out'),
-              style: TextButton.styleFrom(
-                foregroundColor: BrandColors.textSecondary,
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-            ),
           ),
         ],
       ),

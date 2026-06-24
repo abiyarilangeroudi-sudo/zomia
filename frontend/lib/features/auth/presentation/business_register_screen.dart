@@ -6,6 +6,7 @@ import '../../../app/ui/ui.dart';
 import '../domain/business_category.dart';
 import 'auth_controller.dart';
 import 'auth_form_layout.dart';
+import 'terms_acceptance_row.dart';
 
 class BusinessRegisterScreen extends ConsumerStatefulWidget {
   const BusinessRegisterScreen({super.key});
@@ -136,15 +137,17 @@ class _BusinessRegisterScreenState
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 8),
-              CheckboxListTile(
+              TermsAcceptanceRow(
+                prefix: 'I accept',
+                termsLabel: 'Business Terms',
+                privacyLabel: 'Privacy',
                 value: _acceptedTerms,
                 onChanged: isLoading
                     ? null
                     : (value) =>
                           setState(() => _acceptedTerms = value ?? false),
-                title: const Text('Business Term Accept'),
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: EdgeInsets.zero,
+                onTermsTap: () => _openTermsInfo('Business Terms'),
+                onPrivacyTap: () => _openTermsInfo('Privacy Policy'),
               ),
               if (error != null) ...[
                 const SizedBox(height: 16),
@@ -176,7 +179,7 @@ class _BusinessRegisterScreenState
     if (!_acceptedTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please accept the business terms first.'),
+          content: Text('Please accept Business Terms & Privacy.'),
         ),
       );
       return;
@@ -195,5 +198,17 @@ class _BusinessRegisterScreenState
       return;
     }
     context.go('/verify-email?email=$email&registration_type=owner');
+  }
+
+  void _openTermsInfo(String title) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => AppDrawerInfoDialog(
+          title: title,
+          message: 'This page will be completed before production.',
+        ),
+      ),
+    );
   }
 }

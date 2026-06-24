@@ -402,7 +402,14 @@ F12 result:
 
 - Manual release-candidate QA passed on 2026-06-24.
 - Covered Build/Startup, Authentication, Customer Account, Owner Account and Business, Staff Account, Owner Setup, Customer QR, Staff Service Flow, Campaign/Reward, Console/Error UX, and UI Catalog Compliance.
-- Remaining note: Owner Sign out styling is not aligned with Customer and Staff and belongs to the final UI/Branding consistency pass.
+
+F14 result:
+
+- Owner Sign out styling is aligned with Customer and Staff.
+- Registration checkboxes use the approved `CheckboxRow` component.
+- Owner and Staff menu icons open the approved `AppDrawer` pattern with Profile, Setting, MStV, Impressum, and Sign out.
+- Owner and Staff Profile open as fullscreen dialogs from Drawer; Profile is not a BottomNavBar tab.
+- `Docs/api/api-endpoint-inventory.md` remains the API reference to check before adding or changing endpoints.
 
 ## Current Recommended Phase
 
@@ -411,5 +418,5 @@ Manual release-candidate QA has passed. Choose the next phase deliberately inste
 After that, likely candidates are:
 
 - Production deployment preparation.
-- Final UI/Branding consistency pass.
+- Final UI/Branding consistency pass for visual details discovered during manual review.
 - RewardService extraction before advanced campaign types.
