@@ -50,7 +50,7 @@ F13 progress:
 
 ## Customer Account
 
-Status: Pending
+Status: Passed
 
 - Customer can open Profile from Drawer.
 - Customer can edit display name and see the updated value after save.
@@ -63,7 +63,7 @@ Status: Pending
 
 ## Owner Account And Business
 
-Status: Pending
+Status: Passed
 
 - Owner can login and reach Owner Dashboard.
 - Owner Profile shows Account Settings.
@@ -81,9 +81,13 @@ Status: Pending
   - Timezone
 - Owner cannot edit slug, status, currency, ownership, or deletion from MVP UI.
 
+UI note:
+
+- Owner Sign out styling is not fully aligned with Customer and Staff. Track this under the final UI/Branding consistency pass.
+
 ## Staff Account
 
-Status: Pending
+Status: Passed
 
 - Staff can login and reach Staff Dashboard.
 - Staff Profile shows Account Settings.
@@ -93,7 +97,7 @@ Status: Pending
 
 ## Owner Setup Workflow
 
-Status: Pending
+Status: Passed
 
 - Owner can send Staff invitation.
 - Pending Staff invitation is visible before accept.
@@ -109,7 +113,7 @@ Status: Pending
 
 ## Customer QR
 
-Status: Pending
+Status: Passed
 
 - Customer can open QR fullscreen dialog from AppTopBar.
 - QR dialog shows a valid QR and token.
@@ -120,7 +124,7 @@ Status: Pending
 
 ## Staff Service Flow
 
-Status: Pending
+Status: Passed
 
 - Staff can open QR scanner fullscreen dialog.
 - Staff can scan Customer QR.
@@ -138,7 +142,7 @@ Status: Pending
 
 ## Campaign And Reward
 
-Status: Pending
+Status: Passed
 
 - Customer Campaign tab shows backend-owned progress labels and badges.
 - Campaign All tab shows active/current items.
@@ -154,7 +158,7 @@ Status: Pending
 
 ## Console And Error UX
 
-Status: Pending
+Status: Passed
 
 - Expected invalid QR resolve shows a clear user-facing message.
 - Expected used/invalid reward use shows a clear user-facing message.
@@ -163,9 +167,16 @@ Status: Pending
 - Browser console is reviewed after the QA run.
 - Known local-only noise is recorded separately from product failures.
 
+QA note:
+
+- Invalid QR resolve passed.
+- Invalid/used reward could not be reached from normal Staff UI because Staff receives only active rewards. This is accepted MVP behavior.
+- Invalid form submission passed.
+- No suspicious console issue was found during this pass.
+
 ## UI Catalog Compliance
 
-Status: Pending
+Status: Passed
 
 - Login and registration use approved form styling.
 - OTP screen uses approved form styling.
@@ -174,16 +185,21 @@ Status: Pending
 - Owner Dashboard uses approved AppTopBar, BottomNavBar, FAB, CreateActionSheet, forms, and cards.
 - No unapproved reusable visual pattern is introduced in product screens.
 
+QA note:
+
+- Passed.
+- Owner Sign out styling is still not aligned with Customer and Staff; keep it for the final UI/Branding consistency pass.
+
 ## Release Candidate Decision
 
-Status: Pending
+Status: Passed
 
 Use this section at the end of a QA pass.
 
-- Build tested:
-- Backend commit:
-- Frontend version:
-- Tester:
-- Date:
-- Result: Pending / Passed / Failed / Blocked
-- Notes:
+- Build tested: local web build on `http://localhost:8080`
+- Backend commit: `478b8e3`
+- Frontend version: `1.0.86 (87)`
+- Tester: Manual QA by project owner
+- Date: 2026-06-24
+- Result: Passed
+- Notes: Owner Sign out styling remains a final UI/Branding consistency item.

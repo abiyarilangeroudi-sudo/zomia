@@ -398,9 +398,15 @@ F12 started:
 - Manual QA has a release-candidate checklist: `Docs/status/manual-qa-release-candidate-checklist.md`.
 - Use it before calling any local build ready for demo/release-candidate review.
 
+F12 result:
+
+- Manual release-candidate QA passed on 2026-06-24.
+- Covered Build/Startup, Authentication, Customer Account, Owner Account and Business, Staff Account, Owner Setup, Customer QR, Staff Service Flow, Campaign/Reward, Console/Error UX, and UI Catalog Compliance.
+- Remaining note: Owner Sign out styling is not aligned with Customer and Staff and belongs to the final UI/Branding consistency pass.
+
 ## Current Recommended Phase
 
-Run the manual release-candidate QA checklist before adding the next feature.
+Manual release-candidate QA has passed. Choose the next phase deliberately instead of adding features opportunistically.
 
 After that, likely candidates are:
 

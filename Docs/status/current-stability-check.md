@@ -15,11 +15,12 @@ This document is the short checkpoint before the next feature phase.
 - Owner can view recent Staff activity for the selected business.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.
 - Customer can view QR, campaign progress, active rewards, and profile basics.
+- Manual release-candidate QA passed on 2026-06-24. The current known UI note is Owner Sign out styling, which remains for the final UI/Branding consistency pass.
 
 ## Verification Snapshot
 
-- Backend tests: `57 passed`
-- Frontend tests: `28 passed`
+- Backend tests: `80 passed`
+- Frontend tests: `33 passed`
 - Flutter analyze: no issues
 - Git status before this stability pass: clean
 
