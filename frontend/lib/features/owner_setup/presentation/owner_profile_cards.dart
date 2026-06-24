@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
 import '../domain/owner_setup_models.dart';
@@ -50,10 +51,17 @@ class OwnerProfileCard extends StatelessWidget {
             onTap: onOpenAccountSettings,
           ),
           const SizedBox(height: 16),
-          SecondaryButton(
-            label: 'Sign out',
-            icon: Icons.logout_rounded,
-            onPressed: onSignOut,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: onSignOut,
+              icon: const Icon(Icons.logout_rounded, size: 18),
+              label: const Text('Sign out'),
+              style: TextButton.styleFrom(
+                foregroundColor: BrandColors.textSecondary,
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+            ),
           ),
         ],
       ),
