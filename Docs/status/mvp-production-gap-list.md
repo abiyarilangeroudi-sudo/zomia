@@ -464,6 +464,37 @@ F15.3 DNS/HTTPS note:
 - If a local workstation still loads an old IPv6 target, clear the local DNS cache before treating it as a server problem.
 - HSTS is not enabled yet; decide this only after HTTPS and domain routing remain stable.
 
+F15.4 application stack install:
+
+- First manual application release was deployed on 2026-06-25.
+- Release id is `20260625201754`.
+- Backend release is active at `/opt/zomia/backend/releases/20260625201754`.
+- Frontend release is active at `/var/www/zomia/releases/20260625201754`.
+- Backend runs through `zomia-backend.service` as user/group `zomia`.
+- Backend listens only on `127.0.0.1:8000`.
+- Nginx proxies `/api/` and `/health` to backend and serves Flutter web for frontend routes.
+- Alembic is at `0011_staff_invitations (head)` on the pilot database.
+- Flutter web was built with `API_BASE_URL=https://zomia.eu/api/v1`.
+- SMTP was verified after switching the host to `smtp.zoho.eu`.
+- HTTPS smoke checks passed for frontend, backend health, Flutter assets, API 404 behavior, and sensitive-path blocking.
+- Remaining before customer pilot:
+  - Manual production smoke QA in the browser.
+  - Confirm real registration OTP delivery from the user inbox side.
+  - Decide whether to expose or hide FastAPI docs/OpenAPI publicly.
+  - Document the manual rollback procedure for backend and frontend symlinks.
+
+F15.5 webapp subpath:
+
+- The MVP Flutter web app was moved from `/` to `/webapp/`.
+- `https://zomia.eu/` now returns a blank root `index.html` for a future public landing page.
+- Flutter web was rebuilt with `--base-href=/webapp/`.
+- API base remains `https://zomia.eu/api/v1`.
+- Active frontend webapp release is `/var/www/zomia/releases/20260625203255`.
+- `/var/www/zomia/webapp` points to the active webapp release.
+- Backend `FRONTEND_BASE_URL` is now `https://zomia.eu/webapp`.
+- Nginx serves `/webapp/` separately while keeping `/api/`, `/health`, HTTPS redirect, and sensitive-path blocking intact.
+- Smoke checks passed for root, `/webapp/`, Flutter assets, backend health, API 404, and sensitive-path blocking.
+
 ## Current Recommended Phase
 
 Manual release-candidate QA has passed. Choose the next phase deliberately instead of adding features opportunistically.

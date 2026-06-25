@@ -260,12 +260,84 @@ Completed:
 Pending before installing Zomia:
 
 - Clear local DNS cache if a workstation still resolves `zomia.eu` to an older IPv6 address.
-- Install and run the Zomia backend application.
-- Publish the first Flutter web release to `/var/www/zomia/releases`.
-- Add Systemd service files for the backend.
 
 Next step after approval:
 
 ```text
-Install the Zomia application stack.
+Run manual production smoke QA.
 ```
+
+## Application Stack Install
+
+F15.4 was applied on 2026-06-25.
+
+Release:
+
+```text
+Release id: 20260625201754
+Backend current: /opt/zomia/backend/releases/20260625201754
+Frontend current: /var/www/zomia/releases/20260625201754
+```
+
+Completed:
+
+- Backend source was deployed without local development `.venv` or cache files.
+- Backend production virtualenv was created inside the backend release.
+- Runtime dependencies were installed from `backend/pyproject.toml`.
+- `zomia-backend.service` was created and enabled.
+- Backend runs as user/group `zomia`.
+- Backend listens only on `127.0.0.1:8000`.
+- Alembic migrations were applied to `0011_staff_invitations (head)`.
+- Flutter web was built with `API_BASE_URL=https://zomia.eu/api/v1`.
+- Frontend release was published to `/var/www/zomia/releases/20260625201754`.
+- `/var/www/zomia/current` points to the release above.
+- Nginx proxies `/api/` and `/health` to the backend.
+- Nginx serves Flutter web for all other frontend routes.
+- Nginx sensitive-path blocking was kept before frontend fallback handling.
+- The Nginx `.json` block was corrected so required Flutter assets such as `manifest.json` and `version.json` remain reachable.
+- SMTP host was corrected to `smtp.zoho.eu`.
+- SMTP login/send check passed with the configured Zomia sender.
+
+Verification:
+
+- `https://zomia.eu` returns the Flutter web app.
+- `https://www.zomia.eu` returns the Flutter web app.
+- `https://zomia.eu/health` returns `{"status":"ok"}`.
+- `https://zomia.eu/manifest.json` returns `200`.
+- Unknown API route under `/api/v1/` returns backend `404`.
+- Sensitive probe `https://zomia.eu/.env` returns `404`.
+- Public `http://178.104.74.107:8000/health` is not reachable.
+- `nginx`, `postgresql`, and `zomia-backend.service` are active.
+
+## Webapp Subpath
+
+F15.5 was applied on 2026-06-25.
+
+Reason:
+
+- Keep `https://zomia.eu/` available for a future public landing/index page.
+- Serve the MVP Flutter web app under `https://zomia.eu/webapp/`.
+
+Completed:
+
+- Flutter web was rebuilt with `--base-href=/webapp/`.
+- Flutter web still uses `API_BASE_URL=https://zomia.eu/api/v1`.
+- New frontend release was published to `/var/www/zomia/releases/20260625203255`.
+- `/var/www/zomia/webapp` points to `/var/www/zomia/releases/20260625203255`.
+- `/var/www/zomia/root/index.html` is a blank root page.
+- Nginx serves:
+  - `/` from `/var/www/zomia/root`.
+  - `/webapp/` from `/var/www/zomia/webapp`.
+  - `/api/` and `/health` through the backend proxy.
+- Backend `FRONTEND_BASE_URL` is now `https://zomia.eu/webapp` so staff invitation and account links point to the app subpath.
+
+Verification:
+
+- `https://zomia.eu/` returns a blank root HTML page.
+- `https://zomia.eu/webapp` redirects to `https://zomia.eu/webapp/`.
+- `https://zomia.eu/webapp/` returns the Flutter web app.
+- `https://zomia.eu/webapp/manifest.json` returns `200`.
+- `https://zomia.eu/webapp/main.dart.js` returns `200`.
+- `https://zomia.eu/health` returns `200`.
+- Unknown API route under `/api/v1/` returns backend `404`.
+- Sensitive probes under both `/` and `/webapp/` return `404`.
