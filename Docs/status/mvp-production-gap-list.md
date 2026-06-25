@@ -362,7 +362,7 @@ Customer Profile completion:
 - Push notifications
 - Offline-first scan queue
 - Full admin panel
-- Production deployment stack with Nginx/Systemd/GitHub Actions
+- Full production automation with Systemd service hardening and GitHub Actions deployment
 - Social Auth / OAuth2 unless product decides it is required for launch
 
 ## Reference Direction
@@ -444,7 +444,25 @@ F15.2 server hardening checklist:
   - Database `zomia`, user `zomia_app`, and protected `DATABASE_URL` file are created.
   - Manual PostgreSQL backup and restore test passed.
   - Daily PostgreSQL backup job is installed with 14-day retention.
-- Remaining before app installation: Nginx and HTTPS.
+  - Nginx is installed and active.
+  - `zomia.eu` and `www.zomia.eu` DNS point to the pilot server.
+  - Let's Encrypt HTTPS is active for `zomia.eu` and `www.zomia.eu`.
+  - HTTP redirects to HTTPS.
+  - A bootstrap static site is served before the real frontend release.
+  - Sensitive web probes such as `.env`, config files, secret files, and backup files return `404` instead of falling through to the frontend.
+- Remaining before app installation:
+  - Install backend runtime and application code.
+  - Run Alembic migrations against the production database.
+  - Publish the Flutter web release.
+  - Add Systemd service files.
+  - Decide the first manual deployment procedure before automating it with GitHub Actions.
+
+F15.3 DNS/HTTPS note:
+
+- Public DNS for `zomia.eu` is correct for IPv4 and IPv6.
+- Direct IPv6 to the Hetzner server returns the bootstrap site.
+- If a local workstation still loads an old IPv6 target, clear the local DNS cache before treating it as a server problem.
+- HSTS is not enabled yet; decide this only after HTTPS and domain routing remain stable.
 
 ## Current Recommended Phase
 

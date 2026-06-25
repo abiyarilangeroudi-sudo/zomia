@@ -88,7 +88,7 @@ Required rules:
 - [x] Allow HTTP.
 - [x] Allow HTTPS.
 - [x] Deny all other inbound traffic by default.
-- [ ] Confirm PostgreSQL port `5432` is not publicly reachable after PostgreSQL is installed.
+- [x] Confirm PostgreSQL port `5432` is not publicly reachable after PostgreSQL is installed.
 - [ ] Confirm backend app port is not publicly reachable after backend is installed.
 
 Gate:
@@ -175,13 +175,14 @@ Gate:
 
 Before installing the app:
 
-- [ ] Choose domain.
-- [ ] Point DNS to server IPv4.
-- [ ] Decide IPv6 DNS usage.
-- [ ] Install Nginx.
-- [ ] Prepare HTTP site config.
-- [ ] Prepare HTTPS plan with Certbot or equivalent.
-- [ ] Confirm TLS certificate can be renewed.
+- [x] Choose domain.
+- [x] Point DNS to server IPv4.
+- [x] Decide IPv6 DNS usage.
+- [x] Install Nginx.
+- [x] Prepare HTTP site config.
+- [x] Prepare HTTPS plan with Certbot or equivalent.
+- [x] Confirm TLS certificate can be renewed.
+- [x] Confirm sensitive paths such as `.env`, config files, secret files, and backup files do not fall through to the frontend app.
 
 Gate:
 
@@ -191,17 +192,17 @@ Gate:
 
 Before installing Zomia:
 
-- [ ] SSH key login works.
-- [ ] Password SSH is disabled or explicitly accepted as a temporary risk.
-- [ ] Root SSH is disabled or explicitly accepted as a temporary risk.
-- [ ] Firewall allows only required public ports.
-- [ ] Server is updated.
-- [ ] Nginx is ready or planned.
-- [ ] PostgreSQL exposure is controlled.
-- [ ] Backup location exists.
-- [ ] Restore test is planned or complete.
-- [ ] Deployment directories exist.
-- [ ] Secrets location exists and is outside Git.
+- [x] SSH key login works.
+- [x] Password SSH is disabled or explicitly accepted as a temporary risk.
+- [x] Root SSH is disabled or explicitly accepted as a temporary risk.
+- [x] Firewall allows only required public ports.
+- [x] Server is updated.
+- [x] Nginx is ready.
+- [x] PostgreSQL exposure is controlled.
+- [x] Backup location exists.
+- [x] Restore test is planned or complete.
+- [x] Deployment directories exist.
+- [x] Secrets location exists and is outside Git.
 
 ## Current Status
 
@@ -243,13 +244,28 @@ Completed:
 - Backup retention is 14 days.
 - Cron service is active and enabled.
 - Backup files are stored with mode `640` and group `zomia`.
+- Domain `zomia.eu` is selected for the private pilot.
+- DNS points `zomia.eu` and `www.zomia.eu` to the server IPv4 and IPv6 addresses.
+- Nginx is installed and active.
+- A bootstrap static site is served from `/var/www/zomia/current`.
+- Let's Encrypt HTTPS is active for `zomia.eu` and `www.zomia.eu`.
+- HTTP redirects to HTTPS.
+- Sensitive paths are blocked at Nginx before frontend fallback handling.
+- External checks confirmed:
+  - `https://zomia.eu` over IPv4 returns the bootstrap site.
+  - `https://www.zomia.eu` returns the bootstrap site.
+  - Direct IPv6 to `2a01:4f8:1c19:49f0::1` returns the bootstrap site.
+  - Sensitive probes such as `/.env`, `/config/default.json`, `/secrets.yaml`, `/.aws/credentials`, and `/terraform.tfstate` return `404`.
 
 Pending before installing Zomia:
 
-- Nginx and HTTPS setup.
+- Clear local DNS cache if a workstation still resolves `zomia.eu` to an older IPv6 address.
+- Install and run the Zomia backend application.
+- Publish the first Flutter web release to `/var/www/zomia/releases`.
+- Add Systemd service files for the backend.
 
 Next step after approval:
 
 ```text
-Prepare Nginx and HTTPS prerequisites.
+Install the Zomia application stack.
 ```
