@@ -417,6 +417,18 @@ F15 started:
 - This is documentation-only at this stage.
 - Real deployment remains blocked until server, database, secrets, backup/restore, Nginx, Systemd, and GitHub Actions decisions are closed.
 
+F15 database direction:
+
+- Preferred production database path is managed PostgreSQL in an EU/Germany region.
+- Same-server PostgreSQL is allowed only as an early private-beta fallback after backup/restore is tested.
+
+F15 private pilot server:
+
+- Hetzner `ubuntu-4gb-nbg1-1` in Nuremberg, Germany is selected for the first real-customer private pilot.
+- IPv4: `178.104.74.107`
+- IPv6: `2a01:4f8:1c19:49f0::/64`
+- Before real customer usage, SSH hardening, firewall, HTTPS, PostgreSQL isolation, backup, and restore test must be completed.
+
 ## Current Recommended Phase
 
 Manual release-candidate QA has passed. Choose the next phase deliberately instead of adding features opportunistically.

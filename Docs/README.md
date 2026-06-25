@@ -53,6 +53,8 @@ Customer QR
 - [Flutter F7: UI / Branding Recovery](./sprints/flutter-f7-ui-branding-recovery.md)
 - [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
 - [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
+- [تصمیم 0004: مسیر دیتابیس Production](./decisions/0004-production-database-direction.md)
+- [تصمیم 0005: سرور Private Pilot](./decisions/0005-private-pilot-server.md)
 
 ## وضعیت فعلی
 

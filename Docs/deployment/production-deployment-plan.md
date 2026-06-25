@@ -63,6 +63,37 @@ Initial target:
 
 Do not expose the backend process directly to the internet.
 
+## Private Pilot Server
+
+Current private pilot server:
+
+```text
+Provider: Hetzner
+Plan: ubuntu-4gb-nbg1-1
+Location: Nuremberg, Germany
+Network zone: eu-central
+IPv4: 178.104.74.107
+IPv6: 2a01:4f8:1c19:49f0::/64
+```
+
+Pilot direction:
+
+- Use this server for the first real-customer private pilot.
+- Run Nginx, Flutter web static files, FastAPI backend, and initially PostgreSQL on this server.
+- Keep PostgreSQL same-server only as the private-pilot fallback path.
+- Move to managed PostgreSQL later if customer usage grows or operational risk becomes too high.
+
+Before allowing real customer traffic:
+
+- SSH password login must be disabled or explicitly reviewed.
+- A dedicated non-root deployment user must be created.
+- Firewall rules must expose only SSH, HTTP, and HTTPS.
+- HTTPS must be enabled before customer login or registration.
+- PostgreSQL must not be publicly reachable.
+- A daily backup job must exist.
+- At least one restore test must pass.
+- Minimal legal pages must be available or explicitly accepted as a pilot risk.
+
 ## Runtime Components
 
 Required production components:
@@ -76,6 +107,49 @@ Required production components:
 - SMTP credentials for transactional emails.
 
 Local Docker Compose remains a development tool. It is not the production deployment model unless a separate Docker production plan is explicitly created.
+
+## Production Database Decision
+
+Recommended direction:
+
+- Use managed PostgreSQL in an EU/Germany region for the first real public production release, if budget allows.
+- Use same-server PostgreSQL only as an early private-beta fallback, and only after backup/restore has been tested.
+
+Reason:
+
+- Zomia stores identity, business, staff, customer, QR, action, campaign, reward, and account lifecycle data.
+- Losing or corrupting the database would damage both trust and product continuity.
+- A managed PostgreSQL service reduces operational risk around disk failure, upgrades, monitoring, and backups.
+- Same-server PostgreSQL is simpler and cheaper, but it makes the application server a single point of failure.
+
+Decision for F15:
+
+```text
+Preferred production path:
+  Managed PostgreSQL in EU/Germany
+
+Allowed temporary fallback:
+  PostgreSQL 16 on the same Ubuntu 24.04 server
+  only for private beta or very early MVP traffic
+```
+
+If same-server PostgreSQL is used temporarily:
+
+- PostgreSQL must not be exposed publicly.
+- Database access must be local-only or private-network-only.
+- Daily automated backups are required.
+- Manual backup is required before every migration.
+- Restore must be tested before calling the setup production-ready.
+- A later move to managed PostgreSQL must remain possible without schema changes.
+
+If managed PostgreSQL is used:
+
+- Choose an EU/Germany region.
+- Enable automated backups.
+- Confirm point-in-time recovery if available.
+- Restrict network access to the backend server.
+- Store connection credentials outside Git.
+- Test migration and restore before launch.
 
 ## Environment And Secrets
 
@@ -249,8 +323,10 @@ Before the first real production release:
 Preparation:
 
 - [ ] Choose production domain.
-- [ ] Choose server provider.
-- [ ] Choose production database location.
+- [x] Choose server provider.
+- [x] Record private pilot server.
+- [x] Choose production database direction.
+- [ ] Choose production database provider/location.
 - [ ] Create production env file outside Git.
 - [ ] Configure SMTP production sender identity.
 - [ ] Prepare Nginx config.
@@ -290,7 +366,8 @@ Post-release:
 
 ## Open Decisions
 
-- Production database: same server PostgreSQL or managed PostgreSQL.
+- Production database provider/location.
+- Production domain and DNS.
 - Deployment method: manual first release or GitHub Actions with manual approval.
 - OpenAPI exposure: public, protected, or disabled in production.
 - Backup retention length.
@@ -305,6 +382,8 @@ F15 starts as documentation-first production preparation.
 Current result:
 
 - Production target architecture is defined.
+- Production database direction is defined: managed PostgreSQL in EU/Germany is preferred; same-server PostgreSQL is only a temporary private-beta fallback.
+- Private pilot server is selected: Hetzner `ubuntu-4gb-nbg1-1` in Nuremberg, Germany.
 - Deployment responsibilities are separated.
 - Required production checks are listed.
 - Real deployment remains blocked until the open decisions are closed.
