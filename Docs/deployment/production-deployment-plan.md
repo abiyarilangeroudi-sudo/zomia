@@ -94,6 +94,10 @@ Before allowing real customer traffic:
 - At least one restore test must pass.
 - Minimal legal pages must be available or explicitly accepted as a pilot risk.
 
+Server hardening checklist:
+
+- `Docs/deployment/server-hardening-checklist.md`
+
 ## Runtime Components
 
 Required production components:
@@ -327,6 +331,7 @@ Preparation:
 - [x] Record private pilot server.
 - [x] Choose production database direction.
 - [ ] Choose production database provider/location.
+- [x] Prepare server hardening checklist.
 - [ ] Create production env file outside Git.
 - [ ] Configure SMTP production sender identity.
 - [ ] Prepare Nginx config.

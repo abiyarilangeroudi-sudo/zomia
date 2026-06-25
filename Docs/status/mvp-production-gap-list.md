@@ -429,6 +429,11 @@ F15 private pilot server:
 - IPv6: `2a01:4f8:1c19:49f0::/64`
 - Before real customer usage, SSH hardening, firewall, HTTPS, PostgreSQL isolation, backup, and restore test must be completed.
 
+F15.2 server hardening checklist:
+
+- Server baseline checklist is tracked in `Docs/deployment/server-hardening-checklist.md`.
+- It must be completed before installing the Zomia application stack.
+
 ## Current Recommended Phase
 
 Manual release-candidate QA has passed. Choose the next phase deliberately instead of adding features opportunistically.
