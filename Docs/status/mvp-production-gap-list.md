@@ -433,6 +433,14 @@ F15.2 server hardening checklist:
 
 - Server baseline checklist is tracked in `Docs/deployment/server-hardening-checklist.md`.
 - It must be completed before installing the Zomia application stack.
+- Current server baseline progress:
+  - Ubuntu 24.04 is running.
+  - SSH access uses `delopram`.
+  - Direct root SSH login and password SSH are disabled.
+  - UFW is active with only SSH, HTTP, and HTTPS open.
+  - fail2ban is active for SSH.
+  - Application user `zomia` and base deployment directories are created.
+- Remaining before app installation: PostgreSQL isolation, backup/restore baseline, Nginx, and HTTPS.
 
 ## Current Recommended Phase
 

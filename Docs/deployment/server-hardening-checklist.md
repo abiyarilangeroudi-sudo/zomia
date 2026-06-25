@@ -33,15 +33,15 @@ This checklist must be completed before installing the Zomia application stack.
 
 ## Phase 1: Access Baseline
 
-- [ ] Confirm SSH access works.
-- [ ] Confirm the server is Ubuntu 24.04.
-- [ ] Confirm the server timezone.
-- [ ] Confirm server hostname.
-- [ ] Confirm current root access method.
-- [ ] Add a dedicated non-root admin/deployment user.
-- [ ] Confirm the deployment user can use sudo.
-- [ ] Confirm SSH key login works for the deployment user.
-- [ ] Keep root login available only until deployment-user access is verified.
+- [x] Confirm SSH access works.
+- [x] Confirm the server is Ubuntu 24.04.
+- [x] Confirm the server timezone.
+- [x] Confirm server hostname.
+- [x] Confirm current root access method.
+- [x] Add a dedicated non-root admin/deployment user.
+- [x] Confirm the deployment user can use sudo.
+- [x] Confirm SSH key login works for the deployment user.
+- [x] Keep root login available only until deployment-user access is verified.
 
 Gate:
 
@@ -49,11 +49,11 @@ Gate:
 
 ## Phase 2: SSH Hardening
 
-- [ ] Disable SSH password authentication after key access is verified.
-- [ ] Disable direct root SSH login after deployment-user access is verified.
-- [ ] Keep SSH on port 22 for now unless there is a clear reason to change it.
-- [ ] Confirm SSH still works after changes.
-- [ ] Document the final SSH access method outside Git.
+- [x] Disable SSH password authentication after key access is verified.
+- [x] Disable direct root SSH login after deployment-user access is verified.
+- [x] Keep SSH on port 22 for now unless there is a clear reason to change it.
+- [x] Confirm SSH still works after changes.
+- [x] Document the final SSH access method outside Git.
 
 Gate:
 
@@ -61,11 +61,11 @@ Gate:
 
 ## Phase 3: System Updates
 
-- [ ] Update package index.
-- [ ] Apply security updates.
-- [ ] Reboot if the server requires it.
-- [ ] Confirm SSH works after reboot.
-- [ ] Confirm system time and timezone after reboot.
+- [x] Update package index.
+- [x] Apply security updates.
+- [x] Reboot if the server requires it.
+- [x] Confirm SSH works after reboot.
+- [x] Confirm system time and timezone after reboot.
 
 Gate:
 
@@ -83,13 +83,13 @@ Allowed public ports for pilot:
 
 Required rules:
 
-- [ ] Enable firewall.
-- [ ] Allow SSH.
-- [ ] Allow HTTP.
-- [ ] Allow HTTPS.
-- [ ] Deny all other inbound traffic by default.
-- [ ] Confirm PostgreSQL port `5432` is not publicly reachable.
-- [ ] Confirm backend app port is not publicly reachable.
+- [x] Enable firewall.
+- [x] Allow SSH.
+- [x] Allow HTTP.
+- [x] Allow HTTPS.
+- [x] Deny all other inbound traffic by default.
+- [ ] Confirm PostgreSQL port `5432` is not publicly reachable after PostgreSQL is installed.
+- [ ] Confirm backend app port is not publicly reachable after backend is installed.
 
 Gate:
 
@@ -97,9 +97,9 @@ Gate:
 
 ## Phase 5: Intrusion And Abuse Baseline
 
-- [ ] Install and enable a basic SSH brute-force protection tool such as fail2ban.
-- [ ] Confirm SSH jail is active.
-- [ ] Confirm system logs are available.
+- [x] Install and enable a basic SSH brute-force protection tool such as fail2ban.
+- [x] Confirm SSH jail is active.
+- [x] Confirm system logs are available.
 - [ ] Decide where operational notes for blocked IPs and access issues will live.
 
 Gate:
@@ -127,15 +127,15 @@ Recommended directories:
 
 Checklist:
 
-- [ ] Create application user.
-- [ ] Create backend directory.
-- [ ] Create protected env directory.
-- [ ] Create frontend releases directory.
-- [ ] Create frontend current symlink target plan.
-- [ ] Create backup directory.
-- [ ] Create application log directory if needed.
-- [ ] Assign ownership intentionally.
-- [ ] Ensure secrets are readable only by the required user/group.
+- [x] Create application user.
+- [x] Create backend directory.
+- [x] Create protected env directory.
+- [x] Create frontend releases directory.
+- [x] Create frontend current symlink target plan.
+- [x] Create backup directory.
+- [x] Create application log directory if needed.
+- [x] Assign ownership intentionally.
+- [x] Ensure secrets are readable only by the required user/group.
 
 Gate:
 
@@ -205,12 +205,37 @@ Before installing Zomia:
 
 ## Current Status
 
-F15.2 is documentation-only.
+F15.2 server baseline is partially applied.
 
-No server command has been run by this checklist yet.
+Completed:
+
+- Server boots Ubuntu 24.04.
+- SSH key access works with deployment user `delopram`.
+- Direct root SSH login is disabled.
+- SSH password authentication is disabled.
+- `delopram` has passwordless sudo.
+- Timezone is `Europe/Berlin`.
+- System updates were applied and the server was rebooted.
+- UFW is active and allows only `22/tcp`, `80/tcp`, and `443/tcp`.
+- fail2ban is active with the `sshd` jail.
+- Application user `zomia` exists.
+- Deployment user `delopram` is a member of the `zomia` group.
+- Base directories exist:
+  - `/opt/zomia/backend`
+  - `/opt/zomia/env`
+  - `/var/www/zomia/releases`
+  - `/var/backups/zomia`
+  - `/var/log/zomia`
+- `/var/www/zomia/current` is intentionally pending until the first frontend release is published.
+
+Pending before installing Zomia:
+
+- PostgreSQL installation and localhost-only isolation.
+- Backup and restore baseline.
+- Nginx and HTTPS setup.
 
 Next step after approval:
 
 ```text
-Use this checklist to perform server baseline setup step by step.
+Prepare Phase 7 PostgreSQL installation and localhost-only isolation.
 ```
