@@ -442,7 +442,9 @@ F15.2 server hardening checklist:
   - Application user `zomia` and base deployment directories are created.
   - PostgreSQL 16.14 is installed, active, and bound to localhost only.
   - Database `zomia`, user `zomia_app`, and protected `DATABASE_URL` file are created.
-- Remaining before app installation: backup/restore baseline, Nginx, and HTTPS.
+  - Manual PostgreSQL backup and restore test passed.
+  - Daily PostgreSQL backup job is installed with 14-day retention.
+- Remaining before app installation: Nginx and HTTPS.
 
 ## Current Recommended Phase
 

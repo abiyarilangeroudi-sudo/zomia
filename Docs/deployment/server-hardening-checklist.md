@@ -160,12 +160,12 @@ Gate:
 
 Before real customer usage:
 
-- [ ] Define backup directory.
-- [ ] Define daily backup command.
-- [ ] Define backup retention.
-- [ ] Run one manual backup.
-- [ ] Restore that backup into a separate test database.
-- [ ] Document restore result.
+- [x] Define backup directory.
+- [x] Define daily backup command.
+- [x] Define backup retention.
+- [x] Run one manual backup.
+- [x] Restore that backup into a separate test database.
+- [x] Document restore result.
 
 Gate:
 
@@ -234,14 +234,22 @@ Completed:
 - `DATABASE_URL` is stored in `/opt/zomia/env/backend.env`.
 - `/opt/zomia/env/backend.env` is owned by `delopram:zomia` with mode `640`.
 - UFW does not expose port `5432`.
+- Manual PostgreSQL backup directory exists at `/var/backups/zomia/postgresql`.
+- Manual PostgreSQL backup/restore test passed using a temporary database.
+- Restore test database was removed after verification.
+- Daily PostgreSQL backup script exists at `/opt/zomia/backend/scripts/backup_postgres.sh`.
+- Cron job exists at `/etc/cron.d/zomia-postgres-backup`.
+- Daily backup schedule is `03:15 Europe/Berlin`.
+- Backup retention is 14 days.
+- Cron service is active and enabled.
+- Backup files are stored with mode `640` and group `zomia`.
 
 Pending before installing Zomia:
 
-- Backup and restore baseline.
 - Nginx and HTTPS setup.
 
 Next step after approval:
 
 ```text
-Prepare Phase 8 backup and restore baseline.
+Prepare Nginx and HTTPS prerequisites.
 ```
