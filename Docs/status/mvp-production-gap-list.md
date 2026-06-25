@@ -440,7 +440,9 @@ F15.2 server hardening checklist:
   - UFW is active with only SSH, HTTP, and HTTPS open.
   - fail2ban is active for SSH.
   - Application user `zomia` and base deployment directories are created.
-- Remaining before app installation: PostgreSQL isolation, backup/restore baseline, Nginx, and HTTPS.
+  - PostgreSQL 16.14 is installed, active, and bound to localhost only.
+  - Database `zomia`, user `zomia_app`, and protected `DATABASE_URL` file are created.
+- Remaining before app installation: backup/restore baseline, Nginx, and HTTPS.
 
 ## Current Recommended Phase
 

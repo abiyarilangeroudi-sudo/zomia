@@ -145,12 +145,12 @@ Gate:
 
 If PostgreSQL starts on the same server for private pilot:
 
-- [ ] Bind PostgreSQL to localhost only.
-- [ ] Use a dedicated database user for Zomia.
-- [ ] Use a strong database password.
-- [ ] Do not expose `5432` publicly.
-- [ ] Confirm local backend can reach PostgreSQL.
-- [ ] Confirm remote public access to PostgreSQL is blocked.
+- [x] Bind PostgreSQL to localhost only.
+- [x] Use a dedicated database user for Zomia.
+- [x] Use a strong database password.
+- [x] Do not expose `5432` publicly.
+- [x] Confirm local backend can reach PostgreSQL.
+- [x] Confirm remote public access to PostgreSQL is blocked.
 
 Gate:
 
@@ -227,15 +227,21 @@ Completed:
   - `/var/backups/zomia`
   - `/var/log/zomia`
 - `/var/www/zomia/current` is intentionally pending until the first frontend release is published.
+- PostgreSQL 16.14 is installed and active.
+- PostgreSQL listens only on `127.0.0.1:5432` and `[::1]:5432`.
+- Database `zomia` exists.
+- Database user `zomia_app` exists.
+- `DATABASE_URL` is stored in `/opt/zomia/env/backend.env`.
+- `/opt/zomia/env/backend.env` is owned by `delopram:zomia` with mode `640`.
+- UFW does not expose port `5432`.
 
 Pending before installing Zomia:
 
-- PostgreSQL installation and localhost-only isolation.
 - Backup and restore baseline.
 - Nginx and HTTPS setup.
 
 Next step after approval:
 
 ```text
-Prepare Phase 7 PostgreSQL installation and localhost-only isolation.
+Prepare Phase 8 backup and restore baseline.
 ```
