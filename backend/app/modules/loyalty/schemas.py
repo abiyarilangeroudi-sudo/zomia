@@ -82,7 +82,7 @@ class OwnerActivityRead(BaseModel):
     staff_email: EmailStr
     customer_id: uuid.UUID
     customer_name: str
-    customer_email: EmailStr
+    customer_email: EmailStr | None
     points_granted: int
     summary: str
     created_at: datetime

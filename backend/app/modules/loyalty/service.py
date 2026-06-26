@@ -167,7 +167,7 @@ class LoyaltyService:
                 staff_email=staff.email,
                 customer_id=customer.id,
                 customer_name=customer.full_name,
-                customer_email=customer.email,
+                customer_email=customer.email if customer.is_active else None,
                 points_granted=sum(entry.points for entry in action.points_entries),
                 summary=self._activity_summary(action),
                 created_at=action.created_at,

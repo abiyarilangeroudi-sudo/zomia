@@ -359,6 +359,44 @@ def test_owner_reads_recent_activity_for_business(client: TestClient) -> None:
     assert body[0]["created_at"] is not None
 
 
+def test_owner_recent_activity_handles_deleted_customer(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(
+        client, owner_token, business_id, name="Buy Coffee", point_value=1
+    )
+    action_response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "owner-activity-deleted-customer",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert action_response.status_code == 201
+    remove_response = client.post(
+        "/api/v1/auth/remove-account",
+        json={"current_password": "strong-password"},
+        headers=auth(customer_token),
+    )
+    assert remove_response.status_code == 204
+
+    response = client.get(
+        f"/api/v1/owner/activity/recent?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body) == 1
+    assert body[0]["customer_name"] == "Deleted customer"
+    assert body[0]["customer_email"] is None
+    assert body[0]["summary"] == "Buy Coffee x1"
+
+
 def test_owner_cannot_read_recent_activity_for_another_owner_business(
     client: TestClient,
 ) -> None:

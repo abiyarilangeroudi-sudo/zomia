@@ -585,14 +585,14 @@ class _FormExamples extends StatelessWidget {
         SizedBox(height: 12),
         _ComponentName('PrimaryButton / icon'),
         PrimaryButton(
-          label: 'Create campaign',
+          label: 'Create campaign with a very long label',
           icon: Icons.flag_rounded,
           onPressed: _noop,
         ),
         SizedBox(height: 12),
         _ComponentName('SecondaryButton / icon'),
         SecondaryButton(
-          label: 'Resolve Customer',
+          label: 'Resolve customer with a very long label',
           icon: Icons.search_rounded,
           onPressed: _noop,
         ),

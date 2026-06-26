@@ -240,7 +240,7 @@ class OwnerActivity {
       staffName: json['staff_name'] as String,
       staffEmail: json['staff_email'] as String,
       customerName: json['customer_name'] as String,
-      customerEmail: json['customer_email'] as String,
+      customerEmail: json['customer_email'] as String?,
       pointsGranted: json['points_granted'] as int,
       summary: json['summary'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -253,7 +253,7 @@ class OwnerActivity {
   final String staffName;
   final String staffEmail;
   final String customerName;
-  final String customerEmail;
+  final String? customerEmail;
   final int pointsGranted;
   final String summary;
   final DateTime createdAt;
