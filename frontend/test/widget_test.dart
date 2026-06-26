@@ -1340,9 +1340,56 @@ void main() {
     expect(find.text('Customer recent actions'), findsOneWidget);
     expect(find.text('No customer actions yet'), findsOneWidget);
   });
+
+  testWidgets('renders compact staff mission card copy', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: StaffMissionCard(
+            missions: [
+              StaffServiceMission(
+                id: 'coffee',
+                name: 'Buy Coffee',
+                description: null,
+                missionType: 'purchase',
+                pointValue: 1,
+                isActive: true,
+              ),
+              StaffServiceMission(
+                id: 'cake',
+                name: 'Buy Cake',
+                description: null,
+                missionType: 'purchase',
+                pointValue: 5,
+                isActive: true,
+              ),
+            ],
+            quantities: {},
+            isLoading: false,
+            isEnabled: true,
+            selectedPoints: 0,
+            onIncrement: _noopMission,
+            onDecrement: _noopMission,
+            onSubmit: _noop,
+            isSubmitting: false,
+          ),
+        ),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    expect(find.text('Register Action'), findsOneWidget);
+    expect(find.text('Register'), findsOneWidget);
+    expect(find.text('0 pts'), findsOneWidget);
+    expect(find.text('1 point'), findsOneWidget);
+    expect(find.text('5 points'), findsOneWidget);
+    expect(find.text('1 points each'), findsNothing);
+  });
 }
 
 void _noop() {}
+
+void _noopMission(StaffServiceMission mission) {}
 
 Future<void> _enterTextByLabel(
   WidgetTester tester,

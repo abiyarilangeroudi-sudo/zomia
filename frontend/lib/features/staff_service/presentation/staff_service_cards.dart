@@ -212,7 +212,7 @@ class StaffMissionCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: MissionRow(
                   title: mission.name,
-                  subtitle: '${mission.pointValue} points each',
+                  subtitle: _missionPointLabel(mission.pointValue),
                   quantity: quantities[mission.id] ?? 0,
                   isEnabled: isEnabled,
                   onIncrement: () => onIncrement(mission),
@@ -222,7 +222,7 @@ class StaffMissionCard extends StatelessWidget {
             ),
           const SizedBox(height: 4),
           PrimaryButton(
-            label: 'Register Action',
+            label: 'Register',
             icon: Icons.check_circle_rounded,
             onPressed: isEnabled && !isSubmitting ? onSubmit : null,
             isLoading: isSubmitting,
@@ -230,6 +230,10 @@ class StaffMissionCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static String _missionPointLabel(int points) {
+    return points == 1 ? '1 point' : '$points points';
   }
 }
 
