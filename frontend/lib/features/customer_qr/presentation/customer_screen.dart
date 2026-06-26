@@ -130,6 +130,7 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
                 campaignProgresses: _campaignProgresses,
                 isLoadingStatus: _isLoadingStatus,
                 statusError: _statusError,
+                onClearStatusError: _clearStatusError,
                 selectedTabIndex: _campaignTabIndex,
                 onTabChanged: (index) =>
                     setState(() => _campaignTabIndex = index),
@@ -141,6 +142,7 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
                 status: _status,
                 isLoadingStatus: _isLoadingStatus,
                 statusError: _statusError,
+                onClearStatusError: _clearStatusError,
                 selectedTabIndex: _rewardTabIndex,
                 onTabChanged: (index) =>
                     setState(() => _rewardTabIndex = index),
@@ -221,6 +223,13 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
         _isLoadingStatus = false;
       });
     }
+  }
+
+  void _clearStatusError() {
+    if (_statusError == null) {
+      return;
+    }
+    setState(() => _statusError = null);
   }
 
   void _openQrDialog() {

@@ -37,6 +37,7 @@ class OwnerMissionCreateDialog extends StatelessWidget {
     required this.controller,
     required this.pointsController,
     this.errorMessage,
+    this.onClearError,
     required this.isSaving,
     required this.onCreate,
   });
@@ -44,6 +45,7 @@ class OwnerMissionCreateDialog extends StatelessWidget {
   final TextEditingController controller;
   final TextEditingController pointsController;
   final String? errorMessage;
+  final VoidCallback? onClearError;
   final bool isSaving;
   final Future<bool> Function() onCreate;
 
@@ -61,7 +63,11 @@ class OwnerMissionCreateDialog extends StatelessWidget {
             title: 'Mission',
             children: [
               if (errorMessage != null) ...[
-                InlineBanner(message: errorMessage!, tone: BannerTone.error),
+                InlineBanner(
+                  message: errorMessage!,
+                  tone: BannerTone.error,
+                  onClose: onClearError,
+                ),
                 const SizedBox(height: 12),
               ],
               AppTextField(

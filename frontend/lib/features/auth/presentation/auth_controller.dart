@@ -139,6 +139,13 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = const AsyncData(AuthState.unauthenticated());
   }
 
+  void clearError() {
+    if (!state.hasError) {
+      return;
+    }
+    state = const AsyncData(AuthState.unauthenticated());
+  }
+
   Future<void> updateCustomerProfile({required String fullName}) async {
     final value = state.asData?.value;
     final user = value?.user;

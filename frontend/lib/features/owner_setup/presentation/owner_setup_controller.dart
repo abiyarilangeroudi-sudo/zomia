@@ -158,6 +158,20 @@ class OwnerSetupController extends ChangeNotifier {
     });
   }
 
+  void clearError() {
+    if (error == null) {
+      return;
+    }
+    _setState(() => error = null);
+  }
+
+  void clearSuccess() {
+    if (success == null) {
+      return;
+    }
+    _setState(() => success = null);
+  }
+
   Future<bool> sendStaffInvitation() async {
     final business = selectedBusiness;
     final email = staffEmailController.text.trim();

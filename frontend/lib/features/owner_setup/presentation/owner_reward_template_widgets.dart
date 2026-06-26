@@ -39,6 +39,7 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
     required this.giftNameController,
     required this.validDaysController,
     this.errorMessage,
+    this.onClearError,
     required this.isSaving,
     required this.onCreate,
   });
@@ -47,6 +48,7 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
   final TextEditingController giftNameController;
   final TextEditingController validDaysController;
   final String? errorMessage;
+  final VoidCallback? onClearError;
   final bool isSaving;
   final Future<bool> Function() onCreate;
 
@@ -64,7 +66,11 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
             title: 'Reward Template',
             children: [
               if (errorMessage != null) ...[
-                InlineBanner(message: errorMessage!, tone: BannerTone.error),
+                InlineBanner(
+                  message: errorMessage!,
+                  tone: BannerTone.error,
+                  onClose: onClearError,
+                ),
                 const SizedBox(height: 12),
               ],
               AppTextField(

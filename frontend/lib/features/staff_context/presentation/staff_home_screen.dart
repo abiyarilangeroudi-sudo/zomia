@@ -140,6 +140,7 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                 actions: _recentActions,
                 isLoading: _isLoadingRecentActions,
                 errorMessage: _recentActionsError,
+                onClearError: _clearRecentActionsError,
                 onRetry: _loadRecentActions,
               ),
             ),
@@ -207,6 +208,13 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
         ),
       ),
     );
+  }
+
+  void _clearRecentActionsError() {
+    if (_recentActionsError == null) {
+      return;
+    }
+    setState(() => _recentActionsError = null);
   }
 
   void _openProfileFromDrawer() {

@@ -19,6 +19,7 @@ class OwnerRecentActionsDialog extends ConsumerStatefulWidget {
 class _OwnerRecentActionsDialogState
     extends ConsumerState<OwnerRecentActionsDialog> {
   late Future<List<OwnerActivity>> _activityFuture;
+  bool _isErrorDismissed = false;
 
   @override
   void initState() {
@@ -55,16 +56,23 @@ class _OwnerRecentActionsDialogState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      InlineBanner(
-                        message: snapshot.error.toString(),
-                        tone: BannerTone.error,
-                      ),
-                      const SizedBox(height: 16),
+                      if (!_isErrorDismissed) ...[
+                        InlineBanner(
+                          message: snapshot.error.toString(),
+                          tone: BannerTone.error,
+                          onClose: () =>
+                              setState(() => _isErrorDismissed = true),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       SecondaryButton(
                         label: 'Try again',
                         icon: Icons.refresh_rounded,
                         onPressed: () {
-                          setState(() => _activityFuture = _loadActivity());
+                          setState(() {
+                            _isErrorDismissed = false;
+                            _activityFuture = _loadActivity();
+                          });
                         },
                       ),
                     ],

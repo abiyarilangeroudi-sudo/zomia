@@ -47,6 +47,7 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
     required this.isRepeatable,
     required this.hasCompletionLimit,
     this.errorMessage,
+    this.onClearError,
     required this.isSaving,
     required this.onMissionToggled,
     required this.onRewardTemplateChanged,
@@ -69,6 +70,7 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
   final bool isRepeatable;
   final bool hasCompletionLimit;
   final String? errorMessage;
+  final VoidCallback? onClearError;
   final bool isSaving;
   final void Function(String missionId, bool selected) onMissionToggled;
   final ValueChanged<String?> onRewardTemplateChanged;
@@ -92,7 +94,11 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
             title: 'Campaign',
             children: [
               if (errorMessage != null) ...[
-                InlineBanner(message: errorMessage!, tone: BannerTone.error),
+                InlineBanner(
+                  message: errorMessage!,
+                  tone: BannerTone.error,
+                  onClose: onClearError,
+                ),
                 const SizedBox(height: 12),
               ],
               AppTextField(

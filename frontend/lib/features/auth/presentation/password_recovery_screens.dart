@@ -56,7 +56,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: 16),
-                InlineBanner(message: _error!, tone: BannerTone.error),
+                InlineBanner(
+                  message: _error!,
+                  tone: BannerTone.error,
+                  onClose: () => setState(() => _error = null),
+                ),
               ],
               const SizedBox(height: 24),
               PrimaryButton(
@@ -171,7 +175,11 @@ class _PasswordRecoveryCodeScreenState
               ),
               if (_error != null) ...[
                 const SizedBox(height: 16),
-                InlineBanner(message: _error!, tone: BannerTone.error),
+                InlineBanner(
+                  message: _error!,
+                  tone: BannerTone.error,
+                  onClose: () => setState(() => _error = null),
+                ),
               ],
               const SizedBox(height: 24),
               PrimaryButton(
@@ -291,7 +299,11 @@ class _SetNewPasswordScreenState extends ConsumerState<SetNewPasswordScreen> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: 16),
-                InlineBanner(message: _error!, tone: BannerTone.error),
+                InlineBanner(
+                  message: _error!,
+                  tone: BannerTone.error,
+                  onClose: () => setState(() => _error = null),
+                ),
               ],
               const SizedBox(height: 24),
               PrimaryButton(

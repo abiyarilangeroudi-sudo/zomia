@@ -30,6 +30,7 @@ class _AccountChangeEmailDialogState extends State<AccountChangeEmailDialog> {
   final _codeController = TextEditingController();
   String? _pendingEmail;
   String? _error;
+  bool _isCodeSentBannerDismissed = false;
   bool _isSaving = false;
 
   @override
@@ -54,7 +55,11 @@ class _AccountChangeEmailDialogState extends State<AccountChangeEmailDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_error != null) ...[
-                InlineBanner(message: _error!, tone: BannerTone.error),
+                InlineBanner(
+                  message: _error!,
+                  tone: BannerTone.error,
+                  onClose: () => setState(() => _error = null),
+                ),
                 const SizedBox(height: 16),
               ],
               AppCard(
@@ -121,11 +126,14 @@ class _AccountChangeEmailDialogState extends State<AccountChangeEmailDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        InlineBanner(
-          message: 'Code sent to $_pendingEmail.',
-          tone: BannerTone.success,
-        ),
-        const SizedBox(height: 16),
+        if (!_isCodeSentBannerDismissed) ...[
+          InlineBanner(
+            message: 'Code sent to $_pendingEmail.',
+            tone: BannerTone.success,
+            onClose: () => setState(() => _isCodeSentBannerDismissed = true),
+          ),
+          const SizedBox(height: 16),
+        ],
         AppTextField(
           controller: _codeController,
           label: 'Verification code',
@@ -163,6 +171,7 @@ class _AccountChangeEmailDialogState extends State<AccountChangeEmailDialog> {
     setState(() {
       _isSaving = true;
       _error = null;
+      _isCodeSentBannerDismissed = false;
     });
     final newEmail = _newEmailController.text.trim();
     try {

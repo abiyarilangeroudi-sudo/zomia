@@ -38,12 +38,14 @@ class OwnerInviteStaffDialog extends StatelessWidget {
     super.key,
     required this.emailController,
     this.errorMessage,
+    this.onClearError,
     required this.isSaving,
     required this.onSend,
   });
 
   final TextEditingController emailController;
   final String? errorMessage;
+  final VoidCallback? onClearError;
   final bool isSaving;
   final Future<bool> Function() onSend;
 
@@ -61,7 +63,11 @@ class OwnerInviteStaffDialog extends StatelessWidget {
             title: 'Staff invitation',
             children: [
               if (errorMessage != null) ...[
-                InlineBanner(message: errorMessage!, tone: BannerTone.error),
+                InlineBanner(
+                  message: errorMessage!,
+                  tone: BannerTone.error,
+                  onClose: onClearError,
+                ),
                 const SizedBox(height: 12),
               ],
               AppTextField(

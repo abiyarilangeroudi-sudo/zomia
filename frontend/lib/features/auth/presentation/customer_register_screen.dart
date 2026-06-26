@@ -127,7 +127,11 @@ class _CustomerRegisterScreenState
               ),
               if (error != null) ...[
                 const SizedBox(height: 16),
-                InlineBanner(message: error, tone: BannerTone.error),
+                InlineBanner(
+                  message: error,
+                  tone: BannerTone.error,
+                  onClose: ref.read(authControllerProvider.notifier).clearError,
+                ),
               ],
               const SizedBox(height: 24),
               PrimaryButton(

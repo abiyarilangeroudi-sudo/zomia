@@ -157,9 +157,17 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_controller.error != null)
-          InlineBanner(message: _controller.error!, tone: BannerTone.error),
+          InlineBanner(
+            message: _controller.error!,
+            tone: BannerTone.error,
+            onClose: _controller.clearError,
+          ),
         if (_controller.success != null)
-          InlineBanner(message: _controller.success!, tone: BannerTone.success),
+          InlineBanner(
+            message: _controller.success!,
+            tone: BannerTone.success,
+            onClose: _controller.clearSuccess,
+          ),
         if (_controller.error != null || _controller.success != null)
           const SizedBox(height: 16),
         if (_controller.isLoading)
@@ -188,9 +196,17 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_controller.error != null)
-          InlineBanner(message: _controller.error!, tone: BannerTone.error),
+          InlineBanner(
+            message: _controller.error!,
+            tone: BannerTone.error,
+            onClose: _controller.clearError,
+          ),
         if (_controller.success != null)
-          InlineBanner(message: _controller.success!, tone: BannerTone.success),
+          InlineBanner(
+            message: _controller.success!,
+            tone: BannerTone.success,
+            onClose: _controller.clearSuccess,
+          ),
         if (_controller.error != null || _controller.success != null)
           const SizedBox(height: 16),
         if (_controller.isLoading)
@@ -221,9 +237,17 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_controller.error != null)
-          InlineBanner(message: _controller.error!, tone: BannerTone.error),
+          InlineBanner(
+            message: _controller.error!,
+            tone: BannerTone.error,
+            onClose: _controller.clearError,
+          ),
         if (_controller.success != null)
-          InlineBanner(message: _controller.success!, tone: BannerTone.success),
+          InlineBanner(
+            message: _controller.success!,
+            tone: BannerTone.success,
+            onClose: _controller.clearSuccess,
+          ),
         if (_controller.error != null || _controller.success != null)
           const SizedBox(height: 16),
         if (_controller.isLoading)
@@ -269,6 +293,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
           builder: (context, _) => OwnerInviteStaffDialog(
             emailController: _controller.staffEmailController,
             errorMessage: _controller.error,
+            onClearError: _controller.clearError,
             isSaving: _controller.isSaving,
             onSend: _controller.sendStaffInvitation,
           ),
@@ -290,6 +315,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
           builder: (context, _) => OwnerBusinessSettingsDialog(
             business: business,
             errorMessage: _controller.error,
+            onClearError: _controller.clearError,
             isSaving: _controller.isSaving,
             onSave: _controller.updateBusinessProfile,
           ),

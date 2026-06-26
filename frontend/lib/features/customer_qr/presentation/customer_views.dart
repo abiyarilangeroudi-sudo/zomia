@@ -75,6 +75,7 @@ class CustomerCampaignView extends StatelessWidget {
     required this.campaignProgresses,
     required this.isLoadingStatus,
     required this.statusError,
+    required this.onClearStatusError,
     required this.selectedTabIndex,
     required this.onTabChanged,
   });
@@ -82,6 +83,7 @@ class CustomerCampaignView extends StatelessWidget {
   final List<CustomerCampaignProgress> campaignProgresses;
   final bool isLoadingStatus;
   final String? statusError;
+  final VoidCallback onClearStatusError;
   final int selectedTabIndex;
   final ValueChanged<int> onTabChanged;
 
@@ -91,7 +93,11 @@ class CustomerCampaignView extends StatelessWidget {
       return const AppCard(child: LoadingState(label: 'Loading campaigns'));
     }
     if (statusError != null) {
-      return InlineBanner(message: statusError!, tone: BannerTone.error);
+      return InlineBanner(
+        message: statusError!,
+        tone: BannerTone.error,
+        onClose: onClearStatusError,
+      );
     }
     final visibleProgresses = selectedTabIndex == 1
         ? customerArchivedCampaignProgresses(campaignProgresses)
@@ -150,6 +156,7 @@ class CustomerRewardView extends StatelessWidget {
     required this.status,
     required this.isLoadingStatus,
     required this.statusError,
+    required this.onClearStatusError,
     required this.selectedTabIndex,
     required this.onTabChanged,
   });
@@ -157,6 +164,7 @@ class CustomerRewardView extends StatelessWidget {
   final CustomerStatus? status;
   final bool isLoadingStatus;
   final String? statusError;
+  final VoidCallback onClearStatusError;
   final int selectedTabIndex;
   final ValueChanged<int> onTabChanged;
 
@@ -166,7 +174,11 @@ class CustomerRewardView extends StatelessWidget {
       return const AppCard(child: LoadingState(label: 'Loading rewards'));
     }
     if (statusError != null) {
-      return InlineBanner(message: statusError!, tone: BannerTone.error);
+      return InlineBanner(
+        message: statusError!,
+        tone: BannerTone.error,
+        onClose: onClearStatusError,
+      );
     }
     final rewards = _visibleRewards();
     return Column(
@@ -356,9 +368,17 @@ class _CustomerEditProfileDialogState extends State<CustomerEditProfileDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_error != null)
-                InlineBanner(message: _error!, tone: BannerTone.error),
+                InlineBanner(
+                  message: _error!,
+                  tone: BannerTone.error,
+                  onClose: () => setState(() => _error = null),
+                ),
               if (_success != null)
-                InlineBanner(message: _success!, tone: BannerTone.success),
+                InlineBanner(
+                  message: _success!,
+                  tone: BannerTone.success,
+                  onClose: () => setState(() => _success = null),
+                ),
               if (_error != null || _success != null)
                 const SizedBox(height: 16),
               AppCard(

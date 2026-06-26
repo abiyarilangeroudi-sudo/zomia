@@ -292,12 +292,14 @@ class StaffRecentActionsCard extends StatelessWidget {
     required this.actions,
     this.isLoading = false,
     this.errorMessage,
+    this.onClearError,
     this.onRetry,
   });
 
   final List<StaffRecentAction> actions;
   final bool isLoading;
   final String? errorMessage;
+  final VoidCallback? onClearError;
   final VoidCallback? onRetry;
 
   @override
@@ -311,7 +313,11 @@ class StaffRecentActionsCard extends StatelessWidget {
           if (isLoading)
             const LoadingState(label: 'Loading staff actions')
           else if (errorMessage != null) ...[
-            InlineBanner(message: errorMessage!, tone: BannerTone.error),
+            InlineBanner(
+              message: errorMessage!,
+              tone: BannerTone.error,
+              onClose: onClearError,
+            ),
             if (onRetry != null) ...[
               const SizedBox(height: 12),
               SecondaryButton(

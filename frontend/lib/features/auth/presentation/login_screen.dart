@@ -21,6 +21,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isInitialErrorDismissed = false;
+  bool _isInitialMessageDismissed = false;
 
   @override
   void dispose() {
@@ -33,7 +35,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
-    final error = widget.initialError ?? authState.error?.toString();
+    final initialError = _isInitialErrorDismissed ? null : widget.initialError;
+    final authError = authState.error?.toString();
+    final error = initialError ?? authError;
+    final initialMessage = _isInitialMessageDismissed
+        ? null
+        : widget.initialMessage;
     final textTheme = Theme.of(context).textTheme;
 
     return AuthFormLayout(
@@ -103,12 +110,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               if (error != null) ...[
                 const SizedBox(height: 16),
-                InlineBanner(message: error, tone: BannerTone.error),
-              ] else if (widget.initialMessage != null) ...[
+                InlineBanner(
+                  message: error,
+                  tone: BannerTone.error,
+                  onClose: _dismissLoginError,
+                ),
+              ] else if (initialMessage != null) ...[
                 const SizedBox(height: 16),
                 InlineBanner(
-                  message: widget.initialMessage!,
+                  message: initialMessage,
                   tone: BannerTone.success,
+                  onClose: () =>
+                      setState(() => _isInitialMessageDismissed = true),
                 ),
               ],
               const SizedBox(height: 24),
@@ -147,5 +160,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
+  }
+
+  void _dismissLoginError() {
+    ref.read(authControllerProvider.notifier).clearError();
+    setState(() => _isInitialErrorDismissed = true);
   }
 }

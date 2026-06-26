@@ -54,12 +54,14 @@ class OwnerBusinessSettingsDialog extends StatefulWidget {
     super.key,
     required this.business,
     required this.errorMessage,
+    this.onClearError,
     required this.isSaving,
     required this.onSave,
   });
 
   final OwnerBusiness business;
   final String? errorMessage;
+  final VoidCallback? onClearError;
   final bool isSaving;
   final Future<bool> Function({
     required String name,
@@ -159,6 +161,7 @@ class _OwnerBusinessSettingsDialogState
                 InlineBanner(
                   message: widget.errorMessage!,
                   tone: BannerTone.error,
+                  onClose: widget.onClearError,
                 ),
                 const SizedBox(height: 16),
               ],

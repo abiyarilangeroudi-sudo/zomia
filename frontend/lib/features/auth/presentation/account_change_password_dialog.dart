@@ -50,7 +50,11 @@ class _AccountChangePasswordDialogState
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_error != null) ...[
-                InlineBanner(message: _error!, tone: BannerTone.error),
+                InlineBanner(
+                  message: _error!,
+                  tone: BannerTone.error,
+                  onClose: () => setState(() => _error = null),
+                ),
                 const SizedBox(height: 16),
               ],
               AppCard(

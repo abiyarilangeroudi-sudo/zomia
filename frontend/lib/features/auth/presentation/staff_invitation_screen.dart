@@ -108,7 +108,11 @@ class _StaffInvitationScreenState extends ConsumerState<StaffInvitationScreen> {
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 16),
-                  InlineBanner(message: _error!, tone: BannerTone.error),
+                  InlineBanner(
+                    message: _error!,
+                    tone: BannerTone.error,
+                    onClose: () => setState(() => _error = null),
+                  ),
                 ],
                 const SizedBox(height: 24),
                 PrimaryButton(

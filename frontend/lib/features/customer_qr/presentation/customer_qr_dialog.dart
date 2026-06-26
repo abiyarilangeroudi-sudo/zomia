@@ -79,7 +79,11 @@ class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InlineBanner(message: _error!, tone: BannerTone.error),
+          InlineBanner(
+            message: _error!,
+            tone: BannerTone.error,
+            onClose: () => setState(() => _error = null),
+          ),
           const SizedBox(height: 12),
           SecondaryButton(
             label: 'Try again',
