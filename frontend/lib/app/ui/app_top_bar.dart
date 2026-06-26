@@ -59,6 +59,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       shadowColor: Colors.transparent,
       title: Text(
         title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
           color: BrandColors.teal,
           fontWeight: FontWeight.w600,

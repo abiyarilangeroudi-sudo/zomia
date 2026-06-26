@@ -67,6 +67,8 @@ class _SegmentedTabButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: isSelected

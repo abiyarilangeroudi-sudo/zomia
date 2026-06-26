@@ -59,9 +59,14 @@ class MissionRow extends StatelessWidget {
             final content = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle),
+                Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             );
             if (constraints.maxWidth < 380) {

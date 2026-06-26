@@ -50,18 +50,29 @@ class RewardCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 2),
                     if (businessName != null) ...[
                       Text(
                         businessName!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: BrandColors.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 2),
                     ],
-                    Text(subtitle),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ),

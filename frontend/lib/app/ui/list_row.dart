@@ -41,8 +41,10 @@ class AppListRow extends StatelessWidget {
                   foregroundColor: BrandColors.teal,
                   child: Icon(leadingIcon),
                 ),
-          title: Text(title),
-          subtitle: subtitle == null ? null : Text(subtitle!),
+          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: subtitle == null
+              ? null
+              : Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis),
           trailing:
               trailing ??
               (onTap == null ? null : const Icon(Icons.chevron_right_rounded)),
