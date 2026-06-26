@@ -253,8 +253,16 @@ class OwnerSetupController extends ChangeNotifier {
     final business = selectedBusiness;
     final points = int.tryParse(missionPointsController.text.trim());
     final name = missionNameController.text.trim();
-    if (business == null || name.isEmpty || points == null || points <= 0) {
-      _showError('Enter a valid mission point value.');
+    if (business == null) {
+      _showError('Select a business first.');
+      return false;
+    }
+    if (name.isEmpty) {
+      _showError('Enter a mission name.');
+      return false;
+    }
+    if (points == null || points <= 0) {
+      _showError('Enter points greater than 0.');
       return false;
     }
     final saved = await _save(
@@ -281,17 +289,28 @@ class OwnerSetupController extends ChangeNotifier {
       campaignMaxCompletionsController.text.trim(),
     );
     final name = campaignNameController.text.trim();
-    if (business == null ||
-        name.isEmpty ||
-        rewardTemplateId == null ||
-        selectedMissionIds.isEmpty ||
-        threshold == null ||
-        threshold <= 0) {
-      _showError('Select a mission, reward template, and valid threshold.');
+    if (business == null) {
+      _showError('Select a business first.');
+      return false;
+    }
+    if (name.isEmpty) {
+      _showError('Enter a campaign name.');
+      return false;
+    }
+    if (rewardTemplateId == null) {
+      _showError('Select a reward template.');
+      return false;
+    }
+    if (selectedMissionIds.isEmpty) {
+      _showError('Select at least one mission.');
+      return false;
+    }
+    if (threshold == null || threshold <= 0) {
+      _showError('Enter points needed greater than 0.');
       return false;
     }
     if (!campaignStartDate.isBefore(campaignEndDate)) {
-      _showError('Enter a valid campaign date range.');
+      _showError('End date must be after start date.');
       return false;
     }
     if (campaignIsRepeatable &&
@@ -332,12 +351,20 @@ class OwnerSetupController extends ChangeNotifier {
     final name = rewardNameController.text.trim();
     final giftName = giftNameController.text.trim();
     final validDays = int.tryParse(validDaysController.text.trim());
-    if (business == null ||
-        name.isEmpty ||
-        giftName.isEmpty ||
-        validDays == null ||
-        validDays <= 0) {
-      _showError('Enter valid reward details.');
+    if (business == null) {
+      _showError('Select a business first.');
+      return false;
+    }
+    if (name.isEmpty) {
+      _showError('Enter a template name.');
+      return false;
+    }
+    if (giftName.isEmpty) {
+      _showError('Enter a reward item.');
+      return false;
+    }
+    if (validDays == null || validDays <= 0) {
+      _showError('Enter valid days greater than 0.');
       return false;
     }
     final saved = await _save(
