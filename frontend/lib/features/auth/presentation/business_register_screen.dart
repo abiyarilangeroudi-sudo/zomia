@@ -159,7 +159,7 @@ class _BusinessRegisterScreenState
               ],
               const SizedBox(height: 24),
               PrimaryButton(
-                label: 'Create business account',
+                label: 'Create business',
                 icon: Icons.storefront_rounded,
                 onPressed: isLoading ? null : _submit,
                 isLoading: isLoading,

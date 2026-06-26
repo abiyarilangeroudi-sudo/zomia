@@ -93,7 +93,7 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               PrimaryButton(
-                label: 'Create Reward Template',
+                label: 'Create Template',
                 icon: Icons.card_giftcard_rounded,
                 isLoading: isSaving,
                 onPressed: isSaving

@@ -107,7 +107,7 @@ class _CustomerQrDialogState extends ConsumerState<CustomerQrDialog> {
       message:
           'Show this QR to staff. Expires ${customerFormatDateTime(token.expiresAt)}.',
       token: token.token,
-      primaryActionLabel: _isRotating ? 'Refreshing' : 'Refresh QR token',
+      primaryActionLabel: _isRotating ? 'Refreshing' : 'Refresh QR',
       primaryActionIcon: Icons.refresh_rounded,
       isPrimaryActionLoading: _isRotating,
       onPrimaryAction: _isRotating ? null : _refreshToken,
