@@ -89,6 +89,10 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
           onConfirm: _confirmCustomer,
           onReject: _rejectCustomer,
         ),
+        if (_summary != null && !_isCustomerConfirmed) ...[
+          const SizedBox(height: 16),
+          StaffCustomerRecentActionsCard(actions: _summary!.recentActions),
+        ],
         if (_isCustomerConfirmed) ...[
           if ((_summary?.activeRewards ?? const []).isNotEmpty) ...[
             const SizedBox(height: 16),

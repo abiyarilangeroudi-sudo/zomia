@@ -58,11 +58,6 @@ class StaffCustomerSummaryCard extends StatelessWidget {
                       label: '${summary.activeRewards.length} active rewards',
                       color: BrandColors.purple,
                     ),
-                    MetricPill(
-                      icon: Icons.history_rounded,
-                      label: '${summary.recentActions.length} recent actions',
-                      color: BrandColors.info,
-                    ),
                   ],
                 ),
                 if (!isConfirmed) ...[
@@ -117,6 +112,49 @@ class _StaffCustomerActions extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class StaffCustomerRecentActionsCard extends StatelessWidget {
+  const StaffCustomerRecentActionsCard({super.key, required this.actions});
+
+  final List<StaffRecentAction> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Customer recent actions'),
+          const SizedBox(height: 12),
+          if (actions.isEmpty)
+            const EmptyStateView(
+              icon: Icons.history_rounded,
+              title: 'No customer actions yet',
+            )
+          else
+            ...actions.map(
+              (action) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: AppListRow(
+                  title: action.summary,
+                  subtitle: formatStaffDateTime(action.occurredAt),
+                  leadingIcon: Icons.history_rounded,
+                  trailing: StatusBadge(
+                    label: action.pointsGranted > 0
+                        ? '+${action.pointsGranted} pts'
+                        : formatStaffActionType(action.actionType),
+                    tone: action.pointsGranted > 0
+                        ? BadgeTone.success
+                        : BadgeTone.neutral,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

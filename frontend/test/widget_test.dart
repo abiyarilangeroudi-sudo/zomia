@@ -1295,6 +1295,50 @@ void main() {
     expect(find.text('Confirm'), findsWidgets);
     expect(find.text('Confirm customer'), findsNothing);
     expect(find.text('Reject'), findsOneWidget);
+    expect(find.text('0 active rewards'), findsOneWidget);
+    expect(find.text('0 recent actions'), findsNothing);
+    expect(find.text('No customer actions yet'), findsNothing);
+  });
+
+  testWidgets('renders staff customer recent actions card', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StaffCustomerRecentActionsCard(
+            actions: [
+              StaffRecentAction(
+                id: 'action-id',
+                actionType: 'mission_progress',
+                customerName: 'Customer One',
+                pointsGranted: 2,
+                summary: 'Buy Coffee x2',
+                occurredAt: DateTime(2026, 1, 1, 10, 30),
+                createdAt: DateTime(2026, 1, 1, 10, 30),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    expect(find.text('Customer recent actions'), findsOneWidget);
+    expect(find.text('Buy Coffee x2'), findsOneWidget);
+    expect(find.text('+2 pts'), findsOneWidget);
+  });
+
+  testWidgets('renders empty staff customer recent actions card', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: StaffCustomerRecentActionsCard(actions: [])),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    expect(find.text('Customer recent actions'), findsOneWidget);
+    expect(find.text('No customer actions yet'), findsOneWidget);
   });
 }
 
