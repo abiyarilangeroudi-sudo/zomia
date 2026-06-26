@@ -22,7 +22,7 @@ Status: Passed
 
 - Backend starts on `http://127.0.0.1:8000`.
 - Flutter web starts on `http://127.0.0.1:8080`.
-- App version shown on Login matches `frontend/lib/app/app_version.dart`.
+- App version shown on Login matches `frontend/pubspec.yaml` after building with `scripts/build_frontend_production.sh`.
 - Browser refresh does not create a new Customer QR token unless the user explicitly refreshes QR.
 - No local seed/demo data is required for the main happy path except where explicitly stated.
 

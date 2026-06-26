@@ -215,8 +215,10 @@ Systemd should own the backend process. The exact service file should be created
 Flutter web should be built as static files:
 
 ```text
-flutter build web --dart-define=API_BASE_URL=https://<domain>/api/v1
+./scripts/build_frontend_production.sh
 ```
+
+The production build script reads `frontend/pubspec.yaml`, passes the version to Flutter through `APP_VERSION_NAME` and `APP_VERSION_BUILD`, uses `API_BASE_URL=https://zomia.eu/api/v1`, builds with `--base-href /webapp/`, and removes generated source-map references from the web output.
 
 The build output should be served by Nginx from a stable release directory.
 

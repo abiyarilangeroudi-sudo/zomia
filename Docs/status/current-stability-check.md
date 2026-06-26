@@ -91,7 +91,7 @@ This document is the short checkpoint before the next feature phase.
 - Customer Dashboard cleanup must start from the catalog `ProgressCard` review before changing product screens.
 - Account Settings is implemented per role. Use `Docs/status/identity-role-matrix.md` before changing Customer, Owner, or Staff account actions.
 - Keep frontend text in English.
-- Bump `frontend/pubspec.yaml` and `frontend/lib/app/app_version.dart` on every Flutter change.
+- Bump `frontend/pubspec.yaml` on every Flutter release. Production builds must use `scripts/build_frontend_production.sh` so the Login version label is generated from `pubspec.yaml`.
 - Keep screen files focused on orchestration; move reusable UI to feature widgets or shared UI components.
 - Keep domain rules out of Flutter screens, widgets, and presenters. If frontend logic starts deciding campaign/reward outcomes, stop and move the rule to backend/API contract.
 - Do not add Group/Cross campaign behavior before the current individual MVP remains green.
