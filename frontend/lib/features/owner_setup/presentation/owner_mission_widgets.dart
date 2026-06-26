@@ -73,13 +73,13 @@ class OwnerMissionCreateDialog extends StatelessWidget {
               AppTextField(
                 controller: controller,
                 label: 'Mission name',
-                hint: 'Buy Coffee',
+                hint: 'e.g. Buy a coffee',
               ),
               const SizedBox(height: 12),
               AppTextField(
                 controller: pointsController,
-                label: 'Point value',
-                hint: '1',
+                label: 'Points earned',
+                hint: 'e.g. 1',
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),

@@ -8,16 +8,16 @@ class OwnerSetupController extends ChangeNotifier {
 
   final OwnerSetupRepository repository;
 
-  final staffEmailController = TextEditingController(text: 'staff@example.com');
-  final missionNameController = TextEditingController(text: 'Buy Coffee');
-  final missionPointsController = TextEditingController(text: '1');
+  final staffEmailController = TextEditingController();
+  final missionNameController = TextEditingController();
+  final missionPointsController = TextEditingController();
   final DateTime _today = DateTime.now();
-  final campaignNameController = TextEditingController(text: 'Coffee Reward');
-  final campaignThresholdController = TextEditingController(text: '10');
+  final campaignNameController = TextEditingController();
+  final campaignThresholdController = TextEditingController();
   final campaignMaxCompletionsController = TextEditingController(text: '2');
-  final rewardNameController = TextEditingController(text: 'Free Coffee');
-  final giftNameController = TextEditingController(text: 'Free coffee');
-  final validDaysController = TextEditingController(text: '30');
+  final rewardNameController = TextEditingController();
+  final giftNameController = TextEditingController();
+  final validDaysController = TextEditingController();
 
   List<OwnerBusiness> businesses = [];
   List<OwnerStaffMember> staffMembers = [];
@@ -179,11 +179,15 @@ class OwnerSetupController extends ChangeNotifier {
       _showError('Enter a valid staff email.');
       return false;
     }
-    return _save(
+    final saved = await _save(
       () =>
           repository.sendStaffInvitation(businessId: business.id, email: email),
       'Staff invitation sent.',
     );
+    if (saved) {
+      staffEmailController.clear();
+    }
+    return saved;
   }
 
   Future<void> setStaffActive(
@@ -253,7 +257,7 @@ class OwnerSetupController extends ChangeNotifier {
       _showError('Enter a valid mission point value.');
       return false;
     }
-    return _save(
+    final saved = await _save(
       () => repository.createMission(
         businessId: business.id,
         name: name,
@@ -262,6 +266,11 @@ class OwnerSetupController extends ChangeNotifier {
       ),
       'Mission created.',
     );
+    if (saved) {
+      missionNameController.clear();
+      missionPointsController.clear();
+    }
+    return saved;
   }
 
   Future<bool> createCampaign() async {
@@ -291,7 +300,7 @@ class OwnerSetupController extends ChangeNotifier {
       _showError('Completion limit must be at least 2.');
       return false;
     }
-    return _save(
+    final saved = await _save(
       () => repository.createCampaign(
         businessId: business.id,
         rewardTemplateId: rewardTemplateId,
@@ -308,6 +317,14 @@ class OwnerSetupController extends ChangeNotifier {
       ),
       'Campaign created.',
     );
+    if (saved) {
+      campaignNameController.clear();
+      campaignThresholdController.clear();
+      campaignMaxCompletionsController.text = '2';
+      campaignIsRepeatable = true;
+      campaignHasCompletionLimit = false;
+    }
+    return saved;
   }
 
   Future<bool> createRewardTemplate() async {
@@ -323,7 +340,7 @@ class OwnerSetupController extends ChangeNotifier {
       _showError('Enter valid reward details.');
       return false;
     }
-    return _save(
+    final saved = await _save(
       () => repository.createGiftRewardTemplate(
         businessId: business.id,
         name: name,
@@ -332,6 +349,12 @@ class OwnerSetupController extends ChangeNotifier {
       ),
       'Reward template created.',
     );
+    if (saved) {
+      rewardNameController.clear();
+      giftNameController.clear();
+      validDaysController.clear();
+    }
+    return saved;
   }
 
   Future<bool> _save(Future<void> Function() action, String message) async {

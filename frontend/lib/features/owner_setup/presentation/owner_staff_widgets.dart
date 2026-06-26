@@ -73,7 +73,7 @@ class OwnerInviteStaffDialog extends StatelessWidget {
               AppTextField(
                 controller: emailController,
                 label: 'Staff email',
-                hint: 'staff@example.com',
+                hint: 'e.g. team@business.com',
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),

@@ -210,7 +210,7 @@ class _BusinessRegisterScreenState
         fullscreenDialog: true,
         builder: (context) => AppDrawerInfoDialog(
           title: title,
-          message: 'This page will be completed before production.',
+          message: 'This content is not available yet.',
         ),
       ),
     );

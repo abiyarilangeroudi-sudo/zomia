@@ -83,7 +83,7 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
             icon: Icons.policy_outlined,
             onTap: () => _openDrawerInfoDialog(
               title: 'MStV',
-              message: 'MStV information will be completed before production.',
+              message: 'Legal information will be added here.',
             ),
           ),
           AppDrawerItem(
@@ -91,8 +91,7 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
             icon: Icons.info_outline_rounded,
             onTap: () => _openDrawerInfoDialog(
               title: 'Impressum',
-              message:
-                  'Impressum information will be completed before production.',
+              message: 'Business legal details will be added here.',
             ),
           ),
           AppDrawerItem(

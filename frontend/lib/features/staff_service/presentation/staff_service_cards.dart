@@ -204,7 +204,7 @@ class StaffMissionCard extends StatelessWidget {
             const EmptyStateView(
               icon: Icons.task_alt_rounded,
               title: 'No missions',
-              message: 'No active missions are available for this business.',
+              message: 'This business has no active missions right now.',
             )
           else
             ...missions.map(
@@ -264,7 +264,7 @@ class StaffRewardsCard extends StatelessWidget {
             const EmptyStateView(
               icon: Icons.redeem_rounded,
               title: 'No active rewards',
-              message: 'Available rewards will appear after customer lookup.',
+              message: 'Rewards available for this customer will appear here.',
             )
           else
             ...rewards.map(
@@ -330,8 +330,7 @@ class StaffRecentActionsCard extends StatelessWidget {
             const EmptyStateView(
               icon: Icons.history_rounded,
               title: 'No staff actions yet',
-              message:
-                  'Staff activity will appear after actions are registered.',
+              message: 'Service activity will appear here after staff actions.',
             )
           else
             ...actions.map(

@@ -80,8 +80,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 icon: Icons.article_outlined,
                 onTap: () => _openDrawerInfoDialog(
                   title: 'MStV',
-                  message:
-                      'MStV information will be completed before production.',
+                  message: 'Legal information will be added here.',
                 ),
               ),
               AppDrawerItem(
@@ -89,8 +88,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 icon: Icons.info_outline_rounded,
                 onTap: () => _openDrawerInfoDialog(
                   title: 'Impressum',
-                  message:
-                      'Impressum information will be completed before production.',
+                  message: 'Business legal details will be added here.',
                 ),
               ),
               AppDrawerItem(
@@ -177,7 +175,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             child: EmptyStateView(
               icon: Icons.store_outlined,
               title: 'No business found',
-              message: 'Create the owner business from the backend for now.',
+              message: 'Business setup will appear here when it is ready.',
             ),
           )
         else ...[
@@ -216,7 +214,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             child: EmptyStateView(
               icon: Icons.store_outlined,
               title: 'No business found',
-              message: 'Create the owner business from the backend for now.',
+              message: 'Business setup will appear here when it is ready.',
             ),
           )
         else ...[
@@ -257,7 +255,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             child: EmptyStateView(
               icon: Icons.store_outlined,
               title: 'No business found',
-              message: 'Create the owner business from the backend for now.',
+              message: 'Business setup will appear here when it is ready.',
             ),
           )
         else

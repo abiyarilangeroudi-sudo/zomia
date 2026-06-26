@@ -121,7 +121,7 @@ class CustomerCampaignView extends StatelessWidget {
                     icon: Icons.campaign_outlined,
                     title: 'No campaign progress',
                     message:
-                        'Progress appears after staff registers matching actions.',
+                        'Your progress will appear here after a matching visit.',
                   ),
                 )
               else
@@ -195,11 +195,13 @@ class CustomerRewardView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (rewards.isEmpty)
-                const AppCard(
+                AppCard(
                   child: EmptyStateView(
                     icon: Icons.archive_outlined,
                     title: 'No rewards here',
-                    message: 'Rewards move between All and Archive by status.',
+                    message: selectedTabIndex == 1
+                        ? 'Used and expired rewards will appear here.'
+                        : 'Rewards you can use will appear here.',
                   ),
                 )
               else

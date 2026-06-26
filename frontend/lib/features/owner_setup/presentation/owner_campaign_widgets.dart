@@ -104,7 +104,7 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
               AppTextField(
                 controller: controller,
                 label: 'Campaign name',
-                hint: 'Coffee Reward',
+                hint: 'e.g. Coffee club',
               ),
               const SizedBox(height: 16),
               const SectionHeader(title: 'Reward Template'),
@@ -116,7 +116,7 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                 )
               else
                 SelectField<String>(
-                  label: 'Reward Template',
+                  label: 'Reward template',
                   value: selectedRewardTemplateId,
                   options: rewardTemplates
                       .map(
@@ -152,8 +152,8 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
               const SizedBox(height: 16),
               AppTextField(
                 controller: thresholdController,
-                label: 'Threshold points',
-                hint: '10',
+                label: 'Points needed',
+                hint: 'e.g. 10',
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 12),
@@ -189,8 +189,8 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                   const SizedBox(height: 8),
                   AppTextField(
                     controller: maxCompletionsController,
-                    label: 'Max completions per customer',
-                    hint: '2',
+                    label: 'Completion limit',
+                    hint: 'e.g. 2',
                     keyboardType: TextInputType.number,
                   ),
                 ],
