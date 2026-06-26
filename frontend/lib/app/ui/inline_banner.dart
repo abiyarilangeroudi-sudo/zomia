@@ -48,6 +48,12 @@ class InlineBanner extends StatelessWidget {
               IconButton(
                 tooltip: 'Dismiss',
                 onPressed: onClose,
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints.tightFor(
+                  width: 32,
+                  height: 32,
+                ),
                 icon: const Icon(Icons.close, size: 18),
               ),
           ],
