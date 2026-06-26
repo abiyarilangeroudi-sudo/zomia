@@ -39,7 +39,7 @@ class StaffCustomerSummaryCard extends StatelessWidget {
                 SectionHeader(
                   title: summary.customer.fullName,
                   trailing: StatusBadge(
-                    label: isConfirmed ? 'Confirmed' : 'Confirm customer',
+                    label: isConfirmed ? 'Confirmed' : 'Confirm',
                     tone: isConfirmed ? BadgeTone.success : BadgeTone.info,
                   ),
                 ),
@@ -67,28 +67,56 @@ class StaffCustomerSummaryCard extends StatelessWidget {
                 ),
                 if (!isConfirmed) ...[
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SecondaryButton(
-                          label: 'Reject',
-                          icon: Icons.close_rounded,
-                          onPressed: onReject,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: PrimaryButton(
-                          label: 'Confirm customer',
-                          icon: Icons.check_rounded,
-                          onPressed: onConfirm,
-                        ),
-                      ),
-                    ],
+                  _StaffCustomerActions(
+                    onReject: onReject,
+                    onConfirm: onConfirm,
                   ),
                 ],
               ],
             ),
+    );
+  }
+}
+
+class _StaffCustomerActions extends StatelessWidget {
+  const _StaffCustomerActions({
+    required this.onReject,
+    required this.onConfirm,
+  });
+
+  final VoidCallback onReject;
+  final VoidCallback onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final rejectButton = SecondaryButton(
+          label: 'Reject',
+          icon: Icons.close_rounded,
+          onPressed: onReject,
+        );
+        final confirmButton = PrimaryButton(
+          label: 'Confirm',
+          icon: Icons.check_rounded,
+          onPressed: onConfirm,
+        );
+
+        if (constraints.maxWidth < 340) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [rejectButton, const SizedBox(height: 8), confirmButton],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: rejectButton),
+            const SizedBox(width: 12),
+            Expanded(child: confirmButton),
+          ],
+        );
+      },
     );
   }
 }

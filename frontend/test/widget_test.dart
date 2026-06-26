@@ -1292,7 +1292,8 @@ void main() {
 
     expect(find.text('Customer One'), findsOneWidget);
     expect(find.text('customer@example.com'), findsNothing);
-    expect(find.text('Confirm customer'), findsWidgets);
+    expect(find.text('Confirm'), findsWidgets);
+    expect(find.text('Confirm customer'), findsNothing);
     expect(find.text('Reject'), findsOneWidget);
   });
 }
