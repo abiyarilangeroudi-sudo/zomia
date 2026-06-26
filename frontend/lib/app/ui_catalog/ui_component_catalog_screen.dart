@@ -686,16 +686,23 @@ class _FeedbackExamples extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ComponentName('InlineBanner'),
-        InlineBanner(message: 'Mission created.', tone: BannerTone.success),
-        SizedBox(height: 8),
-        InlineBanner(message: 'Something went wrong.', tone: BannerTone.error),
-        SizedBox(height: 12),
-        _ComponentName('StatusBadge'),
-        Wrap(
+        const _ComponentName('InlineBanner'),
+        const InlineBanner(
+          message: 'Mission created.',
+          tone: BannerTone.success,
+        ),
+        const SizedBox(height: 8),
+        InlineBanner(
+          message: 'Something went wrong.',
+          tone: BannerTone.error,
+          onClose: _noop,
+        ),
+        const SizedBox(height: 12),
+        const _ComponentName('StatusBadge'),
+        const Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [

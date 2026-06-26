@@ -70,9 +70,17 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_error != null)
-          InlineBanner(message: _error!, tone: BannerTone.error),
+          InlineBanner(
+            message: _error!,
+            tone: BannerTone.error,
+            onClose: _clearError,
+          ),
         if (_success != null)
-          InlineBanner(message: _success!, tone: BannerTone.success),
+          InlineBanner(
+            message: _success!,
+            tone: BannerTone.success,
+            onClose: _clearSuccess,
+          ),
         if (_error != null || _success != null) const SizedBox(height: 16),
         StaffCustomerSummaryCard(
           summary: _summary,
@@ -111,6 +119,18 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
   }
 
   Future<void> scanQrFromTopBar() => _scanQr();
+
+  void _clearError() {
+    setState(() {
+      _error = null;
+    });
+  }
+
+  void _clearSuccess() {
+    setState(() {
+      _success = null;
+    });
+  }
 
   Future<void> _loadMissions() async {
     setState(() {
