@@ -376,10 +376,9 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
   Future<bool> _confirmRewardUse(GeneratedReward reward) async {
     return showConfirmDialog(
       context: context,
-      title: 'Use this Reward?',
-      message:
-          'This will mark "${reward.title}" as used for the loaded customer.',
-      confirmLabel: 'Use Reward',
+      title: 'Use reward?',
+      message: 'Mark "${reward.title}" as used.',
+      confirmLabel: 'Use',
     );
   }
 }

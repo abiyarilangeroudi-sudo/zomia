@@ -7,6 +7,7 @@ import 'package:zomia_frontend/app/app_version.dart';
 import 'package:zomia_frontend/app/router.dart';
 import 'package:zomia_frontend/app/ui/app_text_field.dart';
 import 'package:zomia_frontend/app/ui/confirm_dialog.dart';
+import 'package:zomia_frontend/app/ui/reward_card.dart';
 import 'package:zomia_frontend/app/ui/status_badge.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/http/api_client.dart';
@@ -1384,6 +1385,26 @@ void main() {
     expect(find.text('1 point'), findsOneWidget);
     expect(find.text('5 points'), findsOneWidget);
     expect(find.text('1 points each'), findsNothing);
+  });
+
+  testWidgets('renders compact staff reward action copy', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: RewardCard(
+            title: 'Free Coffee',
+            subtitle: 'Free coffee',
+            expiresLabel: 'Valid until 2027-01-01',
+            variant: RewardCardVariant.staffAction,
+            onUse: _noop,
+          ),
+        ),
+      ),
+    );
+    await pumpAppFrames(tester);
+
+    expect(find.text('Use'), findsOneWidget);
+    expect(find.text('Use Reward'), findsNothing);
   });
 }
 

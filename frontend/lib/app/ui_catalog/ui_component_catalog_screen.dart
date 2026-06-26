@@ -904,9 +904,9 @@ class _MvpWorkflowExamples extends StatelessWidget {
         SizedBox(height: 12),
         _ComponentName('ConfirmDialog / standard'),
         _DialogPreview(
-          title: 'Use this Reward?',
-          message: 'This will mark the reward as used for the loaded customer.',
-          confirmLabel: 'Use Reward',
+          title: 'Use reward?',
+          message: 'Mark this reward as used.',
+          confirmLabel: 'Use',
         ),
         SizedBox(height: 12),
         _ComponentName('ConfirmDialog / destructive'),
