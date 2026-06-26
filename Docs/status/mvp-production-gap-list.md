@@ -75,6 +75,12 @@ F10.14 progress:
 - Flutter stores access and refresh tokens separately, retries one failed authenticated request after refresh, and clears local auth/QR cache if refresh fails.
 - App startup can recover a session from a stored refresh token when access token is absent.
 
+F15.8 progress:
+
+- Flutter Web uses browser storage for local production sessions because `flutter_secure_storage` can hang during web startup.
+- App startup refreshes a stored refresh token before calling `/auth/me`, so stale access tokens do not create expected `401 /auth/me` console noise.
+- Long-term production security still needs a token storage decision: keep localStorage only as the MVP web fallback or move refresh tokens to HttpOnly Secure Cookie before a hardened production release.
+
 ### 3. Backend Service Split Before Advanced Campaigns
 
 `backend/app/modules/loyalty/service.py` is still intentionally large.
@@ -166,6 +172,14 @@ F10.11 progress:
 - Flutter is explicitly not allowed to own loyalty decisions such as campaign eligibility, reward generation, reward use validity, repeatable cycle status, or campaign time status.
 - Customer campaign progress continues to render backend-owned `display_label`, `badge_label`, and `badge_tone`.
 - Any future UI need that requires a new campaign/reward concept must first become a backend/API contract, then be rendered by Flutter.
+
+F15.8 UI polish backlog:
+
+- Review placeholder copy across Login, Register, Owner, Staff, and Customer screens.
+- Add a close affordance for alert/banner messages where dismissal is useful.
+- Shorten or responsively wrap long button labels, including mobile Staff customer confirmation actions.
+- Re-check mobile Staff customer card spacing, chip wrapping, and button sizing.
+- Keep all UI polish changes routed through approved catalog components.
 
 ### 8. Staff Lifecycle Management
 

@@ -113,7 +113,10 @@ void main() {
 
   test('auth controller refreshes session from stored refresh token', () async {
     final tokenStore = _MemoryTokenStore();
-    await tokenStore.writeRefreshToken('stored-refresh-token');
+    await tokenStore.writeTokens(
+      accessToken: 'stale-access-token',
+      refreshToken: 'stored-refresh-token',
+    );
     final authRepository = _FakeAuthRepository(role: 'customer');
     final container = ProviderContainer(
       overrides: [
@@ -155,7 +158,7 @@ void main() {
 
     await container.read(authControllerProvider.notifier).signOut();
 
-    expect(authRepository.loggedOutRefreshToken, 'refresh-token');
+    expect(authRepository.loggedOutRefreshToken, 'refreshed-refresh-token');
     expect(await tokenStore.readAccessToken(), isNull);
     expect(await tokenStore.readRefreshToken(), isNull);
   });

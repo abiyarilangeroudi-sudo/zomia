@@ -22,7 +22,7 @@ class AuthController extends AsyncNotifier<AuthState> {
     }
 
     try {
-      if (token == null && refreshToken != null) {
+      if (refreshToken != null) {
         final tokens = await ref
             .read(authRepositoryProvider)
             .refreshSession(refreshToken: refreshToken);
