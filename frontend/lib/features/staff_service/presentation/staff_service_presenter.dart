@@ -44,6 +44,9 @@ String formatStaffDateTime(DateTime value) {
 }
 
 String formatStaffActionType(String value) {
+  if (value == 'reward_use') {
+    return 'Reward used';
+  }
   return value
       .split('_')
       .where((part) => part.isNotEmpty)
