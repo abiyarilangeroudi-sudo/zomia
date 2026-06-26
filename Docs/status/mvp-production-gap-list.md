@@ -495,6 +495,22 @@ F15.5 webapp subpath:
 - Nginx serves `/webapp/` separately while keeping `/api/`, `/health`, HTTPS redirect, and sensitive-path blocking intact.
 - Smoke checks passed for root, `/webapp/`, Flutter assets, backend health, API 404, and sensitive-path blocking.
 
+F15.6 console hygiene:
+
+- Missing Flutter source-map requests under `/webapp/` now return `404` instead of falling through to `index.html`.
+- This removes the production browser warning where devtools tried to parse the HTML app shell as a source-map JSON file.
+- The active production `flutter.js` release no longer contains the generated `sourceMappingURL=flutter.js.map` reference, so browser devtools should stop requesting that missing file during normal smoke QA.
+- Runtime Flutter errors must still be investigated by the exact screen/action that triggers them; minified production stack traces alone are not enough to identify the product cause.
+
+F15.7 web storage fallback:
+
+- Production smoke QA found that the app could remain on `Loading Zomia` after `/auth/login` returned `200`.
+- Backend logs showed no follow-up `/auth/me`, so the likely blocking point was web token storage before the authenticated profile request.
+- Flutter Web now uses browser `localStorage` for session tokens and Customer QR token cache.
+- Non-web platforms still use `flutter_secure_storage`.
+- Active webapp release is `/var/www/zomia/releases/20260625212639`.
+- Smoke checks passed for `/webapp/`, production API base, `localStorage` token access in the built JS, source-map hygiene, and backend health.
+
 ## Current Recommended Phase
 
 Manual release-candidate QA has passed. Choose the next phase deliberately instead of adding features opportunistically.

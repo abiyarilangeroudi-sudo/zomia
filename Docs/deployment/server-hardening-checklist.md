@@ -341,3 +341,48 @@ Verification:
 - `https://zomia.eu/health` returns `200`.
 - Unknown API route under `/api/v1/` returns backend `404`.
 - Sensitive probes under both `/` and `/webapp/` return `404`.
+
+## Source Map Fallback Hygiene
+
+F15.6 was applied on 2026-06-25.
+
+Issue:
+
+- Missing Flutter source-map requests such as `/webapp/flutter.js.map` were falling through to the Flutter `index.html`.
+- Browser devtools then tried to parse HTML as a source-map JSON file and showed a noisy source-map warning.
+
+Fix:
+
+- Nginx now returns `404` for `*.map` requests instead of serving the frontend fallback.
+- The generated `sourceMappingURL=flutter.js.map` reference was removed from the active production `flutter.js` release so browser devtools no longer request the missing map file during normal smoke QA.
+
+Verification:
+
+- `https://zomia.eu/webapp/flutter.js.map` returns `404`.
+- `https://zomia.eu/webapp/main.dart.js.map` returns `404`.
+- `https://zomia.eu/webapp/flutter.js` no longer contains `sourceMappingURL=flutter.js.map`.
+- `https://zomia.eu/health` still returns `200`.
+
+## Web Storage Fallback
+
+F15.7 was applied on 2026-06-25.
+
+Issue:
+
+- During production smoke QA, the app could remain on `Loading Zomia` after a successful login.
+- Backend logs showed `/auth/login` returned `200`, but no follow-up `/auth/me` request reached the backend.
+- The likely blocking point was web token persistence through `flutter_secure_storage`.
+
+Fix:
+
+- Flutter Web now uses browser `localStorage` for session tokens and cached Customer QR token.
+- Non-web platforms still use `flutter_secure_storage`.
+- New webapp release was published to `/var/www/zomia/releases/20260625212639`.
+- `/var/www/zomia/webapp` now points to that release.
+
+Verification:
+
+- `https://zomia.eu/webapp/` returns `200`.
+- Production `main.dart.js` contains `window.localStorage` token access.
+- `https://zomia.eu/health` still returns `200`.
+- Source map requests still return `404`.

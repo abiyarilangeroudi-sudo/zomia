@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:zomia_frontend/app/app_version.dart';
 import 'package:zomia_frontend/app/router.dart';
 import 'package:zomia_frontend/app/ui/app_text_field.dart';
 import 'package:zomia_frontend/app/ui/confirm_dialog.dart';
@@ -357,6 +358,12 @@ void main() {
     expect(repository.createdCampaignMaxCompletions, isNull);
     expect(repository.createdCampaignStartsAt, isNotNull);
     expect(repository.createdCampaignEndsAt, isNotNull);
+    expect(repository.createdCampaignStartsAt!.isUtc, isFalse);
+    expect(repository.createdCampaignStartsAt!.hour, 0);
+    expect(repository.createdCampaignStartsAt!.minute, 0);
+    expect(repository.createdCampaignEndsAt!.isUtc, isFalse);
+    expect(repository.createdCampaignEndsAt!.hour, 23);
+    expect(repository.createdCampaignEndsAt!.minute, 59);
     expect(
       repository.createdCampaignStartsAt!.isBefore(
         repository.createdCampaignEndsAt!,
@@ -430,7 +437,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Version 1.0.91 (92)'), findsOneWidget);
+    expect(find.text(AppVersion.label), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.text('New here? Create a customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
@@ -484,7 +491,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Version 1.0.91 (92)'));
+    await tester.tap(find.text(AppVersion.label));
     await pumpAppFrames(tester);
 
     expect(find.text('UI Component Catalog'), findsOneWidget);

@@ -283,8 +283,8 @@ class OwnerSetupController extends ChangeNotifier {
         rewardTemplateId: rewardTemplateId,
         name: name,
         thresholdPoints: threshold,
-        startsAt: _startOfUtcDay(campaignStartDate),
-        endsAt: _endOfUtcDay(campaignEndDate),
+        startsAt: _startOfLocalDay(campaignStartDate),
+        endsAt: _endOfLocalDay(campaignEndDate),
         missionIds: selectedMissionIds.toList(),
         isRepeatable: campaignIsRepeatable,
         maxCompletionsPerCustomer:
@@ -377,11 +377,11 @@ class OwnerSetupController extends ChangeNotifier {
     return DateTime(value.year, value.month + months, value.day);
   }
 
-  static DateTime _startOfUtcDay(DateTime value) {
-    return DateTime.utc(value.year, value.month, value.day);
+  static DateTime _startOfLocalDay(DateTime value) {
+    return DateTime(value.year, value.month, value.day);
   }
 
-  static DateTime _endOfUtcDay(DateTime value) {
-    return DateTime.utc(value.year, value.month, value.day, 23, 59, 59);
+  static DateTime _endOfLocalDay(DateTime value) {
+    return DateTime(value.year, value.month, value.day, 23, 59, 59);
   }
 }

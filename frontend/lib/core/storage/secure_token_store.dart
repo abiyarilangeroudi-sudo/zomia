@@ -1,7 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'browser_storage.dart';
+
 final secureTokenStoreProvider = Provider<TokenStore>((ref) {
+  if (isBrowserStorageAvailable) {
+    return BrowserTokenStore(createBrowserStorage());
+  }
   return SecureTokenStore(const FlutterSecureStorage());
 });
 
@@ -67,5 +72,49 @@ class SecureTokenStore implements TokenStore {
       _storage.delete(key: _accessTokenKey),
       _storage.delete(key: _refreshTokenKey),
     ]).then((_) {});
+  }
+}
+
+class BrowserTokenStore implements TokenStore {
+  const BrowserTokenStore(this._storage);
+
+  static const _accessTokenKey = 'zomia_access_token';
+  static const _refreshTokenKey = 'zomia_refresh_token';
+
+  final BrowserStorage _storage;
+
+  @override
+  Future<String?> readAccessToken() async {
+    return _storage.read(_accessTokenKey);
+  }
+
+  @override
+  Future<String?> readRefreshToken() async {
+    return _storage.read(_refreshTokenKey);
+  }
+
+  @override
+  Future<void> writeAccessToken(String token) async {
+    _storage.write(_accessTokenKey, token);
+  }
+
+  @override
+  Future<void> writeRefreshToken(String token) async {
+    _storage.write(_refreshTokenKey, token);
+  }
+
+  @override
+  Future<void> writeTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    _storage.write(_accessTokenKey, accessToken);
+    _storage.write(_refreshTokenKey, refreshToken);
+  }
+
+  @override
+  Future<void> clear() async {
+    _storage.delete(_accessTokenKey);
+    _storage.delete(_refreshTokenKey);
   }
 }
