@@ -4,13 +4,44 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Zomia Impressum</title>
+    <style>
+      body { margin: 0; font-family: Arial, sans-serif; color: #101418; background: #f5f7fb; line-height: 1.6; }
+      main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+      article { background: #fff; border: 1px solid #d9e1e7; border-radius: 12px; padding: 28px; }
+      h1, h2 { line-height: 1.25; }
+      a { color: #159f95; font-weight: 700; text-decoration: none; }
+      .note { color: #5c6873; }
+      .warning { padding: 12px 14px; border: 1px solid #f0b84a; background: #fff8e8; border-radius: 8px; }
+    </style>
   </head>
   <body>
     <main>
-      <h1>Impressum</h1>
-      <p>This page is a placeholder for the MVP private pilot.</p>
-      <p>Final provider and contact details will be reviewed and added before broader public use.</p>
-      <p><a href="/legal">Back to Legal</a></p>
+      <article>
+        <h1>Impressum</h1>
+        <p class="note">Last updated: 2026-06-27</p>
+        <p class="warning">Provider details must be completed before real customer or business onboarding. Do not treat this Impressum as complete until the legal name, address, and responsible person/entity are added.</p>
+
+        <h2>Provider</h2>
+        <p><strong>Service:</strong> Zomia</p>
+        <p><strong>Legal name:</strong> To be completed</p>
+        <p><strong>Address:</strong> To be completed</p>
+        <p><strong>Country:</strong> Germany</p>
+
+        <h2>Contact</h2>
+        <p>Email: <a href="mailto:info@zomia.eu">info@zomia.eu</a></p>
+        <p>Website: <a href="https://zomia.eu">https://zomia.eu</a></p>
+
+        <h2>Responsible for content</h2>
+        <p>To be completed if required for the final legal setup.</p>
+
+        <h2>Registration, VAT, and authority details</h2>
+        <p>To be completed if applicable.</p>
+
+        <h2>Dispute resolution</h2>
+        <p>Consumer dispute-resolution wording must be reviewed before broader public use.</p>
+
+        <p><a href="/legal">Back to Legal</a></p>
+      </article>
     </main>
   </body>
 </html>

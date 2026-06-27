@@ -114,7 +114,7 @@ Nginx must:
 
 - Serve `/webapp/` from `/var/www/zomia/webapp`.
 - Serve `/` from the root placeholder directory.
-- Serve public legal placeholders under `/legal`.
+- Serve public legal draft pages under `/legal`.
 - Proxy `/api/` and `/health` to the backend.
 - Keep sensitive-path blocking before frontend fallback handling.
 - Return `404` for missing source-map files instead of serving Flutter `index.html`.
@@ -171,7 +171,7 @@ Short rule:
 - Same-server PostgreSQL is acceptable for the private pilot only while backup/restore remains reliable.
 - Monitoring and alerting are still manual/minimal.
 - Backup log permissions should be tightened in a later hardening pass; the log currently contains backup filenames, sizes, and retention output, not secrets.
-- Legal pages are still placeholders and need final review.
+- Legal pages are draft pages and need final provider/legal review.
 - Production email deliverability must keep SPF, DKIM, and DMARC healthy.
 - Access-token invalidation after password changes is documented as a later hardening item.
 - GitHub Actions deployment is not finalized; current release process is still manual.

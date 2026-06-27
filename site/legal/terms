@@ -4,13 +4,58 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Zomia Terms &amp; Conditions</title>
+    <style>
+      body { margin: 0; font-family: Arial, sans-serif; color: #101418; background: #f5f7fb; line-height: 1.6; }
+      main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+      article { background: #fff; border: 1px solid #d9e1e7; border-radius: 12px; padding: 28px; }
+      h1, h2 { line-height: 1.25; }
+      a { color: #159f95; font-weight: 700; text-decoration: none; }
+      .note { color: #5c6873; }
+      .warning { padding: 12px 14px; border: 1px solid #f0b84a; background: #fff8e8; border-radius: 8px; }
+    </style>
   </head>
   <body>
     <main>
-      <h1>Terms &amp; Conditions</h1>
-      <p>This page is a placeholder for the MVP private pilot.</p>
-      <p>Final terms will be reviewed and added before broader public use.</p>
-      <p><a href="/legal">Back to Legal</a></p>
+      <article>
+        <h1>Terms &amp; Conditions</h1>
+        <p class="note">Last updated: 2026-06-27</p>
+        <p class="warning">Private-pilot draft. Provider details, consumer wording, and reward liability wording must be legally reviewed before broader public use.</p>
+
+        <h2>1. Scope</h2>
+        <p>These Terms apply to customers using Zomia to participate in loyalty programs, view campaign progress, receive rewards, and present QR codes to participating businesses.</p>
+
+        <h2>2. Account</h2>
+        <p>You must provide accurate account information and keep your sign-in credentials secure. You are responsible for activity from your account unless caused by Zomia's fault or a security incident outside your control.</p>
+
+        <h2>3. Loyalty actions and points</h2>
+        <p>Points are generated only when an authorized staff member registers a valid action for a participating business. Points are not cash, not electronic money, not transferable, and cannot be paid out.</p>
+
+        <h2>4. Campaigns and rewards</h2>
+        <p>Campaigns define how points or actions can lead to rewards. Rewards may have conditions, expiry dates, and business-specific rules. The participating business is responsible for the actual product, service, discount, or gift unless otherwise stated.</p>
+
+        <h2>5. QR code use</h2>
+        <p>Your customer QR code is used to identify your account to staff during service. Old or refreshed QR codes may become invalid. Do not share your QR code with others.</p>
+
+        <h2>6. Reward use</h2>
+        <p>Rewards can be used only while active and according to the rules shown in the app or communicated by the business. Once a reward is used, it may no longer be available.</p>
+
+        <h2>7. Fair use</h2>
+        <p>You must not misuse the service, attempt to manipulate points or rewards, use another person's account, bypass QR validation, or interfere with the app or backend systems.</p>
+
+        <h2>8. Availability</h2>
+        <p>Zomia is currently in private-pilot MVP operation. Features may change, and temporary interruptions may occur. We aim to keep the service reliable but do not guarantee uninterrupted availability during the pilot.</p>
+
+        <h2>9. Account removal</h2>
+        <p>You may remove your customer account through the app where available. Some anonymized or historical business records may remain as described in the Privacy Policy.</p>
+
+        <h2>10. Changes</h2>
+        <p>These Terms may be updated as the service develops. Material changes should be made available before broader public use.</p>
+
+        <h2>11. Contact</h2>
+        <p>Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a></p>
+
+        <p><a href="/legal">Back to Legal</a></p>
+      </article>
     </main>
   </body>
 </html>

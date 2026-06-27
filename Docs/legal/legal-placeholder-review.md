@@ -2,12 +2,12 @@
 
 Date: 2026-06-27
 
-This document records the current legal placeholder state for the Zomia private-pilot MVP.
+This document records the current legal page state for the Zomia private-pilot MVP.
 It is not legal advice and does not provide final legal text.
 
 ## Current UI Status
 
-Public legal placeholder pages now live outside the Flutter web app:
+Public legal pages now live outside the Flutter web app:
 
 - `https://zomia.eu/legal`
 - `https://zomia.eu/legal/privacy`
@@ -16,8 +16,8 @@ Public legal placeholder pages now live outside the Flutter web app:
 - `https://zomia.eu/legal/cookies`
 - `https://zomia.eu/legal/impressum`
 
-The pages are intentionally plain static HTML placeholders until reviewed legal copy is available.
-They are reachable from the web app, but they are not production-ready legal content.
+The pages now contain minimum private-pilot draft text instead of one-line placeholders.
+They are reachable from the web app, but they still require legal/provider review before broader public use.
 
 ### Customer Registration
 
@@ -79,17 +79,20 @@ They are reachable from the web app, but they are not production-ready legal con
 - Explanation that Staff activity is visible to the business owner.
 - Impressum access through the app shell.
 
-## What Can Remain Placeholder Temporarily
+## Current Legal Text Status
 
-For a very small private pilot, placeholders can remain temporarily only if this is accepted as an explicit pilot risk and no public marketing launch is implied.
+For a very small private pilot, the current draft pages can reduce risk compared with blank placeholders, but they are not a substitute for legal review.
 
-The following should not be treated as production-ready:
+Current draft pages:
 
 - `Terms`
 - `Business Terms`
 - `Privacy`
-- `Impressum`
 - `Cookie Policy`
+
+Still incomplete:
+
+- `Impressum`, because final legal name, address, responsible person/entity, registration/VAT details if applicable, and dispute-resolution wording still need real provider information.
 
 ## What Should Not Be Exposed As Final
 
@@ -119,7 +122,7 @@ Revisit this decision if Zomia later adds editorial content, public news-like co
 
 ## Recommended Next Step
 
-Before onboarding real customers or businesses, create minimum legal pages and replace the current placeholders.
+Before onboarding real customers or businesses, complete Impressum provider details and review the draft legal pages.
 The safest implementation path is to keep legal content outside loyalty logic:
 
 - Static public pages under `https://zomia.eu/` for legal documents.
@@ -129,5 +132,6 @@ The safest implementation path is to keep legal content outside loyalty logic:
 Related decision matrix:
 
 - `Docs/legal/legal-compliance-matrix.md`
+- `Docs/legal/legal-draft-review-notes.md`
 - `Docs/decisions/0006-minimum-legal-pages.md`
 - `Docs/decisions/0007-legal-drawer-entry.md`

@@ -4,13 +4,55 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Zomia Business Terms</title>
+    <style>
+      body { margin: 0; font-family: Arial, sans-serif; color: #101418; background: #f5f7fb; line-height: 1.6; }
+      main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+      article { background: #fff; border: 1px solid #d9e1e7; border-radius: 12px; padding: 28px; }
+      h1, h2 { line-height: 1.25; }
+      a { color: #159f95; font-weight: 700; text-decoration: none; }
+      .note { color: #5c6873; }
+      .warning { padding: 12px 14px; border: 1px solid #f0b84a; background: #fff8e8; border-radius: 8px; }
+    </style>
   </head>
   <body>
     <main>
-      <h1>Business Terms</h1>
-      <p>This page is a placeholder for the MVP private pilot.</p>
-      <p>Final business terms will be reviewed and added before broader public use.</p>
-      <p><a href="/legal">Back to Legal</a></p>
+      <article>
+        <h1>Business Terms</h1>
+        <p class="note">Last updated: 2026-06-27</p>
+        <p class="warning">Private-pilot draft. Business responsibility, controller/processor model, AVV/DPA, and commercial terms must be reviewed before broader public use.</p>
+
+        <h2>1. Scope</h2>
+        <p>These Business Terms apply to business owners using Zomia to create missions, campaigns, reward templates, staff invitations, and customer loyalty workflows.</p>
+
+        <h2>2. Business account</h2>
+        <p>The owner must provide accurate business information and keep account access secure. The owner is responsible for staff invited to the business account and for keeping staff access active only where appropriate.</p>
+
+        <h2>3. Staff invitations and staff activity</h2>
+        <p>Owners may invite staff by email. Staff accounts become usable only after the staff member accepts the invitation and sets a password. Owners can activate or deactivate staff access. Staff actions may be visible to the business owner.</p>
+
+        <h2>4. Missions, campaigns, and rewards</h2>
+        <p>The business is responsible for defining clear missions, campaign thresholds, reward templates, reward conditions, validity periods, and customer-facing offers. The business must honor rewards it makes available through Zomia unless there is a clear misuse, fraud, or error policy.</p>
+
+        <h2>5. Discounts and offer transparency</h2>
+        <p>If the business offers percentage discounts, fixed discounts, or gifts, the business is responsible for ensuring that the offer is not misleading and that price or discount information complies with applicable consumer and price-transparency rules.</p>
+
+        <h2>6. Customer and loyalty data</h2>
+        <p>Zomia processes customer and loyalty data to operate the service. The final controller/processor model between Zomia and participating businesses must be reviewed before broader public use. Businesses must not use customer data from Zomia for unrelated purposes unless legally permitted.</p>
+
+        <h2>7. No wallet or cash economy</h2>
+        <p>Zomia points are loyalty progress indicators only. They are not cash, not electronic money, not transferable, and cannot be paid out.</p>
+
+        <h2>8. Fair use and security</h2>
+        <p>Businesses and staff must not manipulate points, create misleading campaigns, misuse customer QR codes, register false actions, or interfere with the service.</p>
+
+        <h2>9. Availability and pilot status</h2>
+        <p>Zomia is currently operated as a private-pilot MVP. Features, workflows, and operational procedures may change during the pilot.</p>
+
+        <h2>10. Contact</h2>
+        <p>Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a></p>
+
+        <p><a href="/legal">Back to Legal</a></p>
+      </article>
     </main>
   </body>
 </html>

@@ -4,13 +4,40 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Zomia Cookie Policy</title>
+    <style>
+      body { margin: 0; font-family: Arial, sans-serif; color: #101418; background: #f5f7fb; line-height: 1.6; }
+      main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+      article { background: #fff; border: 1px solid #d9e1e7; border-radius: 12px; padding: 28px; }
+      h1, h2 { line-height: 1.25; }
+      a { color: #159f95; font-weight: 700; text-decoration: none; }
+      .note { color: #5c6873; }
+      .warning { padding: 12px 14px; border: 1px solid #f0b84a; background: #fff8e8; border-radius: 8px; }
+    </style>
   </head>
   <body>
     <main>
-      <h1>Cookie Policy</h1>
-      <p>This page is a placeholder for the MVP private pilot.</p>
-      <p>Final cookie policy text will be reviewed and added before broader public use.</p>
-      <p><a href="/legal">Back to Legal</a></p>
+      <article>
+        <h1>Cookie Policy</h1>
+        <p class="note">Last updated: 2026-06-27</p>
+        <p class="warning">Private-pilot draft. Re-check this policy before adding analytics, marketing pixels, tracking cookies, or non-essential storage.</p>
+
+        <h2>1. Current storage use</h2>
+        <p>The current Zomia web app uses browser storage that is necessary for the MVP app to function, including session tokens and customer QR cache. This helps keep users signed in and allows the QR workflow to operate.</p>
+
+        <h2>2. No analytics or advertising cookies</h2>
+        <p>Zomia does not currently use analytics cookies, advertising cookies, marketing pixels, or third-party tracking technologies in the MVP web app.</p>
+
+        <h2>3. Strictly necessary storage</h2>
+        <p>Storage used for sign-in, security, session operation, QR operation, and app functionality is treated as necessary for the service. If non-essential cookies or tracking tools are added later, consent handling must be reviewed before launch.</p>
+
+        <h2>4. Managing storage</h2>
+        <p>You can clear browser storage through your browser settings. Clearing storage may sign you out or require a new QR token.</p>
+
+        <h2>5. Changes</h2>
+        <p>This Cookie Policy will be updated if Zomia adds analytics, marketing, tracking, or other non-essential storage.</p>
+
+        <p><a href="/legal">Back to Legal</a></p>
+      </article>
     </main>
   </body>
 </html>

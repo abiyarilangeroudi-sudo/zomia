@@ -192,15 +192,16 @@ P9 polish tracking:
 - Current MVP UI pass decisions are tracked in `Docs/status/ui-polish-backlog.md`.
 - Items accepted for MVP but still needing final production UI review must be added there instead of being kept only in chat.
 
-Legal placeholder tracking:
+Legal page tracking:
 
 - Current legal placeholder status is tracked in `Docs/legal/legal-placeholder-review.md`.
 - Legal/data-protection decision gaps are tracked in `Docs/legal/legal-compliance-matrix.md`.
-- `Terms`, `Business Terms`, `Privacy`, `Cookie Policy`, and `Impressum` are now public static placeholder pages under `https://zomia.eu/legal/...`.
-- The legal pages are reachable outside the Flutter web app, but their text is not production-ready legal content yet.
+- `Terms`, `Business Terms`, `Privacy`, `Cookie Policy`, and `Impressum` are public static pages under `https://zomia.eu/legal/...`.
+- `Terms`, `Business Terms`, `Privacy`, and `Cookie Policy` now contain minimum private-pilot draft text.
+- `Impressum` is still incomplete until real provider details are added.
 - `MStV` is not treated as required for the current loyalty software MVP unless editorial/media content is introduced later.
-- Registration checkboxes currently block registration until accepted and link out to public legal pages, but the linked legal content is still placeholder text.
-- Before real customer or business onboarding, replace placeholders with reviewed legal pages or explicitly accept this as a private-pilot risk.
+- Registration checkboxes currently block registration until accepted and link out to public legal pages.
+- Before real customer or business onboarding, complete provider details and review the legal draft pages or explicitly accept this as a private-pilot risk.
 
 P20/P21 legal and dialog cleanup:
 
@@ -573,7 +574,7 @@ F15.9 rollback documentation:
 F15.10 open production decisions:
 
 - Production open decisions are tracked in `Docs/deployment/production-open-decisions.md`.
-- Current priority order is legal placeholder risk, OpenAPI exposure, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+- Current priority order is Impressum/provider completion and legal draft review, OpenAPI exposure, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
 
 ## Current Recommended Phase
 
@@ -583,6 +584,6 @@ After that, likely candidates are:
 
 - Complete the remaining private-pilot production documentation and rollback checklist.
 - Close or explicitly risk-accept the highest-priority production open decisions.
-- Replace or formally risk-accept public legal placeholder content before broader onboarding.
+- Complete or formally risk-accept public legal draft content before broader onboarding.
 - Final UI/Branding consistency pass for visual details discovered during manual review.
 - RewardService extraction before advanced campaign types.

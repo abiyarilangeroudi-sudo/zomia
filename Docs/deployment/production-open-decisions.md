@@ -108,17 +108,20 @@ Recommended next checkpoint:
 
 ## 5. Legal Placeholder Risk
 
-Status: `Needs decision before broader launch`
+Status: `Needs provider details and legal review before broader launch`
 
 Current private-pilot direction:
 
-- Legal placeholder pages exist under `https://zomia.eu/legal/...`.
+- Legal pages exist under `https://zomia.eu/legal/...`.
 - Registration links and Drawer Legal links open those public pages outside the Flutter web app.
-- The pages are placeholders and are not final legal text.
+- The pages now contain minimum private-pilot draft text instead of one-line placeholders.
+- The Impressum is still incomplete until real provider details are added.
+- Draft source and review notes are tracked in `Docs/legal/legal-draft-review-notes.md`.
 
 Open decision:
 
-- Replace placeholders with reviewed legal content before real/broader onboarding, or explicitly record that the private pilot accepts placeholder risk.
+- Complete provider details for Impressum.
+- Review or replace the draft legal content before broader onboarding, or explicitly record that the private pilot accepts legal-text risk.
 
 Must cover:
 
@@ -183,7 +186,7 @@ Needs decision before scale:
 
 ## Current Priority Order
 
-1. Legal placeholder risk decision.
+1. Complete Impressum provider details and review legal draft pages.
 2. OpenAPI exposure decision.
 3. Rate limiting direction.
 4. Backup restore cadence and off-server backup decision.

@@ -165,7 +165,7 @@ Open decision:
 
 ## Minimum Before Real Customer Pilot
 
-- Replace legal placeholders or explicitly accept private-pilot risk.
+- Complete/review legal draft pages or explicitly accept private-pilot legal-text risk.
 - Decide controller/processor model for current MVP.
 - Create minimum Privacy Policy.
 - Create minimum Cookie Policy / local storage notice.
