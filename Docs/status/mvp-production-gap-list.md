@@ -181,6 +181,11 @@ F15.8 UI polish backlog:
 - Re-check mobile Staff customer card spacing, chip wrapping, and button sizing.
 - Keep all UI polish changes routed through approved catalog components.
 
+P9 polish tracking:
+
+- Current MVP UI pass decisions are tracked in `Docs/status/ui-polish-backlog.md`.
+- Items accepted for MVP but still needing final production UI review must be added there instead of being kept only in chat.
+
 ### 8. Staff Lifecycle Management
 
 Owner can invite Staff and F10.2 adds Active/Inactive switching.
