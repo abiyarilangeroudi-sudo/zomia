@@ -186,6 +186,14 @@ P9 polish tracking:
 - Current MVP UI pass decisions are tracked in `Docs/status/ui-polish-backlog.md`.
 - Items accepted for MVP but still needing final production UI review must be added there instead of being kept only in chat.
 
+Legal placeholder tracking:
+
+- Current legal placeholder status is tracked in `Docs/legal/legal-placeholder-review.md`.
+- Legal/data-protection decision gaps are tracked in `Docs/legal/legal-compliance-matrix.md`.
+- `Terms`, `Business Terms`, `Privacy`, `Impressum`, and `MStV` are not production-ready legal content yet.
+- Registration checkboxes currently block registration until accepted, but the linked legal content is still placeholder text.
+- Before real customer or business onboarding, replace placeholders with reviewed legal pages or explicitly accept this as a private-pilot risk.
+
 ### 8. Staff Lifecycle Management
 
 Owner can invite Staff and F10.2 adds Active/Inactive switching.
