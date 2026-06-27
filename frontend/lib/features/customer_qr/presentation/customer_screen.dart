@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/navigation/external_url_launcher.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
 import '../../auth/presentation/account_settings_dialog.dart';
@@ -79,12 +80,9 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
             onTap: _openSettingsDialogFromDrawer,
           ),
           AppDrawerItem(
-            label: 'Impressum',
-            icon: Icons.info_outline_rounded,
-            onTap: () => _openDrawerInfoDialog(
-              title: 'Impressum',
-              message: 'Business legal details will be added here.',
-            ),
+            label: 'Legal',
+            icon: Icons.policy_outlined,
+            onTap: _openLegalFromDrawer,
           ),
           AppDrawerItem(
             label: 'Sign out',
@@ -299,14 +297,8 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
     ref.read(authControllerProvider.notifier).signOut();
   }
 
-  void _openDrawerInfoDialog({required String title, required String message}) {
+  void _openLegalFromDrawer() {
     Navigator.of(context).pop();
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (context) =>
-            AppDrawerInfoDialog(title: title, message: message),
-      ),
-    );
+    openExternalUrl('https://zomia.eu/legal');
   }
 }

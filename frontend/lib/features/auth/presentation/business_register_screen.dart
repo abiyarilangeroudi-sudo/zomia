@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/ui/ui.dart';
+import '../../../core/navigation/external_url_launcher.dart';
 import '../domain/business_category.dart';
 import 'auth_controller.dart';
 import 'auth_form_layout.dart';
@@ -146,8 +147,10 @@ class _BusinessRegisterScreenState
                     ? null
                     : (value) =>
                           setState(() => _acceptedTerms = value ?? false),
-                onTermsTap: () => _openTermsInfo('Business Terms'),
-                onPrivacyTap: () => _openTermsInfo('Privacy Policy'),
+                onTermsTap: () =>
+                    openExternalUrl('https://zomia.eu/legal/business-terms'),
+                onPrivacyTap: () =>
+                    openExternalUrl('https://zomia.eu/legal/privacy'),
               ),
               if (error != null) ...[
                 const SizedBox(height: 16),
@@ -202,17 +205,5 @@ class _BusinessRegisterScreenState
       return;
     }
     context.go('/verify-email?email=$email&registration_type=owner');
-  }
-
-  void _openTermsInfo(String title) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (context) => AppDrawerInfoDialog(
-          title: title,
-          message: 'This content is not available yet.',
-        ),
-      ),
-    );
   }
 }

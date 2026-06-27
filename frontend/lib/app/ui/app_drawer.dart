@@ -92,64 +92,6 @@ class AppDrawer extends StatelessWidget {
   }
 }
 
-class AppDrawerInfoDialog extends StatelessWidget {
-  const AppDrawerInfoDialog({
-    super.key,
-    required this.title,
-    required this.message,
-  });
-
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        leading: IconButton(
-          tooltip: 'Close',
-          icon: const Icon(Icons.close_rounded),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: BrandColors.surface,
-        foregroundColor: BrandColors.teal,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(BrandSpacing.screenPadding),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: BrandColors.surface,
-              border: Border.all(color: BrandColors.line),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  Text(
-                    message,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: BrandColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _DrawerAction extends StatelessWidget {
   const _DrawerAction({required this.item});
 
