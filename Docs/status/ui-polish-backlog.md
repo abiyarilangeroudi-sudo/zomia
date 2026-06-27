@@ -20,6 +20,7 @@ This document tracks UI items that are acceptable for the current MVP but should
 - Customer, Staff, and Owner empty states are usable now. Re-check wording and spacing in the final UI pass.
 - InlineBanner height and close behavior were improved. Re-test dismiss behavior across Login, Register, Owner, Staff, and Customer screens before final release.
 - Drawer, sign out placement, account settings entry points, and legal placeholders are acceptable for MVP but need final product/legal review.
+- Legal Drawer direction is tracked in `Docs/decisions/0007-legal-drawer-entry.md`; add and approve the pattern in UI Catalog before product usage.
 - Mobile spacing is currently acceptable for tested flows. Re-check on small iPhone widths before production launch.
 
 ## Console Hygiene

@@ -27,21 +27,24 @@ It is not legal advice and does not provide final legal text.
 
 ### Customer Drawer
 
-- Drawer includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
+- Drawer currently includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
 - `Setting` opens real Account Settings.
 - `Impressum` currently opens a placeholder info dialog.
+- Future direction: replace `Impressum` with one `Legal` entry, as defined in `Docs/decisions/0007-legal-drawer-entry.md`.
 
 ### Owner Drawer
 
-- Drawer includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
+- Drawer currently includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
 - `Setting` opens real Account Settings.
 - `Impressum` currently opens a placeholder info dialog.
+- Future direction: replace `Impressum` with one `Legal` entry, as defined in `Docs/decisions/0007-legal-drawer-entry.md`.
 
 ### Staff Drawer
 
-- Drawer includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
+- Drawer currently includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
 - `Setting` opens real Account Settings.
 - `Impressum` currently opens a placeholder info dialog.
+- Future direction: replace `Impressum` with one `Legal` entry, as defined in `Docs/decisions/0007-legal-drawer-entry.md`.
 
 ## Role Needs
 
@@ -117,3 +120,4 @@ Related decision matrix:
 
 - `Docs/legal/legal-compliance-matrix.md`
 - `Docs/decisions/0006-minimum-legal-pages.md`
+- `Docs/decisions/0007-legal-drawer-entry.md`
