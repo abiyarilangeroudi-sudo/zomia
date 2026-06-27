@@ -19,12 +19,12 @@
       <article>
         <h1>Impressum</h1>
         <p class="note">Last updated: 2026-06-27</p>
-        <p class="warning">Private-pilot draft. Registration, VAT, responsible person/entity, and dispute-resolution wording still need final review before broader public use.</p>
+        <p class="warning">Private-pilot draft. VAT or registration details should be added if they become applicable.</p>
 
         <h2>Provider</h2>
         <p><strong>Service:</strong> Zomia</p>
         <p><strong>Legal name:</strong> Bellis Prennis</p>
-        <p><strong>Address:</strong> Fremersbergstr. 103, Baden Baden</p>
+        <p><strong>Address:</strong> Fremersbergstr. 103, 76530 Baden-Baden, Germany</p>
         <p><strong>Country:</strong> Germany</p>
 
         <h2>Contact</h2>
@@ -32,13 +32,15 @@
         <p>Website: <a href="https://zomia.eu">https://zomia.eu</a></p>
 
         <h2>Responsible for content</h2>
-        <p>To be completed if required for the final legal setup.</p>
+        <p>Not applicable for the current software service.</p>
 
         <h2>Registration, VAT, and authority details</h2>
-        <p>To be completed if applicable.</p>
+        <p><strong>Commercial register:</strong> Not applicable.</p>
+        <p><strong>VAT ID:</strong> Not available.</p>
+        <p><strong>Supervisory authority:</strong> Not applicable.</p>
 
         <h2>Dispute resolution</h2>
-        <p>Consumer dispute-resolution wording must be reviewed before broader public use.</p>
+        <p>We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.</p>
 
         <p><a href="/legal">Back to Legal</a></p>
       </article>
