@@ -364,7 +364,7 @@ Release:
 - [ ] Publish frontend build.
 - [ ] Reload Nginx.
 - [ ] Check `/health`.
-- [ ] Check OpenAPI availability if intentionally exposed.
+- [x] Confirm OpenAPI/Swagger/ReDoc are hidden in production.
 - [ ] Run a short manual smoke test.
 
 Post-release:
@@ -383,7 +383,7 @@ Current open production decisions are tracked in:
 
 Summary:
 
-- OpenAPI exposure: public, protected, or disabled in production.
+- OpenAPI exposure: disabled in production; reintroduce only behind admin/VPN if needed later.
 - Rate limiting mechanism and ownership.
 - Monitoring and alerting minimum.
 - Backup restore cadence and off-server backup decision.

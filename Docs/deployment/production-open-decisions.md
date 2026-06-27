@@ -14,20 +14,20 @@ The goal is to avoid accidental production hardening by guesswork. Each item has
 
 ## 1. OpenAPI Exposure
 
-Status: `Needs decision before broader launch`
+Status: `Accepted for private pilot`
 
 Current private-pilot direction:
 
 - Keep API behavior stable.
-- Do not depend on public OpenAPI visibility for users.
-- If OpenAPI docs are exposed, treat them as developer/operator tooling, not product UI.
+- Do not expose FastAPI Swagger/ReDoc/OpenAPI from the production backend.
+- Local and non-production environments may keep FastAPI docs available as developer/operator tooling.
+- Public product UI must not depend on OpenAPI visibility.
 
-Open decision:
+Decision:
 
-- Choose one before broader launch:
-  - Disable public docs in production.
-  - Protect docs behind admin/basic auth/VPN.
-  - Keep docs public temporarily and explicitly accept the risk.
+- `APP_ENV=production` disables `/docs`, `/redoc`, and `/openapi.json` inside FastAPI.
+- Production Nginx explicitly returns `404` for `/docs`, `/redoc`, and `/openapi.json`.
+- If developer docs are needed later, expose them behind an admin-only or VPN-only boundary.
 
 Why it matters:
 
@@ -190,10 +190,9 @@ Needs decision before scale:
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. OpenAPI exposure decision.
-3. Rate limiting direction.
-4. Backup restore cadence and off-server backup decision.
-5. Monitoring/alerting minimum.
-6. GitHub Actions/manual deploy boundary.
-7. Token storage/session hardening.
-8. Managed PostgreSQL migration.
+2. Rate limiting direction.
+3. Backup restore cadence and off-server backup decision.
+4. Monitoring/alerting minimum.
+5. GitHub Actions/manual deploy boundary.
+6. Token storage/session hardening.
+7. Managed PostgreSQL migration.

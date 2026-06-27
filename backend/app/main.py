@@ -9,7 +9,14 @@ from app.modules.qr.router import router as qr_router
 
 def create_app() -> FastAPI:
     settings = get_settings()
-    app = FastAPI(title="Zomia API", version="0.1.0")
+    expose_api_docs = settings.app_env.lower() != "production"
+    app = FastAPI(
+        title="Zomia API",
+        version="0.1.0",
+        docs_url="/docs" if expose_api_docs else None,
+        redoc_url="/redoc" if expose_api_docs else None,
+        openapi_url="/openapi.json" if expose_api_docs else None,
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

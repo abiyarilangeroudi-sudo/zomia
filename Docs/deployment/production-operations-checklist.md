@@ -135,6 +135,7 @@ After each release, check:
 - `https://zomia.eu/legal/privacy` returns `200` and `text/html`.
 - `https://zomia.eu/health` returns `{"status":"ok"}`.
 - `https://zomia.eu/api/v1/...` paths reach the backend.
+- `https://zomia.eu/docs`, `/redoc`, and `/openapi.json` return `404`.
 - Source-map requests return `404` without breaking the app.
 - Browser console has no unexpected `4xx` or `5xx` errors during the changed flow.
 - Nginx and backend logs do not show repeated new errors.

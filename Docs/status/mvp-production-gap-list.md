@@ -524,7 +524,7 @@ F15.4 application stack install:
 - Remaining before customer pilot:
   - Manual production smoke QA in the browser.
   - Confirm real registration OTP delivery from the user inbox side.
-  - Decide whether to expose or hide FastAPI docs/OpenAPI publicly.
+  - Confirm FastAPI docs/OpenAPI remain hidden in production.
   - Document the manual rollback procedure for backend and frontend symlinks.
 
 F15.5 webapp subpath:
@@ -575,7 +575,14 @@ F15.9 rollback documentation:
 F15.10 open production decisions:
 
 - Production open decisions are tracked in `Docs/deployment/production-open-decisions.md`.
-- Current priority order is legal draft review for broader public onboarding, OpenAPI exposure, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+- Current priority order is legal draft review for broader public onboarding, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+
+F15.11 OpenAPI exposure:
+
+- Production FastAPI docs are disabled when `APP_ENV=production`.
+- `/docs`, `/redoc`, and `/openapi.json` remain available only outside production.
+- Production Nginx explicitly returns `404` for `/docs`, `/redoc`, and `/openapi.json`.
+- If API docs are needed later, they should be exposed behind an admin-only or VPN-only boundary.
 
 ## Current Recommended Phase
 
