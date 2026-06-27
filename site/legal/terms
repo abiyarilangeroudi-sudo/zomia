@@ -18,40 +18,55 @@
     <main>
       <article>
         <h1>Terms &amp; Conditions</h1>
-        <p class="note">Last updated: 2026-06-27</p>
-        <p class="warning">Private-pilot draft. Provider details, consumer wording, and reward liability wording must be legally reviewed before broader public use.</p>
+        <p class="note">Last updated: 27 June 2026</p>
+        <p class="warning">Private-pilot draft. Consumer wording, liability limits, withdrawal/cancellation wording, and business reward responsibility must be legally reviewed before broader public use.</p>
 
         <h2>1. Scope</h2>
-        <p>These Terms apply to customers using Zomia to participate in loyalty programs, view campaign progress, receive rewards, and present QR codes to participating businesses.</p>
+        <p>These Terms apply to customers using Zomia to participate in loyalty programs, view campaign progress, receive rewards, manage their customer account, and present QR codes to participating businesses.</p>
+        <p>Zomia is operated by Bellis Prennis, Fremersbergstr. 103, 76530 Baden-Baden, Germany. Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a>.</p>
+        <p>Business owners and staff may be subject to additional Business Terms.</p>
 
-        <h2>2. Account</h2>
-        <p>You must provide accurate account information and keep your sign-in credentials secure. You are responsible for activity from your account unless caused by Zomia's fault or a security incident outside your control.</p>
+        <h2>2. Private-pilot status</h2>
+        <p>Zomia is currently operated as a private-pilot MVP. Features, wording, screens, and workflows may change as the product is tested and improved. We aim to keep the service stable, but temporary interruptions may occur during the pilot.</p>
 
-        <h2>3. Loyalty actions and points</h2>
-        <p>Points are generated only when an authorized staff member registers a valid action for a participating business. Points are not cash, not electronic money, not transferable, and cannot be paid out.</p>
+        <h2>3. Account</h2>
+        <p>You must provide accurate account information, verify your email address where required, and keep your sign-in credentials secure. You must not let another person use your account or QR code.</p>
+        <p>You are responsible for activity from your account unless caused by Zomia's fault or by a security incident outside your reasonable control.</p>
 
-        <h2>4. Campaigns and rewards</h2>
-        <p>Campaigns define how points or actions can lead to rewards. Rewards may have conditions, expiry dates, and business-specific rules. The participating business is responsible for the actual product, service, discount, or gift unless otherwise stated.</p>
+        <h2>4. QR code use</h2>
+        <p>Your customer QR code is used to identify your account to staff during service. Old, refreshed, expired, revoked, or previously used QR codes may become invalid. Do not share your QR code with others.</p>
 
-        <h2>5. QR code use</h2>
-        <p>Your customer QR code is used to identify your account to staff during service. Old or refreshed QR codes may become invalid. Do not share your QR code with others.</p>
+        <h2>5. Loyalty actions and points</h2>
+        <p>Points are generated only when an authorized staff member registers a valid action for a participating business. The exact number of points depends on the mission, action, campaign, and business rules configured in Zomia.</p>
+        <p>Points are not cash, not electronic money, not transferable, and cannot be paid out. They are only used inside the Zomia loyalty service.</p>
 
-        <h2>6. Reward use</h2>
-        <p>Rewards can be used only while active and according to the rules shown in the app or communicated by the business. Once a reward is used, it may no longer be available.</p>
+        <h2>6. Campaigns</h2>
+        <p>Campaigns define how points or actions can lead to rewards. Campaigns may have start dates, end dates, completion limits, repeatable cycles, and business-specific conditions.</p>
+        <p>Only campaign progress shown by the service should be treated as the current technical state. If a business communicates additional conditions outside Zomia, those conditions must be clear to customers.</p>
 
-        <h2>7. Fair use</h2>
-        <p>You must not misuse the service, attempt to manipulate points or rewards, use another person's account, bypass QR validation, or interfere with the app or backend systems.</p>
+        <h2>7. Rewards</h2>
+        <p>Rewards can be used only while active and according to the rules shown in the app or communicated by the participating business. Once a reward is used, it may no longer be available.</p>
+        <p>The participating business is responsible for providing the actual product, service, discount, or gift connected to a reward unless explicitly stated otherwise. Zomia provides the software platform used to record and display the reward state.</p>
 
-        <h2>8. Availability</h2>
-        <p>Zomia is currently in private-pilot MVP operation. Features may change, and temporary interruptions may occur. We aim to keep the service reliable but do not guarantee uninterrupted availability during the pilot.</p>
+        <h2>8. Fair use</h2>
+        <p>You must not misuse the service, attempt to manipulate points or rewards, use another person's account, bypass QR validation, submit false information, interfere with the app or backend systems, or use Zomia for unlawful purposes.</p>
 
-        <h2>9. Account removal</h2>
-        <p>You may remove your customer account through the app where available. Some anonymized or historical business records may remain as described in the Privacy Policy.</p>
+        <h2>9. Suspension and account restrictions</h2>
+        <p>We may restrict or suspend access if we reasonably believe that an account is misused, compromised, used fraudulently, or used in a way that harms Zomia, participating businesses, staff, or other customers.</p>
 
-        <h2>10. Changes</h2>
+        <h2>10. Account removal</h2>
+        <p>You may remove your customer account through the app where available. Some anonymized or historical business records may remain as described in the Privacy Policy, especially where needed for security, fraud prevention, business history, or legal reasons.</p>
+
+        <h2>11. Privacy</h2>
+        <p>Information about how personal data is processed is available in the <a href="/legal/privacy">Privacy Policy</a>.</p>
+
+        <h2>12. Liability and availability</h2>
+        <p>Zomia is provided with reasonable care during the private pilot. Availability may be interrupted by maintenance, technical issues, security work, or provider outages. Liability wording must be legally reviewed before broader public use.</p>
+
+        <h2>13. Changes</h2>
         <p>These Terms may be updated as the service develops. Material changes should be made available before broader public use.</p>
 
-        <h2>11. Contact</h2>
+        <h2>14. Contact</h2>
         <p>Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a></p>
 
         <p><a href="/legal">Back to Legal</a></p>

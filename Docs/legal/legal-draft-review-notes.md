@@ -75,3 +75,25 @@ Still requiring legal/product review:
 - Staff privacy notice wording.
 - Supervisory authority wording.
 - Children/minimum-age policy.
+
+## 2026-06-27 Terms Draft Pass 2
+
+The customer Terms & Conditions were updated to better match the current MVP:
+
+- Provider details from Impressum were added.
+- Customer scope was clarified separately from Business Terms.
+- Private-pilot MVP status is stated.
+- Email verification, account security, and QR sharing expectations are stated.
+- Points are described as non-cash, non-transferable, and not payable.
+- Campaign dates, repeatable cycles, and completion limits are mentioned.
+- Reward responsibility is separated between Zomia as software provider and the participating business as provider of the actual product, service, discount, or gift.
+- Fair-use and account restriction wording was expanded.
+- Account removal wording points to the Privacy Policy.
+
+Still requiring legal/product review:
+
+- Consumer cancellation/withdrawal wording.
+- Final liability limitation wording.
+- Reward liability wording between Zomia and participating businesses.
+- Whether any customer-facing discount presentation requires additional Omnibus/price transparency wording.
+- Whether minimum age or parental-consent wording belongs in Terms, Privacy, or both.
