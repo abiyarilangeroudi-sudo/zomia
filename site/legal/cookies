@@ -18,22 +18,30 @@
     <main>
       <article>
         <h1>Cookie Policy</h1>
-        <p class="note">Last updated: 2026-06-27</p>
+        <p class="note">Last updated: 27 June 2026</p>
         <p class="warning">Private-pilot draft. Re-check this policy before adding analytics, marketing pixels, tracking cookies, or non-essential storage.</p>
 
-        <h2>1. Current storage use</h2>
-        <p>The current Zomia web app uses browser storage that is necessary for the MVP app to function, including session tokens and customer QR cache. This helps keep users signed in and allows the QR workflow to operate.</p>
+        <h2>1. What this policy covers</h2>
+        <p>This Cookie Policy explains how the Zomia web app uses cookies or browser storage in the current private-pilot MVP.</p>
 
-        <h2>2. No analytics or advertising cookies</h2>
-        <p>Zomia does not currently use analytics cookies, advertising cookies, marketing pixels, or third-party tracking technologies in the MVP web app.</p>
+        <h2>2. Current storage use</h2>
+        <p>The current Zomia web app uses browser storage that is necessary for the app to function. This includes storage for sign-in/session operation and customer QR cache.</p>
+        <p>On the web version, session-related tokens may be stored in browser storage so the app can keep users signed in and operate the authenticated service workflow. Customer QR token data may also be cached locally to support the QR screen.</p>
 
         <h2>3. Strictly necessary storage</h2>
-        <p>Storage used for sign-in, security, session operation, QR operation, and app functionality is treated as necessary for the service. If non-essential cookies or tracking tools are added later, consent handling must be reviewed before launch.</p>
+        <p>Storage used for sign-in, security, session operation, QR operation, and app functionality is treated as necessary for the service. Without this storage, the web app may not be able to keep you signed in or show a usable QR workflow.</p>
 
-        <h2>4. Managing storage</h2>
+        <h2>4. No analytics or advertising cookies</h2>
+        <p>Zomia does not currently use analytics cookies, advertising cookies, marketing pixels, social media tracking pixels, or third-party tracking technologies in the MVP web app.</p>
+
+        <h2>5. No cookie banner for non-essential tracking</h2>
+        <p>Because the current MVP does not use non-essential tracking or marketing cookies, Zomia does not currently show a separate cookie-consent banner. If non-essential cookies or tracking tools are added later, consent handling must be reviewed before launch.</p>
+
+        <h2>6. Managing storage</h2>
         <p>You can clear browser storage through your browser settings. Clearing storage may sign you out or require a new QR token.</p>
+        <p>You can also sign out from the web app to clear the active app session on that device.</p>
 
-        <h2>5. Changes</h2>
+        <h2>7. Changes</h2>
         <p>This Cookie Policy will be updated if Zomia adds analytics, marketing, tracking, or other non-essential storage.</p>
 
         <p><a href="/legal">Back to Legal</a></p>

@@ -121,3 +121,20 @@ Still requiring legal/product review:
 - Commercial pricing, billing, cancellation, and trial wording.
 - Final liability wording for reward fulfillment and customer disputes.
 - Final discount/Omnibus wording if percentage/fixed discounts become consumer-facing at scale.
+
+## 2026-06-27 Cookie Policy Draft Pass 2
+
+The Cookie Policy was updated to better match the current Flutter Web MVP:
+
+- Browser storage is described as necessary for sign-in/session operation and customer QR cache.
+- Web session token storage is disclosed.
+- Customer QR cache is disclosed.
+- The absence of analytics, advertising cookies, marketing pixels, social media tracking pixels, and third-party tracking is stated.
+- The absence of a separate cookie-consent banner is explained based on no current non-essential tracking.
+- Clearing browser storage and signing out are described at a user-facing level.
+
+Still requiring legal/product review:
+
+- Whether localStorage token storage remains acceptable before broader production.
+- Whether a cookie banner is required if any future analytics, monitoring, marketing, or non-essential storage is introduced.
+- Whether production monitoring adds any client-side storage or identifiers.
