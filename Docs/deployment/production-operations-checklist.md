@@ -84,6 +84,8 @@ Rules:
 - Do not expose port `5432` publicly.
 - Keep backup retention documented.
 - Test restore periodically, not only when something breaks.
+- Repeat restore tests after meaningful database migrations, after backup changes, at least monthly during the private pilot, and before onboarding a new real business.
+- Same-server backups are not enough for broader real usage; keep off-server backup activation open until automated encrypted upload and restore-from-off-server are tested.
 
 Latest backup verification:
 
@@ -98,6 +100,17 @@ Latest backup verification:
 - Cron service was active and enabled at the time of review.
 - PostgreSQL was listening only on `127.0.0.1:5432` and `[::1]:5432`.
 - Restore test was previously completed during server hardening; no new restore test was run during this review.
+
+Off-server backup destination:
+
+- Date selected: 2026-06-27.
+- Provider: Hetzner Storage Box.
+- Server: `u623368.your-storagebox.de`.
+- Username: `u623368`.
+- Location: Germany / EU.
+- Access has been prepared from the local Mac account.
+- Production server automated upload is not enabled yet.
+- Next backup hardening step: encrypted off-server sync plus restore test from the off-server copy.
 
 ## Secrets And Environment
 

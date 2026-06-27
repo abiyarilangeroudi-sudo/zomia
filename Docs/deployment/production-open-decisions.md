@@ -95,7 +95,7 @@ Open decision:
 
 ## 4. Backup Restore Cadence
 
-Status: `Accepted for private pilot`
+Status: `Accepted for private pilot; off-server destination selected`
 
 Current private-pilot direction:
 
@@ -103,17 +103,30 @@ Current private-pilot direction:
 - Retention is `14` days.
 - Restore was tested once during server hardening.
 - Database restore is treated as a last-resort recovery action, not a normal app rollback.
+- Restore tests must be repeated:
+  - after every meaningful database/schema migration;
+  - after any backup script, backup path, or storage destination change;
+  - at least monthly during the private pilot;
+  - before onboarding a new real business.
+- A fresh production backup is required before every production migration.
+- Off-server backup destination is selected:
+  - Provider: Hetzner Storage Box.
+  - Server: `u623368.your-storagebox.de`.
+  - Username: `u623368`.
+  - Location: Germany / EU.
+- Storage Box access has been prepared from the local Mac account, but automated upload from the production server is not enabled yet.
 
 Needs decision before broader launch:
 
-- How often restore tests must be repeated.
-- Whether backups should be copied off-server.
+- Implement automated encrypted off-server backup upload from the production server.
+- Test restore from the off-server copy, not only from the same-server backup directory.
+- Define off-server retention separately from local `14` day retention if needed.
 - Whether point-in-time recovery is required.
 - Whether managed PostgreSQL should replace same-server PostgreSQL.
 
 Recommended next checkpoint:
 
-- Re-test restore after the next meaningful database/schema change or before onboarding a non-test business.
+- Configure encrypted off-server backup sync to the selected Storage Box and run a restore test from that off-server copy.
 
 ## 5. Legal Draft Review
 

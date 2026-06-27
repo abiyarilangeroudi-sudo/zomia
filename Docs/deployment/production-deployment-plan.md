@@ -274,6 +274,9 @@ Minimum production MVP backup expectations:
 - Backups stored outside the application directory.
 - At least one restore test before launch.
 - Documented restore command and expected restore time.
+- Restore tests repeated after meaningful database migrations, after backup changes, at least monthly during the private pilot, and before onboarding a new real business.
+- Off-server backup destination selected: Hetzner Storage Box `u623368.your-storagebox.de` with user `u623368`.
+- Automated encrypted off-server upload and restore-from-off-server test are still required before broader real usage.
 
 Do not call backup complete until restore has been tested.
 
