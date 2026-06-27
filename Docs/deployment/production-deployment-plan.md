@@ -394,3 +394,7 @@ Current result:
 - Deployment responsibilities are separated.
 - Required production checks are listed.
 - Real deployment remains blocked until the open decisions are closed.
+
+Operational checklist:
+
+- Day-to-day private-pilot release, rollback, backup, secrets, Nginx, TLS, and post-release checks are tracked in `Docs/deployment/production-operations-checklist.md`.
