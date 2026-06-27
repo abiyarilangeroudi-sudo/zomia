@@ -35,6 +35,7 @@ This document is the short checkpoint before the next feature phase.
 - Staff dashboard/service UI is split into `staff_home_screen.dart`, `staff_panel.dart`, `staff_service_cards.dart`, `staff_service_presenter.dart`, and `qr_scanner_sheet.dart`.
 - Staff service display formatting lives in `staff_service_presenter.dart`; action registration, campaign evaluation, reward generation, and reward use decisions remain backend-owned.
 - Customer, Staff, and Owner use the approved `AppDrawer` pattern for profile/settings/legal/sign-out navigation.
+- Legal links open public static pages under `https://zomia.eu/legal/...` outside the Flutter web app.
 - Staff and Owner Profile open as fullscreen dialogs from Drawer instead of BottomNavBar tabs.
 - Owner dashboard is split into:
   - `owner_screen.dart`
@@ -70,6 +71,7 @@ This document is the short checkpoint before the next feature phase.
 - Console Hygiene / Error UX now maps known backend details to clearer UI messages and hides unknown backend details behind generic user-facing fallbacks. Browser network `400` entries, `flutter.js.map` 404, and WebGL/camera warnings remain tracked as dev/browser noise unless they break a user flow.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
 - API endpoint inventory lives in `Docs/api/api-endpoint-inventory.md`; check it before adding or changing endpoints.
+- Frontend dialog inventory lives in `Docs/status/frontend-dialog-inventory.md`; check it before adding static-content dialogs or large fullscreen flows.
 
 ## Flutter Architecture Guardrail
 

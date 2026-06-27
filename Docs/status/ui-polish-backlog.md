@@ -19,8 +19,9 @@ This document tracks UI items that are acceptable for the current MVP but should
 - Owner create-flow placeholders and form copy improved during the production polish pass, but final copy review is still needed.
 - Customer, Staff, and Owner empty states are usable now. Re-check wording and spacing in the final UI pass.
 - InlineBanner height and close behavior were improved. Re-test dismiss behavior across Login, Register, Owner, Staff, and Customer screens before final release.
-- Drawer, sign out placement, account settings entry points, and legal placeholders are acceptable for MVP but need final product/legal review.
-- Legal Drawer direction is tracked in `Docs/decisions/0007-legal-drawer-entry.md`; add and approve the pattern in UI Catalog before product usage.
+- Drawer, sign out placement, and account settings entry points are acceptable for MVP but need final product review.
+- Legal links now open public static pages outside the web app; legal content text still needs final product/legal review.
+- Dialog inventory and allowed dialog patterns are tracked in `Docs/status/frontend-dialog-inventory.md`.
 - Mobile spacing is currently acceptable for tested flows. Re-check on small iPhone widths before production launch.
 
 ## Console Hygiene
