@@ -7,13 +7,24 @@ It is not legal advice and does not provide final legal text.
 
 ## Current UI Status
 
+Public legal placeholder pages now live outside the Flutter web app:
+
+- `https://zomia.eu/legal`
+- `https://zomia.eu/legal/privacy`
+- `https://zomia.eu/legal/terms`
+- `https://zomia.eu/legal/business-terms`
+- `https://zomia.eu/legal/cookies`
+- `https://zomia.eu/legal/impressum`
+
+The pages are intentionally plain static HTML placeholders until reviewed legal copy is available.
+They are reachable from the web app, but they are not production-ready legal content.
+
 ### Customer Registration
 
 - Shows a Terms acceptance row with:
   - `Terms`
   - `Privacy`
-- Both links currently open a placeholder fullscreen dialog:
-  - `This content is not available yet.`
+- Both links open public static legal pages outside the Flutter web app in a new tab/page.
 - Customer registration is blocked until the checkbox is accepted.
 
 ### Business Registration
@@ -21,30 +32,26 @@ It is not legal advice and does not provide final legal text.
 - Shows a Terms acceptance row with:
   - `Business Terms`
   - `Privacy`
-- Both links currently open a placeholder fullscreen dialog:
-  - `This content is not available yet.`
+- Both links open public static legal pages outside the Flutter web app in a new tab/page.
 - Business registration is blocked until the checkbox is accepted.
 
 ### Customer Drawer
 
-- Drawer currently includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
+- Drawer currently includes `Profile`, `Setting`, `Legal`, and `Sign out`.
 - `Setting` opens real Account Settings.
-- `Impressum` currently opens a placeholder info dialog.
-- Future direction: replace `Impressum` with one `Legal` entry, as defined in `Docs/decisions/0007-legal-drawer-entry.md`.
+- `Legal` opens the public static legal index outside the Flutter web app.
 
 ### Owner Drawer
 
-- Drawer currently includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
+- Drawer currently includes `Profile`, `Setting`, `Legal`, and `Sign out`.
 - `Setting` opens real Account Settings.
-- `Impressum` currently opens a placeholder info dialog.
-- Future direction: replace `Impressum` with one `Legal` entry, as defined in `Docs/decisions/0007-legal-drawer-entry.md`.
+- `Legal` opens the public static legal index outside the Flutter web app.
 
 ### Staff Drawer
 
-- Drawer currently includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
+- Drawer currently includes `Profile`, `Setting`, `Legal`, and `Sign out`.
 - `Setting` opens real Account Settings.
-- `Impressum` currently opens a placeholder info dialog.
-- Future direction: replace `Impressum` with one `Legal` entry, as defined in `Docs/decisions/0007-legal-drawer-entry.md`.
+- `Legal` opens the public static legal index outside the Flutter web app.
 
 ## Role Needs
 
@@ -89,6 +96,8 @@ The following should not be treated as production-ready:
 - Placeholder text such as `This content is not available yet.`
 - Generic legal placeholder dialogs that look final.
 - Acceptance checkboxes that imply legally complete terms while the linked terms are missing.
+- Flutter routes under `/webapp/#/legal...` for public legal documents.
+- Static legal placeholder dialogs inside the web app.
 
 ## Open Decisions
 
@@ -99,6 +108,7 @@ The following should not be treated as production-ready:
 - Final Cookie Policy / local storage notice.
 - Data retention wording for loyalty actions, rewards, account deletion, and staff activity.
 - Static public legal pages under `https://zomia.eu/legal/...` were selected in `Docs/decisions/0006-minimum-legal-pages.md`.
+- Legal Drawer entries now follow `Docs/decisions/0007-legal-drawer-entry.md`.
 - Whether registration should be blocked until final legal pages exist, or allowed only for controlled private-pilot testers.
 
 ## MStV Decision

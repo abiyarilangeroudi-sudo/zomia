@@ -1,6 +1,6 @@
 # Current Stability Check
 
-Date: 2026-06-24
+Date: 2026-06-27
 
 This document is the short checkpoint before the next feature phase.
 
@@ -17,13 +17,19 @@ This document is the short checkpoint before the next feature phase.
 - Customer can view QR, campaign progress, active rewards, and profile basics.
 - Manual release-candidate QA passed on 2026-06-24.
 - F14 aligned Owner Sign out styling with Customer and Staff.
+- Private-pilot production deployment is active at `https://zomia.eu/webapp/`.
+- Root `https://zomia.eu/` is reserved for a future public landing page.
+- Public legal placeholder pages live outside the Flutter app under `https://zomia.eu/legal/...`.
+- P20 removed Flutter legal routes/dialog placeholders for public legal documents.
+- P21 documented the remaining approved/acceptable dialog inventory.
 
-## Verification Snapshot
+## Last Recorded Verification Snapshot
 
 - Backend tests: `80 passed`
 - Frontend tests: `33 passed`
 - Flutter analyze: no issues
-- Git status before this stability pass: clean
+- Current production Flutter version: `1.0.118 (119)`
+- Production smoke passes have covered registration, login, Staff service flow, reward generation/use, Owner activity, legal routing, and console hygiene.
 
 ## Current Frontend Structure
 
@@ -72,6 +78,7 @@ This document is the short checkpoint before the next feature phase.
 - Historical sprint docs may still describe what existed during that sprint; use this status document, `Docs/README.md`, and the latest code as the current source of truth.
 - API endpoint inventory lives in `Docs/api/api-endpoint-inventory.md`; check it before adding or changing endpoints.
 - Frontend dialog inventory lives in `Docs/status/frontend-dialog-inventory.md`; check it before adding static-content dialogs or large fullscreen flows.
+- Legal placeholder status lives in `Docs/legal/legal-placeholder-review.md`; do not treat public static placeholder pages as final legal text.
 
 ## Flutter Architecture Guardrail
 

@@ -1,6 +1,6 @@
 # MVP Production Gap List
 
-Date: 2026-06-17
+Date: 2026-06-27
 
 This document lists the remaining gaps before calling Zomia a production-ready MVP.
 
@@ -8,9 +8,14 @@ The goal is not to add features blindly. The goal is to know what must be closed
 
 ## Current Status
 
-F9 manual readiness passed.
+The MVP has moved beyond local-only readiness and is running as a private-pilot deployment:
 
-Confirmed manually:
+- Production web app: `https://zomia.eu/webapp/`
+- Root domain: `https://zomia.eu/` is intentionally reserved for a future public landing page.
+- Public legal placeholder pages: `https://zomia.eu/legal/...`
+- Current Flutter version: `1.0.118 (119)`
+
+Confirmed manually across local and production smoke passes:
 
 - Customer registration, auto-login, sign out
 - Customer login and dashboard
@@ -19,6 +24,7 @@ Confirmed manually:
 - Page refresh does not rotate the Customer QR token
 - Owner dashboard can manage Staff, Mission, Campaign, and Reward Template
 - Staff can scan QR, resolve customer, register action, generate/check reward, use reward, and see recent actions
+- Production registration/login, Staff scan/action, reward generation/use, Owner activity, account settings, legal link routing, and major UI polish flows have passed manual checks.
 
 ## Must Fix Before Production MVP
 
@@ -190,10 +196,18 @@ Legal placeholder tracking:
 
 - Current legal placeholder status is tracked in `Docs/legal/legal-placeholder-review.md`.
 - Legal/data-protection decision gaps are tracked in `Docs/legal/legal-compliance-matrix.md`.
-- `Terms`, `Business Terms`, `Privacy`, `Cookie Policy`, and `Impressum` are not production-ready legal content yet.
+- `Terms`, `Business Terms`, `Privacy`, `Cookie Policy`, and `Impressum` are now public static placeholder pages under `https://zomia.eu/legal/...`.
+- The legal pages are reachable outside the Flutter web app, but their text is not production-ready legal content yet.
 - `MStV` is not treated as required for the current loyalty software MVP unless editorial/media content is introduced later.
-- Registration checkboxes currently block registration until accepted, but the linked legal content is still placeholder text.
+- Registration checkboxes currently block registration until accepted and link out to public legal pages, but the linked legal content is still placeholder text.
 - Before real customer or business onboarding, replace placeholders with reviewed legal pages or explicitly accept this as a private-pilot risk.
+
+P20/P21 legal and dialog cleanup:
+
+- Drawer `Legal` entries open public static pages outside the Flutter web app in a new tab/page.
+- Flutter legal routes under `/webapp/#/legal...` are removed and must not be reintroduced for public legal documents.
+- `AppDrawerInfoDialog` was removed.
+- Remaining allowed dialog/fullscreen flows are tracked in `Docs/status/frontend-dialog-inventory.md`.
 
 ### 8. Staff Lifecycle Management
 
@@ -539,12 +553,23 @@ F15.7 web storage fallback:
 - Active webapp release is `/var/www/zomia/releases/20260625212639`.
 - Smoke checks passed for `/webapp/`, production API base, `localStorage` token access in the built JS, source-map hygiene, and backend health.
 
+F15.8 production smoke and UI polish:
+
+- Production smoke testing found and fixed the missing Staff action point/reward behavior on production data.
+- Production smoke testing found and fixed an Owner Staff Recent Actions `500` caused by deleted/anonymized customer records.
+- Expected stale `/auth/me` startup `401` noise was removed by refreshing stored sessions before calling `/auth/me`.
+- Source-map requests remain non-breaking and should not produce confusing JSON parse warnings.
+- UI polish passes improved Staff customer card copy, action buttons, owner create placeholders, validation messages, inline banners, and legal link routing.
+- Current accepted polish backlog is tracked in `Docs/status/ui-polish-backlog.md`.
+- Final visual polish is still not complete; small copy, spacing, and mobile details remain explicitly tracked instead of treated as blockers.
+
 ## Current Recommended Phase
 
-Manual release-candidate QA has passed. Choose the next phase deliberately instead of adding features opportunistically.
+Manual release-candidate QA and production smoke passes have passed. Choose the next phase deliberately instead of adding features opportunistically.
 
 After that, likely candidates are:
 
-- Production deployment preparation.
+- Complete the remaining private-pilot production documentation and rollback checklist.
+- Replace or formally risk-accept public legal placeholder content before broader onboarding.
 - Final UI/Branding consistency pass for visual details discovered during manual review.
 - RewardService extraction before advanced campaign types.
