@@ -474,8 +474,8 @@ class _NavigationExamples extends StatelessWidget {
                 onTap: _noop,
               ),
               AppDrawerItem(
-                label: 'Impressum',
-                icon: Icons.info_outline_rounded,
+                label: 'Legal',
+                icon: Icons.policy_outlined,
                 onTap: _noop,
               ),
               AppDrawerItem(
@@ -486,7 +486,51 @@ class _NavigationExamples extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: 12),
+        const _ComponentName(
+          'Legal links',
+          status: CatalogApprovalStatus.approved,
+        ),
+        const _LegalLinksPreview(),
       ],
+    );
+  }
+}
+
+class _LegalLinksPreview extends StatelessWidget {
+  const _LegalLinksPreview();
+
+  static const _items = [
+    ('Privacy Policy', 'zomia.eu/legal/privacy', Icons.privacy_tip_outlined),
+    ('Terms & Conditions', 'zomia.eu/legal/terms', Icons.description_outlined),
+    (
+      'Business Terms',
+      'zomia.eu/legal/business-terms',
+      Icons.storefront_outlined,
+    ),
+    ('Cookie Policy', 'zomia.eu/legal/cookies', Icons.cookie_outlined),
+    ('Impressum', 'zomia.eu/legal/impressum', Icons.info_outline_rounded),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Legal'),
+          const SizedBox(height: 12),
+          for (final item in _items) ...[
+            AppListRow(
+              title: item.$1,
+              subtitle: item.$2,
+              leadingIcon: item.$3,
+              onTap: _noop,
+            ),
+            if (item != _items.last) const SizedBox(height: 8),
+          ],
+        ],
+      ),
     );
   }
 }
