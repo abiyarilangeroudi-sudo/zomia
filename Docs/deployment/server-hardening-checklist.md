@@ -363,6 +363,40 @@ Verification:
 - `https://zomia.eu/webapp/flutter.js` no longer contains `sourceMappingURL=flutter.js.map`.
 - `https://zomia.eu/health` still returns `200`.
 
+## Public Legal Pages
+
+P20 was applied on 2026-06-27.
+
+Decision:
+
+- Legal documents are public static pages under `https://zomia.eu/legal/...`.
+- Legal documents are not Flutter routes under `/webapp/#/legal`.
+- Registration Terms/Privacy links and Drawer Legal entries open the public pages in a new tab/page.
+
+Server paths:
+
+```text
+/var/www/zomia/root/legal/index.html
+/var/www/zomia/root/legal/privacy
+/var/www/zomia/root/legal/terms
+/var/www/zomia/root/legal/business-terms
+/var/www/zomia/root/legal/cookies
+/var/www/zomia/root/legal/impressum
+```
+
+Nginx notes:
+
+- `/legal` returns the static legal index with `text/html`.
+- `/legal/privacy`, `/legal/terms`, `/legal/business-terms`, `/legal/cookies`, and `/legal/impressum` return extensionless static HTML with `text/html`.
+- The exact-location rules were added to avoid serving the extensionless files as `application/octet-stream`.
+
+Verification:
+
+- `https://zomia.eu/legal` returns `200`.
+- `https://zomia.eu/legal/privacy` returns `200`.
+- `https://zomia.eu/legal/business-terms` returns `200`.
+- All checked legal responses return `Content-Type: text/html`.
+
 ## Web Storage Fallback
 
 F15.7 was applied on 2026-06-25.

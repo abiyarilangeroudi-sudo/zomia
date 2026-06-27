@@ -112,6 +112,7 @@ Nginx must:
 
 - Serve `/webapp/` from `/var/www/zomia/webapp`.
 - Serve `/` from the root placeholder directory.
+- Serve public legal placeholders under `/legal`.
 - Proxy `/api/` and `/health` to the backend.
 - Keep sensitive-path blocking before frontend fallback handling.
 - Return `404` for missing source-map files instead of serving Flutter `index.html`.
@@ -128,6 +129,8 @@ After each release, check:
 
 - `https://zomia.eu/webapp/` opens.
 - Login page shows the expected version.
+- `https://zomia.eu/legal` returns `200` and `text/html`.
+- `https://zomia.eu/legal/privacy` returns `200` and `text/html`.
 - `https://zomia.eu/health` returns `{"status":"ok"}`.
 - `https://zomia.eu/api/v1/...` paths reach the backend.
 - Source-map requests return `404` without breaking the app.

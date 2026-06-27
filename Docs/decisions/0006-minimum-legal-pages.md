@@ -45,15 +45,14 @@ Static public legal pages are preferred because they are:
 
 ## Consequences
 
-- Current placeholder dialogs are not production-ready legal content.
+- Static placeholder pages now exist for the MVP private pilot, but their text is not legally final.
+- Flutter-only legal pages and legal placeholder dialogs must not be used for these public legal documents.
 - Real customer or business onboarding remains a legal/product risk until minimum legal content exists or the pilot risk is explicitly accepted.
-- Future UI work should link registration and drawer legal actions to these static pages.
+- Registration and drawer legal actions should open these public static pages, preferably outside the web app context.
 - Backend, QR, loyalty, campaign, reward, and account logic do not need to change for this decision.
 
 ## Follow-Up
 
-- Create static public pages for the required legal routes.
-- Replace registration Terms/Privacy placeholder dialogs with links to the static pages.
-- Replace Drawer Impressum placeholder with a link to the static Impressum page.
+- Replace placeholder text with legally reviewed content before broader public use.
 - Keep legal content text review separate from engineering implementation.
 - Review `Docs/legal/legal-compliance-matrix.md` before writing final content.
