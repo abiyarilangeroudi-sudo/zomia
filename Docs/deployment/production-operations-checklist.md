@@ -85,7 +85,7 @@ Rules:
 - Keep backup retention documented.
 - Test restore periodically, not only when something breaks.
 - Repeat restore tests after meaningful database migrations, after backup changes, at least monthly during the private pilot, and before onboarding a new real business.
-- Same-server backups are not enough for broader real usage; keep off-server backup activation open until automated encrypted upload and restore-from-off-server are tested.
+- Same-server backups remain available, but encrypted off-server backups are now active and must also be monitored.
 
 Latest backup verification:
 
@@ -105,12 +105,18 @@ Off-server backup destination:
 
 - Date selected: 2026-06-27.
 - Provider: Hetzner Storage Box.
-- Server: `u623368.your-storagebox.de`.
-- Username: `u623368`.
+- Server: `u623378.your-storagebox.de`.
+- Username: `u623378`.
 - Location: Germany / EU.
-- Access has been prepared from the local Mac account.
-- Production server automated upload is not enabled yet.
-- Next backup hardening step: encrypted off-server sync plus restore test from the off-server copy.
+- Production server automated encrypted upload is enabled.
+- Off-server upload script: `/opt/zomia/backend/scripts/sync_postgres_backup_offsite.sh`.
+- Off-server cron: `/etc/cron.d/zomia-postgres-offsite-backup`.
+- Off-server schedule: daily at `03:30 Europe/Berlin`, after the local `03:15` PostgreSQL backup.
+- Off-server log: `/var/log/zomia/postgres-offsite-backup.log`.
+- Off-server backup env/passphrase files are stored outside Git under `/opt/zomia/env/`.
+- Latest manual encrypted off-server upload tested: `zomia-20260627-031501.dump.gpg`.
+- Restore from the encrypted off-server copy passed on 2026-06-27 using a temporary database.
+- Next backup hardening step: confirm the first scheduled off-server cron run after the next `03:30 Europe/Berlin` cycle.
 
 ## Secrets And Environment
 

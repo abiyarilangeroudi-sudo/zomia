@@ -275,8 +275,10 @@ Minimum production MVP backup expectations:
 - At least one restore test before launch.
 - Documented restore command and expected restore time.
 - Restore tests repeated after meaningful database migrations, after backup changes, at least monthly during the private pilot, and before onboarding a new real business.
-- Off-server backup destination selected: Hetzner Storage Box `u623368.your-storagebox.de` with user `u623368`.
-- Automated encrypted off-server upload and restore-from-off-server test are still required before broader real usage.
+- Off-server backup destination active: Hetzner Storage Box `u623378.your-storagebox.de` with user `u623378`.
+- Automated encrypted off-server upload is active from the production server.
+- Restore from the encrypted off-server copy passed on 2026-06-27.
+- The first scheduled off-server cron run must still be confirmed after the next `03:30 Europe/Berlin` cycle.
 
 Do not call backup complete until restore has been tested.
 

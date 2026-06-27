@@ -95,7 +95,7 @@ Open decision:
 
 ## 4. Backup Restore Cadence
 
-Status: `Accepted for private pilot; off-server destination selected`
+Status: `Accepted for private pilot; encrypted off-server sync active`
 
 Current private-pilot direction:
 
@@ -111,22 +111,24 @@ Current private-pilot direction:
 - A fresh production backup is required before every production migration.
 - Off-server backup destination is selected:
   - Provider: Hetzner Storage Box.
-  - Server: `u623368.your-storagebox.de`.
-  - Username: `u623368`.
+  - Server: `u623378.your-storagebox.de`.
+  - Username: `u623378`.
   - Location: Germany / EU.
-- Storage Box access has been prepared from the local Mac account, but automated upload from the production server is not enabled yet.
+- Encrypted off-server upload from the production server is active.
+- Off-server upload script: `/opt/zomia/backend/scripts/sync_postgres_backup_offsite.sh`.
+- Off-server env/passphrase files are stored outside Git under `/opt/zomia/env/`.
+- Off-server cron schedule is daily at `03:30 Europe/Berlin`, after the local `03:15` PostgreSQL backup.
+- Restore from the encrypted off-server copy was tested successfully on 2026-06-27 using a temporary database.
 
 Needs decision before broader launch:
 
-- Implement automated encrypted off-server backup upload from the production server.
-- Test restore from the off-server copy, not only from the same-server backup directory.
 - Define off-server retention separately from local `14` day retention if needed.
 - Whether point-in-time recovery is required.
 - Whether managed PostgreSQL should replace same-server PostgreSQL.
 
 Recommended next checkpoint:
 
-- Configure encrypted off-server backup sync to the selected Storage Box and run a restore test from that off-server copy.
+- Confirm the first scheduled off-server cron run after the next `03:30 Europe/Berlin` cycle and repeat restore tests on the defined cadence.
 
 ## 5. Legal Draft Review
 
@@ -212,8 +214,7 @@ Needs decision before scale:
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. Backup restore cadence and off-server backup decision.
-3. Monitoring/alerting minimum.
-4. GitHub Actions/manual deploy boundary.
-5. Token storage/session hardening.
-6. Managed PostgreSQL migration.
+2. Monitoring/alerting minimum.
+3. GitHub Actions/manual deploy boundary.
+4. Token storage/session hardening.
+5. Managed PostgreSQL migration.
