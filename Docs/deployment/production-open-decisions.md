@@ -106,9 +106,9 @@ Recommended next checkpoint:
 
 - Re-test restore after the next meaningful database/schema change or before onboarding a non-test business.
 
-## 5. Legal Placeholder Risk
+## 5. Legal Draft Review
 
-Status: `Needs provider details and legal review before broader launch`
+Status: `Accepted for private pilot; legal review required before broader launch`
 
 Current private-pilot direction:
 
@@ -116,13 +116,15 @@ Current private-pilot direction:
 - Registration links and Drawer Legal links open those public pages outside the Flutter web app.
 - The pages now contain minimum private-pilot draft text instead of one-line placeholders.
 - Privacy Draft Pass 2 aligns the Privacy Policy with current Customer, Owner, Staff, QR, loyalty, browser storage, transactional email, and account removal behavior.
-- The Impressum now includes provider details; VAT/register/dispute wording still needs final review if the legal/business setup changes.
+- Terms, Business Terms, Cookie Policy, and Impressum were updated for the current private-pilot shape.
+- The Impressum now includes provider details for Bellis Prennis; VAT/register/dispute wording still needs final review if the legal/business setup changes.
+- Legal pages passed a final private-pilot consistency pass on 2026-06-27.
 - Draft source and review notes are tracked in `Docs/legal/legal-draft-review-notes.md`.
 
 Open decision:
 
-- Complete provider details for Impressum.
 - Review or replace the draft legal content before broader onboarding, or explicitly record that the private pilot accepts legal-text risk.
+- Confirm controller/processor model, AVV/DPA needs, retention wording, staff privacy notice, and discount-transparency wording.
 
 Must cover:
 
@@ -187,7 +189,7 @@ Needs decision before scale:
 
 ## Current Priority Order
 
-1. Review legal draft pages and confirm final provider/VAT/register details.
+1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
 2. OpenAPI exposure decision.
 3. Rate limiting direction.
 4. Backup restore cadence and off-server backup decision.

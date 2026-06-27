@@ -89,10 +89,14 @@ Current draft pages:
 - `Business Terms`
 - `Privacy`
 - `Cookie Policy`
+- `Impressum`
 
-Still incomplete:
+Current private-pilot status:
 
-- `Impressum`, because final legal name, address, responsible person/entity, registration/VAT details if applicable, and dispute-resolution wording still need real provider information.
+- The pages are no longer one-line placeholders.
+- Impressum includes provider details for Bellis Prennis, contact email, address, registration/VAT status, and consumer dispute wording.
+- Legal pages passed a final private-pilot consistency pass on 2026-06-27.
+- The pages still require legal review before broader public onboarding.
 
 ## What Should Not Be Exposed As Final
 
@@ -104,12 +108,15 @@ Still incomplete:
 
 ## Open Decisions
 
-- Final legal owner/entity details for Impressum.
 - Final Terms for Customers.
 - Final Business Terms for Owners.
 - Final Privacy/GDPR policy.
 - Final Cookie Policy / local storage notice.
 - Data retention wording for loyalty actions, rewards, account deletion, and staff activity.
+- Final controller/processor model between Zomia and participating businesses.
+- AVV/DPA coverage for hosting, SMTP, and any future database/monitoring providers.
+- Staff privacy notice wording.
+- Discount/reward transparency wording before broader consumer-facing discount use.
 - Static public legal pages under `https://zomia.eu/legal/...` were selected in `Docs/decisions/0006-minimum-legal-pages.md`.
 - Legal Drawer entries now follow `Docs/decisions/0007-legal-drawer-entry.md`.
 - Whether registration should be blocked until final legal pages exist, or allowed only for controlled private-pilot testers.
@@ -122,7 +129,7 @@ Revisit this decision if Zomia later adds editorial content, public news-like co
 
 ## Recommended Next Step
 
-Before onboarding real customers or businesses, complete Impressum provider details and review the draft legal pages.
+Before broader public onboarding, review or replace the private-pilot legal drafts with legal counsel.
 The safest implementation path is to keep legal content outside loyalty logic:
 
 - Static public pages under `https://zomia.eu/` for legal documents.

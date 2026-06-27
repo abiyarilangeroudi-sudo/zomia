@@ -12,7 +12,7 @@ The MVP has moved beyond local-only readiness and is running as a private-pilot 
 
 - Production web app: `https://zomia.eu/webapp/`
 - Root domain: `https://zomia.eu/` is intentionally reserved for a future public landing page.
-- Public legal placeholder pages: `https://zomia.eu/legal/...`
+- Public legal draft pages: `https://zomia.eu/legal/...`
 - Current Flutter version: `1.0.118 (119)`
 
 Confirmed manually across local and production smoke passes:
@@ -197,11 +197,12 @@ Legal page tracking:
 - Current legal placeholder status is tracked in `Docs/legal/legal-placeholder-review.md`.
 - Legal/data-protection decision gaps are tracked in `Docs/legal/legal-compliance-matrix.md`.
 - `Terms`, `Business Terms`, `Privacy`, `Cookie Policy`, and `Impressum` are public static pages under `https://zomia.eu/legal/...`.
-- `Terms`, `Business Terms`, `Privacy`, and `Cookie Policy` now contain minimum private-pilot draft text.
-- `Impressum` is still incomplete until real provider details are added.
+- `Terms`, `Business Terms`, `Privacy`, `Cookie Policy`, and `Impressum` now contain minimum private-pilot draft text.
+- Legal pages passed a final private-pilot consistency pass on 2026-06-27: dates, index links, and public static routes were checked.
+- Impressum now includes provider details for Bellis Prennis, contact email, address, registration/VAT status, and consumer dispute wording.
 - `MStV` is not treated as required for the current loyalty software MVP unless editorial/media content is introduced later.
 - Registration checkboxes currently block registration until accepted and link out to public legal pages.
-- Before real customer or business onboarding, complete provider details and review the legal draft pages or explicitly accept this as a private-pilot risk.
+- Before broader public onboarding, review or replace the private-pilot legal draft pages with legal counsel and decide the remaining controller/processor, AVV/DPA, retention, staff privacy, and discount-transparency wording.
 
 P20/P21 legal and dialog cleanup:
 
@@ -574,7 +575,7 @@ F15.9 rollback documentation:
 F15.10 open production decisions:
 
 - Production open decisions are tracked in `Docs/deployment/production-open-decisions.md`.
-- Current priority order is Impressum/provider completion and legal draft review, OpenAPI exposure, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+- Current priority order is legal draft review for broader public onboarding, OpenAPI exposure, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
 
 ## Current Recommended Phase
 
