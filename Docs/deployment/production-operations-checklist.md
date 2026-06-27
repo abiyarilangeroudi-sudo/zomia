@@ -83,6 +83,20 @@ Rules:
 - Keep backup retention documented.
 - Test restore periodically, not only when something breaks.
 
+Latest backup verification:
+
+- Date checked: 2026-06-27.
+- Backup directory: `/var/backups/zomia/postgresql`.
+- Latest backup observed: `zomia-20260627-031501.dump`.
+- Latest backup size observed: about `96K`.
+- Previous scheduled backup observed: `zomia-20260626-031501.dump`.
+- Backup schedule: daily at `03:15 Europe/Berlin`.
+- Retention: `14` days.
+- Backup log: `/var/log/zomia/postgres-backup.log`.
+- Cron service was active and enabled at the time of review.
+- PostgreSQL was listening only on `127.0.0.1:5432` and `[::1]:5432`.
+- Restore test was previously completed during server hardening; no new restore test was run during this review.
+
 ## Secrets And Environment
 
 - Production secrets must not be committed.
@@ -138,6 +152,7 @@ Run role smoke tests only when the release risk requires it:
 
 - Same-server PostgreSQL is acceptable for the private pilot only while backup/restore remains reliable.
 - Monitoring and alerting are still manual/minimal.
+- Backup log permissions should be tightened in a later hardening pass; the log currently contains backup filenames, sizes, and retention output, not secrets.
 - Legal pages are still placeholders and need final review.
 - Production email deliverability must keep SPF, DKIM, and DMARC healthy.
 - Access-token invalidation after password changes is documented as a later hardening item.
