@@ -95,7 +95,7 @@ The following should not be treated as production-ready:
 - Final Privacy/GDPR policy.
 - Final Cookie Policy / local storage notice.
 - Data retention wording for loyalty actions, rewards, account deletion, and staff activity.
-- Whether legal pages should be static public pages under `https://zomia.eu/` or app dialogs under `/webapp/`.
+- Static public legal pages under `https://zomia.eu/legal/...` were selected in `Docs/decisions/0006-minimum-legal-pages.md`.
 - Whether registration should be blocked until final legal pages exist, or allowed only for controlled private-pilot testers.
 
 ## MStV Decision
@@ -116,3 +116,4 @@ The safest implementation path is to keep legal content outside loyalty logic:
 Related decision matrix:
 
 - `Docs/legal/legal-compliance-matrix.md`
+- `Docs/decisions/0006-minimum-legal-pages.md`
