@@ -138,3 +138,17 @@ Still requiring legal/product review:
 - Whether localStorage token storage remains acceptable before broader production.
 - Whether a cookie banner is required if any future analytics, monitoring, marketing, or non-essential storage is introduced.
 - Whether production monitoring adds any client-side storage or identifiers.
+
+## 2026-06-27 Legal Final Consistency Pass
+
+The static legal pages were checked for final private-pilot consistency:
+
+- Legal pages remain outside the Flutter web app under `https://zomia.eu/legal/...`.
+- Legal index links point to public static legal pages.
+- Legal page titles, back links, and update-date format were checked.
+- The Legal index update date was aligned to `27 June 2026`.
+- No backend, Flutter app, loyalty, QR, campaign, reward, or authentication behavior was changed.
+
+Remaining review boundary:
+
+- These pages are still private-pilot drafts and must be legally reviewed before broader public onboarding.
