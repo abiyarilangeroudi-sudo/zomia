@@ -52,3 +52,26 @@ It is not legal advice.
 - Legal pages stay outside the Flutter web app.
 - Flutter links open public static legal pages under `https://zomia.eu/legal/...`.
 - Legal copy can be replaced independently from backend, loyalty, QR, campaign, and reward logic.
+
+## 2026-06-27 Privacy Draft Pass 2
+
+The Privacy Policy was updated to better match the current MVP:
+
+- Provider details from Impressum were added.
+- Customer, Owner, and Staff roles are described separately.
+- QR token hash handling is stated explicitly.
+- Loyalty action, points, campaign, reward, and staff activity data are described.
+- Transactional emails are separated from marketing.
+- Browser storage/localStorage is described as necessary MVP session storage.
+- Customer account removal/anonymization is described.
+- Owner/Staff removal limitations are described.
+- Current private-pilot backup retention is mentioned as `14` days.
+
+Still requiring legal/product review:
+
+- Final controller/processor model between Zomia and businesses.
+- Exact retention periods for loyalty history, logs, and backups.
+- AVV/DPA coverage for hosting and SMTP providers.
+- Staff privacy notice wording.
+- Supervisory authority wording.
+- Children/minimum-age policy.

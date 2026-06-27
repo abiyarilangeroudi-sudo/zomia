@@ -115,7 +115,8 @@ Current private-pilot direction:
 - Legal pages exist under `https://zomia.eu/legal/...`.
 - Registration links and Drawer Legal links open those public pages outside the Flutter web app.
 - The pages now contain minimum private-pilot draft text instead of one-line placeholders.
-- The Impressum is still incomplete until real provider details are added.
+- Privacy Draft Pass 2 aligns the Privacy Policy with current Customer, Owner, Staff, QR, loyalty, browser storage, transactional email, and account removal behavior.
+- The Impressum now includes provider details; VAT/register/dispute wording still needs final review if the legal/business setup changes.
 - Draft source and review notes are tracked in `Docs/legal/legal-draft-review-notes.md`.
 
 Open decision:
@@ -186,7 +187,7 @@ Needs decision before scale:
 
 ## Current Priority Order
 
-1. Complete Impressum provider details and review legal draft pages.
+1. Review legal draft pages and confirm final provider/VAT/register details.
 2. OpenAPI exposure decision.
 3. Rate limiting direction.
 4. Backup restore cadence and off-server backup decision.

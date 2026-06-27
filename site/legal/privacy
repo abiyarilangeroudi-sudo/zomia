@@ -18,56 +18,77 @@
     <main>
       <article>
         <h1>Privacy Policy</h1>
-        <p class="note">Last updated: 2026-06-27</p>
-        <p class="warning">Private-pilot draft. Provider details, controller role, retention periods, and processor agreements must be reviewed before broader public use.</p>
+        <p class="note">Last updated: 27 June 2026</p>
+        <p class="warning">Private-pilot draft. Controller/processor roles, exact retention periods, processor agreements, and supervisory authority wording must be reviewed before broader public use.</p>
 
         <h2>1. Who is responsible?</h2>
-        <p>Zomia provides a loyalty platform for customers, business owners, and staff.</p>
-        <p><strong>Controller/provider details:</strong> To be completed before real customer onboarding: legal name, address, email, and responsible person or entity.</p>
+        <p>Zomia is a loyalty software service for customers, business owners, and staff.</p>
+        <p><strong>Provider:</strong> Bellis Prennis, operating the service Zomia, Fremersbergstr. 103, 76530 Baden-Baden, Germany.</p>
         <p>Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a></p>
+        <p>The final controller/processor relationship between Zomia and participating businesses still needs legal review. Until then, this policy describes the current MVP data processing transparently.</p>
 
-        <h2>2. What data do we process?</h2>
-        <p>Depending on your role, we process account, authentication, business, staff, customer, QR, loyalty action, campaign, reward, and operational log data.</p>
+        <h2>2. Which roles use Zomia?</h2>
+        <p>Zomia has three active MVP roles:</p>
         <ul>
-          <li>Account data: name, email address, password hash, role, account status, verification status.</li>
-          <li>Authentication data: access tokens, refresh token hashes, sign-in and security events.</li>
-          <li>Customer loyalty data: QR token hashes, missions/actions, points ledger entries, campaign progress, rewards, and reward use.</li>
-          <li>Business and owner data: business name, category, business settings, staff invitations, missions, campaigns, reward templates, and owner-visible activity.</li>
-          <li>Staff data: invited email address, account status, business membership, and actions registered for customers.</li>
-          <li>Technical data: browser storage values required for login/session operation, server logs, backup logs, and security logs.</li>
+          <li><strong>Customers</strong> use QR codes, campaign progress, rewards, profile, and account settings.</li>
+          <li><strong>Business owners</strong> manage business settings, missions, campaigns, reward templates, staff invitations, and staff activity.</li>
+          <li><strong>Staff</strong> scan customer QR codes, register actions, and use active rewards during service.</li>
         </ul>
 
-        <h2>3. Why do we process data?</h2>
+        <h2>3. What data do we process?</h2>
+        <p>Depending on your role, we process the following categories of data:</p>
+        <ul>
+          <li><strong>Account data:</strong> display name, email address, password hash, role, account status, email verification state, and account settings.</li>
+          <li><strong>Authentication data:</strong> access tokens, rotating refresh token hashes, sign-in state, logout state, password recovery state, and security-related token metadata.</li>
+          <li><strong>Customer QR data:</strong> customer ID, QR token hash, issue time, expiry time, revocation time, and active/inactive state. Raw QR tokens are not stored in the database.</li>
+          <li><strong>Loyalty data:</strong> missions, actions registered by staff, point ledger entries, campaign progress, campaign completions, reward issue, reward status, and reward use.</li>
+          <li><strong>Business data:</strong> business name, category, business settings, owner relationship, missions, campaigns, reward templates, and owner-visible recent activity.</li>
+          <li><strong>Staff data:</strong> invited email address, invitation status, password hash after acceptance, staff membership, active/inactive state, and actions registered for customers.</li>
+          <li><strong>Email workflow data:</strong> email verification codes, password recovery codes, email change codes, staff invitation links, token hashes, expiry times, and delivery metadata where available.</li>
+          <li><strong>Technical and operational data:</strong> browser storage values required for login/session operation, server logs, backend logs, Nginx logs, backup logs, and security logs.</li>
+        </ul>
+
+        <h2>4. Why do we process data?</h2>
         <p>We process data to create and secure accounts, operate the loyalty service, show QR codes and campaign progress, let staff register actions, issue and use rewards, support business owners, send transactional emails, and protect the service from misuse.</p>
 
-        <h2>4. Legal bases</h2>
+        <h2>5. Legal bases</h2>
         <p>The main legal bases are contract performance or pre-contract steps, legitimate interests in security and service operation, and legal obligations where applicable. Marketing messages, if introduced later, require a separate decision and may require consent and double opt-in.</p>
+        <p>Accepting Terms is not treated as consent for all data processing. Where consent is required, it must be requested separately.</p>
 
-        <h2>5. Transactional emails</h2>
+        <h2>6. Transactional emails</h2>
         <p>We send transactional emails such as verification codes, password recovery messages, email change codes, and staff invitation links. These emails are necessary for account and security workflows and are not marketing emails.</p>
+        <p>Zomia does not currently send newsletters, promotional messages, points reminders, reward reminders, or marketing emails. If these are introduced later, they must be separated from transactional emails and reviewed for double opt-in and unsubscribe requirements.</p>
 
-        <h2>6. Browser storage</h2>
-        <p>The web app uses browser storage for session operation and customer QR cache in the current MVP web version. This storage is used to keep users signed in and to operate the app. We do not currently use analytics, advertising, marketing pixels, or non-essential tracking cookies.</p>
+        <h2>7. Browser storage and cookies</h2>
+        <p>The web app uses browser storage for session operation and customer QR cache in the current MVP web version. This storage is used to keep users signed in and to operate the app.</p>
+        <p>Zomia does not currently use analytics cookies, advertising cookies, marketing pixels, or non-essential tracking technologies.</p>
 
-        <h2>7. Recipients and processors</h2>
+        <h2>8. Recipients and processors</h2>
         <p>Data may be processed by hosting, database, email, backup, and operational service providers. Current providers include the hosting server provider and the SMTP/email provider. Data processing agreements must be reviewed before broader public use.</p>
 
-        <h2>8. Business owner and staff visibility</h2>
-        <p>Business owners can see activity related to their business, including staff actions and customer service activity summaries. Staff actions are tied to customer service events and may be visible to the business owner.</p>
+        <h2>9. Business owner and staff visibility</h2>
+        <p>Business owners can see activity related to their own business, including staff actions and customer service activity summaries. Staff actions are tied to customer service events and may be visible to the business owner.</p>
+        <p>Staff members can see customer information needed for the service flow after scanning a valid customer QR code. The Staff view does not need to expose the customer's email address for the current MVP service workflow.</p>
 
-        <h2>9. Rewards and loyalty history</h2>
+        <h2>10. Rewards and loyalty history</h2>
         <p>Loyalty actions, points, campaign progress, rewards, and reward use may remain stored to preserve business history, dispute handling, auditability, and fraud prevention. Retention periods require final legal/product review.</p>
+        <p>Zomia points are not cash, not electronic money, not transferable, and cannot be paid out.</p>
 
-        <h2>10. Account deletion and erasure</h2>
+        <h2>11. Account deletion and erasure</h2>
         <p>Customers can request account removal in the app. The MVP removes or anonymizes direct personal account fields and revokes active customer QR and refresh tokens. Some historical loyalty/audit records may remain in anonymized or business-history form where needed for security, legal, or operational reasons. Backup deletion timing still requires final policy wording.</p>
+        <p>Owner account removal and Staff account removal are not self-service in the current MVP because they affect business ownership, staff membership, and historical business records.</p>
 
-        <h2>11. Your rights</h2>
+        <h2>12. Retention</h2>
+        <p>Exact retention periods are not final yet. Account data is kept while the account exists. OTP and invitation data is time-limited. Server logs and backups are kept for operational security and recovery. Current private-pilot PostgreSQL backup retention is 14 days. Final retention wording must be reviewed before broader public use.</p>
+
+        <h2>13. Your rights</h2>
         <p>Subject to applicable law, you may have rights of access, rectification, erasure, restriction, portability, objection, and complaint to a supervisory authority. To make a request, contact <a href="mailto:info@zomia.eu">info@zomia.eu</a>.</p>
+        <p>We may need to verify your identity before processing a rights request.</p>
 
-        <h2>12. Children</h2>
+        <h2>14. Children</h2>
         <p>Zomia is not intended for children. Minimum age and parental-consent policy must be finalized before broader public use.</p>
 
-        <h2>13. Changes</h2>
+        <h2>15. Changes</h2>
         <p>We may update this Privacy Policy as the MVP evolves. Material changes should be reviewed before broader onboarding.</p>
 
         <p><a href="/legal">Back to Legal</a></p>
