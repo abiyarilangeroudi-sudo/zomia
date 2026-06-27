@@ -575,7 +575,7 @@ F15.9 rollback documentation:
 F15.10 open production decisions:
 
 - Production open decisions are tracked in `Docs/deployment/production-open-decisions.md`.
-- Current priority order is legal draft review for broader public onboarding, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+- Current priority order is legal draft review for broader public onboarding, applying private-pilot Nginx rate limits, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
 
 F15.11 OpenAPI exposure:
 
@@ -583,6 +583,14 @@ F15.11 OpenAPI exposure:
 - `/docs`, `/redoc`, and `/openapi.json` remain available only outside production.
 - Production Nginx explicitly returns `404` for `/docs`, `/redoc`, and `/openapi.json`.
 - If API docs are needed later, they should be exposed behind an admin-only or VPN-only boundary.
+
+F15.12 rate limiting direction:
+
+- Private-pilot rate limiting direction is documented in `Docs/deployment/rate-limiting-plan.md`.
+- The accepted direction is conservative Nginx IP-based limits for public and abuse-sensitive routes.
+- Nginx is the first private-pilot shield; backend domain checks remain the source of truth.
+- Redis-backed or application-level rate limiting remains a later hardening option for account/email/business-aware controls.
+- Applying Nginx limits is intentionally a separate implementation step with its own config backup, `nginx -t`, reload, smoke checks, and manual QA.
 
 ## Current Recommended Phase
 

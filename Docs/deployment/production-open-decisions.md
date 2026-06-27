@@ -36,12 +36,14 @@ Why it matters:
 
 ## 2. Rate Limiting
 
-Status: `Needs decision before broader launch`
+Status: `Direction accepted for private pilot; implementation pending`
 
 Current private-pilot direction:
 
-- Manual monitoring is acceptable only while traffic is controlled.
-- Expected error UX is mapped, but abuse protection is not yet a full rate-limit layer.
+- Use conservative Nginx IP-based limits for public and abuse-sensitive routes.
+- Keep backend authorization, OTP validation, refresh-token rotation, QR validation, idempotency, and reward status checks as the source of truth.
+- Use Nginx as the first private-pilot shield, not as the final scaled abuse-prevention model.
+- Detailed route groups are tracked in `Docs/deployment/rate-limiting-plan.md`.
 
 Must cover before broader launch:
 
@@ -55,10 +57,15 @@ Must cover before broader launch:
 - Reward use.
 - Action registration.
 
-Open decision:
+Decision:
 
-- Decide whether rate limiting lives in Nginx, FastAPI middleware, Redis-backed limiter, or a managed edge/proxy layer.
-- Decide whether limits are per IP, per account, per email, per business, or a combination.
+- Private pilot: Nginx IP-based limits.
+- Later hardening: Redis-backed or application-level limiter if account/email/business-aware limits are needed.
+
+Implementation boundary:
+
+- Applying Nginx limits is a separate change.
+- It requires Nginx config backup, `nginx -t`, reload, production smoke checks, and manual QA for protected flows.
 
 ## 3. Monitoring And Alerting
 
@@ -190,7 +197,7 @@ Needs decision before scale:
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. Rate limiting direction.
+2. Apply private-pilot Nginx rate limits from `Docs/deployment/rate-limiting-plan.md`.
 3. Backup restore cadence and off-server backup decision.
 4. Monitoring/alerting minimum.
 5. GitHub Actions/manual deploy boundary.
