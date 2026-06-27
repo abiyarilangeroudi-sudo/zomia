@@ -570,6 +570,11 @@ F15.9 rollback documentation:
 - Database restore is explicitly treated as a last-resort data recovery action, not a normal app rollback.
 - The operations checklist now links to the rollback runbook.
 
+F15.10 open production decisions:
+
+- Production open decisions are tracked in `Docs/deployment/production-open-decisions.md`.
+- Current priority order is legal placeholder risk, OpenAPI exposure, rate limiting, backup/off-server restore cadence, monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+
 ## Current Recommended Phase
 
 Manual release-candidate QA and production smoke passes have passed. Choose the next phase deliberately instead of adding features opportunistically.
@@ -577,6 +582,7 @@ Manual release-candidate QA and production smoke passes have passed. Choose the 
 After that, likely candidates are:
 
 - Complete the remaining private-pilot production documentation and rollback checklist.
+- Close or explicitly risk-accept the highest-priority production open decisions.
 - Replace or formally risk-accept public legal placeholder content before broader onboarding.
 - Final UI/Branding consistency pass for visual details discovered during manual review.
 - RewardService extraction before advanced campaign types.

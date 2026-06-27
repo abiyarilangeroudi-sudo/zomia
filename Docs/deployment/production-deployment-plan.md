@@ -377,13 +377,20 @@ Post-release:
 
 ## Open Decisions
 
-- Production database provider/location.
-- Production domain and DNS.
-- Deployment method: manual first release or GitHub Actions with manual approval.
+Current open production decisions are tracked in:
+
+- `Docs/deployment/production-open-decisions.md`
+
+Summary:
+
 - OpenAPI exposure: public, protected, or disabled in production.
-- Backup retention length.
-- Access-token invalidation after password reset/change.
-- Rate limiting mechanism.
+- Rate limiting mechanism and ownership.
+- Monitoring and alerting minimum.
+- Backup restore cadence and off-server backup decision.
+- Legal placeholder risk before broader onboarding.
+- Deployment method: manual private-pilot deploys vs GitHub Actions with manual approval.
+- Access-token invalidation and token storage hardening.
+- Managed PostgreSQL provider/location and migration timing.
 - Whether to add a staging environment before first public release.
 
 ## Current Status
@@ -403,3 +410,4 @@ Operational checklist:
 
 - Day-to-day private-pilot release, rollback, backup, secrets, Nginx, TLS, and post-release checks are tracked in `Docs/deployment/production-operations-checklist.md`.
 - Detailed rollback rules are tracked in `Docs/deployment/production-rollback-runbook.md`.
+- Production open decisions are tracked in `Docs/deployment/production-open-decisions.md`.

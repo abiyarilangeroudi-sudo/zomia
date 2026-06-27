@@ -175,3 +175,7 @@ Short rule:
 - Production email deliverability must keep SPF, DKIM, and DMARC healthy.
 - Access-token invalidation after password changes is documented as a later hardening item.
 - GitHub Actions deployment is not finalized; current release process is still manual.
+
+Open production decisions are tracked in:
+
+- `Docs/deployment/production-open-decisions.md`
