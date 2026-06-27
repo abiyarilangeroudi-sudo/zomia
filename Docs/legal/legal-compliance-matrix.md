@@ -28,6 +28,9 @@ The goal is to make legal/product gaps visible before onboarding real customers 
 | Owner recent activity | Staff action summaries, customer display name/status fallback, points, timestamps | Backend from loyalty actions | Owner | Business visibility of staff/customer activity must be disclosed | Legitimate interest / contract | Needs activity retention window | Staff privacy notice, Privacy Policy, Business Terms | How much customer data owner may see |
 | Account settings | Password change, email change OTP, account removal request | User | User, Zomia operations | Zomia controller for identity lifecycle | Contract, legal obligation, security legitimate interest | Security event retention and backup retention | Privacy Policy, Account deletion notice | Access-token invalidation hardening and deletion SLA |
 | Email OTP / transactional emails | Email address, OTP hash, expiry, delivery metadata, invitation links | User or Owner | Recipient, Zomia, SMTP provider | Zomia controller; SMTP provider processor | Contract / security legitimate interest | OTP expiry and delivery log retention | Privacy Policy | Email deliverability and provider AVV |
+| Marketing or points notification emails | Email address, opt-in status, consent timestamp, message history | Customer / Owner | Recipient, Zomia, email provider | Zomia controller; business role may need review for business-triggered campaigns | Consent / double opt-in for marketing; transactional basis for necessary account messages | Consent and unsubscribe retention | Privacy Policy, marketing consent notice | Separate marketing from transactional emails |
+| Browser storage / cookies | Session tokens, QR cache, local storage keys, possible future analytics identifiers | Browser/app | User device, Zomia app | Zomia controller for app storage | Strictly necessary storage may not need marketing consent; non-essential storage needs review | Session/account lifetime and browser clearing behavior | Cookie Policy / local storage notice, Privacy Policy | Confirm current storage is strictly necessary |
+| Discounts / reward value display | Reward type, discount value, campaign threshold, product/service price context if added | Business / backend | Customer, Staff, Owner | Business may own discount offer; Zomia role needs review | Contract / legitimate interest; consumer transparency rules may apply | Campaign/reward retention | Business Terms, Customer Terms, Omnibus/price transparency note | Price reduction and discount transparency policy |
 | Backups/logs | Database backup, server logs, backup logs, app logs | System | Zomia operations | Zomia controller/processor depending data role | Security/legal obligation/legitimate interest | Backup retention and restore deletion behavior | Privacy Policy, internal security docs | Backup deletion after account removal |
 | Future Group Campaign | Group membership, group progress, participant counts, reward eligibility | Customers/Business/backend | Group members?, Owner, Zomia | Higher joint-controller risk | Needs fresh assessment | Needs group retention policy | Updated Terms/Privacy/Business Terms | Whether members see other participants |
 | Future Cross-Network Campaign | Customer actions across multiple businesses, partner participation, shared rewards | Multiple businesses/staff/backend | Participating businesses?, Customer, Zomia | Joint controller or processor network model likely | Needs fresh assessment; consent may be considered but not assumed | Cross-business retention and visibility policy | Updated Terms/Privacy/Business Partner terms | Partner visibility, cost sharing, reward liability |
@@ -49,7 +52,38 @@ Open questions:
 
 - Confirm whether current storage is strictly necessary for login/session operation.
 - If analytics, tracking, marketing pixels, or non-essential storage are added later, consent management must be reviewed first.
-- Privacy Policy must explain local storage/session token usage in plain language.
+- Privacy Policy and Cookie Policy must explain local storage/session token usage in plain language.
+
+## Double Opt-In / Marketing
+
+Current OTP, password recovery, staff invitation, and security emails are transactional.
+
+Open rules:
+
+- Marketing emails must be separated from transactional emails.
+- Campaign promotion, points reminders, reward reminders, and similar messages need a product/legal classification before launch.
+- If treated as marketing, use double opt-in, store consent evidence, and provide unsubscribe handling.
+- Do not reuse account verification consent as marketing consent.
+
+## Omnibus / Discount Transparency
+
+Zomia does not currently calculate public product prices or price reductions.
+
+Open rules:
+
+- If rewards include percentage or fixed discounts shown to consumers, discount wording must be transparent.
+- Businesses should remain responsible for the actual price/discount offer unless a later product contract says otherwise.
+- Future UI should avoid misleading discount claims and clarify reward conditions, expiry, and redemption limits.
+
+## AML / KYC Note
+
+Zomia does not currently provide a wallet, cash-out, transferable balance, or money-like credit economy.
+
+Current direction:
+
+- AML/KYC is not treated as an MVP requirement.
+- Mentioning this exclusion in internal legal notes can help explain why no identity verification flow exists.
+- Revisit if points become transferable, cash-like, redeemable across financial partners, or convertible to money/e-money.
 
 ## Processor / AVV Needs
 
@@ -134,10 +168,14 @@ Open decision:
 - Replace legal placeholders or explicitly accept private-pilot risk.
 - Decide controller/processor model for current MVP.
 - Create minimum Privacy Policy.
+- Create minimum Cookie Policy / local storage notice.
 - Create minimum Customer Terms.
 - Create minimum Business Terms.
 - Create real Impressum.
-- Decide MStV need.
+- Keep MStV out of the MVP legal surface unless editorial/media content is introduced later.
+- Decide marketing email and double opt-in policy before promotional messages.
+- Decide Omnibus/discount transparency wording before showing consumer-facing discount claims.
+- Keep AML/KYC out of MVP scope while points remain non-cash, non-transferable, and not a wallet/credit economy.
 - Document retention policy for accounts, actions, rewards, logs, and backups.
 - Document staff privacy notice.
 - Confirm AVV/DPA coverage for Hetzner and Zoho.

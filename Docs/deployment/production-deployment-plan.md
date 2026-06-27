@@ -317,9 +317,9 @@ Before the first real production release:
 - Rate limiting plan decided for login, OTP, password recovery, QR resolve, reward use, and action registration.
 - Legal pages completed:
   - Impressum
-  - MStV
   - Terms
   - Privacy/GDPR policy
+  - Cookie Policy
 - Account deletion policy reviewed for Germany/EU expectations.
 - Access-token invalidation hardening decision made after password reset/change.
 - Admin/back-office policy decided or explicitly deferred.

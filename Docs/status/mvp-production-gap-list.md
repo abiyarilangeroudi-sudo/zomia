@@ -190,7 +190,8 @@ Legal placeholder tracking:
 
 - Current legal placeholder status is tracked in `Docs/legal/legal-placeholder-review.md`.
 - Legal/data-protection decision gaps are tracked in `Docs/legal/legal-compliance-matrix.md`.
-- `Terms`, `Business Terms`, `Privacy`, `Impressum`, and `MStV` are not production-ready legal content yet.
+- `Terms`, `Business Terms`, `Privacy`, `Cookie Policy`, and `Impressum` are not production-ready legal content yet.
+- `MStV` is not treated as required for the current loyalty software MVP unless editorial/media content is introduced later.
 - Registration checkboxes currently block registration until accepted, but the linked legal content is still placeholder text.
 - Before real customer or business onboarding, replace placeholders with reviewed legal pages or explicitly accept this as a private-pilot risk.
 
@@ -434,7 +435,7 @@ F14 result:
 
 - Owner Sign out styling is aligned with Customer and Staff.
 - Registration checkboxes use the approved `CheckboxRow` component.
-- Owner and Staff menu icons open the approved `AppDrawer` pattern with Profile, Setting, MStV, Impressum, and Sign out.
+- Owner and Staff menu icons open the approved `AppDrawer` pattern with Profile, Setting, Impressum, and Sign out.
 - Owner and Staff Profile open as fullscreen dialogs from Drawer; Profile is not a BottomNavBar tab.
 - `Docs/api/api-endpoint-inventory.md` remains the API reference to check before adding or changing endpoints.
 

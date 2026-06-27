@@ -27,21 +27,21 @@ It is not legal advice and does not provide final legal text.
 
 ### Customer Drawer
 
-- Drawer includes `Profile`, `Setting`, `MStV`, `Impressum`, and `Sign out`.
+- Drawer includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
 - `Setting` opens real Account Settings.
-- `MStV` and `Impressum` currently open placeholder info dialogs.
+- `Impressum` currently opens a placeholder info dialog.
 
 ### Owner Drawer
 
-- Drawer includes `Profile`, `Setting`, `MStV`, `Impressum`, and `Sign out`.
+- Drawer includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
 - `Setting` opens real Account Settings.
-- `MStV` and `Impressum` currently open placeholder info dialogs.
+- `Impressum` currently opens a placeholder info dialog.
 
 ### Staff Drawer
 
-- Drawer includes `Profile`, `Setting`, `MStV`, `Impressum`, and `Sign out`.
+- Drawer includes `Profile`, `Setting`, `Impressum`, and `Sign out`.
 - `Setting` opens real Account Settings.
-- `MStV` and `Impressum` currently open placeholder info dialogs.
+- `Impressum` currently opens a placeholder info dialog.
 
 ## Role Needs
 
@@ -50,7 +50,7 @@ It is not legal advice and does not provide final legal text.
 - Terms of use for customer account usage.
 - Privacy policy / GDPR information.
 - Impressum.
-- MStV information if applicable.
+- Cookie/local storage policy.
 - Account removal and data deletion explanation aligned with the implemented Remove Account flow.
 
 ### Owner / Business
@@ -58,7 +58,7 @@ It is not legal advice and does not provide final legal text.
 - Business Terms.
 - Privacy policy / GDPR information.
 - Impressum.
-- MStV information if applicable.
+- Cookie/local storage policy.
 - Explanation that Staff invitations are sent by the business owner and require the invited Staff email address.
 - Clarification of business data, customer action data, reward data, and staff activity visibility.
 
@@ -67,7 +67,7 @@ It is not legal advice and does not provide final legal text.
 - Privacy policy / GDPR information.
 - Staff account and invitation data handling.
 - Explanation that Staff activity is visible to the business owner.
-- Impressum and MStV access through the app shell.
+- Impressum access through the app shell.
 
 ## What Can Remain Placeholder Temporarily
 
@@ -79,7 +79,7 @@ The following should not be treated as production-ready:
 - `Business Terms`
 - `Privacy`
 - `Impressum`
-- `MStV`
+- `Cookie Policy`
 
 ## What Should Not Be Exposed As Final
 
@@ -90,13 +90,19 @@ The following should not be treated as production-ready:
 ## Open Decisions
 
 - Final legal owner/entity details for Impressum.
-- Whether MStV is required for the current product and domain usage.
 - Final Terms for Customers.
 - Final Business Terms for Owners.
 - Final Privacy/GDPR policy.
+- Final Cookie Policy / local storage notice.
 - Data retention wording for loyalty actions, rewards, account deletion, and staff activity.
 - Whether legal pages should be static public pages under `https://zomia.eu/` or app dialogs under `/webapp/`.
 - Whether registration should be blocked until final legal pages exist, or allowed only for controlled private-pilot testers.
+
+## MStV Decision
+
+MStV is not currently treated as a required standalone legal page for Zomia's MVP because the product is a loyalty software application, not a journalistic/editorial media offering.
+
+Revisit this decision if Zomia later adds editorial content, public news-like content, media publishing, or another feature that changes the product into a media-style offering.
 
 ## Recommended Next Step
 

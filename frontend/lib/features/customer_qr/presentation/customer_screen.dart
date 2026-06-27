@@ -79,14 +79,6 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
             onTap: _openSettingsDialogFromDrawer,
           ),
           AppDrawerItem(
-            label: 'MStV',
-            icon: Icons.policy_outlined,
-            onTap: () => _openDrawerInfoDialog(
-              title: 'MStV',
-              message: 'Legal information will be added here.',
-            ),
-          ),
-          AppDrawerItem(
             label: 'Impressum',
             icon: Icons.info_outline_rounded,
             onTap: () => _openDrawerInfoDialog(

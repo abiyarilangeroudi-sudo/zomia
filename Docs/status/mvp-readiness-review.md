@@ -102,9 +102,9 @@ The MVP is not production-ready yet. The remaining work is less about proving th
 - SMTP provider is usable locally, but production sender identity, deliverability, SPF/DKIM/DMARC, and email templates need final review.
 - Legal pages are placeholders:
   - Impressum
-  - MStV
   - Terms
   - Privacy/GDPR policy
+  - Cookie Policy
 - Customer account removal is implemented, but production GDPR policy still needs legal/product review.
 - Owner account removal is intentionally not implemented until business ownership policy exists.
 - Staff email change/removal policy is intentionally not self-service.

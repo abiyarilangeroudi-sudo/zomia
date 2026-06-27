@@ -474,11 +474,6 @@ class _NavigationExamples extends StatelessWidget {
                 onTap: _noop,
               ),
               AppDrawerItem(
-                label: 'MStV',
-                icon: Icons.policy_outlined,
-                onTap: _noop,
-              ),
-              AppDrawerItem(
                 label: 'Impressum',
                 icon: Icons.info_outline_rounded,
                 onTap: _noop,

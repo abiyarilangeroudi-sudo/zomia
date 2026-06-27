@@ -76,14 +76,6 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 onTap: _openAccountSettingsFromDrawer,
               ),
               AppDrawerItem(
-                label: 'MStV',
-                icon: Icons.article_outlined,
-                onTap: () => _openDrawerInfoDialog(
-                  title: 'MStV',
-                  message: 'Legal information will be added here.',
-                ),
-              ),
-              AppDrawerItem(
                 label: 'Impressum',
                 icon: Icons.info_outline_rounded,
                 onTap: () => _openDrawerInfoDialog(
