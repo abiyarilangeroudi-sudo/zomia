@@ -97,3 +97,27 @@ Still requiring legal/product review:
 - Reward liability wording between Zomia and participating businesses.
 - Whether any customer-facing discount presentation requires additional Omnibus/price transparency wording.
 - Whether minimum age or parental-consent wording belongs in Terms, Privacy, or both.
+
+## 2026-06-27 Business Terms Draft Pass 2
+
+The Business Terms were updated to better match the current Owner and Staff MVP:
+
+- Provider details from Impressum were added.
+- Customer Terms and Business Terms are separated.
+- Private-pilot MVP status is stated.
+- Owner responsibility for business information and account security is expanded.
+- Staff invitation, activation/deactivation, and owner visibility of staff actions are clarified.
+- Staff service responsibilities are stated.
+- Mission, campaign, repeatable cycle, reward template, and validity responsibility is assigned to the business.
+- Reward fulfillment responsibility is assigned to the participating business.
+- Discount and offer transparency wording was expanded.
+- Customer and loyalty data use limits are stated.
+- Suspension/restriction wording for misuse, fraud, security risk, or misleading customer communication was added.
+
+Still requiring legal/product review:
+
+- Final Zomia/business controller/processor model.
+- Whether a data processing agreement is required for businesses.
+- Commercial pricing, billing, cancellation, and trial wording.
+- Final liability wording for reward fulfillment and customer disputes.
+- Final discount/Omnibus wording if percentage/fixed discounts become consumer-facing at scale.

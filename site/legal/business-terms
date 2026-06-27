@@ -18,37 +18,59 @@
     <main>
       <article>
         <h1>Business Terms</h1>
-        <p class="note">Last updated: 2026-06-27</p>
-        <p class="warning">Private-pilot draft. Business responsibility, controller/processor model, AVV/DPA, and commercial terms must be reviewed before broader public use.</p>
+        <p class="note">Last updated: 27 June 2026</p>
+        <p class="warning">Private-pilot draft. Business responsibility, controller/processor model, AVV/DPA, reward liability, discount transparency, and commercial terms must be legally reviewed before broader public use.</p>
 
         <h2>1. Scope</h2>
-        <p>These Business Terms apply to business owners using Zomia to create missions, campaigns, reward templates, staff invitations, and customer loyalty workflows.</p>
+        <p>These Business Terms apply to business owners and authorized business users using Zomia to create missions, campaigns, reward templates, staff invitations, and customer loyalty workflows.</p>
+        <p>Zomia is operated by Bellis Prennis, Fremersbergstr. 103, 76530 Baden-Baden, Germany. Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a>.</p>
+        <p>Customers are subject to the separate Terms &amp; Conditions.</p>
 
-        <h2>2. Business account</h2>
-        <p>The owner must provide accurate business information and keep account access secure. The owner is responsible for staff invited to the business account and for keeping staff access active only where appropriate.</p>
+        <h2>2. Private-pilot status</h2>
+        <p>Zomia is currently operated as a private-pilot MVP. Features, screens, operational procedures, and commercial conditions may change during the pilot. The service is not yet intended for broad public rollout.</p>
 
-        <h2>3. Staff invitations and staff activity</h2>
-        <p>Owners may invite staff by email. Staff accounts become usable only after the staff member accepts the invitation and sets a password. Owners can activate or deactivate staff access. Staff actions may be visible to the business owner.</p>
+        <h2>3. Business account</h2>
+        <p>The owner must provide accurate business information, choose a suitable business category, keep account access secure, and ensure that only authorized people access the business account.</p>
+        <p>The owner is responsible for activity performed through the business account unless caused by Zomia's fault or by a security incident outside the owner's reasonable control.</p>
 
-        <h2>4. Missions, campaigns, and rewards</h2>
-        <p>The business is responsible for defining clear missions, campaign thresholds, reward templates, reward conditions, validity periods, and customer-facing offers. The business must honor rewards it makes available through Zomia unless there is a clear misuse, fraud, or error policy.</p>
+        <h2>4. Staff invitations and staff access</h2>
+        <p>Owners may invite staff by email. Staff accounts become usable only after the staff member accepts the invitation and sets a password. Owners can activate or deactivate staff access.</p>
+        <p>The owner is responsible for inviting only authorized staff, removing or deactivating staff access when it is no longer appropriate, and informing staff that their actions in Zomia may be visible to the business owner.</p>
 
-        <h2>5. Discounts and offer transparency</h2>
+        <h2>5. Staff activity</h2>
+        <p>Staff may scan customer QR codes, register customer actions, and use active rewards according to the service workflow. Staff must register only real, authorized service events and must not create false actions or use rewards without customer confirmation.</p>
+        <p>Staff activity may be shown to the business owner for audit, support, and operational review.</p>
+
+        <h2>6. Missions, campaigns, and rewards</h2>
+        <p>The business is responsible for defining clear missions, campaign thresholds, date ranges, repeatable cycle settings, reward templates, reward conditions, validity periods, and customer-facing offers.</p>
+        <p>The business must honor rewards it makes available through Zomia unless there is a clear misuse, fraud, technical error, or legally valid reason not to do so.</p>
+
+        <h2>7. Discounts and offer transparency</h2>
         <p>If the business offers percentage discounts, fixed discounts, or gifts, the business is responsible for ensuring that the offer is not misleading and that price or discount information complies with applicable consumer and price-transparency rules.</p>
+        <p>If consumer-facing discounts become a core part of the service, additional Omnibus Directive and price-comparison wording must be reviewed before broader rollout.</p>
 
-        <h2>6. Customer and loyalty data</h2>
-        <p>Zomia processes customer and loyalty data to operate the service. The final controller/processor model between Zomia and participating businesses must be reviewed before broader public use. Businesses must not use customer data from Zomia for unrelated purposes unless legally permitted.</p>
+        <h2>8. Customer and loyalty data</h2>
+        <p>Zomia processes customer and loyalty data to operate the service. The final controller/processor model between Zomia and participating businesses must be reviewed before broader public use.</p>
+        <p>Businesses must use customer data from Zomia only for operating the loyalty workflow and related customer service. Businesses must not export, copy, sell, or use customer data for unrelated marketing or profiling unless legally permitted and properly disclosed.</p>
+        <p>If a data processing agreement is required, it must be agreed before broader public use.</p>
 
-        <h2>7. No wallet or cash economy</h2>
+        <h2>9. No wallet or cash economy</h2>
         <p>Zomia points are loyalty progress indicators only. They are not cash, not electronic money, not transferable, and cannot be paid out.</p>
 
-        <h2>8. Fair use and security</h2>
-        <p>Businesses and staff must not manipulate points, create misleading campaigns, misuse customer QR codes, register false actions, or interfere with the service.</p>
+        <h2>10. Fair use and security</h2>
+        <p>Businesses and staff must not manipulate points, create misleading campaigns, misuse customer QR codes, register false actions, attempt to bypass reward validation, overload the service, or interfere with Zomia systems.</p>
+        <p>The business must notify Zomia if it becomes aware of unauthorized access, staff misuse, suspicious activity, or a security incident affecting the business account.</p>
 
-        <h2>9. Availability and pilot status</h2>
-        <p>Zomia is currently operated as a private-pilot MVP. Features, workflows, and operational procedures may change during the pilot.</p>
+        <h2>11. Suspension and restrictions</h2>
+        <p>We may restrict or suspend a business account, staff access, campaign, reward template, or other business feature if we reasonably believe there is misuse, fraud, security risk, misleading customer communication, or unlawful activity.</p>
 
-        <h2>10. Contact</h2>
+        <h2>12. Availability and changes</h2>
+        <p>Availability may be interrupted by maintenance, technical issues, security work, provider outages, or pilot-stage changes. Zomia may change or remove private-pilot features as the service develops.</p>
+
+        <h2>13. Privacy</h2>
+        <p>Information about personal data processing is available in the <a href="/legal/privacy">Privacy Policy</a>. Business-specific data protection responsibilities still require legal review before broader rollout.</p>
+
+        <h2>14. Contact</h2>
         <p>Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a></p>
 
         <p><a href="/legal">Back to Legal</a></p>
