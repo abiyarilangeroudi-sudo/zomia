@@ -36,7 +36,7 @@ Why it matters:
 
 ## 2. Rate Limiting
 
-Status: `Direction accepted for private pilot; implementation pending`
+Status: `Applied for private pilot`
 
 Current private-pilot direction:
 
@@ -44,6 +44,7 @@ Current private-pilot direction:
 - Keep backend authorization, OTP validation, refresh-token rotation, QR validation, idempotency, and reward status checks as the source of truth.
 - Use Nginx as the first private-pilot shield, not as the final scaled abuse-prevention model.
 - Detailed route groups are tracked in `Docs/deployment/rate-limiting-plan.md`.
+- Production Nginx currently applies `auth_strict`, `token_moderate`, `service_moderate`, and `owner_write_moderate` zones.
 
 Must cover before broader launch:
 
@@ -62,10 +63,11 @@ Decision:
 - Private pilot: Nginx IP-based limits.
 - Later hardening: Redis-backed or application-level limiter if account/email/business-aware limits are needed.
 
-Implementation boundary:
+Current boundary:
 
-- Applying Nginx limits is a separate change.
-- It requires Nginx config backup, `nginx -t`, reload, production smoke checks, and manual QA for protected flows.
+- Nginx limits are active for private pilot.
+- Manual QA for normal protected flows should be repeated after any future limit change.
+- Broader launch still needs a decision on whether IP-based limits are enough or whether account/email/business-aware limits are required.
 
 ## 3. Monitoring And Alerting
 
@@ -197,9 +199,8 @@ Needs decision before scale:
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. Apply private-pilot Nginx rate limits from `Docs/deployment/rate-limiting-plan.md`.
-3. Backup restore cadence and off-server backup decision.
-4. Monitoring/alerting minimum.
-5. GitHub Actions/manual deploy boundary.
-6. Token storage/session hardening.
-7. Managed PostgreSQL migration.
+2. Backup restore cadence and off-server backup decision.
+3. Monitoring/alerting minimum.
+4. GitHub Actions/manual deploy boundary.
+5. Token storage/session hardening.
+6. Managed PostgreSQL migration.

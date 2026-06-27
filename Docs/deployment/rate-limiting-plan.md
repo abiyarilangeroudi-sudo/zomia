@@ -14,6 +14,37 @@ This is enough for controlled private-pilot traffic, but it is not the final har
 
 If usage grows, if Zomia moves to multiple app servers, or if abuse needs account/email/business-aware controls, move to an application-level or Redis-backed limiter.
 
+## Production Status
+
+Applied on 2026-06-27.
+
+Production Nginx files:
+
+- Zone definitions: `/etc/nginx/conf.d/zomia-rate-limits.conf`
+- Shared API proxy snippet: `/etc/nginx/snippets/zomia-api-proxy.conf`
+- Route locations: `/etc/nginx/sites-available/zomia`
+- Pre-change backup: `/etc/nginx/sites-available/zomia.backup-202606271955-rate-limit`
+
+Applied zones:
+
+| Zone | Key | Rate | Burst | Notes |
+| --- | --- | --- | --- | --- |
+| `zomia_auth_strict` | IP address | `10r/m` | `20` | Auth, registration, OTP, password recovery, Staff invitation preview/accept |
+| `zomia_token_moderate` | IP address | `30r/m` | `30` | Refresh/logout |
+| `zomia_service_moderate` | IP address | `60r/m` | `60` | QR resolve, Staff action registration, reward use |
+| `zomia_owner_write_moderate` | IP address for `POST`/`PATCH`; empty key for other methods | `30r/m` | `30` | Owner write endpoints only; GET reads are not counted |
+
+All zones return `429` when exceeded.
+
+Production verification:
+
+- `nginx -t` passed.
+- Nginx reload succeeded.
+- `https://zomia.eu/health` returned healthy.
+- `https://zomia.eu/webapp/` returned `200`.
+- Internal auth strict smoke produced `429` after repeated fast requests.
+- Internal Owner GET smoke returned repeated `401` and did not produce `429`, confirming Owner read endpoints are not rate-limited by the owner-write zone.
+
 ## Why Nginx First
 
 - It is already in the production request path.
