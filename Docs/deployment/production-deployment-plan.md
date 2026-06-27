@@ -261,6 +261,10 @@ Rollback cannot rely only on Alembic downgrades. Production rollback must includ
 - Database backup restore decision.
 - Clear rule for when restore is acceptable.
 
+Detailed private-pilot rollback steps are tracked in:
+
+- `Docs/deployment/production-rollback-runbook.md`
+
 ## Backup And Restore
 
 Minimum production MVP backup expectations:
@@ -398,3 +402,4 @@ Current result:
 Operational checklist:
 
 - Day-to-day private-pilot release, rollback, backup, secrets, Nginx, TLS, and post-release checks are tracked in `Docs/deployment/production-operations-checklist.md`.
+- Detailed rollback rules are tracked in `Docs/deployment/production-rollback-runbook.md`.

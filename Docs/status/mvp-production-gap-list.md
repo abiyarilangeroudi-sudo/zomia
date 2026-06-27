@@ -563,6 +563,13 @@ F15.8 production smoke and UI polish:
 - Current accepted polish backlog is tracked in `Docs/status/ui-polish-backlog.md`.
 - Final visual polish is still not complete; small copy, spacing, and mobile details remain explicitly tracked instead of treated as blockers.
 
+F15.9 rollback documentation:
+
+- Private-pilot rollback rules are documented in `Docs/deployment/production-rollback-runbook.md`.
+- Frontend rollback, backend rollback, and database restore are separated.
+- Database restore is explicitly treated as a last-resort data recovery action, not a normal app rollback.
+- The operations checklist now links to the rollback runbook.
+
 ## Current Recommended Phase
 
 Manual release-candidate QA and production smoke passes have passed. Choose the next phase deliberately instead of adding features opportunistically.

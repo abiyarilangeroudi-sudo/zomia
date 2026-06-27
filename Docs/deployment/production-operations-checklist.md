@@ -41,6 +41,7 @@ Rollback:
 - Point `/var/www/zomia/webapp` back to the previous known-good release.
 - Verify `https://zomia.eu/webapp/?v=<cache-buster>` opens.
 - Verify the Login version label changed back to the expected version.
+- Follow the detailed rollback steps in `Docs/deployment/production-rollback-runbook.md`.
 
 ## Backend Release Procedure
 
@@ -65,6 +66,7 @@ Rollback:
 - Roll back the backend symlink/service target to the previous known-good release.
 - Restart `zomia-backend.service`.
 - Decide separately whether database restore is required. Do not assume app rollback is enough after schema/data migrations.
+- Follow the detailed rollback steps in `Docs/deployment/production-rollback-runbook.md`.
 
 ## Database Operations
 
@@ -142,6 +144,19 @@ Run role smoke tests only when the release risk requires it:
 - Customer login and QR dialog.
 - Staff login, QR resolve, and action registration.
 - Owner login and create dialogs.
+
+## Rollback Reference
+
+Detailed rollback rules and incident notes live in:
+
+- `Docs/deployment/production-rollback-runbook.md`
+
+Short rule:
+
+- Use frontend rollback for frontend/UI/static asset issues.
+- Use backend rollback for API/service issues.
+- Use database restore only for data corruption, destructive data mistakes, or incompatible migration state.
+- Always record whether a migration ran before choosing the rollback path.
 
 ## Logs To Check
 
