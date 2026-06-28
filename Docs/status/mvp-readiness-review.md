@@ -111,8 +111,8 @@ The MVP is not production-ready yet. The remaining work is less about proving th
 
 ### Security Hardening
 
-- Already-issued access tokens remain valid until expiry after password reset/change; refresh tokens are revoked. Before production, decide whether to add `password_changed_at` or session-version checks.
-- Rate limiting is not yet documented as implemented for login, OTP, password recovery, QR resolve, reward use, or action registration.
+- Access-token invalidation is active through `users.session_version`: password recovery completion, password change, and customer account removal invalidate older access tokens as well as refresh tokens.
+- Rate limiting is active in production through conservative Nginx route groups for private pilot use.
 - Admin/back-office identity is not implemented.
 - OAuth/social login is intentionally out of scope.
 

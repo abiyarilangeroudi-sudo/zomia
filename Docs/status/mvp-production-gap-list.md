@@ -311,7 +311,7 @@ F10.15 progress:
 - Password Recovery / Forgot Password is implemented with email OTP, a short-lived reset token, and no auto-login after reset.
 - Password reset revokes the user's existing refresh tokens.
 - Manual QA confirmed the expected MVP behavior: a device with an already-valid access token can remain signed in until that access token expires, but it cannot refresh with the old refresh token afterward.
-- Before production, decide whether password reset must force immediate logout on all devices by rejecting still-valid access tokens issued before `password_changed_at` or a similar session-version marker.
+- Access-token invalidation is now handled with `users.session_version`: password recovery completion, password change, and customer account removal reject older access tokens as well as revoking refresh tokens.
 
 F10.16 progress:
 
@@ -582,8 +582,8 @@ F15.10 open production decisions:
 - Monitoring minimum is active through `/opt/zomia/backend/scripts/check_production_health.sh` and hourly cron.
 - External alerting is not active yet and remains a later decision before broader launch.
 - Manual-vs-GitHub-Actions deploy boundary is accepted for the private pilot: production deploy stays manual, GitHub Actions should start as CI-only, production deploy automation requires a later manual-approval workflow.
-- Access-token invalidation hardening is implemented in code with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.
-- Production activation still requires the normal backup, migration, deploy, and smoke-test checklist.
+- Access-token invalidation hardening is active in production with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.
+- Production activation was completed on 2026-06-28 after fresh local/off-server backups, migration `0012_user_session_version`, backend restart, and smoke checks.
 - Cookie-based session storage and user-visible device/session management remain later hardening.
 - Current priority order is managed PostgreSQL timing, external alerting, GitHub Actions CI-only workflow, and cookie-based session hardening.
 

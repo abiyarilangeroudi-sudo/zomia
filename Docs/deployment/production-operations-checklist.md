@@ -223,8 +223,22 @@ Short rule:
 - Backup log permissions should be tightened in a later hardening pass; the log currently contains backup filenames, sizes, and retention output, not secrets.
 - Legal pages are draft pages and need final provider/legal review.
 - Production email deliverability must keep SPF, DKIM, and DMARC healthy.
-- Access-token invalidation after password changes is documented as a later hardening item.
+- Access-token invalidation through `users.session_version` is active in production for password recovery completion, password change, and customer account removal.
 - GitHub Actions deployment is not finalized; current release process is still manual.
+
+## 2026-06-28 Backend Session Hardening Release
+
+- Release: `/opt/zomia/backend/releases/202606281207_session_hardening`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Migration applied: `0011_staff_invitations -> 0012_user_session_version`.
+- Fresh local backup before migration: `zomia-20260628-120607.dump`.
+- Fresh encrypted off-server backup before migration: `zomia-20260628-120607.dump.gpg`.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - Alembic current returned `0012_user_session_version (head)`.
+  - `/docs`, `/redoc`, and `/openapi.json` returned `404`.
+  - Production health-check script returned `production_health status=ok`.
+  - Backend journal after restart showed normal startup and health checks only.
 
 Open production decisions are tracked in:
 

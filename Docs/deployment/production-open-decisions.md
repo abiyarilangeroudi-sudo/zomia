@@ -206,7 +206,7 @@ Recommended boundary:
 
 ## 7. Token Storage And Session Hardening
 
-Status: `Implemented in code; production deploy pending`
+Status: `Access-token invalidation active in production; cookie/session storage later hardening`
 
 Current private-pilot direction:
 
@@ -218,7 +218,10 @@ Current private-pilot direction:
 - Protected endpoints reject access tokens when the token `session_version` no longer matches the current user.
 - Password recovery completion, password change, and customer account removal increment `session_version` and revoke refresh tokens.
 - Email change does not increment `session_version` and does not revoke refresh tokens by design.
-- This behavior is implemented locally and covered by tests; production deployment still requires the normal backup, migration, deploy, and smoke-test checklist.
+- Production deployment completed on 2026-06-28 with migration `0012_user_session_version`.
+- A fresh local backup and encrypted off-server backup were taken before migration.
+- Production smoke checks passed after restart.
+- Existing sessions with old access tokens may need a refresh or sign-in once because older tokens do not carry `session_version`.
 
 Needs decision before hardened production:
 
