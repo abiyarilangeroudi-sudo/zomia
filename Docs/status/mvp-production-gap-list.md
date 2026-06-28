@@ -579,7 +579,9 @@ F15.10 open production decisions:
 - Encrypted off-server backup upload is active to Hetzner Storage Box `u623378.your-storagebox.de` with user `u623378`.
 - Restore from the encrypted off-server copy passed on 2026-06-27 using a temporary database.
 - The first scheduled off-server cron run was confirmed on 2026-06-28.
-- Current priority order is monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+- Monitoring minimum is active through `/opt/zomia/backend/scripts/check_production_health.sh` and hourly cron.
+- External alerting is not active yet and remains a later decision before broader launch.
+- Current priority order is manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
 
 F15.11 OpenAPI exposure:
 

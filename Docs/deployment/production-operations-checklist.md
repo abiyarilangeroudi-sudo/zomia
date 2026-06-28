@@ -147,6 +147,31 @@ TLS:
 - Certbot renewal must be checked periodically.
 - Customer registration and login must never be exposed only over plain HTTP.
 
+## Monitoring Minimum
+
+Current private-pilot direction:
+
+- Local production health check is active.
+- Script: `/opt/zomia/backend/scripts/check_production_health.sh`.
+- Cron: `/etc/cron.d/zomia-production-health-check`.
+- Schedule: hourly at minute `10`.
+- Log: `/var/log/zomia/production-health-check.log`.
+- Latest manual check observed on 2026-06-28: `production_health status=ok`.
+
+The check covers:
+
+- `https://zomia.eu/health`.
+- `nginx`, `postgresql`, and `zomia-backend.service`.
+- Local PostgreSQL backup freshness.
+- Encrypted off-server backup log freshness.
+- Encrypted off-server file presence for the latest local backup.
+- Root disk usage.
+
+Boundary:
+
+- This is not external alerting.
+- External uptime monitoring, error tracking, alert delivery, and TLS renewal alerting still need separate decisions before broader launch.
+
 ## Post-Release Check
 
 After each release, check:
@@ -189,11 +214,12 @@ Short rule:
 - Nginx error log.
 - PostgreSQL logs.
 - Backup cron logs or cron/system mail if configured.
+- Production health-check log: `/var/log/zomia/production-health-check.log`.
 
 ## Current Risk Items
 
 - Same-server PostgreSQL is acceptable for the private pilot only while backup/restore remains reliable.
-- Monitoring and alerting are still manual/minimal.
+- Monitoring is minimum/local only; external alerting is not active yet.
 - Backup log permissions should be tightened in a later hardening pass; the log currently contains backup filenames, sizes, and retention output, not secrets.
 - Legal pages are draft pages and need final provider/legal review.
 - Production email deliverability must keep SPF, DKIM, and DMARC healthy.

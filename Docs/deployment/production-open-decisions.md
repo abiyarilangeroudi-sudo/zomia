@@ -71,19 +71,32 @@ Current boundary:
 
 ## 3. Monitoring And Alerting
 
-Status: `Later hardening`
+Status: `Minimum private-pilot monitoring active`
 
 Current private-pilot direction:
 
-- Manual checks are acceptable for the current controlled pilot.
-- Operators check Nginx logs, backend journal logs, PostgreSQL logs, and backup logs.
+- Manual checks are still acceptable for the current controlled pilot.
+- A local production health-check script is active:
+  - Script: `/opt/zomia/backend/scripts/check_production_health.sh`.
+  - Cron: `/etc/cron.d/zomia-production-health-check`.
+  - Schedule: hourly at minute `10`.
+  - Log: `/var/log/zomia/production-health-check.log`.
+- The health check verifies:
+  - `https://zomia.eu/health`;
+  - `nginx`, `postgresql`, and `zomia-backend.service`;
+  - local PostgreSQL backup freshness;
+  - encrypted off-server backup log freshness;
+  - encrypted off-server file presence for the latest local backup;
+  - root disk usage.
+- External alerting is not enabled yet.
+- Operators still check Nginx logs, backend journal logs, PostgreSQL logs, backup logs, and the production health-check log.
 
 Needs decision before broader launch:
 
-- Uptime monitoring for `https://zomia.eu/health`.
-- Alert channel for downtime.
+- External uptime monitoring for `https://zomia.eu/health`.
+- Alert channel for downtime and failed health checks.
 - Error tracking for backend exceptions.
-- Backup failure alerting.
+- Backup failure alerting outside the server.
 - Disk-space monitoring.
 - TLS renewal monitoring.
 
@@ -215,7 +228,7 @@ Needs decision before scale:
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. Monitoring/alerting minimum.
-3. GitHub Actions/manual deploy boundary.
-4. Token storage/session hardening.
-5. Managed PostgreSQL migration.
+2. GitHub Actions/manual deploy boundary.
+3. Token storage/session hardening.
+4. Managed PostgreSQL migration.
+5. External monitoring and alert channel.

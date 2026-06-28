@@ -390,8 +390,8 @@ Summary:
 
 - OpenAPI exposure: disabled in production; reintroduce only behind admin/VPN if needed later.
 - Rate limiting mechanism and ownership.
-- Monitoring and alerting minimum.
-- Backup restore cadence and off-server backup decision.
+- Monitoring minimum: local production health-check script and hourly cron are active; external alerting is still a later decision.
+- Backup restore cadence and off-server backup decision: active for private pilot.
 - Legal placeholder risk before broader onboarding.
 - Deployment method: manual private-pilot deploys vs GitHub Actions with manual approval.
 - Access-token invalidation and token storage hardening.
