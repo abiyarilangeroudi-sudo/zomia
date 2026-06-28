@@ -580,12 +580,14 @@ F15.10 open production decisions:
 - Restore from the encrypted off-server copy passed on 2026-06-27 using a temporary database.
 - The first scheduled off-server cron run was confirmed on 2026-06-28.
 - Monitoring minimum is active through `/opt/zomia/backend/scripts/check_production_health.sh` and hourly cron.
-- External alerting is not active yet and remains a later decision before broader launch.
+- The production health-check now has a vendor-neutral heartbeat hook prepared via `/opt/zomia/env/monitoring.env`.
+- External uptime monitoring for `https://zomia.eu/health` is active.
+- No heartbeat URL is configured yet, so local server/backup/disk heartbeat alerting is still not active.
 - Manual-vs-GitHub-Actions deploy boundary is accepted for the private pilot: production deploy stays manual, GitHub Actions should start as CI-only, production deploy automation requires a later manual-approval workflow.
 - Access-token invalidation hardening is active in production with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.
 - Production activation was completed on 2026-06-28 after fresh local/off-server backups, migration `0012_user_session_version`, backend restart, and smoke checks.
 - Cookie-based session storage and user-visible device/session management remain later hardening.
-- Current priority order is managed PostgreSQL timing, external alerting, GitHub Actions CI-only workflow, and cookie-based session hardening.
+- Current priority order is managed PostgreSQL timing, external alert activation, legal text finalization, and final UI polish.
 
 F15.11 OpenAPI exposure:
 

@@ -156,6 +156,7 @@ Current private-pilot direction:
 - Cron: `/etc/cron.d/zomia-production-health-check`.
 - Schedule: hourly at minute `10`.
 - Log: `/var/log/zomia/production-health-check.log`.
+- Optional heartbeat env: `/opt/zomia/env/monitoring.env`.
 - Latest manual check observed on 2026-06-28: `production_health status=ok`.
 
 The check covers:
@@ -166,11 +167,21 @@ The check covers:
 - Encrypted off-server backup log freshness.
 - Encrypted off-server file presence for the latest local backup.
 - Root disk usage.
+- Optional external heartbeat delivery.
 
 Boundary:
 
-- This is not external alerting.
-- External uptime monitoring, error tracking, alert delivery, and TLS renewal alerting still need separate decisions before broader launch.
+- This is not complete external alerting yet, but external uptime monitoring for `https://zomia.eu/health` is active.
+- A heartbeat hook is prepared, but no `MONITORING_HEARTBEAT_URL` is configured yet.
+- Heartbeat alerting, error tracking, and TLS renewal alerting still need separate decisions before broader launch.
+
+Recommended MVP setup:
+
+- Keep active:
+  - HTTPS monitor: `https://zomia.eu/health`, expected `200`.
+- Optional later:
+  - Heartbeat monitor: one hourly heartbeat URL stored only in `/opt/zomia/env/monitoring.env`.
+- Keep the heartbeat URL out of Git and out of deploy logs.
 
 ## Post-Release Check
 
@@ -219,7 +230,7 @@ Short rule:
 ## Current Risk Items
 
 - Same-server PostgreSQL is acceptable for the private pilot only while backup/restore remains reliable.
-- Monitoring is minimum/local only; external alerting is not active yet.
+- Monitoring is active for local hourly checks and external uptime checks; heartbeat alerting is not active yet.
 - Backup log permissions should be tightened in a later hardening pass; the log currently contains backup filenames, sizes, and retention output, not secrets.
 - Legal pages are draft pages and need final provider/legal review.
 - Production email deliverability must keep SPF, DKIM, and DMARC healthy.

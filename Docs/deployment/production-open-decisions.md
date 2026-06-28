@@ -71,7 +71,7 @@ Current boundary:
 
 ## 3. Monitoring And Alerting
 
-Status: `Minimum private-pilot monitoring active`
+Status: `Minimum private-pilot monitoring active; external uptime monitor active; heartbeat hook prepared`
 
 Current private-pilot direction:
 
@@ -81,6 +81,7 @@ Current private-pilot direction:
   - Cron: `/etc/cron.d/zomia-production-health-check`.
   - Schedule: hourly at minute `10`.
   - Log: `/var/log/zomia/production-health-check.log`.
+  - Optional heartbeat env: `/opt/zomia/env/monitoring.env`.
 - The health check verifies:
   - `https://zomia.eu/health`;
   - `nginx`, `postgresql`, and `zomia-backend.service`;
@@ -88,13 +89,18 @@ Current private-pilot direction:
   - encrypted off-server backup log freshness;
   - encrypted off-server file presence for the latest local backup;
   - root disk usage.
-- External alerting is not enabled yet.
+- A vendor-neutral external heartbeat hook is prepared:
+  - If `MONITORING_HEARTBEAT_URL` is empty, the health check logs `monitoring_heartbeat not_configured` and stays green when all local checks pass.
+  - If `MONITORING_HEARTBEAT_URL` is configured, the heartbeat is sent only after all local checks pass.
+  - If the heartbeat send fails, the local health-check log records `monitoring_heartbeat send_failed`.
+- An external uptime monitor for `https://zomia.eu/health` is active.
+- Heartbeat alert delivery is not enabled yet because no heartbeat URL has been configured.
 - Operators still check Nginx logs, backend journal logs, PostgreSQL logs, backup logs, and the production health-check log.
 
 Needs decision before broader launch:
 
-- External uptime monitoring for `https://zomia.eu/health`.
-- Alert channel for downtime and failed health checks.
+- Confirm alert recipients for the external uptime monitor.
+- Optional heartbeat URL for local server, backup, and disk checks.
 - Error tracking for backend exceptions.
 - Backup failure alerting outside the server.
 - Disk-space monitoring.
@@ -102,9 +108,9 @@ Needs decision before broader launch:
 
 Open decision:
 
-- Choose the first monitoring stack.
 - Define who receives alerts.
 - Define what counts as an incident.
+- Decide whether to add a heartbeat monitor later for local server checks.
 
 ## 4. Backup Restore Cadence
 
