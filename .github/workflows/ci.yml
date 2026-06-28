@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "codex/**"
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: zomia_ci
+          POSTGRES_USER: zomia_ci
+          POSTGRES_PASSWORD: zomia_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U zomia_ci -d zomia_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      DATABASE_URL: postgresql+psycopg://zomia_ci:zomia_ci_password@localhost:5432/zomia_ci
+      JWT_SECRET_KEY: ci-only-secret
+      JWT_ISSUER: zomia-ci
+      EMAIL_DELIVERY_MODE: test
+      OTP_TEST_CODE: "123456"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Lint backend
+        run: ruff check app alembic
+
+      - name: Run backend tests
+        run: python -m pytest
+
+      - name: Apply migrations on CI PostgreSQL
+        run: |
+          alembic upgrade head
+          alembic current
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.44.1"
+          cache: true
+
+      - name: Install frontend dependencies
+        run: flutter pub get
+
+      - name: Analyze frontend
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run frontend tests
+        run: flutter test
+
+      - name: Install production build tools
+        working-directory: .
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+
+      - name: Build production web artifact
+        working-directory: .
+        run: ./scripts/build_frontend_production.sh

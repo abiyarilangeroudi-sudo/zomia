@@ -356,6 +356,8 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
+    controller.campaignNameController.text = 'Coffee Reward';
+    controller.campaignThresholdController.text = '10';
     await controller.createCampaign();
 
     expect(repository.createdCampaignIsRepeatable, isTrue);
@@ -382,6 +384,8 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
+    controller.campaignNameController.text = 'Coffee Reward';
+    controller.campaignThresholdController.text = '10';
     controller.setCampaignRepeatable(false);
     await controller.createCampaign();
 
@@ -395,6 +399,8 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
+    controller.campaignNameController.text = 'Coffee Reward';
+    controller.campaignThresholdController.text = '10';
     controller.setCampaignCompletionLimit(true);
     controller.campaignMaxCompletionsController.text = '1';
     await controller.createCampaign();
@@ -415,11 +421,13 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
+    controller.campaignNameController.text = 'Coffee Reward';
+    controller.campaignThresholdController.text = '10';
     controller.setCampaignStartDate(DateTime(2026, 9, 14));
     controller.setCampaignEndDate(DateTime(2026, 6, 14));
     await controller.createCampaign();
 
-    expect(controller.error, 'Enter a valid campaign date range.');
+    expect(controller.error, 'End date must be after start date.');
     expect(repository.createdCampaignStartsAt, isNull);
   });
 
@@ -443,7 +451,7 @@ void main() {
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text(AppVersion.label), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
-    expect(find.text('New here? Create a customer account'), findsOneWidget);
+    expect(find.text('Create customer account'), findsOneWidget);
     expect(find.text('Register your business'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
@@ -568,7 +576,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('New here? Create a customer account'));
+    await tester.tap(find.text('Create customer account'));
     await pumpAppFrames(tester);
 
     expect(find.text('Get Started'), findsOneWidget);
@@ -648,16 +656,14 @@ void main() {
     expect(find.text('Privacy'), findsOneWidget);
     await tester.tap(find.byType(Checkbox));
     await tester.ensureVisible(
-      find.widgetWithText(FilledButton, 'Create business account'),
+      find.widgetWithText(FilledButton, 'Create business'),
     );
     await tester.pumpAndSettle();
     final createButton = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Create business account'),
+      find.widgetWithText(FilledButton, 'Create business'),
     );
     expect(createButton.onPressed, isNotNull);
-    await tester.tap(
-      find.widgetWithText(FilledButton, 'Create business account'),
-    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Create business'));
     await pumpAppFrames(tester);
     await tester.pumpAndSettle();
 
@@ -857,8 +863,7 @@ void main() {
     expect(find.text('Customer One'), findsNothing);
     expect(find.text('customer@example.com'), findsNothing);
     expect(find.text('Setting'), findsOneWidget);
-    expect(find.text('MStV'), findsOneWidget);
-    expect(find.text('Impressum'), findsOneWidget);
+    expect(find.text('Legal'), findsOneWidget);
     expect(find.text('Sign out'), findsOneWidget);
 
     await tester.tap(find.text('Setting'));
@@ -903,10 +908,10 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(find.text('Ready to Scan'), findsOneWidget);
-    expect(find.text('Refresh QR token'), findsOneWidget);
+    expect(find.text('Refresh QR'), findsOneWidget);
     expect(find.text('qr-token'), findsOneWidget);
 
-    await tester.tap(find.text('Refresh QR token'));
+    await tester.tap(find.text('Refresh QR'));
     await pumpAppFrames(tester);
 
     expect(find.text('rotated-qr-token'), findsOneWidget);

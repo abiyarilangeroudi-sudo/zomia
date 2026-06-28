@@ -177,14 +177,16 @@ Must cover:
 
 ## 6. GitHub Actions Vs Manual Deploy
 
-Status: `Accepted for private pilot; hybrid conservative boundary`
+Status: `Accepted for private pilot; CI-only workflow added`
 
 Current private-pilot direction:
 
 - Manual deploy remains acceptable while release frequency is low and operator attention is high.
 - For the current private pilot, production deployment stays manual.
-- GitHub Actions should be introduced first as CI/verification only, not as production deployment.
-- CI may run backend tests, frontend analyze/build, formatting checks, and basic migration sanity checks without production secrets.
+- GitHub Actions is introduced as CI/verification only, not as production deployment.
+- CI runs backend lint/tests, migration upgrade against an ephemeral PostgreSQL service, frontend analyze/tests, and production web build.
+- CI does not require Alembic offline SQL generation because the existing migration history includes data-dependent migrations that are safer to verify against a real temporary database.
+- CI has no production secrets and does not connect to the production server.
 - Database migrations remain manual for now.
 - A fresh backup, smoke test, and log check remain mandatory around production migrations/releases.
 - Each release must keep a previous known-good frontend/backend release available.

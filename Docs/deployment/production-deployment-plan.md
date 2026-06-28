@@ -290,7 +290,7 @@ The first production workflow should be conservative:
 Pull request
 -> backend lint
 -> backend tests
--> migration SQL generation
+-> migration upgrade against temporary PostgreSQL
 -> flutter analyze
 -> flutter test
 -> flutter build web
@@ -306,8 +306,8 @@ Actual SSH deployment should wait until server layout, secret storage, and rollb
 Accepted private-pilot boundary:
 
 - Production deployment stays manual for now.
-- GitHub Actions should be added first as CI/verification only.
-- CI should not receive production secrets in this phase.
+- GitHub Actions is added first as CI/verification only.
+- CI does not receive production secrets in this phase.
 - Database migrations remain manual.
 - A later production deploy workflow may be introduced only with manual approval after several stable manual releases.
 - Automated SSH deploy and automated database migration are explicitly deferred.
