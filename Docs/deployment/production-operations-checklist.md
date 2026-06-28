@@ -239,6 +239,9 @@ Short rule:
   - `/docs`, `/redoc`, and `/openapi.json` returned `404`.
   - Production health-check script returned `production_health status=ok`.
   - Backend journal after restart showed normal startup and health checks only.
+- Manual QA passed:
+  - Login on one session, change password on another session, then use the old session.
+  - The old session was rejected and returned to Login with `Your session expired. Please sign in again.`
 
 Open production decisions are tracked in:
 

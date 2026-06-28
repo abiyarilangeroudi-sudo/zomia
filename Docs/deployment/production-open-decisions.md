@@ -221,7 +221,8 @@ Current private-pilot direction:
 - Production deployment completed on 2026-06-28 with migration `0012_user_session_version`.
 - A fresh local backup and encrypted off-server backup were taken before migration.
 - Production smoke checks passed after restart.
-- Existing sessions with old access tokens may need a refresh or sign-in once because older tokens do not carry `session_version`.
+- Manual production QA confirmed that an old session is rejected after a password change and the user is returned to Login with a session-expired message.
+- Existing sessions from before this release may need a refresh or sign-in once because older tokens do not carry `session_version`.
 
 Needs decision before hardened production:
 
