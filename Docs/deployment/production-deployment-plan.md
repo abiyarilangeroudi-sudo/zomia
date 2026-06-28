@@ -303,6 +303,15 @@ Main branch tag/release
 
 Actual SSH deployment should wait until server layout, secret storage, and rollback policy are finalized.
 
+Accepted private-pilot boundary:
+
+- Production deployment stays manual for now.
+- GitHub Actions should be added first as CI/verification only.
+- CI should not receive production secrets in this phase.
+- Database migrations remain manual.
+- A later production deploy workflow may be introduced only with manual approval after several stable manual releases.
+- Automated SSH deploy and automated database migration are explicitly deferred.
+
 ## Observability And Logs
 
 Minimum production MVP visibility:
@@ -393,7 +402,7 @@ Summary:
 - Monitoring minimum: local production health-check script and hourly cron are active; external alerting is still a later decision.
 - Backup restore cadence and off-server backup decision: active for private pilot.
 - Legal placeholder risk before broader onboarding.
-- Deployment method: manual private-pilot deploys vs GitHub Actions with manual approval.
+- Deployment method: manual private-pilot deploys accepted; GitHub Actions should start as CI-only before any production deploy automation.
 - Access-token invalidation and token storage hardening.
 - Managed PostgreSQL provider/location and migration timing.
 - Whether to add a staging environment before first public release.

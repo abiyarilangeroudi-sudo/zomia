@@ -177,24 +177,32 @@ Must cover:
 
 ## 6. GitHub Actions Vs Manual Deploy
 
-Status: `Accepted for private pilot`
+Status: `Accepted for private pilot; hybrid conservative boundary`
 
 Current private-pilot direction:
 
 - Manual deploy remains acceptable while release frequency is low and operator attention is high.
+- For the current private pilot, production deployment stays manual.
+- GitHub Actions should be introduced first as CI/verification only, not as production deployment.
+- CI may run backend tests, frontend analyze/build, formatting checks, and basic migration sanity checks without production secrets.
+- Database migrations remain manual for now.
+- A fresh backup, smoke test, and log check remain mandatory around production migrations/releases.
 - Each release must keep a previous known-good frontend/backend release available.
 - Rollback rules are documented in `Docs/deployment/production-rollback-runbook.md`.
+- Production SSH deploy automation should wait until multiple manual releases are boring and repeatable.
 
 Needs decision before broader launch:
 
-- Whether GitHub Actions builds artifacts only, or also deploys.
-- Whether deployment requires manual approval.
+- When to allow GitHub Actions to deploy production artifacts.
+- Whether deployment requires manual approval. The expected answer is yes for the next phase.
 - Whether production deploys are tag-based, main-branch based, or release-branch based.
 - Where deployment logs and release notes are stored.
 
 Recommended boundary:
 
-- Do not automate SSH deployment until rollback, backup, secrets, and smoke checks are boring and repeatable.
+- Next phase: add GitHub Actions CI only.
+- Later phase: allow GitHub Actions production deploy only with manual approval.
+- Do not automate SSH deployment or database migration until rollback, backup, secrets, and smoke checks are boring and repeatable.
 
 ## 7. Token Storage And Session Hardening
 
@@ -228,7 +236,7 @@ Needs decision before scale:
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. GitHub Actions/manual deploy boundary.
-3. Token storage/session hardening.
-4. Managed PostgreSQL migration.
-5. External monitoring and alert channel.
+2. Token storage/session hardening.
+3. Managed PostgreSQL migration.
+4. External monitoring and alert channel.
+5. GitHub Actions CI-only workflow.

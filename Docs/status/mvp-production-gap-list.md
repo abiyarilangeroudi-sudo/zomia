@@ -581,7 +581,8 @@ F15.10 open production decisions:
 - The first scheduled off-server cron run was confirmed on 2026-06-28.
 - Monitoring minimum is active through `/opt/zomia/backend/scripts/check_production_health.sh` and hourly cron.
 - External alerting is not active yet and remains a later decision before broader launch.
-- Current priority order is manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
+- Manual-vs-GitHub-Actions deploy boundary is accepted for the private pilot: production deploy stays manual, GitHub Actions should start as CI-only, production deploy automation requires a later manual-approval workflow.
+- Current priority order is token hardening, managed PostgreSQL timing, external alerting, and GitHub Actions CI-only workflow.
 
 F15.11 OpenAPI exposure:
 
