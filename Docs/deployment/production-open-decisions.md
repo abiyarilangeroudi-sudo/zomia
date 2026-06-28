@@ -275,7 +275,7 @@ Migration triggers:
 
 ## Current Priority Order
 
-1. Run the first real-customer private-pilot onboarding with the manual smoke checklist.
+1. Run the first real-customer private-pilot onboarding with `Docs/deployment/first-private-pilot-onboarding-plan.md`.
 2. Keep same-server PostgreSQL under the private-pilot boundary and repeat restore tests on cadence.
 3. Confirm external uptime alert recipients and decide whether to add heartbeat monitoring later.
 4. Cookie-based session storage and device/session management.

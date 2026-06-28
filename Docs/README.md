@@ -26,6 +26,7 @@ Customer QR
 - [Local Development](./07-local-development.md)
 - [Production Deployment Plan](./deployment/production-deployment-plan.md)
 - [Server Hardening Checklist](./deployment/server-hardening-checklist.md)
+- [First Private Pilot Onboarding Plan](./deployment/first-private-pilot-onboarding-plan.md)
 - [API Endpoint Inventory](./api/api-endpoint-inventory.md)
 - [Current Stability Check](./status/current-stability-check.md)
 - [MVP Production Gap List](./status/mvp-production-gap-list.md)

@@ -225,6 +225,10 @@ Run role smoke tests only when the release risk requires it:
 - Staff login, QR resolve, and action registration.
 - Owner login and create dialogs.
 
+For the first real-customer private pilot, use:
+
+- `Docs/deployment/first-private-pilot-onboarding-plan.md`
+
 ## Pre-Pilot Operational Final Pass
 
 Date checked: 2026-06-28
