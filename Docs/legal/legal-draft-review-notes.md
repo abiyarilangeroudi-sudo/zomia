@@ -1,6 +1,6 @@
 # Legal Draft Review Notes
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 This document records the basis and remaining review needs for the first non-placeholder legal page drafts under `site/legal/`.
 
@@ -146,9 +146,41 @@ The static legal pages were checked for final private-pilot consistency:
 - Legal pages remain outside the Flutter web app under `https://zomia.eu/legal/...`.
 - Legal index links point to public static legal pages.
 - Legal page titles, back links, and update-date format were checked.
-- The Legal index update date was aligned to `27 June 2026`.
+- The Legal index update date was aligned to `27 June 2026` during that pass.
 - No backend, Flutter app, loyalty, QR, campaign, reward, or authentication behavior was changed.
 
 Remaining review boundary:
 
 - These pages are still private-pilot drafts and must be legally reviewed before broader public onboarding.
+
+## 2026-06-28 Legal Text Finalization Pass 1
+
+The static legal pages were updated for a more acceptable private-pilot baseline:
+
+- All static legal pages were aligned to `28 June 2026`.
+- Draft warnings were softened to a consistent private-pilot legal draft notice.
+- Privacy Policy wording was clarified for:
+  - current MVP controller/processor uncertainty;
+  - transactional emails versus future marketing;
+  - browser storage and external uptime monitoring;
+  - account removal, anonymization, and temporary backup retention;
+  - current private-pilot backup retention of `14` days.
+- Customer Terms wording was clarified for:
+  - points as non-cash loyalty progress indicators;
+  - reward conditions and business fulfillment responsibility;
+  - account removal references to Privacy.
+- Business Terms wording was clarified for:
+  - owner responsibility for staff access and staff visibility;
+  - campaign/reward setup responsibility;
+  - reward and discount transparency;
+  - AVV/DPA wording before broader public use.
+- Cookie Policy now states that external uptime monitoring checks the public health endpoint and is not used to track individual users.
+
+Still requiring legal/product review:
+
+- Final controller/processor model between Zomia and businesses.
+- AVV/DPA coverage for Hetzner, Zoho, Storage Box/off-server backup, uptime monitoring, and any future managed database provider.
+- Final retention periods for loyalty history, rewards, staff actions, logs, and backups.
+- Formal data-subject request workflow and breach-response workflow.
+- Children/minimum-age policy.
+- Final discount/Omnibus wording if percentage/fixed discounts become a broader consumer-facing feature.

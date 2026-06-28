@@ -18,14 +18,14 @@
     <main>
       <article>
         <h1>Privacy Policy</h1>
-        <p class="note">Last updated: 27 June 2026</p>
-        <p class="warning">Private-pilot draft. Controller/processor roles, exact retention periods, processor agreements, and supervisory authority wording must be reviewed before broader public use.</p>
+        <p class="note">Last updated: 28 June 2026</p>
+        <p class="warning">Private-pilot legal draft. Final legal review is required before broader public launch.</p>
 
         <h2>1. Who is responsible?</h2>
         <p>Zomia is a loyalty software service for customers, business owners, and staff.</p>
         <p><strong>Provider:</strong> Bellis Prennis, operating the service Zomia, Fremersbergstr. 103, 76530 Baden-Baden, Germany.</p>
         <p>Contact: <a href="mailto:info@zomia.eu">info@zomia.eu</a></p>
-        <p>The final controller/processor relationship between Zomia and participating businesses still needs legal review. Until then, this policy describes the current MVP data processing transparently.</p>
+        <p>For the current private pilot, this policy describes how Zomia operates the service and handles account, loyalty, QR, reward, staff, and business data. The final controller/processor model between Zomia and participating businesses must be reviewed before a broader public launch.</p>
 
         <h2>2. Which roles use Zomia?</h2>
         <p>Zomia has three active MVP roles:</p>
@@ -52,19 +52,19 @@
         <p>We process data to create and secure accounts, operate the loyalty service, show QR codes and campaign progress, let staff register actions, issue and use rewards, support business owners, send transactional emails, and protect the service from misuse.</p>
 
         <h2>5. Legal bases</h2>
-        <p>The main legal bases are contract performance or pre-contract steps, legitimate interests in security and service operation, and legal obligations where applicable. Marketing messages, if introduced later, require a separate decision and may require consent and double opt-in.</p>
+        <p>The main legal bases are contract performance or pre-contract steps, legitimate interests in secure service operation, and legal obligations where applicable. Marketing messages, if introduced later, require a separate decision and may require consent and double opt-in.</p>
         <p>Accepting Terms is not treated as consent for all data processing. Where consent is required, it must be requested separately.</p>
 
         <h2>6. Transactional emails</h2>
         <p>We send transactional emails such as verification codes, password recovery messages, email change codes, and staff invitation links. These emails are necessary for account and security workflows and are not marketing emails.</p>
-        <p>Zomia does not currently send newsletters, promotional messages, points reminders, reward reminders, or marketing emails. If these are introduced later, they must be separated from transactional emails and reviewed for double opt-in and unsubscribe requirements.</p>
+        <p>Zomia does not currently send newsletters, promotional messages, points reminders, reward reminders, or marketing emails. If these are introduced later, they must be separated from transactional emails, use an appropriate consent flow where required, and include unsubscribe handling.</p>
 
         <h2>7. Browser storage and cookies</h2>
         <p>The web app uses browser storage for session operation and customer QR cache in the current MVP web version. This storage is used to keep users signed in and to operate the app.</p>
-        <p>Zomia does not currently use analytics cookies, advertising cookies, marketing pixels, or non-essential tracking technologies.</p>
+        <p>Zomia does not currently use analytics cookies, advertising cookies, marketing pixels, or non-essential tracking technologies. External uptime monitoring checks the public health endpoint and is not used to track individual users.</p>
 
         <h2>8. Recipients and processors</h2>
-        <p>Data may be processed by hosting, database, email, backup, and operational service providers. Current providers include the hosting server provider and the SMTP/email provider. Data processing agreements must be reviewed before broader public use.</p>
+        <p>Data may be processed by hosting, database, email, backup, and operational service providers. Current providers include server hosting, email delivery, encrypted off-server backup storage, and uptime monitoring. Data processing agreements or equivalent provider terms must be reviewed before broader public use.</p>
 
         <h2>9. Business owner and staff visibility</h2>
         <p>Business owners can see activity related to their own business, including staff actions and customer service activity summaries. Staff actions are tied to customer service events and may be visible to the business owner.</p>
@@ -75,11 +75,12 @@
         <p>Zomia points are not cash, not electronic money, not transferable, and cannot be paid out.</p>
 
         <h2>11. Account deletion and erasure</h2>
-        <p>Customers can request account removal in the app. The MVP removes or anonymizes direct personal account fields and revokes active customer QR and refresh tokens. Some historical loyalty/audit records may remain in anonymized or business-history form where needed for security, legal, or operational reasons. Backup deletion timing still requires final policy wording.</p>
+        <p>Customers can request account removal in the app. The MVP removes or anonymizes direct personal account fields and revokes active customer QR and refresh tokens. Some historical loyalty, reward, staff action, or audit records may remain in anonymized or business-history form where needed for security, legal, dispute-handling, fraud-prevention, or operational reasons.</p>
+        <p>Because backups are used for disaster recovery, removed or anonymized data may remain temporarily in backups until the relevant backup expires under the active retention schedule. Backups are not used for normal customer lookup.</p>
         <p>Owner account removal and Staff account removal are not self-service in the current MVP because they affect business ownership, staff membership, and historical business records.</p>
 
         <h2>12. Retention</h2>
-        <p>Exact retention periods are not final yet. Account data is kept while the account exists. OTP and invitation data is time-limited. Server logs and backups are kept for operational security and recovery. Current private-pilot PostgreSQL backup retention is 14 days. Final retention wording must be reviewed before broader public use.</p>
+        <p>Exact final retention periods still require review. Account data is kept while the account exists. OTP and invitation data is time-limited. Server logs and backup logs are kept for operational security and recovery. Current private-pilot PostgreSQL backup retention is 14 days, with encrypted off-server backups used for disaster recovery.</p>
 
         <h2>13. Your rights</h2>
         <p>Subject to applicable law, you may have rights of access, rectification, erasure, restriction, portability, objection, and complaint to a supervisory authority. To make a request, contact <a href="mailto:info@zomia.eu">info@zomia.eu</a>.</p>

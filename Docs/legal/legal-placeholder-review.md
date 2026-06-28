@@ -1,6 +1,6 @@
 # Legal Placeholder Review
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 This document records the current legal page state for the Zomia private-pilot MVP.
 It is not legal advice and does not provide final legal text.
@@ -96,6 +96,7 @@ Current private-pilot status:
 - The pages are no longer one-line placeholders.
 - Impressum includes provider details for Bellis Prennis, contact email, address, registration/VAT status, and consumer dispute wording.
 - Legal pages passed a final private-pilot consistency pass on 2026-06-27.
+- Legal text finalization pass 1 was completed on 2026-06-28 for Privacy, Customer Terms, Business Terms, Cookie Policy, Impressum date consistency, and Legal index date consistency.
 - The pages still require legal review before broader public onboarding.
 
 ## What Should Not Be Exposed As Final
@@ -135,6 +136,12 @@ The safest implementation path is to keep legal content outside loyalty logic:
 - Static public pages under `https://zomia.eu/` for legal documents.
 - App links from registration and drawers to those pages.
 - No backend or loyalty behavior changes required.
+
+Current private-pilot acceptance:
+
+- The pages are acceptable as private-pilot drafts for limited real-customer validation if the remaining legal-review risk is explicitly accepted.
+- They are not final public-launch legal documents.
+- Any marketing emails, analytics/tracking, broader discount campaigns, Group/Cross campaigns, or managed-provider changes require a fresh legal pass.
 
 Related decision matrix:
 

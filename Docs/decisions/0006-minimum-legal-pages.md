@@ -1,6 +1,6 @@
 # 0006: Minimum Legal Pages
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 ## Status
 
@@ -9,7 +9,7 @@ Accepted for private-pilot planning.
 ## Context
 
 Zomia now has a production-like private-pilot deployment at `https://zomia.eu/webapp/`.
-The app still contains legal placeholders in registration and drawer flows.
+Registration and drawer flows link to public static legal pages outside the Flutter web app.
 
 Before onboarding real customers or businesses, the project needs a clear decision about where minimum legal pages live and which pages are part of the MVP legal surface.
 
@@ -45,14 +45,14 @@ Static public legal pages are preferred because they are:
 
 ## Consequences
 
-- Static placeholder pages now exist for the MVP private pilot, but their text is not legally final.
+- Static private-pilot draft pages now exist for the MVP private pilot, but their text is not legally final.
 - Flutter-only legal pages and legal placeholder dialogs must not be used for these public legal documents.
-- Real customer or business onboarding remains a legal/product risk until minimum legal content exists or the pilot risk is explicitly accepted.
+- Real customer or business onboarding remains a legal/product risk until the private-pilot legal-text risk is explicitly accepted or final legal review is completed.
 - Registration and drawer legal actions should open these public static pages, preferably outside the web app context.
 - Backend, QR, loyalty, campaign, reward, and account logic do not need to change for this decision.
 
 ## Follow-Up
 
-- Replace placeholder text with legally reviewed content before broader public use.
+- Replace private-pilot draft text with legally reviewed content before broader public launch.
 - Keep legal content text review separate from engineering implementation.
 - Review `Docs/legal/legal-compliance-matrix.md` before writing final content.

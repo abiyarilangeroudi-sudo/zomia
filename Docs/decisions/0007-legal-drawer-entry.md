@@ -1,6 +1,6 @@
 # 0007: Legal Drawer Entry
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 ## Status
 
@@ -8,7 +8,7 @@ Accepted for private-pilot planning.
 
 ## Context
 
-The app currently exposes legal placeholder access through Drawer entries.
+The app currently exposes a single `Legal` Drawer entry that opens the public static legal index outside the Flutter web app.
 After removing `MStV` from the MVP legal surface, a standalone `Impressum` Drawer entry is too narrow for the legal pages Zomia needs.
 
 Minimum legal pages are defined in `Docs/decisions/0006-minimum-legal-pages.md`.
@@ -58,5 +58,5 @@ This pattern has been approved for the MVP:
 
 ## Follow-Up
 
-- Replace static placeholder content with legally reviewed content.
+- Replace private-pilot draft content with legally reviewed content before broader public launch.
 - Keep `MStV` out unless the product scope changes.

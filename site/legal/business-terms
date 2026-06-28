@@ -18,8 +18,8 @@
     <main>
       <article>
         <h1>Business Terms</h1>
-        <p class="note">Last updated: 27 June 2026</p>
-        <p class="warning">Private-pilot draft. Business responsibility, controller/processor model, AVV/DPA, reward liability, discount transparency, and commercial terms must be legally reviewed before broader public use.</p>
+        <p class="note">Last updated: 28 June 2026</p>
+        <p class="warning">Private-pilot legal draft. Final legal review is required before broader public launch.</p>
 
         <h2>1. Scope</h2>
         <p>These Business Terms apply to business owners and authorized business users using Zomia to create missions, campaigns, reward templates, staff invitations, and customer loyalty workflows.</p>
@@ -35,7 +35,7 @@
 
         <h2>4. Staff invitations and staff access</h2>
         <p>Owners may invite staff by email. Staff accounts become usable only after the staff member accepts the invitation and sets a password. Owners can activate or deactivate staff access.</p>
-        <p>The owner is responsible for inviting only authorized staff, removing or deactivating staff access when it is no longer appropriate, and informing staff that their actions in Zomia may be visible to the business owner.</p>
+        <p>The owner is responsible for inviting only authorized staff, removing or deactivating staff access when it is no longer appropriate, and informing staff that their actions in Zomia may be visible to the business owner for operational, support, and audit purposes.</p>
 
         <h2>5. Staff activity</h2>
         <p>Staff may scan customer QR codes, register customer actions, and use active rewards according to the service workflow. Staff must register only real, authorized service events and must not create false actions or use rewards without customer confirmation.</p>
@@ -43,16 +43,17 @@
 
         <h2>6. Missions, campaigns, and rewards</h2>
         <p>The business is responsible for defining clear missions, campaign thresholds, date ranges, repeatable cycle settings, reward templates, reward conditions, validity periods, and customer-facing offers.</p>
+        <p>The business must make sure that staff understand when a customer is eligible for a reward and how the reward should be fulfilled.</p>
         <p>The business must honor rewards it makes available through Zomia unless there is a clear misuse, fraud, technical error, or legally valid reason not to do so.</p>
 
         <h2>7. Discounts and offer transparency</h2>
         <p>If the business offers percentage discounts, fixed discounts, or gifts, the business is responsible for ensuring that the offer is not misleading and that price or discount information complies with applicable consumer and price-transparency rules.</p>
-        <p>If consumer-facing discounts become a core part of the service, additional Omnibus Directive and price-comparison wording must be reviewed before broader rollout.</p>
+        <p>When a reward is presented as a discount, the business should be able to explain the relevant conditions, expiry, redemption limits, and reference price or offer basis where applicable. If consumer-facing discounts become a core part of the service, additional Omnibus Directive and price-comparison wording must be reviewed before broader rollout.</p>
 
         <h2>8. Customer and loyalty data</h2>
         <p>Zomia processes customer and loyalty data to operate the service. The final controller/processor model between Zomia and participating businesses must be reviewed before broader public use.</p>
         <p>Businesses must use customer data from Zomia only for operating the loyalty workflow and related customer service. Businesses must not export, copy, sell, or use customer data for unrelated marketing or profiling unless legally permitted and properly disclosed.</p>
-        <p>If a data processing agreement is required, it must be agreed before broader public use.</p>
+        <p>If a data processing agreement (AVV/DPA) is required between Zomia and a business, it must be agreed before broader public use.</p>
 
         <h2>9. No wallet or cash economy</h2>
         <p>Zomia points are loyalty progress indicators only. They are not cash, not electronic money, not transferable, and cannot be paid out.</p>

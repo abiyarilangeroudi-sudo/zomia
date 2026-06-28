@@ -1,6 +1,6 @@
 # Legal Compliance Matrix
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 This document is a working decision matrix for Zomia legal and privacy readiness.
 It is not legal advice, does not claim compliance, and does not provide final legal text.
@@ -165,19 +165,15 @@ Open decision:
 
 ## Minimum Before Real Customer Pilot
 
-- Complete/review legal draft pages or explicitly accept private-pilot legal-text risk.
-- Decide controller/processor model for current MVP.
-- Create minimum Privacy Policy.
-- Create minimum Cookie Policy / local storage notice.
-- Create minimum Customer Terms.
-- Create minimum Business Terms.
-- Create real Impressum.
+- Minimum private-pilot legal draft pages exist for Privacy Policy, Cookie Policy, Customer Terms, Business Terms, and Impressum.
+- Explicitly accept that these are private-pilot drafts, not legally reviewed final public-launch documents.
+- Decide controller/processor model for current MVP before broader launch.
 - Keep MStV out of the MVP legal surface unless editorial/media content is introduced later.
 - Decide marketing email and double opt-in policy before promotional messages.
 - Decide Omnibus/discount transparency wording before showing consumer-facing discount claims.
 - Keep AML/KYC out of MVP scope while points remain non-cash, non-transferable, and not a wallet/credit economy.
-- Document retention policy for accounts, actions, rewards, logs, and backups.
-- Document staff privacy notice.
-- Confirm AVV/DPA coverage for Hetzner and Zoho.
+- Finalize retention policy for accounts, actions, rewards, logs, and backups before broader launch.
+- Finalize staff privacy notice before broader launch.
+- Confirm AVV/DPA coverage for Hetzner, Zoho, Storage Box/off-server backup, uptime monitoring, and any future managed database provider.
 - Document data subject request process.
 - Document breach response process.
