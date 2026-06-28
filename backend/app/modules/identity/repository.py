@@ -40,6 +40,11 @@ class IdentityRepository:
         self.db.flush()
         return user
 
+    def increment_user_session_version(self, *, user: User) -> User:
+        user.session_version += 1
+        self.db.flush()
+        return user
+
     def update_user_email(self, *, user: User, email: str, email_verified_at) -> User:
         user.email = email.lower()
         user.email_verified_at = email_verified_at

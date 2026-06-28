@@ -206,18 +206,24 @@ Recommended boundary:
 
 ## 7. Token Storage And Session Hardening
 
-Status: `Later hardening`
+Status: `Implemented in code; production deploy pending`
 
 Current private-pilot direction:
 
 - Flutter Web uses browser storage for MVP production sessions because secure storage blocked web startup.
 - Access tokens are short-lived.
 - Refresh tokens are rotating opaque tokens stored hashed server-side.
+- Users have a `session_version` in the application schema.
+- Access tokens include `session_version`.
+- Protected endpoints reject access tokens when the token `session_version` no longer matches the current user.
+- Password recovery completion, password change, and customer account removal increment `session_version` and revoke refresh tokens.
+- Email change does not increment `session_version` and does not revoke refresh tokens by design.
+- This behavior is implemented locally and covered by tests; production deployment still requires the normal backup, migration, deploy, and smoke-test checklist.
 
 Needs decision before hardened production:
 
 - Keep localStorage only as controlled MVP fallback, or move refresh tokens to HttpOnly Secure cookies.
-- Decide whether access tokens issued before password reset/change must be rejected immediately using a session version or `password_changed_at` check.
+- Decide whether to add a user-visible device/session list with per-device revoke.
 
 ## 8. Managed Database Migration
 
@@ -236,7 +242,7 @@ Needs decision before scale:
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. Token storage/session hardening.
-3. Managed PostgreSQL migration.
-4. External monitoring and alert channel.
-5. GitHub Actions CI-only workflow.
+2. Managed PostgreSQL migration.
+3. External monitoring and alert channel.
+4. GitHub Actions CI-only workflow.
+5. Cookie-based session storage and device/session management.

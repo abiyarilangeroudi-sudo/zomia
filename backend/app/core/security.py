@@ -46,6 +46,7 @@ def create_access_token(
     *,
     subject: str,
     role: str,
+    session_version: int,
     secret_key: str,
     issuer: str,
     expires_delta: timedelta,
@@ -55,6 +56,7 @@ def create_access_token(
     payload: dict[str, Any] = {
         "sub": subject,
         "role": role,
+        "session_version": session_version,
         "iss": issuer,
         "iat": int(now.timestamp()),
         "exp": int((now + expires_delta).timestamp()),
@@ -94,4 +96,3 @@ def decode_access_token(*, token: str, secret_key: str, issuer: str) -> dict[str
         return payload
     except (ValueError, json.JSONDecodeError, TypeError):
         raise credentials_error from None
-

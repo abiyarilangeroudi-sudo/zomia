@@ -582,7 +582,10 @@ F15.10 open production decisions:
 - Monitoring minimum is active through `/opt/zomia/backend/scripts/check_production_health.sh` and hourly cron.
 - External alerting is not active yet and remains a later decision before broader launch.
 - Manual-vs-GitHub-Actions deploy boundary is accepted for the private pilot: production deploy stays manual, GitHub Actions should start as CI-only, production deploy automation requires a later manual-approval workflow.
-- Current priority order is token hardening, managed PostgreSQL timing, external alerting, and GitHub Actions CI-only workflow.
+- Access-token invalidation hardening is implemented in code with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.
+- Production activation still requires the normal backup, migration, deploy, and smoke-test checklist.
+- Cookie-based session storage and user-visible device/session management remain later hardening.
+- Current priority order is managed PostgreSQL timing, external alerting, GitHub Actions CI-only workflow, and cookie-based session hardening.
 
 F15.11 OpenAPI exposure:
 

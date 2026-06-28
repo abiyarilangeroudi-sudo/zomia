@@ -399,6 +399,7 @@ class IdentityService:
             user=user,
             password_hash=hash_password(new_password),
         )
+        self.repository.increment_user_session_version(user=user)
         self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
         reset_otp.consumed_at = now
 
@@ -413,6 +414,7 @@ class IdentityService:
             user=user,
             password_hash=hash_password(new_password),
         )
+        self.repository.increment_user_session_version(user=user)
         self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
 
     def start_email_change(self, *, user: User, new_email: str, current_password: str) -> None:
@@ -490,6 +492,7 @@ class IdentityService:
             full_name="Deleted customer",
             password_hash=hash_password(secrets.token_urlsafe(32)),
         )
+        self.repository.increment_user_session_version(user=user)
         self.repository.revoke_user_refresh_tokens(user_id=user.id, revoked_at=now)
         self.repository.revoke_customer_qr_tokens(customer_id=user.id, revoked_at=now)
 
@@ -522,6 +525,7 @@ class IdentityService:
         access_token = create_access_token(
             subject=str(user.id),
             role=user.role.value,
+            session_version=user.session_version,
             secret_key=self.settings.jwt_secret_key,
             issuer=self.settings.jwt_issuer,
             expires_delta=timedelta(minutes=self.settings.access_token_minutes),
