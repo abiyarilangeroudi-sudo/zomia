@@ -278,7 +278,7 @@ Minimum production MVP backup expectations:
 - Off-server backup destination active: Hetzner Storage Box `u623378.your-storagebox.de` with user `u623378`.
 - Automated encrypted off-server upload is active from the production server.
 - Restore from the encrypted off-server copy passed on 2026-06-27.
-- The first scheduled off-server cron run must still be confirmed after the next `03:30 Europe/Berlin` cycle.
+- The first scheduled off-server cron run was confirmed on 2026-06-28.
 
 Do not call backup complete until restore has been tested.
 

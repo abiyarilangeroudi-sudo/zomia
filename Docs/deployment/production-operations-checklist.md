@@ -116,7 +116,10 @@ Off-server backup destination:
 - Off-server backup env/passphrase files are stored outside Git under `/opt/zomia/env/`.
 - Latest manual encrypted off-server upload tested: `zomia-20260627-031501.dump.gpg`.
 - Restore from the encrypted off-server copy passed on 2026-06-27 using a temporary database.
-- Next backup hardening step: confirm the first scheduled off-server cron run after the next `03:30 Europe/Berlin` cycle.
+- First scheduled off-server cron run confirmed: 2026-06-28.
+- Latest scheduled encrypted off-server upload observed: `zomia-20260628-031501.dump.gpg`.
+- Latest scheduled off-server upload size observed: about `33K`.
+- Next backup hardening step: repeat restore tests on the defined cadence and keep the off-server log in operational checks.
 
 ## Secrets And Environment
 

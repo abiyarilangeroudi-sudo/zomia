@@ -578,7 +578,7 @@ F15.10 open production decisions:
 - Backup restore cadence is defined for the private pilot: after meaningful database migrations, after backup changes, at least monthly, and before onboarding a new real business.
 - Encrypted off-server backup upload is active to Hetzner Storage Box `u623378.your-storagebox.de` with user `u623378`.
 - Restore from the encrypted off-server copy passed on 2026-06-27 using a temporary database.
-- The first scheduled off-server cron run still needs confirmation after the next `03:30 Europe/Berlin` cycle.
+- The first scheduled off-server cron run was confirmed on 2026-06-28.
 - Current priority order is monitoring, manual-vs-GitHub-Actions deploy boundary, token hardening, and managed PostgreSQL timing.
 
 F15.11 OpenAPI exposure:

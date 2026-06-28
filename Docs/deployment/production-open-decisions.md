@@ -128,7 +128,8 @@ Needs decision before broader launch:
 
 Recommended next checkpoint:
 
-- Confirm the first scheduled off-server cron run after the next `03:30 Europe/Berlin` cycle and repeat restore tests on the defined cadence.
+- First scheduled off-server cron run was confirmed on 2026-06-28.
+- Repeat restore tests on the defined cadence.
 
 ## 5. Legal Draft Review
 
