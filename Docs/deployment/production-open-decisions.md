@@ -1,6 +1,6 @@
 # Production Open Decisions
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 This document tracks decisions that must stay visible during the private-pilot production phase.
 
@@ -163,6 +163,7 @@ Current private-pilot direction:
 - Terms, Business Terms, Cookie Policy, and Impressum were updated for the current private-pilot shape.
 - The Impressum now includes provider details for Bellis Prennis; VAT/register/dispute wording still needs final review if the legal/business setup changes.
 - Legal pages passed a final private-pilot consistency pass on 2026-06-27.
+- Legal Text Finalization Pass 1 was completed and deployed on 2026-06-28.
 - Draft source and review notes are tracked in `Docs/legal/legal-draft-review-notes.md`.
 
 Open decision:
@@ -274,7 +275,7 @@ Migration triggers:
 
 ## Current Priority Order
 
-1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
+1. Run the first real-customer private-pilot onboarding with the manual smoke checklist.
 2. Keep same-server PostgreSQL under the private-pilot boundary and repeat restore tests on cadence.
 3. Confirm external uptime alert recipients and decide whether to add heartbeat monitoring later.
 4. Cookie-based session storage and device/session management.

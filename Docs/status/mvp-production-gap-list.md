@@ -589,7 +589,20 @@ F15.10 open production decisions:
 - Access-token invalidation hardening is active in production with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.
 - Production activation was completed on 2026-06-28 after fresh local/off-server backups, migration `0012_user_session_version`, backend restart, and smoke checks.
 - Cookie-based session storage and user-visible device/session management remain later hardening.
-- Current priority order is legal text finalization, same-server PostgreSQL restore cadence, external alert recipient confirmation, and final UI polish.
+
+F15.13 pre-pilot operational final pass:
+
+- Production operational final pass completed on 2026-06-28.
+- Production health-check returned `production_health status=ok`.
+- Public health, legal pages, and hidden docs endpoints were checked.
+- Active backend release is `/opt/zomia/backend/releases/202606281207_session_hardening`.
+- Active frontend release is `/var/www/zomia/releases/20260627161015` with version marker `1.0.118`.
+- Alembic current returned `0012_user_session_version (head)` when run with `/opt/zomia/env/backend.env` loaded.
+- Latest local manual backup observed: `zomia-20260628-120607.dump`.
+- Latest encrypted off-server manual backup observed: `zomia-20260628-120607.dump.gpg`.
+- Certbot timer is active.
+- Production remains ready only for controlled private-pilot onboarding under documented boundaries.
+- Current priority order is first private-pilot onboarding, restore cadence, external alert recipient confirmation, and final UI polish.
 
 F15.11 OpenAPI exposure:
 

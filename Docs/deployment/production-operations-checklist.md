@@ -1,6 +1,6 @@
 # Production Operations Checklist
 
-Date: 2026-06-27
+Date: 2026-06-28
 
 This checklist tracks the current private-pilot production operation for Zomia.
 It is for day-to-day release, rollback, backup, and verification work after the first deployment.
@@ -61,6 +61,16 @@ Release:
 - Restart `zomia-backend.service`.
 - Check `https://zomia.eu/health`.
 
+Production Alembic command note:
+
+- Alembic must be run with `/opt/zomia/env/backend.env` loaded.
+- Do not run Alembic from the production shell without the production env file; it may try a default or stale database URL.
+- Current verified pattern:
+
+```bash
+sudo -u zomia bash -lc 'set -a; source /opt/zomia/env/backend.env; set +a; cd /opt/zomia/backend/current; .venv/bin/alembic current'
+```
+
 Rollback:
 
 - Roll back the backend symlink/service target to the previous known-good release.
@@ -98,11 +108,11 @@ Same-server PostgreSQL boundary:
 
 Latest backup verification:
 
-- Date checked: 2026-06-27.
+- Date checked: 2026-06-28.
 - Backup directory: `/var/backups/zomia/postgresql`.
-- Latest backup observed: `zomia-20260627-031501.dump`.
-- Latest backup size observed: about `96K`.
-- Previous scheduled backup observed: `zomia-20260626-031501.dump`.
+- Latest backup observed: `zomia-20260628-120607.dump`.
+- Latest backup size observed: about `99K`.
+- Latest scheduled backup observed: `zomia-20260628-031501.dump`.
 - Backup schedule: daily at `03:15 Europe/Berlin`.
 - Retention: `14` days.
 - Backup log: `/var/log/zomia/postgres-backup.log`.
@@ -127,6 +137,7 @@ Off-server backup destination:
 - Restore from the encrypted off-server copy passed on 2026-06-27 using a temporary database.
 - First scheduled off-server cron run confirmed: 2026-06-28.
 - Latest scheduled encrypted off-server upload observed: `zomia-20260628-031501.dump.gpg`.
+- Latest manual encrypted off-server upload observed: `zomia-20260628-120607.dump.gpg`.
 - Latest scheduled off-server upload size observed: about `33K`.
 - Next backup hardening step: repeat restore tests on the defined cadence and keep the off-server log in operational checks.
 
@@ -213,6 +224,35 @@ Run role smoke tests only when the release risk requires it:
 - Customer login and QR dialog.
 - Staff login, QR resolve, and action registration.
 - Owner login and create dialogs.
+
+## Pre-Pilot Operational Final Pass
+
+Date checked: 2026-06-28
+
+Status: `Ready for controlled private pilot, with documented boundaries`
+
+Production checks passed:
+
+- `https://zomia.eu/health` returned `200`.
+- `https://zomia.eu/legal` and all public legal pages returned `200`.
+- `/docs`, `/redoc`, and `/openapi.json` returned `404`.
+- Active backend release: `/opt/zomia/backend/releases/202606281207_session_hardening`.
+- Active frontend release: `/var/www/zomia/releases/20260627161015`.
+- Active frontend bundle contains version marker `1.0.118`.
+- Alembic current returned `0012_user_session_version (head)` when run with the production env file.
+- Production health-check returned `production_health status=ok`.
+- External uptime monitor for `https://zomia.eu/health` is active.
+- Local and encrypted off-server backups are present for the latest manual migration backup.
+- Certbot timer is active.
+
+Accepted private-pilot boundaries:
+
+- Same-server PostgreSQL remains accepted only for controlled private-pilot usage.
+- Heartbeat alerting for local backup/disk/server checks is prepared but not active.
+- Legal pages are private-pilot legal drafts, not final public-launch legal documents.
+- Production deploy remains manual; GitHub Actions remains CI-only.
+- Cookie-based session storage and user-visible session/device management remain later hardening.
+- UI polish is not final; accepted polish backlog remains tracked separately.
 
 ## Rollback Reference
 
