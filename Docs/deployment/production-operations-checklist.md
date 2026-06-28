@@ -76,6 +76,8 @@ Current private-pilot direction:
 - PostgreSQL must remain localhost-only.
 - Daily backups are required.
 - Restore has been tested once and must be re-tested after meaningful backup changes.
+- Same-server PostgreSQL is accepted for the private pilot only while customer usage remains limited and backup/restore stays reliable.
+- Managed PostgreSQL remains the preferred later path before scale.
 
 Rules:
 
@@ -86,6 +88,13 @@ Rules:
 - Test restore periodically, not only when something breaks.
 - Repeat restore tests after meaningful database migrations, after backup changes, at least monthly during the private pilot, and before onboarding a new real business.
 - Same-server backups remain available, but encrypted off-server backups are now active and must also be monitored.
+
+Same-server PostgreSQL boundary:
+
+- Acceptable for controlled private pilot only.
+- Not the final scaled production architecture.
+- Requires daily local backup, daily encrypted off-server backup, and periodic restore tests.
+- Revisit managed PostgreSQL before broader launch or when the risk triggers in `production-open-decisions.md` are reached.
 
 Latest backup verification:
 

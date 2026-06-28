@@ -464,7 +464,9 @@ F15 started:
 F15 database direction:
 
 - Preferred production database path is managed PostgreSQL in an EU/Germany region.
-- Same-server PostgreSQL is allowed only as an early private-beta fallback after backup/restore is tested.
+- Same-server PostgreSQL is accepted for the private pilot after backup, encrypted off-server backup, and restore tests passed.
+- This is a controlled temporary boundary for early real-customer validation, not the final scaled architecture.
+- Managed PostgreSQL migration should be revisited before broader launch, when downtime is no longer acceptable, when PITR is required, or if backup/restore reliability becomes questionable.
 
 F15 private pilot server:
 
@@ -587,7 +589,7 @@ F15.10 open production decisions:
 - Access-token invalidation hardening is active in production with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.
 - Production activation was completed on 2026-06-28 after fresh local/off-server backups, migration `0012_user_session_version`, backend restart, and smoke checks.
 - Cookie-based session storage and user-visible device/session management remain later hardening.
-- Current priority order is managed PostgreSQL timing, external alert activation, legal text finalization, and final UI polish.
+- Current priority order is legal text finalization, same-server PostgreSQL restore cadence, external alert recipient confirmation, and final UI polish.
 
 F15.11 OpenAPI exposure:
 

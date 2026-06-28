@@ -239,11 +239,23 @@ Needs decision before hardened production:
 
 ## 8. Managed Database Migration
 
-Status: `Later hardening`
+Status: `Accepted for private pilot; later hardening before scale`
 
 Current private-pilot direction:
 
 - Same-server PostgreSQL is accepted only for the private pilot while backups and restore remain reliable.
+- This is an explicit cost/simplicity decision for early real-customer validation, not the final scaled database architecture.
+- Production PostgreSQL must remain localhost-only.
+- Daily local backups, encrypted off-server backups, and periodic restore tests are mandatory while this decision is active.
+- A fresh local and encrypted off-server backup is required before every meaningful production migration.
+- App rollback and database restore remain separate decisions; database restore is only for data corruption, destructive data mistakes, or incompatible migration state.
+
+Current accepted boundary:
+
+- Controlled private pilot.
+- Limited number of real businesses and customers.
+- Short maintenance/downtime windows are still operationally acceptable.
+- Backup, off-server sync, and restore cadence continue to pass.
 
 Needs decision before scale:
 
@@ -251,10 +263,19 @@ Needs decision before scale:
 - Test migration from same-server PostgreSQL to managed PostgreSQL.
 - Decide backup/PITR requirements.
 
+Migration triggers:
+
+- Multiple active real businesses depend on the system daily.
+- Downtime becomes commercially or reputationally unacceptable.
+- Point-in-time recovery is required.
+- Backup, off-server sync, or restore reliability becomes questionable.
+- App and database resource usage start competing on CPU, memory, or disk.
+- High availability, replication, or low-risk database maintenance becomes necessary.
+
 ## Current Priority Order
 
 1. Review legal draft pages and decide remaining controller/processor, retention, AVV/DPA, and discount-transparency wording.
-2. Managed PostgreSQL migration.
-3. External monitoring and alert channel.
-4. GitHub Actions CI-only workflow.
-5. Cookie-based session storage and device/session management.
+2. Keep same-server PostgreSQL under the private-pilot boundary and repeat restore tests on cadence.
+3. Confirm external uptime alert recipients and decide whether to add heartbeat monitoring later.
+4. Cookie-based session storage and device/session management.
+5. Managed PostgreSQL migration before scale.
