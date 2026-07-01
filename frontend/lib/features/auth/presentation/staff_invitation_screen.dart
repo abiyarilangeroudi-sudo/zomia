@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/navigation/external_url_launcher.dart';
 import '../../../app/ui/ui.dart';
 import '../data/auth_repository.dart';
 import 'auth_form_layout.dart';
+import 'terms_acceptance_row.dart';
 
 class StaffInvitationScreen extends ConsumerStatefulWidget {
   const StaffInvitationScreen({super.key, required this.token});
@@ -24,6 +26,7 @@ class _StaffInvitationScreenState extends ConsumerState<StaffInvitationScreen> {
   String? _error;
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _acceptedTerms = false;
 
   @override
   void initState() {
@@ -106,6 +109,21 @@ class _StaffInvitationScreenState extends ConsumerState<StaffInvitationScreen> {
                   },
                   onSubmitted: (_) => _submit(),
                 ),
+                const SizedBox(height: 8),
+                TermsAcceptanceRow(
+                  prefix: 'I accept',
+                  termsLabel: 'Terms',
+                  privacyLabel: 'Privacy',
+                  value: _acceptedTerms,
+                  onChanged: _isSaving
+                      ? null
+                      : (value) =>
+                            setState(() => _acceptedTerms = value ?? false),
+                  onTermsTap: () =>
+                      openExternalUrl('https://zomia.eu/legal/terms'),
+                  onPrivacyTap: () =>
+                      openExternalUrl('https://zomia.eu/legal/privacy'),
+                ),
                 if (_error != null) ...[
                   const SizedBox(height: 16),
                   InlineBanner(
@@ -165,6 +183,12 @@ class _StaffInvitationScreenState extends ConsumerState<StaffInvitationScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    if (!_acceptedTerms) {
+      setState(() {
+        _error = 'Please accept Terms & Privacy.';
+      });
       return;
     }
     setState(() {

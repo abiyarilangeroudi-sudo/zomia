@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_features.dart';
 import '../../../app/app_version.dart';
 import '../../../app/ui/ui.dart';
 import 'auth_form_layout.dart';
@@ -48,20 +49,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       children: [
         Align(
           alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: () => context.push('/ui-catalog'),
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              AppVersion.label,
-              style: textTheme.bodyLarge?.copyWith(
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
+          child: AppFeatures.enableUiCatalog
+              ? TextButton(
+                  onPressed: () => context.push('/ui-catalog'),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    AppVersion.label,
+                    style: textTheme.bodyLarge?.copyWith(
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                )
+              : Text(
+                  AppVersion.label,
+                  style: textTheme.bodyLarge?.copyWith(
+                    decoration: TextDecoration.none,
+                  ),
+                ),
         ),
         const SizedBox(height: 24),
         Form(

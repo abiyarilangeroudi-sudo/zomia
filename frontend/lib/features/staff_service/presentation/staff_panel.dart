@@ -86,8 +86,10 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
           summary: _summary,
           isLoading: _isResolving,
           isConfirmed: _isCustomerConfirmed,
+          onScan: _scanQr,
           onConfirm: _confirmCustomer,
           onReject: _rejectCustomer,
+          onCancelService: _cancelService,
         ),
         if (_summary != null && !_isCustomerConfirmed) ...[
           const SizedBox(height: 16),
@@ -121,8 +123,6 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
       ],
     );
   }
-
-  Future<void> scanQrFromTopBar() => _scanQr();
 
   void _clearError() {
     setState(() {
@@ -342,6 +342,14 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
   }
 
   void _rejectCustomer() {
+    setState(() {
+      _clearCustomerContext();
+      _success = null;
+      _error = null;
+    });
+  }
+
+  void _cancelService() {
     setState(() {
       _clearCustomerContext();
       _success = null;

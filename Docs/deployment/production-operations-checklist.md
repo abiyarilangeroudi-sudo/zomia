@@ -336,3 +336,20 @@ Open production decisions are tracked in:
 - Backend warning/error log showed no entries for the test day.
 - Nginx error log showed no suspicious entries during the check.
 - No point, campaign threshold, or reward-generation anomalies were found in the checked production data.
+
+## 2026-07-01 Frontend Pre-Reset UI Cleanup
+
+- Release: `/var/www/zomia/releases/20260701180705`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.120 (121)`.
+- Changes:
+  - Staff QR scan action moved from AppBar to the Home empty state.
+  - Staff can cancel/clear a confirmed customer service session before registering an action or using a reward.
+  - UI Component Catalog is hidden by default and not linked from the production Login version label.
+  - Staff invitation acceptance requires Terms and Privacy acceptance before the account is accepted.
+- Backend, database, and loyalty logic were not changed.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - Active frontend symlink points to `/var/www/zomia/releases/20260701180705`.
+  - Production frontend bundle contains version marker `1.0.120`.
+  - Production frontend bundle did not contain UI Catalog marker text.

@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import 'app_features.dart';
 import 'ui_catalog/ui_component_catalog_screen.dart';
 import '../features/auth/presentation/auth_gate.dart';
 import '../features/auth/presentation/business_register_screen.dart';
@@ -21,11 +22,12 @@ final appRouter = GoRouter(
             : null,
       ),
     ),
-    GoRoute(
-      path: '/ui-catalog',
-      name: 'ui-catalog',
-      builder: (context, state) => const UiComponentCatalogScreen(),
-    ),
+    if (AppFeatures.enableUiCatalog)
+      GoRoute(
+        path: '/ui-catalog',
+        name: 'ui-catalog',
+        builder: (context, state) => const UiComponentCatalogScreen(),
+      ),
     GoRoute(
       path: '/register',
       name: 'customer-register',

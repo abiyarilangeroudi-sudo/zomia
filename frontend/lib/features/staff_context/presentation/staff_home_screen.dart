@@ -95,13 +95,6 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
             : _tabs[_selectedIndex].label,
         variant: AppTopBarVariant.business,
         onMenu: () => _scaffoldKey.currentState?.openDrawer(),
-        actions: [
-          IconButton(
-            tooltip: 'Scan customer QR',
-            onPressed: () => _servicePanelKey.currentState?.scanQrFromTopBar(),
-            icon: const Icon(Icons.qr_code_scanner_rounded),
-          ),
-        ],
       ),
       body: SafeArea(
         child: IndexedStack(

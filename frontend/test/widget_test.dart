@@ -484,7 +484,7 @@ void main() {
     );
   });
 
-  testWidgets('opens the temporary UI component catalog from version label', (
+  testWidgets('keeps the UI component catalog hidden by default', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -503,13 +503,9 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text(AppVersion.label));
-    await pumpAppFrames(tester);
-
-    expect(find.text('UI Component Catalog'), findsOneWidget);
-    expect(find.text('Zomia Design System'), findsOneWidget);
-    expect(find.text('AppCard / normal'), findsOneWidget);
-    expect(find.text('ProgressCard / active'), findsOneWidget);
+    expect(find.text(AppVersion.label), findsOneWidget);
+    expect(find.text('UI Component Catalog'), findsNothing);
+    expect(find.text('Zomia Design System'), findsNothing);
   });
 
   testWidgets('recovers password and returns to login', (tester) async {
@@ -717,9 +713,9 @@ void main() {
     expect(find.text('Home'), findsWidgets);
     expect(find.text('Zomia Cafe'), findsWidgets);
     expect(find.text('Signed in as Staff One'), findsOneWidget);
-    expect(find.byTooltip('Scan customer QR'), findsOneWidget);
+    expect(find.byTooltip('Scan customer QR'), findsNothing);
     expect(find.text('Customer QR'), findsNothing);
-    expect(find.text('Scan with Camera'), findsNothing);
+    expect(find.text('Scan QR'), findsOneWidget);
     expect(find.text('No customer loaded'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsNothing);
     expect(find.text('Active Rewards'), findsNothing);
@@ -1276,8 +1272,10 @@ void main() {
           body: StaffCustomerSummaryCard(
             isLoading: false,
             isConfirmed: false,
+            onScan: _noop,
             onConfirm: _noop,
             onReject: _noop,
+            onCancelService: _noop,
             summary: StaffServiceSummary(
               businessId: 'business-id',
               customer: StaffServiceCustomer(

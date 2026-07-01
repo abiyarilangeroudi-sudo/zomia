@@ -11,15 +11,19 @@ class StaffCustomerSummaryCard extends StatelessWidget {
     required this.summary,
     required this.isLoading,
     required this.isConfirmed,
+    required this.onScan,
     required this.onConfirm,
     required this.onReject,
+    required this.onCancelService,
   });
 
   final StaffServiceSummary? summary;
   final bool isLoading;
   final bool isConfirmed;
+  final VoidCallback onScan;
   final VoidCallback onConfirm;
   final VoidCallback onReject;
+  final VoidCallback onCancelService;
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +32,15 @@ class StaffCustomerSummaryCard extends StatelessWidget {
       child: isLoading
           ? const LoadingState(label: 'Loading customer')
           : summary == null
-          ? const EmptyStateView(
+          ? EmptyStateView(
               icon: Icons.person_search_rounded,
               title: 'No customer loaded',
               message: 'Scan a customer QR to start the service session.',
+              action: PrimaryButton(
+                label: 'Scan QR',
+                icon: Icons.qr_code_scanner_rounded,
+                onPressed: onScan,
+              ),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,6 +74,13 @@ class StaffCustomerSummaryCard extends StatelessWidget {
                   _StaffCustomerActions(
                     onReject: onReject,
                     onConfirm: onConfirm,
+                  ),
+                ] else ...[
+                  const SizedBox(height: 16),
+                  SecondaryButton(
+                    label: 'Cancel service',
+                    icon: Icons.close_rounded,
+                    onPressed: onCancelService,
                   ),
                 ],
               ],
