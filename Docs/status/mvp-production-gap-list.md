@@ -604,6 +604,14 @@ F15.13 pre-pilot operational final pass:
 - Production remains ready only for controlled private-pilot onboarding under documented boundaries.
 - Current priority order is first private-pilot onboarding, restore cadence, external alert recipient confirmation, and final UI polish.
 
+F15.14 Staff profile and business suspension decision:
+
+- Staff Profile no longer repeats Account Settings because Settings already lives in the Drawer.
+- Staff can update only their display name through `PATCH /api/v1/staff/me/profile`.
+- Staff profile editing intentionally does not change email, password, role, or business membership.
+- Business deactivation is intentionally not implemented as a quick UI toggle.
+- The database already has `BusinessStatus` with `active` and `suspended`, but the product policy still needs to define Staff access, QR/service blocking, campaign/reward visibility, reactivation, and historical audit behavior before exposing it.
+
 F15.11 OpenAPI exposure:
 
 - Production FastAPI docs are disabled when `APP_ENV=production`.

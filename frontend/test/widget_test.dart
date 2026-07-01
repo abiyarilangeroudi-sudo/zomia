@@ -736,9 +736,14 @@ void main() {
     expect(find.text('Profile'), findsWidgets);
     expect(find.text('Staff One'), findsOneWidget);
     expect(find.text('staff@example.com'), findsOneWidget);
-    expect(find.text('Account Settings'), findsOneWidget);
+    expect(find.byTooltip('Edit profile'), findsOneWidget);
+    expect(find.text('Account Settings'), findsNothing);
 
-    await tester.tap(find.text('Account Settings'));
+    await tester.tap(find.byTooltip('Close'));
+    await pumpAppFrames(tester);
+    tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Setting'));
     await pumpAppFrames(tester);
 
     expect(find.text('Settings'), findsOneWidget);

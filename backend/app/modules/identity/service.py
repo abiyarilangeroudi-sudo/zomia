@@ -32,6 +32,7 @@ from app.modules.identity.schemas import (
     StaffInvitationAccept,
     StaffInvitationPreviewRead,
     StaffInviteCreate,
+    StaffProfileUpdate,
     OwnerStaffRead,
     UserCreate,
     UserRead,
@@ -305,6 +306,10 @@ class IdentityService:
     def update_customer_profile(self, customer: User, payload: CustomerProfileUpdate) -> User:
         self._require_role(customer, UserRole.CUSTOMER)
         return self.repository.update_user_full_name(user=customer, full_name=payload.full_name)
+
+    def update_staff_profile(self, staff: User, payload: StaffProfileUpdate) -> User:
+        self._require_role(staff, UserRole.STAFF)
+        return self.repository.update_user_full_name(user=staff, full_name=payload.full_name)
 
     def authenticate(self, *, email: str, password: str) -> tuple[str, str]:
         user = self.repository.get_user_by_email(email)

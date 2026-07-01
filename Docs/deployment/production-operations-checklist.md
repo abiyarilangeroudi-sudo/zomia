@@ -353,3 +353,39 @@ Open production decisions are tracked in:
   - Active frontend symlink points to `/var/www/zomia/releases/20260701180705`.
   - Production frontend bundle contains version marker `1.0.120`.
   - Production frontend bundle did not contain UI Catalog marker text.
+
+## 2026-07-01 Staff Profile Name Editing
+
+- Backend release: `/opt/zomia/backend/releases/20260701194421_staff_profile`.
+- Frontend release: `/var/www/zomia/releases/20260701193437_staff_profile`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.121 (122)`.
+- Changes:
+  - Staff Profile no longer repeats Account Settings because Settings is already available in Drawer.
+  - Staff can update only their display name through `PATCH /api/v1/staff/me/profile`.
+  - Business deactivation was not implemented; the suspension policy remains documented before exposing any toggle.
+- Migration status:
+  - No new migration was added.
+  - Alembic current returned `0012_user_session_version (head)`.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - Backend service was active after restart.
+  - Active backend symlink points to `/opt/zomia/backend/releases/20260701194421_staff_profile`.
+  - Active frontend symlink points to `/var/www/zomia/releases/20260701193437_staff_profile`.
+  - Production frontend bundle contains version marker `1.0.121`.
+
+## 2026-07-01 Staff Profile Immediate Refresh And Web API Cleanup
+
+- Frontend release: `/var/www/zomia/releases/20260701195902_staff_profile_refresh`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.122 (123)`.
+- Changes:
+  - Staff Profile updates the displayed name immediately after saving, without requiring a page refresh.
+  - Web storage and external link helpers now use `package:web` instead of deprecated `dart:html`.
+- Backend, database, and loyalty logic were not changed.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - Active frontend symlink points to `/var/www/zomia/releases/20260701195902_staff_profile_refresh`.
+  - Production frontend bundle contains version marker `1.0.122`.
+  - `flutter analyze --no-pub` returned no issues.

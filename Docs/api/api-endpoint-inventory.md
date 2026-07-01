@@ -71,6 +71,7 @@ Unused endpoint policy:
 | GET | `/auth/me` | authenticated | Auth gate | active | Current user identity. |
 | PATCH | `/customers/me/profile` | customer | Customer profile | active | Customer can update display name. |
 | GET | `/staff/me/context` | staff | Staff login context | active | Returns staff business context after login. |
+| PATCH | `/staff/me/profile` | staff | Staff profile | active | Staff can update display name only. Does not change email, role, or business membership. |
 | POST | `/owner/businesses` | owner | Owner setup | active | Create owner business. |
 | GET | `/owner/businesses` | owner | Owner setup | active | List owner businesses. |
 | PATCH | `/owner/businesses/{business_id}` | owner | Owner business settings | active | Update safe business profile fields owned by the current Owner. Does not change slug, status, currency, owner, transfer, or deletion policy. |

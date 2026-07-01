@@ -728,6 +728,62 @@ def test_non_customer_cannot_update_customer_profile(client: TestClient) -> None
     assert response.status_code == 403
 
 
+def test_staff_can_update_own_profile_name(client: TestClient) -> None:
+    business = register_owner(
+        client,
+        email="owner-staff-profile@example.com",
+        business_name="Staff Profile Cafe",
+    )
+    owner_token = client.post(
+        "/api/v1/auth/login",
+        json={"email": "owner-staff-profile@example.com", "password": "strong-password"},
+    ).json()["access_token"]
+    staff_token, _staff_member = invite_and_accept_staff(
+        client,
+        owner_token=owner_token,
+        business_id=business["id"],
+        email="staff-profile@example.com",
+    )
+
+    response = client.patch(
+        "/api/v1/staff/me/profile",
+        json={"full_name": "Staff Updated"},
+        headers={"Authorization": f"Bearer {staff_token}"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Staff Updated"
+    context_response = client.get(
+        "/api/v1/staff/me/context",
+        headers={"Authorization": f"Bearer {staff_token}"},
+    )
+    assert context_response.status_code == 200
+    assert context_response.json()["staff"]["full_name"] == "Staff Updated"
+
+
+def test_non_staff_cannot_update_staff_profile(client: TestClient) -> None:
+    register_owner(
+        client,
+        email="owner-not-staff-profile@example.com",
+        business_name="Not Staff Profile Cafe",
+    )
+    owner_token = client.post(
+        "/api/v1/auth/login",
+        json={
+            "email": "owner-not-staff-profile@example.com",
+            "password": "strong-password",
+        },
+    ).json()["access_token"]
+
+    response = client.patch(
+        "/api/v1/staff/me/profile",
+        json={"full_name": "Not Staff"},
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
+
+    assert response.status_code == 403
+
+
 def test_owner_can_create_business_and_send_staff_invitation(client: TestClient) -> None:
     owner_business = register_owner(
         client,

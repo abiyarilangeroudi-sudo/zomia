@@ -2,7 +2,7 @@ name: zomia_frontend
 description: "Zomia MVP Flutter application."
 publish_to: 'none'
 
-version: 1.0.120+121
+version: 1.0.122+123
 
 environment:
   sdk: ^3.12.1
@@ -19,6 +19,7 @@ dependencies:
   flutter_svg: ^2.3.0
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.2.0
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

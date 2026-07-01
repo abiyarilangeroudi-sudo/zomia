@@ -159,6 +159,31 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = AsyncData(value.copyWith(user: updatedUser));
   }
 
+  Future<void> updateStaffProfile({required String fullName}) async {
+    final value = state.asData?.value;
+    final user = value?.user;
+    if (value == null || user == null || !user.isStaff) {
+      return;
+    }
+
+    final repository = ref.read(authRepositoryProvider);
+    final updatedUser = await repository.updateStaffProfile(fullName: fullName);
+    final updatedContext = await repository.getStaffContext();
+    final currentBusinessId = value.selectedBusiness?.id;
+    final updatedBusiness = currentBusinessId == null
+        ? _defaultBusiness(updatedContext)
+        : updatedContext.businesses
+              .where((business) => business.id == currentBusinessId)
+              .firstOrNull;
+    state = AsyncData(
+      value.copyWith(
+        user: updatedUser,
+        context: updatedContext,
+        selectedBusiness: updatedBusiness ?? _defaultBusiness(updatedContext),
+      ),
+    );
+  }
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

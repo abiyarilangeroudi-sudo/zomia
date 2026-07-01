@@ -33,6 +33,7 @@ from app.modules.identity.schemas import (
     StaffInvitationAccept,
     StaffInvitationPreviewRead,
     StaffInviteCreate,
+    StaffProfileUpdate,
     OwnerStaffRead,
     StaffRead,
     StaffUpdate,
@@ -268,6 +269,19 @@ def update_customer_profile(
     service: IdentityService = Depends(get_identity_service),
 ) -> User:
     user = service.update_customer_profile(current_user, payload)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.patch("/staff/me/profile", response_model=UserRead)
+def update_staff_profile(
+    payload: StaffProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> User:
+    user = service.update_staff_profile(current_user, payload)
     db.commit()
     db.refresh(user)
     return user

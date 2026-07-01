@@ -1,7 +1,5 @@
-// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
-
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 void openExternalUrl(String url) {
-  html.window.open(url, '_blank', 'noopener,noreferrer');
+  web.window.open(url, '_blank', 'noopener,noreferrer');
 }

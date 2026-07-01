@@ -215,7 +215,9 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
               child: _StaffProfileCard(
                 staff: widget.staff,
                 business: widget.business,
-                onOpenAccountSettings: _openAccountSettingsDialog,
+                onUpdateName: (fullName) => ref
+                    .read(authControllerProvider.notifier)
+                    .updateStaffProfile(fullName: fullName),
               ),
             ),
           ),
@@ -278,16 +280,37 @@ class _BusinessHeader extends StatelessWidget {
   }
 }
 
-class _StaffProfileCard extends StatelessWidget {
+class _StaffProfileCard extends StatefulWidget {
   const _StaffProfileCard({
     required this.staff,
     required this.business,
-    required this.onOpenAccountSettings,
+    required this.onUpdateName,
   });
 
   final StaffUser staff;
   final StaffBusiness business;
-  final VoidCallback onOpenAccountSettings;
+  final Future<void> Function(String fullName) onUpdateName;
+
+  @override
+  State<_StaffProfileCard> createState() => _StaffProfileCardState();
+}
+
+class _StaffProfileCardState extends State<_StaffProfileCard> {
+  late String _displayName;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayName = widget.staff.fullName;
+  }
+
+  @override
+  void didUpdateWidget(covariant _StaffProfileCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.staff.fullName != widget.staff.fullName) {
+      _displayName = widget.staff.fullName;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -298,24 +321,167 @@ class _StaffProfileCard extends StatelessWidget {
           const SectionHeader(title: 'Profile'),
           const SizedBox(height: 12),
           AppListRow(
-            title: staff.fullName,
-            subtitle: staff.email,
+            title: _displayName,
+            subtitle: widget.staff.email,
             leadingIcon: Icons.person_rounded,
+            trailing: IconButton(
+              tooltip: 'Edit profile',
+              icon: const Icon(Icons.edit_rounded),
+              onPressed: () => _openEditProfile(context),
+            ),
+            onTap: () => _openEditProfile(context),
           ),
           const SizedBox(height: 12),
           AppListRow(
-            title: business.name,
-            subtitle: '${business.currencyCode} · ${business.timezone}',
+            title: widget.business.name,
+            subtitle:
+                '${widget.business.currencyCode} · ${widget.business.timezone}',
             leadingIcon: Icons.storefront_rounded,
-          ),
-          const SizedBox(height: 12),
-          AppListRow(
-            title: 'Account Settings',
-            leadingIcon: Icons.manage_accounts_rounded,
-            onTap: onOpenAccountSettings,
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openEditProfile(BuildContext context) async {
+    final updatedName = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        fullscreenDialog: true,
+        builder: (context) => _StaffEditProfileDialog(
+          currentName: _displayName,
+          onUpdateName: widget.onUpdateName,
+        ),
+      ),
+    );
+    if (!mounted || updatedName == null) {
+      return;
+    }
+    setState(() => _displayName = updatedName);
+  }
+}
+
+class _StaffEditProfileDialog extends StatefulWidget {
+  const _StaffEditProfileDialog({
+    required this.currentName,
+    required this.onUpdateName,
+  });
+
+  final String currentName;
+  final Future<void> Function(String fullName) onUpdateName;
+
+  @override
+  State<_StaffEditProfileDialog> createState() =>
+      _StaffEditProfileDialogState();
+}
+
+class _StaffEditProfileDialogState extends State<_StaffEditProfileDialog> {
+  late final TextEditingController _nameController;
+  String? _error;
+  String? _success;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.currentName);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const AppTopBar(
+        title: 'Edit Profile',
+        variant: AppTopBarVariant.service,
+      ),
+      body: SafeArea(
+        child: DashboardScroll(
+          maxWidth: 640,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_error != null)
+                InlineBanner(
+                  message: _error!,
+                  tone: BannerTone.error,
+                  onClose: () => setState(() => _error = null),
+                ),
+              if (_success != null)
+                InlineBanner(
+                  message: _success!,
+                  tone: BannerTone.success,
+                  onClose: () => setState(() => _success = null),
+                ),
+              if (_error != null || _success != null)
+                const SizedBox(height: 16),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AppTextField(
+                      controller: _nameController,
+                      label: 'Name',
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _saveName(),
+                    ),
+                    const SizedBox(height: 12),
+                    PrimaryButton(
+                      label: 'Save profile',
+                      icon: Icons.check_rounded,
+                      isLoading: _isSaving,
+                      onPressed: _isSaving ? null : _saveName,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveName() async {
+    final nextName = _nameController.text.trim();
+    if (nextName.length < 2) {
+      setState(() {
+        _error = 'Name must be at least 2 characters.';
+        _success = null;
+      });
+      return;
+    }
+    if (nextName == widget.currentName) {
+      setState(() {
+        _error = null;
+        _success = 'Profile is already up to date.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+      _error = null;
+      _success = null;
+    });
+    try {
+      await widget.onUpdateName(nextName);
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(nextName);
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSaving = false;
+        _error = error.toString();
+      });
+    }
   }
 }
