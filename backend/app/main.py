@@ -2,6 +2,7 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
+from app.core.monitoring import setup_sentry
 from app.modules.identity.router import router as identity_router
 from app.modules.loyalty.router import router as loyalty_router
 from app.modules.qr.router import router as qr_router
@@ -9,6 +10,7 @@ from app.modules.qr.router import router as qr_router
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    setup_sentry(settings)
     expose_api_docs = settings.app_env.lower() != "production"
     app = FastAPI(
         title="Zomia API",

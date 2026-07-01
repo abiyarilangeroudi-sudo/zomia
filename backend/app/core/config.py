@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     smtp_from_email: str | None = Field(default=None, alias="SMTP_FROM_EMAIL")
     smtp_from_name: str = Field(default="Zomia", alias="SMTP_FROM_NAME")
     smtp_use_tls: bool = Field(default=True, alias="SMTP_USE_TLS")
+    sentry_dsn: str | None = Field(default=None, alias="SENTRY_DSN")
+    sentry_traces_sample_rate: float = Field(default=0.0, alias="SENTRY_TRACES_SAMPLE_RATE")
     cors_allowed_origins: str = Field(
         default="http://localhost:8080,http://127.0.0.1:8080",
         alias="CORS_ALLOWED_ORIGINS",

@@ -587,6 +587,9 @@ F15.10 open production decisions:
 - UptimeRobot public status page: `https://stats.uptimerobot.com/nxgv77u55I`.
 - UptimeRobot alert recipient: `info@zomia.eu`.
 - `/health` supports both `GET` and `HEAD` for external uptime checks.
+- Backend Sentry support is active with `SENTRY_DSN` configured in the protected production backend env file.
+- Backend Sentry tracing is intended to stay disabled for the private pilot with `SENTRY_TRACES_SAMPLE_RATE=0.0`.
+- Backend Sentry production smoke event passed on 2026-07-01.
 - No heartbeat URL is configured yet, so local server/backup/disk heartbeat alerting is still not active.
 - Manual-vs-GitHub-Actions deploy boundary is accepted for the private pilot: production deploy stays manual, GitHub Actions should start as CI-only, production deploy automation requires a later manual-approval workflow.
 - Access-token invalidation hardening is active in production with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.

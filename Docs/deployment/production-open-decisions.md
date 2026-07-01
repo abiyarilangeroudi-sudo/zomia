@@ -71,7 +71,7 @@ Current boundary:
 
 ## 3. Monitoring And Alerting
 
-Status: `Minimum private-pilot monitoring active; external uptime monitor active; heartbeat hook prepared`
+Status: `Minimum private-pilot monitoring active; external uptime monitor active; backend Sentry active; heartbeat hook prepared`
 
 Current private-pilot direction:
 
@@ -98,12 +98,16 @@ Current private-pilot direction:
   - Alert recipient: `info@zomia.eu`.
   - `/health` supports both `GET` and `HEAD`.
 - Heartbeat alert delivery is not enabled yet because no heartbeat URL has been configured.
+- Backend Sentry support is active with `SENTRY_DSN` configured in the protected backend env file.
+  - Tracing should stay disabled for the private pilot with `SENTRY_TRACES_SAMPLE_RATE=0.0`.
+  - Sentry must not collect passwords, OTPs, tokens, QR tokens, SMTP secrets, database URLs, email bodies, or other sensitive values.
+  - Production smoke event sent successfully on 2026-07-01.
 - Operators still check Nginx logs, backend journal logs, PostgreSQL logs, backup logs, and the production health-check log.
 
 Needs decision before broader launch:
 
 - Optional heartbeat URL for local server, backup, and disk checks.
-- Error tracking for backend exceptions.
+- Decide whether frontend Sentry is needed after backend Sentry is verified.
 - Backup failure alerting outside the server.
 - Disk-space monitoring.
 - TLS renewal monitoring.

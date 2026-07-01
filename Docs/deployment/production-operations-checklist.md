@@ -195,7 +195,8 @@ Boundary:
 - Public status page: `https://stats.uptimerobot.com/nxgv77u55I`.
 - Uptime alert recipient: `info@zomia.eu`.
 - A heartbeat hook is prepared, but no `MONITORING_HEARTBEAT_URL` is configured yet.
-- Heartbeat alerting, error tracking, and TLS renewal alerting still need separate decisions before broader launch.
+- Backend Sentry error tracking is active with `SENTRY_DSN` stored only in `/opt/zomia/env/backend.env`.
+- Heartbeat alerting, frontend error tracking, and TLS renewal alerting still need separate decisions before broader launch.
 
 Recommended MVP setup:
 
@@ -203,6 +204,12 @@ Recommended MVP setup:
   - HTTPS monitor: `https://zomia.eu/health`, expected `200`.
   - `/health` supports both `GET` and `HEAD` so external monitors can use the default UptimeRobot request method.
   - Alert email: `info@zomia.eu`.
+- Backend error tracking:
+  - `SENTRY_DSN` in `/opt/zomia/env/backend.env`.
+  - `SENTRY_TRACES_SAMPLE_RATE=0.0`.
+  - Sentry must not be used for analytics or session replay.
+  - Sensitive values such as tokens, passwords, OTPs, QR tokens, SMTP secrets, and database URLs must be filtered before events are sent.
+  - Production smoke event sent successfully on 2026-07-01: `Zomia backend Sentry smoke test`.
 - Optional later:
   - Heartbeat monitor: one hourly heartbeat URL stored only in `/opt/zomia/env/monitoring.env`.
 - Keep the heartbeat URL out of Git and out of deploy logs.
