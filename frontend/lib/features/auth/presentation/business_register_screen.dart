@@ -204,6 +204,11 @@ class _BusinessRegisterScreenState
     if (!mounted || hasError) {
       return;
     }
-    context.go('/verify-email?email=$email&registration_type=owner');
+    context.go(
+      Uri(
+        path: '/verify-email',
+        queryParameters: {'email': email, 'registration_type': 'owner'},
+      ).toString(),
+    );
   }
 }

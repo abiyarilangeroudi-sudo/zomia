@@ -177,6 +177,11 @@ class _CustomerRegisterScreenState
     if (!mounted || hasError) {
       return;
     }
-    context.go('/verify-email?email=$email&registration_type=customer');
+    context.go(
+      Uri(
+        path: '/verify-email',
+        queryParameters: {'email': email, 'registration_type': 'customer'},
+      ).toString(),
+    );
   }
 }

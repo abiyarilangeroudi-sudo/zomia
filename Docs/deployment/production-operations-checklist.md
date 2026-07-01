@@ -310,3 +310,29 @@ Short rule:
 Open production decisions are tracked in:
 
 - `Docs/deployment/production-open-decisions.md`
+
+## 2026-06-28 Frontend Email Alias Registration Fix
+
+- Release: `/var/www/zomia/releases/20260628185250`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.119 (120)`.
+- Change: registration now builds the email verification route with encoded query parameters so email aliases such as `name+test@example.com` keep the `+` character.
+- Backend, database, and loyalty logic were not changed.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - Active frontend symlink points to `/var/www/zomia/releases/20260628185250`.
+  - Production frontend bundle contains version marker `1.0.119`.
+
+## 2026-07-01 Production Workflow Validation
+
+- Result: `PASS`.
+- Detailed report: `Docs/status/production-workflow-validation-2026-07-01.md`.
+- Scope:
+  - 3 businesses.
+  - 5 customers.
+  - 50 mission-progress actions.
+  - 50 points.
+  - 5 generated rewards.
+- Backend warning/error log showed no entries for the test day.
+- Nginx error log showed no suspicious entries during the check.
+- No point, campaign threshold, or reward-generation anomalies were found in the checked production data.
