@@ -191,7 +191,9 @@ The check covers:
 
 Boundary:
 
-- This is not complete external alerting yet, but external uptime monitoring for `https://zomia.eu/health` is active.
+- External uptime monitoring for `https://zomia.eu/health` is active through UptimeRobot.
+- Public status page: `https://stats.uptimerobot.com/nxgv77u55I`.
+- Uptime alert recipient: `info@zomia.eu`.
 - A heartbeat hook is prepared, but no `MONITORING_HEARTBEAT_URL` is configured yet.
 - Heartbeat alerting, error tracking, and TLS renewal alerting still need separate decisions before broader launch.
 
@@ -199,6 +201,8 @@ Recommended MVP setup:
 
 - Keep active:
   - HTTPS monitor: `https://zomia.eu/health`, expected `200`.
+  - `/health` supports both `GET` and `HEAD` so external monitors can use the default UptimeRobot request method.
+  - Alert email: `info@zomia.eu`.
 - Optional later:
   - Heartbeat monitor: one hourly heartbeat URL stored only in `/opt/zomia/env/monitoring.env`.
 - Keep the heartbeat URL out of Git and out of deploy logs.

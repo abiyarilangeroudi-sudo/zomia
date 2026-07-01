@@ -26,7 +26,9 @@ Do not add extra business rules, UI changes, analytics, group campaigns, cross-n
 Before the session starts, confirm:
 
 - `https://zomia.eu/health` returns `{"status":"ok"}`.
-- External uptime monitor for `https://zomia.eu/health` is operational.
+- UptimeRobot monitor for `https://zomia.eu/health` is operational.
+- UptimeRobot public status page is reachable: `https://stats.uptimerobot.com/nxgv77u55I`.
+- UptimeRobot alert recipient is `info@zomia.eu`.
 - Production health-check script recently returned `production_health status=ok`.
 - `/docs`, `/redoc`, and `/openapi.json` return `404` in production.
 - Public legal pages are reachable:

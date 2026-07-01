@@ -93,13 +93,15 @@ Current private-pilot direction:
   - If `MONITORING_HEARTBEAT_URL` is empty, the health check logs `monitoring_heartbeat not_configured` and stays green when all local checks pass.
   - If `MONITORING_HEARTBEAT_URL` is configured, the heartbeat is sent only after all local checks pass.
   - If the heartbeat send fails, the local health-check log records `monitoring_heartbeat send_failed`.
-- An external uptime monitor for `https://zomia.eu/health` is active.
+- An external uptime monitor for `https://zomia.eu/health` is active through UptimeRobot.
+  - Public status page: `https://stats.uptimerobot.com/nxgv77u55I`.
+  - Alert recipient: `info@zomia.eu`.
+  - `/health` supports both `GET` and `HEAD`.
 - Heartbeat alert delivery is not enabled yet because no heartbeat URL has been configured.
 - Operators still check Nginx logs, backend journal logs, PostgreSQL logs, backup logs, and the production health-check log.
 
 Needs decision before broader launch:
 
-- Confirm alert recipients for the external uptime monitor.
 - Optional heartbeat URL for local server, backup, and disk checks.
 - Error tracking for backend exceptions.
 - Backup failure alerting outside the server.

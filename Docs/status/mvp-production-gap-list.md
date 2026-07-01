@@ -583,7 +583,10 @@ F15.10 open production decisions:
 - The first scheduled off-server cron run was confirmed on 2026-06-28.
 - Monitoring minimum is active through `/opt/zomia/backend/scripts/check_production_health.sh` and hourly cron.
 - The production health-check now has a vendor-neutral heartbeat hook prepared via `/opt/zomia/env/monitoring.env`.
-- External uptime monitoring for `https://zomia.eu/health` is active.
+- External uptime monitoring for `https://zomia.eu/health` is active through UptimeRobot.
+- UptimeRobot public status page: `https://stats.uptimerobot.com/nxgv77u55I`.
+- UptimeRobot alert recipient: `info@zomia.eu`.
+- `/health` supports both `GET` and `HEAD` for external uptime checks.
 - No heartbeat URL is configured yet, so local server/backup/disk heartbeat alerting is still not active.
 - Manual-vs-GitHub-Actions deploy boundary is accepted for the private pilot: production deploy stays manual, GitHub Actions should start as CI-only, production deploy automation requires a later manual-approval workflow.
 - Access-token invalidation hardening is active in production with `users.session_version`; password recovery completion, password change, and customer account removal invalidate older access tokens.

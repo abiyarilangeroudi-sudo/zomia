@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
@@ -28,6 +28,10 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["health"])
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.head("/health", tags=["health"])
+    def health_head() -> Response:
+        return Response(status_code=200)
 
     app.include_router(identity_router, prefix="/api/v1")
     app.include_router(loyalty_router, prefix="/api/v1")
