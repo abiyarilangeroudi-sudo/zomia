@@ -90,9 +90,11 @@ No mismatch was found in the tested production data.
 
 ## Follow-Up
 
-Before onboarding the first real customer, decide whether to:
+Pre-private-pilot production data reset decision:
 
-- reset production test data and start from a clean database state; or
-- keep the current production test data until the private-pilot onboarding plan is complete.
-
-If a reset is chosen, use a controlled pre-pilot database reset with a fresh backup first.
+- Reset production test data before onboarding the first real customer.
+- Take a fresh local backup and encrypted off-server backup before reset.
+- Do not seed any account after reset.
+- The first real Business Owner must register through the normal Business Register UI.
+- Take a fresh post-reset baseline backup after the clean state is confirmed.
+- Do not execute the reset yet; it is paused until the project owner explicitly requests it, expected on the day before the real customer meeting.

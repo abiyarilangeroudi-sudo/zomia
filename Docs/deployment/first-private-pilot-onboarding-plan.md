@@ -25,6 +25,11 @@ Do not add extra business rules, UI changes, analytics, group campaigns, cross-n
 
 Before the session starts, confirm:
 
+- The production data reset has been explicitly requested by the project owner the day before the real customer session.
+- A fresh local backup and encrypted off-server backup have been created before the reset.
+- Production test data has been fully reset.
+- No account is seeded after reset; the first real Business Owner must register through the normal Business Register UI.
+- A fresh post-reset baseline backup has been created after the clean database state is confirmed.
 - `https://zomia.eu/health` returns `{"status":"ok"}`.
 - UptimeRobot monitor for `https://zomia.eu/health` is operational.
 - UptimeRobot public status page is reachable: `https://stats.uptimerobot.com/nxgv77u55I`.
@@ -47,6 +52,44 @@ Before the session starts, confirm:
   - draft legal pages;
   - UI polish not final;
   - no new feature changes during onboarding.
+
+## Production Data Reset Decision
+
+Status: `Approved but intentionally paused`
+
+Before the first real customer session, production test data will be fully reset using a controlled runbook:
+
+- Take a fresh local PostgreSQL backup.
+- Take a fresh encrypted off-server backup.
+- Reset production data.
+- Re-apply migrations to the current head.
+- Do not seed any account, owner, business, customer, staff, mission, campaign, or reward template.
+- Let the first real Business Owner register through the normal UI flow.
+- Take a fresh post-reset baseline backup.
+
+This reset must not be executed during ordinary development. It is paused until the project owner explicitly requests it, expected on the day before the first real customer meeting.
+
+## Pre-Private-Pilot Production Data Reset Execution Text
+
+When the project owner explicitly requests the reset, execute the following flow:
+
+- Goal: fully remove production test data before the first real customer onboarding.
+- No backend or frontend code changes are part of this reset.
+- Before reset:
+  - Create a complete local PostgreSQL backup.
+  - Create a complete encrypted off-server backup.
+  - Record both backup names and timestamps in the operations checklist.
+- Reset production database data:
+  - Remove all test data.
+  - Recreate the schema through the current Alembic migration head.
+  - Keep the database in a clean state with no seeded accounts.
+- After reset:
+  - Do not create any owner, business, customer, staff, mission, campaign, reward template, action, or reward manually.
+  - The first real Business Owner registers through the normal Business Register UI.
+  - Run the private-pilot smoke checks.
+  - Create a fresh post-reset baseline local backup.
+  - Create a fresh post-reset baseline encrypted off-server backup.
+  - Record the reset result, smoke-check result, and backup names in the operations checklist.
 
 ## Recommended Test Business Setup
 

@@ -610,6 +610,15 @@ F15.13 pre-pilot operational final pass:
 - Production remains ready only for controlled private-pilot onboarding under documented boundaries.
 - Current priority order is first private-pilot onboarding, restore cadence, external alert recipient confirmation, and final UI polish.
 
+F15.13.1 Pre-private-pilot production data reset decision:
+
+- A complete production data reset is approved before onboarding the first real customer, but it is intentionally paused.
+- The reset must only run when the project owner explicitly requests it, expected on the day before the real customer meeting.
+- A fresh local backup and encrypted off-server backup must be taken before reset.
+- No account, owner, business, customer, staff, mission, campaign, or reward template should be seeded after reset.
+- The first real Business Owner must register through the normal Business Register UI.
+- A fresh post-reset baseline backup must be taken after the clean database state is confirmed.
+
 F15.14 Staff profile and business suspension decision:
 
 - Staff Profile no longer repeats Account Settings because Settings already lives in the Drawer.
