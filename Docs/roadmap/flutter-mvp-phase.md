@@ -223,6 +223,7 @@ Backend باید مالک این موارد بماند:
 - reward use validity
 - idempotency
 - audit/business rules
+- internal operations events
 
 Flutter می‌تواند این کارها را انجام دهد:
 
@@ -243,6 +244,20 @@ Owner    -> owner_presenter.dart
 ```
 
 قانون مهم:
+
+## Post-Private-Pilot Operations Direction
+
+Do not add an Admin Operations Dashboard before the first real customer session.
+
+After the first private pilot, consider a small internal Operations area only if production support needs it. Start with backend operations events first, then UI:
+
+- business/customer/staff lifecycle events
+- loyalty setup events
+- action/reward events
+- email failure events
+- support-oriented recent event feed
+
+This must remain separate from Owner-visible activity and must not add loyalty decision logic to Flutter.
 
 ```text
 اگر Flutter برای نمایش چیزی مجبور شود قانون campaign/reward حدس بزند،

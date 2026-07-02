@@ -47,6 +47,43 @@ Owner-visible activity is currently built from loyalty actions:
 
 Owner activity is product-facing operational history. It should remain separate from internal audit records.
 
+## Internal Operations Dashboard Decision
+
+Status: `Deferred until after the first private pilot`
+
+An internal `Operations` or `Admin Operations Dashboard` would be useful for support and incident review, but it is not part of the pre-first-customer scope.
+
+Current private-pilot observability already includes:
+
+- `GET` and `HEAD` `/health`
+- UptimeRobot external uptime monitoring
+- Backend Sentry error tracking
+- Production logs
+- Local and encrypted off-server PostgreSQL backups
+- Owner and Staff recent activity views for product-facing activity
+
+Decision:
+
+- Do not build an Admin Operations Dashboard before the first real customer session.
+- Do not add a broad new internal UI surface before the first private pilot.
+- Treat a future Operations page as a post-private-pilot roadmap item, not a blocker.
+- If debugging during the first pilot is too slow, start with backend operations events before building UI.
+
+Future direction:
+
+- Define internal operations events such as:
+  - `business_registered`
+  - `customer_registered`
+  - `staff_invited`
+  - `mission_created`
+  - `campaign_created`
+  - `action_registered`
+  - `reward_issued`
+  - `reward_used`
+  - `email_failed`
+- Keep these events separate from owner-visible recent activity.
+- Build a small internal Operations view only after the event boundaries are clear.
+
 ## Idempotency
 
 Action registration and reward use both use `business_id + idempotency_key` through `loyalty_actions`.

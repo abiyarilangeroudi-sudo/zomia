@@ -151,6 +151,8 @@ F10.13 progress:
 - Owner-visible recent activity is explicitly separated from internal audit events.
 - QR raw token storage is covered by a backend test; only `token_hash` is stored.
 - QR issue/rotate/resolve remain outside loyalty audit for MVP unless a later security audit decision changes that.
+- Internal Operations Dashboard is explicitly deferred until after the first private pilot; current observability relies on `/health`, UptimeRobot, backend Sentry, production logs, backups, and existing Owner/Staff activity views.
+- If Private Pilot debugging is too slow, start with backend operations events before adding a new UI dashboard.
 
 ### 7. UI Consistency Pass
 
