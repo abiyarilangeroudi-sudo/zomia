@@ -169,8 +169,10 @@ class _BusinessRegisterScreenState
               ),
               const SizedBox(height: 12),
               AuthTextLink(
-                text: 'Already have an account? Sign in',
-                onPressed: isLoading ? null : () => context.go('/'),
+                text: 'Back to Home',
+                onPressed: isLoading
+                    ? null
+                    : () => openExternalUrl('https://zomia.eu/'),
               ),
             ],
           ),

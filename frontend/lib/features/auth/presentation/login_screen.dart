@@ -139,17 +139,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 onPressed: isLoading ? null : _submit,
                 isLoading: isLoading,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               AuthTextLink(
-                text: 'Create customer account',
+                text: 'Create account',
                 onPressed: isLoading ? null : () => context.push('/register'),
-              ),
-              const SizedBox(height: 14),
-              AuthTextLink(
-                text: 'Register your business',
-                onPressed: isLoading
-                    ? null
-                    : () => context.push('/register/business'),
               ),
             ],
           ),
