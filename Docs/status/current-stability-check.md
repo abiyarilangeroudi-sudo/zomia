@@ -12,6 +12,7 @@ This document is the short checkpoint before the next feature phase.
 - Customer profile allows the customer to update their display name; email stays read-only.
 - Owner minimal setup can invite Staff and create Mission, Reward Template, and Campaign from Flutter.
 - Owner Campaign creation now follows the current domain flow: select a Reward Template and included Missions when creating the Campaign.
+- Owner Home includes a first setup checklist for Mission, Reward Template, Campaign, and Staff invitation to support first-business onboarding.
 - Owner can view recent Staff activity for the selected business.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.
 - Customer can view QR, campaign progress, active rewards, and profile basics.
@@ -30,7 +31,7 @@ This document is the short checkpoint before the next feature phase.
 ## Last Recorded Verification Snapshot
 
 - Backend tests: `80 passed`
-- Frontend tests: `37 passed`
+- Frontend tests: `39 passed`
 - Flutter analyze: no issues
 - Current production Flutter version: `1.0.125 (126)`
 - Production smoke passes have covered registration, login, Staff service flow, reward generation/use, Owner activity, legal routing, and console hygiene.
@@ -56,6 +57,7 @@ This document is the short checkpoint before the next feature phase.
   - `owner_activity_dialog.dart`
   - `owner_business_widgets.dart`
   - `owner_staff_widgets.dart`
+  - `owner_setup_checklist.dart`
   - `owner_loyalty_widgets.dart`
   - `owner_setup_shared_widgets.dart`
   - `owner_setup_widgets.dart` as the export barrel

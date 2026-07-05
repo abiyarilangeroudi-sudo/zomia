@@ -20,6 +20,7 @@ Start with exactly one real business:
 - 1 reward template.
 
 Do not add extra business rules, UI changes, analytics, group campaigns, cross-network campaigns, or automation during the first onboarding session.
+Owner Home includes a first setup checklist for the Mission, Reward Template, Campaign, and Staff invitation steps; use it as the in-app guide during the session.
 
 ## Pre-Onboarding Checks
 
@@ -124,22 +125,23 @@ Run the session in this order:
 2. Owner verifies email.
 3. Owner signs in.
 4. Owner confirms business information.
-5. Owner creates the mission.
-6. Owner creates the reward template.
-7. Owner creates the campaign and connects mission plus reward template.
-8. Owner invites one staff member.
-9. Staff accepts the invitation.
-10. Staff signs in.
-11. Customer registers.
-12. Customer verifies email.
-13. Customer signs in and opens QR.
-14. Staff scans QR.
-15. Staff confirms customer.
-16. Staff registers the mission action.
-17. Customer campaign progress updates.
-18. Repeat action registration until reward is issued.
-19. Staff uses the reward with confirmation.
-20. Owner checks staff recent actions.
+5. Owner follows the first setup checklist.
+6. Owner creates the mission.
+7. Owner creates the reward template.
+8. Owner creates the campaign and connects mission plus reward template.
+9. Owner invites one staff member.
+10. Staff accepts the invitation.
+11. Staff signs in.
+12. Customer registers.
+13. Customer verifies email.
+14. Customer signs in and opens QR.
+15. Staff scans QR.
+16. Staff confirms customer.
+17. Staff registers the mission action.
+18. Customer campaign progress updates.
+19. Repeat action registration until reward is issued.
+20. Staff uses the reward with confirmation.
+21. Owner checks staff recent actions.
 
 ## Pass Criteria
 

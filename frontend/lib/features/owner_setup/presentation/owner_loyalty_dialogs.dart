@@ -16,15 +16,15 @@ Future<void> openOwnerLoyaltyCreateDialog(
   }
   switch (action) {
     case OwnerLoyaltyCreateAction.mission:
-      await _openMissionDialog(context, controller);
+      await openOwnerMissionCreateDialog(context, controller);
     case OwnerLoyaltyCreateAction.campaign:
-      await _openCampaignDialog(context, controller);
+      await openOwnerCampaignCreateDialog(context, controller);
     case OwnerLoyaltyCreateAction.rewardTemplate:
-      await _openRewardTemplateDialog(context, controller);
+      await openOwnerRewardTemplateCreateDialog(context, controller);
   }
 }
 
-Future<void> _openMissionDialog(
+Future<void> openOwnerMissionCreateDialog(
   BuildContext context,
   OwnerSetupController controller,
 ) {
@@ -46,7 +46,7 @@ Future<void> _openMissionDialog(
   );
 }
 
-Future<void> _openCampaignDialog(
+Future<void> openOwnerCampaignCreateDialog(
   BuildContext context,
   OwnerSetupController controller,
 ) {
@@ -83,7 +83,7 @@ Future<void> _openCampaignDialog(
   );
 }
 
-Future<void> _openRewardTemplateDialog(
+Future<void> openOwnerRewardTemplateCreateDialog(
   BuildContext context,
   OwnerSetupController controller,
 ) {

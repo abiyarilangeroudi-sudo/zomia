@@ -23,6 +23,7 @@ import 'package:zomia_frontend/features/customer_qr/presentation/customer_presen
 import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
 import 'package:zomia_frontend/features/owner_setup/domain/owner_setup_models.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_presenter.dart';
+import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_checklist.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_controller.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_profile_widgets.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
@@ -348,6 +349,65 @@ void main() {
     expect(presentation.title, 'Deactivate Staff?');
     expect(presentation.confirmLabel, 'Deactivate');
     expect(presentation.tone, ConfirmTone.destructive);
+  });
+
+  testWidgets(
+    'owner setup checklist locks campaign until prerequisites exist',
+    (tester) async {
+      var campaignTapCount = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: OwnerSetupChecklist(
+              hasMission: false,
+              hasRewardTemplate: false,
+              hasCampaign: false,
+              hasStaff: false,
+              onCreateMission: () {},
+              onCreateRewardTemplate: () {},
+              onCreateCampaign: () => campaignTapCount++,
+              onInviteStaff: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('First setup'), findsOneWidget);
+      expect(find.text('0 of 4 steps complete'), findsOneWidget);
+      expect(find.text('Create your first campaign'), findsOneWidget);
+      expect(find.text('Locked'), findsOneWidget);
+
+      await tester.tap(find.text('Create your first campaign'));
+      await tester.pump();
+
+      expect(campaignTapCount, 0);
+    },
+  );
+
+  testWidgets('owner setup checklist shows completion state', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: OwnerSetupChecklist(
+            hasMission: true,
+            hasRewardTemplate: true,
+            hasCampaign: true,
+            hasStaff: true,
+            onCreateMission: () {},
+            onCreateRewardTemplate: () {},
+            onCreateCampaign: () {},
+            onInviteStaff: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('First setup complete'), findsOneWidget);
+    expect(
+      find.text('Your business is ready for the first pilot flow.'),
+      findsOneWidget,
+    );
+    expect(find.text('Done'), findsNWidgets(4));
   });
 
   test('owner campaign creation defaults to repeatable unlimited', () async {

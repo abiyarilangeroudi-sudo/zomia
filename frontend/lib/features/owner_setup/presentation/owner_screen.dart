@@ -174,6 +174,20 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             selectedBusiness: _controller.selectedBusiness,
             onChanged: _controller.selectBusiness,
           ),
+          const SizedBox(height: 16),
+          OwnerSetupChecklist(
+            hasMission: _controller.missions.isNotEmpty,
+            hasRewardTemplate: _controller.rewardTemplates.isNotEmpty,
+            hasCampaign: _controller.campaigns.isNotEmpty,
+            hasStaff: _controller.staffForSelectedBusiness.isNotEmpty,
+            onCreateMission: () =>
+                openOwnerMissionCreateDialog(context, _controller),
+            onCreateRewardTemplate: () =>
+                openOwnerRewardTemplateCreateDialog(context, _controller),
+            onCreateCampaign: () =>
+                openOwnerCampaignCreateDialog(context, _controller),
+            onInviteStaff: _openCreateStaffDialog,
+          ),
         ],
       ],
     );
