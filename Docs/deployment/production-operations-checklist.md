@@ -451,3 +451,31 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/` returned `200`.
   - `https://zomia.eu/webapp/version.json` returned `1.0.125 (126)`.
   - `https://zomia.eu/legal/` returned `200`.
+
+## 2026-07-05 Owner First Setup Checklist
+
+- Frontend release: `/var/www/zomia/releases/202607052303_owner_setup_checklist`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.126 (127)`.
+- Git commit deployed: `524a50b Add owner first setup checklist`.
+- Changes:
+  - Owner Home now shows a first setup checklist for Mission, Reward Template, Campaign, and Staff invitation.
+  - Campaign setup stays locked until a Mission and Reward Template exist.
+  - Owner setup dialogs are reused from the existing create flows.
+  - Flutter default version constants now match the current WebApp version for local builds without explicit version defines.
+- Backend, database, migrations, and loyalty logic were not changed.
+- Local verification passed:
+  - `flutter test` returned `39 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.126 (127)`.
+- Manual QA passed in the local in-app browser before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/?v=202607052303` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.126 (127)`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607052303_owner_setup_checklist`.
+  - Production frontend bundle contains version marker `1.0.126`.
+  - Production frontend bundle has no `sourceMappingURL` or `flutter.js.map` reference.
+  - `https://zomia.eu/legal/` returned `200`.
+  - `https://zomia.eu/docs` returned `404`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.

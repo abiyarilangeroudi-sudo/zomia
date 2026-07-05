@@ -33,7 +33,7 @@ This document is the short checkpoint before the next feature phase.
 - Backend tests: `80 passed`
 - Frontend tests: `39 passed`
 - Flutter analyze: no issues
-- Current production Flutter version: `1.0.125 (126)`
+- Current production Flutter version: `1.0.126 (127)`
 - Production smoke passes have covered registration, login, Staff service flow, reward generation/use, Owner activity, legal routing, and console hygiene.
 
 ## Current Frontend Structure
