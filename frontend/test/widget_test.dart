@@ -451,8 +451,8 @@ void main() {
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text(AppVersion.label), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
-    expect(find.text('Create customer account'), findsOneWidget);
-    expect(find.text('Register your business'), findsOneWidget);
+    expect(find.text('Create account'), findsOneWidget);
+    expect(find.text('Register your business'), findsNothing);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
@@ -572,7 +572,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    await tester.tap(find.text('Create customer account'));
+    await tester.tap(find.text('Create account'));
     await pumpAppFrames(tester);
 
     expect(find.text('Get Started'), findsOneWidget);
@@ -633,8 +633,7 @@ void main() {
       ),
     );
     await pumpAppFrames(tester);
-
-    await tester.tap(find.text('Register your business'));
+    appRouter.go('/register/business');
     await pumpAppFrames(tester);
 
     expect(find.text('Register Business'), findsOneWidget);
