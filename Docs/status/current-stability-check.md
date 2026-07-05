@@ -1,6 +1,6 @@
 # Current Stability Check
 
-Date: 2026-06-27
+Date: 2026-07-05
 
 This document is the short checkpoint before the next feature phase.
 
@@ -18,7 +18,7 @@ This document is the short checkpoint before the next feature phase.
 - Manual release-candidate QA passed on 2026-06-24.
 - F14 aligned Owner Sign out styling with Customer and Staff.
 - Private-pilot production deployment is active at `https://zomia.eu/webapp/`.
-- Root `https://zomia.eu/` is served by the lightweight Landing Page v1 from `site/index.html`.
+- Root `https://zomia.eu/` is served by the lightweight Landing Page v1 from `site/index.html`, with the Wistia explainer video and section-separated white layout.
 - Public legal placeholder pages live outside the Flutter app under `https://zomia.eu/legal/...`.
 - Static site source boundaries:
   - `site/index.html` is the source for the public root landing page.
@@ -30,9 +30,9 @@ This document is the short checkpoint before the next feature phase.
 ## Last Recorded Verification Snapshot
 
 - Backend tests: `80 passed`
-- Frontend tests: `33 passed`
+- Frontend tests: `37 passed`
 - Flutter analyze: no issues
-- Current production Flutter version: `1.0.123 (124)`
+- Current production Flutter version: `1.0.125 (126)`
 - Production smoke passes have covered registration, login, Staff service flow, reward generation/use, Owner activity, legal routing, and console hygiene.
 
 ## Current Frontend Structure

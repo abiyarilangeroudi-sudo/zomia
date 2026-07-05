@@ -433,15 +433,21 @@ Open production decisions are tracked in:
 - Favicon deployed path: `/var/www/zomia/root/favicon.png`.
 - Scope:
   - Lightweight static landing page for the private pilot.
-  - Links to `/webapp/` and `/legal/`.
+  - Links to `/webapp/`, `/webapp/#/register/business`, and `/legal/`.
+  - Includes the Wistia explainer video section: `Zomia in action`.
+  - Landing layout is section-separated on a white background, without boxed hero/video cards.
   - No `/download`, App Store, Google Play, or native mobile promises.
   - Static root and legal pages share `site/assets/site.css`.
   - Static root and legal pages use the same root favicon.
-- Backend, database, WebApp bundle, and loyalty logic were not changed.
+- Backend, database, WebApp bundle, and loyalty logic were not changed by static landing changes.
+- Latest webapp version after auth entry link polish: `1.0.125 (126)`.
+- Latest landing update commit: `a38744b Simplify landing page section styling`.
 - Post-release checks passed:
   - `https://zomia.eu/` returned `200`.
+  - `https://zomia.eu/` contains `Open WebApp`, `Register your business`, and `Zomia in action`.
   - `https://zomia.eu/assets/site.css` returned `200`.
   - `https://zomia.eu/assets/zomia_logo.svg` returned `200`.
   - `https://zomia.eu/favicon.png` returned `200`.
   - `https://zomia.eu/webapp/` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.125 (126)`.
   - `https://zomia.eu/legal/` returned `200`.
