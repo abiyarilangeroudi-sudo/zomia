@@ -28,7 +28,7 @@ This document is the short checkpoint before the next feature phase.
 - Backend tests: `80 passed`
 - Frontend tests: `33 passed`
 - Flutter analyze: no issues
-- Current production Flutter version: `1.0.118 (119)`
+- Current production Flutter version: `1.0.123 (124)`
 - Production smoke passes have covered registration, login, Staff service flow, reward generation/use, Owner activity, legal routing, and console hygiene.
 
 ## Current Frontend Structure
@@ -79,6 +79,7 @@ This document is the short checkpoint before the next feature phase.
 - API endpoint inventory lives in `Docs/api/api-endpoint-inventory.md`; check it before adding or changing endpoints.
 - Frontend dialog inventory lives in `Docs/status/frontend-dialog-inventory.md`; check it before adding static-content dialogs or large fullscreen flows.
 - Legal placeholder status lives in `Docs/legal/legal-placeholder-review.md`; do not treat public static placeholder pages as final legal text.
+- Mobile/native distribution is intentionally not active yet. The private-pilot app surface remains `https://zomia.eu/webapp/`; do not add `/download`, Android APK hosting, TestFlight, App Store, or Google Play work without a separate distribution decision.
 
 ## Flutter Architecture Guardrail
 

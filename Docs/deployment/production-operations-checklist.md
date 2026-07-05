@@ -246,6 +246,8 @@ Date checked: 2026-06-28
 
 Status: `Ready for controlled private pilot, with documented boundaries`
 
+Note: this section is a historical 2026-06-28 snapshot. Use the latest dated entries below and `Docs/status/current-stability-check.md` for the current frontend version.
+
 Production checks passed:
 
 - `https://zomia.eu/health` returned `200`.
@@ -400,3 +402,17 @@ Open production decisions are tracked in:
   - Active frontend symlink points to `/var/www/zomia/releases/20260701195902_staff_profile_refresh`.
   - Production frontend bundle contains version marker `1.0.122`.
   - `flutter analyze --no-pub` returned no issues.
+
+## 2026-07-02 Frontend Favicon Refresh
+
+- Frontend release: `/var/www/zomia/releases/202607021955_favicon_refresh`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.123 (124)`.
+- Change:
+  - Updated the web favicon from `frontend/web/favicon.png`.
+- Backend, database, and loyalty logic were not changed.
+- Local production build passed with `scripts/build_frontend_production.sh`.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.123 (124)`.
+  - `https://zomia.eu/webapp/favicon.png` matched the local favicon SHA-256 hash.

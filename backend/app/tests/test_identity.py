@@ -370,6 +370,12 @@ def test_password_recovery_resets_password_and_revokes_refresh_tokens(
     )
 
     assert complete_response.status_code == 204
+    reused_token_response = client.post(
+        "/api/v1/auth/password-recovery/complete",
+        json={"reset_token": reset_token, "new_password": "another-strong-password"},
+    )
+    assert reused_token_response.status_code == 400
+    assert reused_token_response.json()["detail"] == "Invalid token"
     old_login_response = client.post(
         "/api/v1/auth/login",
         json={"email": "reset-customer@example.com", "password": "strong-password"},

@@ -13,7 +13,8 @@ The MVP has moved beyond local-only readiness and is running as a private-pilot 
 - Production web app: `https://zomia.eu/webapp/`
 - Root domain: `https://zomia.eu/` is intentionally reserved for a future public landing page.
 - Public legal draft pages: `https://zomia.eu/legal/...`
-- Current Flutter version: `1.0.118 (119)`
+- Current Flutter version: `1.0.123 (124)`
+- Mobile distribution decision: keep `https://zomia.eu/webapp/` as the private-pilot app surface. Do not create `/download` until native Android/iOS distribution is intentionally started.
 
 Confirmed manually across local and production smoke passes:
 
@@ -611,6 +612,7 @@ F15.13 pre-pilot operational final pass:
 - Certbot timer is active.
 - Production remains ready only for controlled private-pilot onboarding under documented boundaries.
 - Current priority order is first private-pilot onboarding, restore cadence, external alert recipient confirmation, and final UI polish.
+- Note: this section is a historical 2026-06-28 operations snapshot. The current frontend version/release is tracked in the latest operations checklist entries and `Docs/status/current-stability-check.md`.
 
 F15.13.1 Pre-private-pilot production data reset decision:
 
