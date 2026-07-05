@@ -651,14 +651,14 @@ void main() {
     expect(find.text('Privacy'), findsOneWidget);
     await tester.tap(find.byType(Checkbox));
     await tester.ensureVisible(
-      find.widgetWithText(FilledButton, 'Create business'),
+      find.widgetWithText(FilledButton, 'Register business'),
     );
     await tester.pumpAndSettle();
     final createButton = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Create business'),
+      find.widgetWithText(FilledButton, 'Register business'),
     );
     expect(createButton.onPressed, isNotNull);
-    await tester.tap(find.widgetWithText(FilledButton, 'Create business'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Register business'));
     await pumpAppFrames(tester);
     await tester.pumpAndSettle();
 

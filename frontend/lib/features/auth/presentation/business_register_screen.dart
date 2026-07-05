@@ -162,17 +162,17 @@ class _BusinessRegisterScreenState
               ],
               const SizedBox(height: 24),
               PrimaryButton(
-                label: 'Create business',
+                label: 'Register business',
                 icon: Icons.storefront_rounded,
                 onPressed: isLoading ? null : _submit,
                 isLoading: isLoading,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               AuthTextLink(
                 text: 'Back to Home',
                 onPressed: isLoading
                     ? null
-                    : () => openExternalUrl('https://zomia.eu/'),
+                    : () => openUrlInCurrentTab('https://zomia.eu/'),
               ),
             ],
           ),

@@ -143,7 +143,7 @@ class _CustomerRegisterScreenState
                 onPressed: isLoading ? null : _submit,
                 isLoading: isLoading,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               AuthTextLink(
                 text: 'Already have an account? Sign in',
                 onPressed: isLoading ? null : () => context.go('/'),
