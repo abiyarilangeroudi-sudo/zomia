@@ -85,6 +85,43 @@ a {
   font-size: clamp(18px, 2.8vw, 24px);
 }
 
+.video-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(280px, 1.2fr);
+  gap: 24px;
+  align-items: center;
+  margin-top: 42px;
+  padding-top: 34px;
+  border-top: 1px solid var(--line);
+}
+
+.video-copy h2 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.video-copy p {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.video-frame {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--page);
+}
+
+wistia-player[media-id='i6t9cb179p']:not(:defined) {
+  display: block;
+  padding-top: 56.25%;
+  background: center / contain no-repeat url("https://fast.wistia.com/embed/medias/i6t9cb179p/swatch");
+  filter: blur(5px);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -206,6 +243,11 @@ a {
   .actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .video-section {
+    grid-template-columns: 1fr;
+    padding-top: 28px;
   }
 
   .button,
