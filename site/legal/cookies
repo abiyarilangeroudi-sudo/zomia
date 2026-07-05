@@ -3,20 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="/assets/site.css">
     <title>Zomia Cookie Policy</title>
-    <style>
-      body { margin: 0; font-family: Arial, sans-serif; color: #101418; background: #f5f7fb; line-height: 1.6; }
-      main { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
-      article { background: #fff; border: 1px solid #d9e1e7; border-radius: 12px; padding: 28px; }
-      h1, h2 { line-height: 1.25; }
-      a { color: #159f95; font-weight: 700; text-decoration: none; }
-      .note { color: #5c6873; }
-      .warning { padding: 12px 14px; border: 1px solid #f0b84a; background: #fff8e8; border-radius: 8px; }
-    </style>
   </head>
   <body>
-    <main>
-      <article>
+    <main class="legal-main">
+      <article class="legal-card">
         <h1>Cookie Policy</h1>
         <p class="note">Last updated: 28 June 2026</p>
         <p class="warning">Private-pilot legal draft. Final legal review is required before broader public launch.</p>

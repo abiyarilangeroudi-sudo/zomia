@@ -11,7 +11,7 @@ The goal is not to add features blindly. The goal is to know what must be closed
 The MVP has moved beyond local-only readiness and is running as a private-pilot deployment:
 
 - Production web app: `https://zomia.eu/webapp/`
-- Root domain: `https://zomia.eu/` is intentionally reserved for a future public landing page.
+- Root domain: `https://zomia.eu/` is served by the lightweight Landing Page v1 from `site/index.html`.
 - Public legal draft pages: `https://zomia.eu/legal/...`
 - Current Flutter version: `1.0.123 (124)`
 - Mobile distribution decision: keep `https://zomia.eu/webapp/` as the private-pilot app surface. Do not create `/download` until native Android/iOS distribution is intentionally started.

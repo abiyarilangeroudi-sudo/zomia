@@ -18,8 +18,12 @@ This document is the short checkpoint before the next feature phase.
 - Manual release-candidate QA passed on 2026-06-24.
 - F14 aligned Owner Sign out styling with Customer and Staff.
 - Private-pilot production deployment is active at `https://zomia.eu/webapp/`.
-- Root `https://zomia.eu/` is reserved for a future public landing page.
+- Root `https://zomia.eu/` is served by the lightweight Landing Page v1 from `site/index.html`.
 - Public legal placeholder pages live outside the Flutter app under `https://zomia.eu/legal/...`.
+- Static site source boundaries:
+  - `site/index.html` is the source for the public root landing page.
+  - `site/legal/index.html` is the source for the public legal index page.
+  - `frontend/build/web/index.html` is a generated Flutter build artifact for `/webapp/`; do not edit it manually.
 - P20 removed Flutter legal routes/dialog placeholders for public legal documents.
 - P21 documented the remaining approved/acceptable dialog inventory.
 

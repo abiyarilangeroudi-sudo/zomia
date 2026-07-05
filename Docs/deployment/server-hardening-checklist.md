@@ -324,7 +324,7 @@ Completed:
 - Flutter web still uses `API_BASE_URL=https://zomia.eu/api/v1`.
 - New frontend release was published to `/var/www/zomia/releases/20260625203255`.
 - `/var/www/zomia/webapp` points to `/var/www/zomia/releases/20260625203255`.
-- `/var/www/zomia/root/index.html` is a blank root page.
+- `/var/www/zomia/root/index.html` is the lightweight Landing Page v1 sourced from `site/index.html`.
 - Nginx serves:
   - `/` from `/var/www/zomia/root`.
   - `/webapp/` from `/var/www/zomia/webapp`.
