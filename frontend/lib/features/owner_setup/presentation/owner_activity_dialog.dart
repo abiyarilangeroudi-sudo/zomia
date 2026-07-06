@@ -37,7 +37,7 @@ class _OwnerRecentActionsDialogState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppTopBar(
-        title: 'Staff Recent Actions',
+        title: 'Recent activity',
         variant: AppTopBarVariant.modal,
       ),
       body: SafeArea(
@@ -94,11 +94,6 @@ class _OwnerRecentActionsDialogState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SectionHeader(
-                      title: 'Recent activity',
-                      subtitle: 'Latest staff actions for this business.',
-                    ),
-                    const SizedBox(height: 12),
                     ...activities.map((activity) {
                       final presentation = ownerActivityPresentation(activity);
                       return Padding(

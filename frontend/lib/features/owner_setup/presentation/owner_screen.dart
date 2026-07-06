@@ -94,7 +94,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             onMenu: () => _scaffoldKey.currentState?.openDrawer(),
             actions: [
               IconButton(
-                tooltip: 'Staff recent actions',
+                tooltip: 'Recent activity',
                 onPressed: _openRecentActionsDialog,
                 icon: const Icon(Icons.history_rounded),
               ),

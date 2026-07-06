@@ -424,7 +424,7 @@ void main() {
     );
     expect(find.text('Loyalty is active'), findsOneWidget);
     expect(
-      find.text('You can review the full flow in Staff recent actions.'),
+      find.text('You can review the full flow in Recent activity.'),
       findsOneWidget,
     );
     expect(find.text('Create your first mission'), findsNothing);
@@ -1232,7 +1232,7 @@ void main() {
     expect(await tokenStore.readRefreshToken(), 'refresh-token');
     expect(find.text('Owner Dashboard'), findsOneWidget);
     expect(find.text('Zomia Cafe'), findsWidgets);
-    expect(find.byTooltip('Staff recent actions'), findsOneWidget);
+    expect(find.byTooltip('Recent activity'), findsOneWidget);
     expect(find.text('Create Mission'), findsNothing);
     expect(find.text('Buy Coffee'), findsNothing);
 
@@ -1354,11 +1354,12 @@ void main() {
     await tester.tap(find.byTooltip('Close').last);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Staff recent actions'));
+    await tester.tap(find.byTooltip('Recent activity'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Staff Recent Actions'), findsOneWidget);
     expect(find.text('Recent activity'), findsOneWidget);
+    expect(find.text('Staff Recent Actions'), findsNothing);
+    expect(find.text('Latest staff actions for this business.'), findsNothing);
     expect(find.text('Buy Coffee x2'), findsOneWidget);
     expect(find.text('Customer One · Staff One · 01/01 10:30'), findsOneWidget);
     expect(find.text('+2 pts'), findsOneWidget);
@@ -1379,7 +1380,8 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    expect(find.text('Staff Recent Actions'), findsOneWidget);
+    expect(find.text('Recent activity'), findsOneWidget);
+    expect(find.text('Staff Recent Actions'), findsNothing);
     expect(find.text('No staff actions yet'), findsOneWidget);
     expect(find.text('Close'), findsNothing);
   });

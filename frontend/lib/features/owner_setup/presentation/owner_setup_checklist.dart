@@ -175,7 +175,7 @@ class _OwnerActiveLoyaltySummary extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'You can review the full flow in Staff recent actions.',
+              'You can review the full flow in Recent activity.',
               style: textTheme.bodyMedium?.copyWith(
                 color: BrandColors.textPrimary,
                 fontWeight: FontWeight.w700,
