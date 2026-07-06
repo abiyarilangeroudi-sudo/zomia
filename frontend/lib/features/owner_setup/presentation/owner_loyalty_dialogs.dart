@@ -34,8 +34,8 @@ Future<void> openOwnerMissionCreateDialog(
       builder: (context) => AnimatedBuilder(
         animation: controller,
         builder: (context, _) => OwnerMissionCreateDialog(
-          controller: controller.missionNameController,
-          pointsController: controller.missionPointsController,
+          controller: controller.missionForm.nameController,
+          pointsController: controller.missionForm.pointsController,
           errorMessage: controller.error,
           onClearError: controller.clearError,
           isSaving: controller.isSaving,
@@ -56,17 +56,19 @@ Future<void> openOwnerCampaignCreateDialog(
       builder: (context) => AnimatedBuilder(
         animation: controller,
         builder: (context, _) => OwnerCampaignCreateDialog(
-          controller: controller.campaignNameController,
-          thresholdController: controller.campaignThresholdController,
-          startDate: controller.campaignStartDate,
-          endDate: controller.campaignEndDate,
-          maxCompletionsController: controller.campaignMaxCompletionsController,
+          controller: controller.campaignForm.nameController,
+          thresholdController: controller.campaignForm.thresholdController,
+          startDate: controller.campaignForm.startDate,
+          endDate: controller.campaignForm.endDate,
+          maxCompletionsController:
+              controller.campaignForm.maxCompletionsController,
           missions: controller.missions,
           rewardTemplates: controller.rewardTemplates,
-          selectedMissionIds: controller.selectedMissionIds,
-          selectedRewardTemplateId: controller.selectedRewardTemplateId,
-          isRepeatable: controller.campaignIsRepeatable,
-          hasCompletionLimit: controller.campaignHasCompletionLimit,
+          selectedMissionIds: controller.campaignForm.selectedMissionIds,
+          selectedRewardTemplateId:
+              controller.campaignForm.selectedRewardTemplateId,
+          isRepeatable: controller.campaignForm.isRepeatable,
+          hasCompletionLimit: controller.campaignForm.hasCompletionLimit,
           errorMessage: controller.error,
           onClearError: controller.clearError,
           isSaving: controller.isSaving,
@@ -93,9 +95,11 @@ Future<void> openOwnerRewardTemplateCreateDialog(
       builder: (context) => AnimatedBuilder(
         animation: controller,
         builder: (context, _) => OwnerRewardTemplateCreateDialog(
-          rewardNameController: controller.rewardNameController,
-          giftNameController: controller.giftNameController,
-          validDaysController: controller.validDaysController,
+          rewardNameController:
+              controller.rewardTemplateForm.rewardNameController,
+          giftNameController: controller.rewardTemplateForm.giftNameController,
+          validDaysController:
+              controller.rewardTemplateForm.validDaysController,
           errorMessage: controller.error,
           onClearError: controller.clearError,
           isSaving: controller.isSaving,

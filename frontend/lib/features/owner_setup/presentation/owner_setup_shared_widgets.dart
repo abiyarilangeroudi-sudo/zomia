@@ -76,3 +76,55 @@ class OwnerSimpleListItem {
   final String title;
   final String? subtitle;
 }
+
+class OwnerStatusBanners extends StatelessWidget {
+  const OwnerStatusBanners({
+    super.key,
+    required this.error,
+    required this.success,
+    required this.onClearError,
+    required this.onClearSuccess,
+  });
+
+  final String? error;
+  final String? success;
+  final VoidCallback onClearError;
+  final VoidCallback onClearSuccess;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (error != null)
+          InlineBanner(
+            message: error!,
+            tone: BannerTone.error,
+            onClose: onClearError,
+          ),
+        if (success != null)
+          InlineBanner(
+            message: success!,
+            tone: BannerTone.success,
+            onClose: onClearSuccess,
+          ),
+        if (error != null || success != null) const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+class OwnerNoBusinessCard extends StatelessWidget {
+  const OwnerNoBusinessCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const AppCard(
+      child: EmptyStateView(
+        icon: Icons.store_outlined,
+        title: 'No business found',
+        message: 'Business setup will appear here when it is ready.',
+      ),
+    );
+  }
+}

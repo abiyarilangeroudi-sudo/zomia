@@ -2,22 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../data/owner_setup_repository.dart';
 import '../domain/owner_setup_models.dart';
+import 'owner_setup_forms.dart';
 
 class OwnerSetupController extends ChangeNotifier {
   OwnerSetupController({required this.repository});
 
   final OwnerSetupRepository repository;
 
-  final staffEmailController = TextEditingController();
-  final missionNameController = TextEditingController();
-  final missionPointsController = TextEditingController();
-  final DateTime _today = DateTime.now();
-  final campaignNameController = TextEditingController();
-  final campaignThresholdController = TextEditingController();
-  final campaignMaxCompletionsController = TextEditingController(text: '2');
-  final rewardNameController = TextEditingController();
-  final giftNameController = TextEditingController();
-  final validDaysController = TextEditingController();
+  final staffInvitationForm = OwnerStaffInvitationForm();
+  final missionForm = OwnerMissionForm();
+  final campaignForm = OwnerCampaignForm();
+  final rewardTemplateForm = OwnerRewardTemplateForm();
 
   List<OwnerBusiness> businesses = [];
   List<OwnerStaffMember> staffMembers = [];
@@ -26,18 +21,8 @@ class OwnerSetupController extends ChangeNotifier {
   List<OwnerRewardTemplate> rewardTemplates = [];
   List<OwnerActivity> recentActivities = [];
   OwnerBusiness? selectedBusiness;
-  final Set<String> selectedMissionIds = {};
-  String? selectedRewardTemplateId;
   String? error;
   String? success;
-  late DateTime campaignStartDate = DateTime(
-    _today.year,
-    _today.month,
-    _today.day,
-  );
-  late DateTime campaignEndDate = _addMonths(campaignStartDate, 3);
-  bool campaignIsRepeatable = true;
-  bool campaignHasCompletionLimit = false;
   bool isLoading = true;
   bool isSaving = false;
   bool _isDisposed = false;
@@ -50,18 +35,6 @@ class OwnerSetupController extends ChangeNotifier {
     return staffMembers
         .where((staffMember) => staffMember.businessId == business.id)
         .toList();
-  }
-
-  bool get hasActiveStaffForSelectedBusiness {
-    return staffForSelectedBusiness.any(
-      (staffMember) => !staffMember.isPending && staffMember.isActive,
-    );
-  }
-
-  bool get hasMissionProgressActivity {
-    return recentActivities.any(
-      (activity) => activity.actionType == 'mission_progress',
-    );
   }
 
   Future<void> load() async {
@@ -104,15 +77,12 @@ class OwnerSetupController extends ChangeNotifier {
         campaigns = nextCampaigns;
         rewardTemplates = nextTemplates;
         recentActivities = nextRecentActivities;
-        selectedMissionIds.removeWhere(
-          (id) => !nextMissions.any((mission) => mission.id == id),
+        campaignForm.syncOptions(
+          missionIds: nextMissions.map((mission) => mission.id).toList(),
+          rewardTemplateIds: nextTemplates
+              .map((rewardTemplate) => rewardTemplate.id)
+              .toList(),
         );
-        if (selectedMissionIds.isEmpty && nextMissions.isNotEmpty) {
-          selectedMissionIds.add(nextMissions.first.id);
-        }
-        selectedRewardTemplateId = nextTemplates.isEmpty
-            ? null
-            : nextTemplates.first.id;
         isLoading = false;
       });
     } catch (loadError) {
@@ -126,58 +96,33 @@ class OwnerSetupController extends ChangeNotifier {
   Future<void> selectBusiness(OwnerBusiness? business) async {
     _setState(() {
       selectedBusiness = business;
-      selectedMissionIds.clear();
-      selectedRewardTemplateId = null;
+      campaignForm.clearSelection();
     });
     await load();
   }
 
   void toggleMission(String missionId, bool selected) {
-    _setState(() {
-      if (selected) {
-        selectedMissionIds.add(missionId);
-      } else {
-        selectedMissionIds.remove(missionId);
-      }
-    });
+    _setState(() => campaignForm.toggleMission(missionId, selected));
   }
 
   void selectRewardTemplate(String? value) {
-    _setState(() => selectedRewardTemplateId = value);
+    _setState(() => campaignForm.selectRewardTemplate(value));
   }
 
   void setCampaignRepeatable(bool value) {
-    _setState(() {
-      campaignIsRepeatable = value;
-      if (!value) {
-        campaignHasCompletionLimit = false;
-        campaignMaxCompletionsController.text = '2';
-      }
-    });
+    _setState(() => campaignForm.setRepeatable(value));
   }
 
   void setCampaignCompletionLimit(bool value) {
-    _setState(() {
-      campaignHasCompletionLimit = value;
-      if (!value) {
-        campaignMaxCompletionsController.text = '2';
-      }
-    });
+    _setState(() => campaignForm.setCompletionLimit(value));
   }
 
   void setCampaignStartDate(DateTime value) {
-    _setState(() {
-      campaignStartDate = DateTime(value.year, value.month, value.day);
-      if (!campaignStartDate.isBefore(campaignEndDate)) {
-        campaignEndDate = _addMonths(campaignStartDate, 3);
-      }
-    });
+    _setState(() => campaignForm.setStartDate(value));
   }
 
   void setCampaignEndDate(DateTime value) {
-    _setState(() {
-      campaignEndDate = DateTime(value.year, value.month, value.day);
-    });
+    _setState(() => campaignForm.setEndDate(value));
   }
 
   void clearError() {
@@ -196,9 +141,14 @@ class OwnerSetupController extends ChangeNotifier {
 
   Future<bool> sendStaffInvitation() async {
     final business = selectedBusiness;
-    final email = staffEmailController.text.trim();
-    if (business == null || email.isEmpty || !email.contains('@')) {
-      _showError('Enter a valid staff email.');
+    final email = staffInvitationForm.email;
+    final validationError = staffInvitationForm.validate();
+    if (business == null) {
+      _showError('Select a business first.');
+      return false;
+    }
+    if (validationError != null) {
+      _showError(validationError);
       return false;
     }
     final saved = await _save(
@@ -207,7 +157,7 @@ class OwnerSetupController extends ChangeNotifier {
       'Staff invitation sent.',
     );
     if (saved) {
-      staffEmailController.clear();
+      staffInvitationForm.reset();
     }
     return saved;
   }
@@ -273,18 +223,15 @@ class OwnerSetupController extends ChangeNotifier {
 
   Future<bool> createMission() async {
     final business = selectedBusiness;
-    final points = int.tryParse(missionPointsController.text.trim());
-    final name = missionNameController.text.trim();
+    final name = missionForm.name;
+    final points = missionForm.points;
+    final validationError = missionForm.validate();
     if (business == null) {
       _showError('Select a business first.');
       return false;
     }
-    if (name.isEmpty) {
-      _showError('Enter a mission name.');
-      return false;
-    }
-    if (points == null || points <= 0) {
-      _showError('Enter points greater than 0.');
+    if (validationError != null || points == null) {
+      _showError(validationError ?? 'Enter points greater than 0.');
       return false;
     }
     final saved = await _save(
@@ -297,48 +244,26 @@ class OwnerSetupController extends ChangeNotifier {
       'Mission created.',
     );
     if (saved) {
-      missionNameController.clear();
-      missionPointsController.clear();
+      missionForm.reset();
     }
     return saved;
   }
 
   Future<bool> createCampaign() async {
     final business = selectedBusiness;
-    final rewardTemplateId = selectedRewardTemplateId;
-    final threshold = int.tryParse(campaignThresholdController.text.trim());
-    final maxCompletions = int.tryParse(
-      campaignMaxCompletionsController.text.trim(),
-    );
-    final name = campaignNameController.text.trim();
+    final rewardTemplateId = campaignForm.selectedRewardTemplateId;
+    final threshold = campaignForm.threshold;
+    final maxCompletions = campaignForm.maxCompletions;
+    final name = campaignForm.name;
+    final validationError = campaignForm.validate();
     if (business == null) {
       _showError('Select a business first.');
       return false;
     }
-    if (name.isEmpty) {
-      _showError('Enter a campaign name.');
-      return false;
-    }
-    if (rewardTemplateId == null) {
-      _showError('Select a reward template.');
-      return false;
-    }
-    if (selectedMissionIds.isEmpty) {
-      _showError('Select at least one mission.');
-      return false;
-    }
-    if (threshold == null || threshold <= 0) {
-      _showError('Enter points needed greater than 0.');
-      return false;
-    }
-    if (!campaignStartDate.isBefore(campaignEndDate)) {
-      _showError('End date must be after start date.');
-      return false;
-    }
-    if (campaignIsRepeatable &&
-        campaignHasCompletionLimit &&
-        (maxCompletions == null || maxCompletions < 2)) {
-      _showError('Completion limit must be at least 2.');
+    if (validationError != null ||
+        rewardTemplateId == null ||
+        threshold == null) {
+      _showError(validationError ?? 'Please check the campaign form.');
       return false;
     }
     final saved = await _save(
@@ -347,46 +272,35 @@ class OwnerSetupController extends ChangeNotifier {
         rewardTemplateId: rewardTemplateId,
         name: name,
         thresholdPoints: threshold,
-        startsAt: _startOfLocalDay(campaignStartDate),
-        endsAt: _endOfLocalDay(campaignEndDate),
-        missionIds: selectedMissionIds.toList(),
-        isRepeatable: campaignIsRepeatable,
+        startsAt: _startOfLocalDay(campaignForm.startDate),
+        endsAt: _endOfLocalDay(campaignForm.endDate),
+        missionIds: campaignForm.selectedMissionIds.toList(),
+        isRepeatable: campaignForm.isRepeatable,
         maxCompletionsPerCustomer:
-            campaignIsRepeatable && campaignHasCompletionLimit
+            campaignForm.isRepeatable && campaignForm.hasCompletionLimit
             ? maxCompletions
             : null,
       ),
       'Campaign created.',
     );
     if (saved) {
-      campaignNameController.clear();
-      campaignThresholdController.clear();
-      campaignMaxCompletionsController.text = '2';
-      campaignIsRepeatable = true;
-      campaignHasCompletionLimit = false;
+      campaignForm.resetAfterSave();
     }
     return saved;
   }
 
   Future<bool> createRewardTemplate() async {
     final business = selectedBusiness;
-    final name = rewardNameController.text.trim();
-    final giftName = giftNameController.text.trim();
-    final validDays = int.tryParse(validDaysController.text.trim());
+    final name = rewardTemplateForm.name;
+    final giftName = rewardTemplateForm.giftName;
+    final validDays = rewardTemplateForm.validDays;
+    final validationError = rewardTemplateForm.validate();
     if (business == null) {
       _showError('Select a business first.');
       return false;
     }
-    if (name.isEmpty) {
-      _showError('Enter a template name.');
-      return false;
-    }
-    if (giftName.isEmpty) {
-      _showError('Enter a reward item.');
-      return false;
-    }
-    if (validDays == null || validDays <= 0) {
-      _showError('Enter valid days greater than 0.');
+    if (validationError != null || validDays == null) {
+      _showError(validationError ?? 'Enter valid days greater than 0.');
       return false;
     }
     final saved = await _save(
@@ -399,9 +313,7 @@ class OwnerSetupController extends ChangeNotifier {
       'Reward template created.',
     );
     if (saved) {
-      rewardNameController.clear();
-      giftNameController.clear();
-      validDaysController.clear();
+      rewardTemplateForm.reset();
     }
     return saved;
   }
@@ -447,20 +359,11 @@ class OwnerSetupController extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
-    staffEmailController.dispose();
-    missionNameController.dispose();
-    missionPointsController.dispose();
-    campaignNameController.dispose();
-    campaignThresholdController.dispose();
-    campaignMaxCompletionsController.dispose();
-    rewardNameController.dispose();
-    giftNameController.dispose();
-    validDaysController.dispose();
+    staffInvitationForm.dispose();
+    missionForm.dispose();
+    campaignForm.dispose();
+    rewardTemplateForm.dispose();
     super.dispose();
-  }
-
-  static DateTime _addMonths(DateTime value, int months) {
-    return DateTime(value.year, value.month + months, value.day);
   }
 
   static DateTime _startOfLocalDay(DateTime value) {

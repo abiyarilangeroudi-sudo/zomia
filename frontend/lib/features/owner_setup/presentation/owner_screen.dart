@@ -104,9 +104,30 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             child: IndexedStack(
               index: _selectedIndex,
               children: [
-                DashboardScroll(maxWidth: 760, child: _buildHomeView()),
-                DashboardScroll(maxWidth: 760, child: _buildCampaignView()),
-                DashboardScroll(maxWidth: 760, child: _buildTeamView()),
+                DashboardScroll(
+                  maxWidth: 760,
+                  child: OwnerHomeView(
+                    controller: _controller,
+                    onCreateMission: () =>
+                        openOwnerMissionCreateDialog(context, _controller),
+                    onCreateRewardTemplate: () =>
+                        openOwnerRewardTemplateCreateDialog(
+                          context,
+                          _controller,
+                        ),
+                    onCreateCampaign: () =>
+                        openOwnerCampaignCreateDialog(context, _controller),
+                    onInviteStaff: _openCreateStaffDialog,
+                  ),
+                ),
+                DashboardScroll(
+                  maxWidth: 760,
+                  child: OwnerLoyaltyView(controller: _controller),
+                ),
+                DashboardScroll(
+                  maxWidth: 760,
+                  child: OwnerTeamView(controller: _controller),
+                ),
               ],
             ),
           ),
@@ -140,140 +161,6 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
     };
   }
 
-  Widget _buildHomeView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (_controller.error != null)
-          InlineBanner(
-            message: _controller.error!,
-            tone: BannerTone.error,
-            onClose: _controller.clearError,
-          ),
-        if (_controller.success != null)
-          InlineBanner(
-            message: _controller.success!,
-            tone: BannerTone.success,
-            onClose: _controller.clearSuccess,
-          ),
-        if (_controller.error != null || _controller.success != null)
-          const SizedBox(height: 16),
-        if (_controller.isLoading)
-          const AppCard(child: LoadingState(label: 'Loading owner setup'))
-        else if (_controller.businesses.isEmpty)
-          const AppCard(
-            child: EmptyStateView(
-              icon: Icons.store_outlined,
-              title: 'No business found',
-              message: 'Business setup will appear here when it is ready.',
-            ),
-          )
-        else ...[
-          OwnerBusinessPicker(
-            businesses: _controller.businesses,
-            selectedBusiness: _controller.selectedBusiness,
-            onChanged: _controller.selectBusiness,
-          ),
-          const SizedBox(height: 16),
-          OwnerSetupChecklist(
-            hasMission: _controller.missions.isNotEmpty,
-            hasRewardTemplate: _controller.rewardTemplates.isNotEmpty,
-            hasCampaign: _controller.campaigns.isNotEmpty,
-            hasStaff: _controller.staffForSelectedBusiness.isNotEmpty,
-            hasActiveStaff: _controller.hasActiveStaffForSelectedBusiness,
-            hasMissionProgressActivity: _controller.hasMissionProgressActivity,
-            onCreateMission: () =>
-                openOwnerMissionCreateDialog(context, _controller),
-            onCreateRewardTemplate: () =>
-                openOwnerRewardTemplateCreateDialog(context, _controller),
-            onCreateCampaign: () =>
-                openOwnerCampaignCreateDialog(context, _controller),
-            onInviteStaff: _openCreateStaffDialog,
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildCampaignView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (_controller.error != null)
-          InlineBanner(
-            message: _controller.error!,
-            tone: BannerTone.error,
-            onClose: _controller.clearError,
-          ),
-        if (_controller.success != null)
-          InlineBanner(
-            message: _controller.success!,
-            tone: BannerTone.success,
-            onClose: _controller.clearSuccess,
-          ),
-        if (_controller.error != null || _controller.success != null)
-          const SizedBox(height: 16),
-        if (_controller.isLoading)
-          const AppCard(child: LoadingState(label: 'Loading campaigns'))
-        else if (_controller.businesses.isEmpty)
-          const AppCard(
-            child: EmptyStateView(
-              icon: Icons.store_outlined,
-              title: 'No business found',
-              message: 'Business setup will appear here when it is ready.',
-            ),
-          )
-        else ...[
-          OwnerMissionListCard(missions: _controller.missions),
-          const SizedBox(height: 16),
-          OwnerRewardTemplateListCard(
-            rewardTemplates: _controller.rewardTemplates,
-          ),
-          const SizedBox(height: 16),
-          OwnerCampaignListCard(campaigns: _controller.campaigns),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildTeamView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (_controller.error != null)
-          InlineBanner(
-            message: _controller.error!,
-            tone: BannerTone.error,
-            onClose: _controller.clearError,
-          ),
-        if (_controller.success != null)
-          InlineBanner(
-            message: _controller.success!,
-            tone: BannerTone.success,
-            onClose: _controller.clearSuccess,
-          ),
-        if (_controller.error != null || _controller.success != null)
-          const SizedBox(height: 16),
-        if (_controller.isLoading)
-          const AppCard(child: LoadingState(label: 'Loading staff'))
-        else if (_controller.businesses.isEmpty)
-          const AppCard(
-            child: EmptyStateView(
-              icon: Icons.store_outlined,
-              title: 'No business found',
-              message: 'Business setup will appear here when it is ready.',
-            ),
-          )
-        else
-          OwnerStaffListCard(
-            staffMembers: _controller.staffForSelectedBusiness,
-            isSaving: _controller.isSaving,
-            onSetStaffActive: _controller.setStaffActive,
-          ),
-      ],
-    );
-  }
-
   void _openRecentActionsDialog() {
     final selectedBusiness = _controller.selectedBusiness;
     if (selectedBusiness == null) {
@@ -295,7 +182,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
         builder: (context) => AnimatedBuilder(
           animation: _controller,
           builder: (context, _) => OwnerInviteStaffDialog(
-            emailController: _controller.staffEmailController,
+            emailController: _controller.staffInvitationForm.emailController,
             errorMessage: _controller.error,
             onClearError: _controller.clearError,
             isSaving: _controller.isSaving,

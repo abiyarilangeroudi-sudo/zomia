@@ -68,6 +68,7 @@ Rules:
 - Commit and push the accepted change before production deployment whenever possible.
 - Production builds must be traceable to a Git commit.
 - Frontend releases must bump `frontend/pubspec.yaml` and use `scripts/build_frontend_production.sh`.
+- `scripts/build_frontend_production.sh` writes a production build with `base-href /webapp/`. If local `http://127.0.0.1:8080/` should remain usable after a deploy, rebuild the local bundle with `scripts/build_frontend_local.sh` or `make frontend-build-local`.
 - Production release notes should be recorded in `Docs/deployment/production-operations-checklist.md` after deploy verification.
 
 ## Branching Rule

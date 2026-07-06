@@ -2,28 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
+import 'owner_onboarding_presenter.dart';
 
 class OwnerSetupChecklist extends StatelessWidget {
   const OwnerSetupChecklist({
     super.key,
-    required this.hasMission,
-    required this.hasRewardTemplate,
-    required this.hasCampaign,
-    required this.hasStaff,
-    required this.hasActiveStaff,
-    required this.hasMissionProgressActivity,
+    required this.state,
     required this.onCreateMission,
     required this.onCreateRewardTemplate,
     required this.onCreateCampaign,
     required this.onInviteStaff,
   });
 
-  final bool hasMission;
-  final bool hasRewardTemplate;
-  final bool hasCampaign;
-  final bool hasStaff;
-  final bool hasActiveStaff;
-  final bool hasMissionProgressActivity;
+  final OwnerOnboardingState state;
   final VoidCallback onCreateMission;
   final VoidCallback onCreateRewardTemplate;
   final VoidCallback onCreateCampaign;
@@ -31,12 +22,11 @@ class OwnerSetupChecklist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canCreateCampaign = hasMission && hasRewardTemplate;
     final items = [
       _OwnerSetupChecklistItem(
         title: 'Create your first mission',
         subtitle: 'Define what customers earn points for.',
-        isDone: hasMission,
+        isDone: state.hasMission,
         isLocked: false,
         actionLabel: 'Create',
         onPressed: onCreateMission,
@@ -44,42 +34,40 @@ class OwnerSetupChecklist extends StatelessWidget {
       _OwnerSetupChecklistItem(
         title: 'Create your first reward template',
         subtitle: 'Set the reward customers can earn.',
-        isDone: hasRewardTemplate,
+        isDone: state.hasRewardTemplate,
         isLocked: false,
         actionLabel: 'Create',
         onPressed: onCreateRewardTemplate,
       ),
       _OwnerSetupChecklistItem(
         title: 'Create your first campaign',
-        subtitle: canCreateCampaign
+        subtitle: state.canCreateCampaign
             ? 'Connect your mission and reward.'
             : 'Create a mission and reward template first.',
-        isDone: hasCampaign,
-        isLocked: !canCreateCampaign,
+        isDone: state.hasCampaign,
+        isLocked: !state.canCreateCampaign,
         actionLabel: 'Create',
-        onPressed: canCreateCampaign ? onCreateCampaign : null,
+        onPressed: state.canCreateCampaign ? onCreateCampaign : null,
       ),
       _OwnerSetupChecklistItem(
         title: 'Invite your first staff member',
         subtitle: 'Staff can scan customer QR codes and register actions.',
-        isDone: hasStaff,
+        isDone: state.hasStaff,
         isLocked: false,
         actionLabel: 'Invite',
         onPressed: onInviteStaff,
       ),
     ];
-    final completedCount = items.where((item) => item.isDone).length;
-    final isComplete = completedCount == items.length;
-    final isPilotComplete = hasActiveStaff && hasMissionProgressActivity;
 
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (!isComplete) ...[
+          if (!state.isFirstSetupComplete) ...[
             SectionHeader(
               title: 'First setup',
-              subtitle: '$completedCount of ${items.length} steps complete',
+              subtitle:
+                  '${state.firstSetupCompletedCount} of ${state.firstSetupTaskCount} steps complete',
             ),
             const SizedBox(height: 12),
             ...items.map(
@@ -94,7 +82,7 @@ class OwnerSetupChecklist extends StatelessWidget {
               subtitle: 'Setup tasks are done.',
             ),
             const SizedBox(height: 16),
-            if (!isPilotComplete) ...[
+            if (!state.isPilotComplete) ...[
               const SectionHeader(
                 title: 'Pilot tasks',
                 subtitle: 'Complete these steps during the first pilot flow.',
@@ -103,14 +91,14 @@ class OwnerSetupChecklist extends StatelessWidget {
               _OwnerPilotTaskItem(
                 title: 'Staff accepts invitation',
                 subtitle: 'Open the email, set a password, and sign in.',
-                isDone: hasActiveStaff,
+                isDone: state.hasActiveStaff,
               ),
               const SizedBox(height: 8),
               _OwnerPilotTaskItem(
                 title: 'Staff registers first action',
                 subtitle:
                     'Serve the first customer and register a mission action.',
-                isDone: hasMissionProgressActivity,
+                isDone: state.hasMissionProgressActivity,
               ),
             ] else ...[
               const _OwnerMilestoneSummary(

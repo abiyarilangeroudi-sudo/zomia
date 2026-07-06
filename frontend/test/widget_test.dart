@@ -22,6 +22,7 @@ import 'package:zomia_frontend/features/customer_qr/domain/customer_qr_token.dar
 import 'package:zomia_frontend/features/customer_qr/presentation/customer_presenter.dart';
 import 'package:zomia_frontend/features/owner_setup/data/owner_setup_repository.dart';
 import 'package:zomia_frontend/features/owner_setup/domain/owner_setup_models.dart';
+import 'package:zomia_frontend/features/owner_setup/presentation/owner_onboarding_presenter.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_presenter.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_checklist.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_controller.dart';
@@ -360,12 +361,14 @@ void main() {
           home: Scaffold(
             body: SingleChildScrollView(
               child: OwnerSetupChecklist(
-                hasMission: false,
-                hasRewardTemplate: false,
-                hasCampaign: false,
-                hasStaff: false,
-                hasActiveStaff: false,
-                hasMissionProgressActivity: false,
+                state: const OwnerOnboardingState(
+                  hasMission: false,
+                  hasRewardTemplate: false,
+                  hasCampaign: false,
+                  hasStaff: false,
+                  hasActiveStaff: false,
+                  hasMissionProgressActivity: false,
+                ),
                 onCreateMission: () {},
                 onCreateRewardTemplate: () {},
                 onCreateCampaign: () => campaignTapCount++,
@@ -394,12 +397,14 @@ void main() {
         home: Scaffold(
           body: SingleChildScrollView(
             child: OwnerSetupChecklist(
-              hasMission: true,
-              hasRewardTemplate: true,
-              hasCampaign: true,
-              hasStaff: true,
-              hasActiveStaff: true,
-              hasMissionProgressActivity: true,
+              state: const OwnerOnboardingState(
+                hasMission: true,
+                hasRewardTemplate: true,
+                hasCampaign: true,
+                hasStaff: true,
+                hasActiveStaff: true,
+                hasMissionProgressActivity: true,
+              ),
               onCreateMission: () {},
               onCreateRewardTemplate: () {},
               onCreateCampaign: () {},
@@ -435,12 +440,14 @@ void main() {
         home: Scaffold(
           body: SingleChildScrollView(
             child: OwnerSetupChecklist(
-              hasMission: true,
-              hasRewardTemplate: true,
-              hasCampaign: true,
-              hasStaff: true,
-              hasActiveStaff: true,
-              hasMissionProgressActivity: false,
+              state: const OwnerOnboardingState(
+                hasMission: true,
+                hasRewardTemplate: true,
+                hasCampaign: true,
+                hasStaff: true,
+                hasActiveStaff: true,
+                hasMissionProgressActivity: false,
+              ),
               onCreateMission: () {},
               onCreateRewardTemplate: () {},
               onCreateCampaign: () {},
@@ -466,8 +473,8 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
-    controller.campaignNameController.text = 'Coffee Reward';
-    controller.campaignThresholdController.text = '10';
+    controller.campaignForm.nameController.text = 'Coffee Reward';
+    controller.campaignForm.thresholdController.text = '10';
     await controller.createCampaign();
 
     expect(repository.createdCampaignIsRepeatable, isTrue);
@@ -494,8 +501,8 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
-    controller.campaignNameController.text = 'Coffee Reward';
-    controller.campaignThresholdController.text = '10';
+    controller.campaignForm.nameController.text = 'Coffee Reward';
+    controller.campaignForm.thresholdController.text = '10';
     controller.setCampaignRepeatable(false);
     await controller.createCampaign();
 
@@ -509,16 +516,16 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
-    controller.campaignNameController.text = 'Coffee Reward';
-    controller.campaignThresholdController.text = '10';
+    controller.campaignForm.nameController.text = 'Coffee Reward';
+    controller.campaignForm.thresholdController.text = '10';
     controller.setCampaignCompletionLimit(true);
-    controller.campaignMaxCompletionsController.text = '1';
+    controller.campaignForm.maxCompletionsController.text = '1';
     await controller.createCampaign();
 
     expect(controller.error, 'Completion limit must be at least 2.');
     expect(repository.createdCampaignIsRepeatable, isNull);
 
-    controller.campaignMaxCompletionsController.text = '2';
+    controller.campaignForm.maxCompletionsController.text = '2';
     await controller.createCampaign();
 
     expect(repository.createdCampaignIsRepeatable, isTrue);
@@ -531,8 +538,8 @@ void main() {
     addTearDown(controller.dispose);
 
     await controller.load();
-    controller.campaignNameController.text = 'Coffee Reward';
-    controller.campaignThresholdController.text = '10';
+    controller.campaignForm.nameController.text = 'Coffee Reward';
+    controller.campaignForm.thresholdController.text = '10';
     controller.setCampaignStartDate(DateTime(2026, 9, 14));
     controller.setCampaignEndDate(DateTime(2026, 6, 14));
     await controller.createCampaign();
