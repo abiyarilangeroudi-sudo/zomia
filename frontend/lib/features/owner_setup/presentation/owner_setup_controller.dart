@@ -24,6 +24,7 @@ class OwnerSetupController extends ChangeNotifier {
   List<OwnerMission> missions = [];
   List<OwnerCampaign> campaigns = [];
   List<OwnerRewardTemplate> rewardTemplates = [];
+  List<OwnerActivity> recentActivities = [];
   OwnerBusiness? selectedBusiness;
   final Set<String> selectedMissionIds = {};
   String? selectedRewardTemplateId;
@@ -51,6 +52,18 @@ class OwnerSetupController extends ChangeNotifier {
         .toList();
   }
 
+  bool get hasActiveStaffForSelectedBusiness {
+    return staffForSelectedBusiness.any(
+      (staffMember) => !staffMember.isPending && staffMember.isActive,
+    );
+  }
+
+  bool get hasMissionProgressActivity {
+    return recentActivities.any(
+      (activity) => activity.actionType == 'mission_progress',
+    );
+  }
+
   Future<void> load() async {
     _setState(() {
       isLoading = true;
@@ -68,11 +81,19 @@ class OwnerSetupController extends ChangeNotifier {
       List<OwnerCampaign> nextCampaigns = [];
       List<OwnerRewardTemplate> nextTemplates = [];
       List<OwnerStaffMember> nextStaffMembers = [];
+      List<OwnerActivity> nextRecentActivities = [];
       if (selected != null) {
         nextStaffMembers = await repository.listStaff();
         nextMissions = await repository.listMissions(selected.id);
         nextCampaigns = await repository.listCampaigns(selected.id);
         nextTemplates = await repository.listRewardTemplates(selected.id);
+        try {
+          nextRecentActivities = await repository.listRecentActivity(
+            businessId: selected.id,
+          );
+        } catch (_) {
+          nextRecentActivities = [];
+        }
       }
 
       _setState(() {
@@ -82,6 +103,7 @@ class OwnerSetupController extends ChangeNotifier {
         missions = nextMissions;
         campaigns = nextCampaigns;
         rewardTemplates = nextTemplates;
+        recentActivities = nextRecentActivities;
         selectedMissionIds.removeWhere(
           (id) => !nextMissions.any((mission) => mission.id == id),
         );

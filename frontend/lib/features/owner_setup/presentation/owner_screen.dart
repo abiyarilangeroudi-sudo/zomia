@@ -180,6 +180,8 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             hasRewardTemplate: _controller.rewardTemplates.isNotEmpty,
             hasCampaign: _controller.campaigns.isNotEmpty,
             hasStaff: _controller.staffForSelectedBusiness.isNotEmpty,
+            hasActiveStaff: _controller.hasActiveStaffForSelectedBusiness,
+            hasMissionProgressActivity: _controller.hasMissionProgressActivity,
             onCreateMission: () =>
                 openOwnerMissionCreateDialog(context, _controller),
             onCreateRewardTemplate: () =>

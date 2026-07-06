@@ -358,15 +358,19 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: OwnerSetupChecklist(
-              hasMission: false,
-              hasRewardTemplate: false,
-              hasCampaign: false,
-              hasStaff: false,
-              onCreateMission: () {},
-              onCreateRewardTemplate: () {},
-              onCreateCampaign: () => campaignTapCount++,
-              onInviteStaff: () {},
+            body: SingleChildScrollView(
+              child: OwnerSetupChecklist(
+                hasMission: false,
+                hasRewardTemplate: false,
+                hasCampaign: false,
+                hasStaff: false,
+                hasActiveStaff: false,
+                hasMissionProgressActivity: false,
+                onCreateMission: () {},
+                onCreateRewardTemplate: () {},
+                onCreateCampaign: () => campaignTapCount++,
+                onInviteStaff: () {},
+              ),
             ),
           ),
         ),
@@ -388,26 +392,72 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: OwnerSetupChecklist(
-            hasMission: true,
-            hasRewardTemplate: true,
-            hasCampaign: true,
-            hasStaff: true,
-            onCreateMission: () {},
-            onCreateRewardTemplate: () {},
-            onCreateCampaign: () {},
-            onInviteStaff: () {},
+          body: SingleChildScrollView(
+            child: OwnerSetupChecklist(
+              hasMission: true,
+              hasRewardTemplate: true,
+              hasCampaign: true,
+              hasStaff: true,
+              hasActiveStaff: true,
+              hasMissionProgressActivity: true,
+              onCreateMission: () {},
+              onCreateRewardTemplate: () {},
+              onCreateCampaign: () {},
+              onInviteStaff: () {},
+            ),
           ),
         ),
       ),
     );
 
     expect(find.text('First setup complete'), findsOneWidget);
+    expect(find.text('Setup tasks are done.'), findsOneWidget);
+    expect(find.text('Pilot tasks complete'), findsOneWidget);
     expect(
-      find.text('Your business is ready for the first pilot flow.'),
+      find.text('The first staff action has been registered.'),
       findsOneWidget,
     );
-    expect(find.text('Done'), findsNWidgets(4));
+    expect(find.text('Loyalty is active'), findsOneWidget);
+    expect(
+      find.text('You can review the full flow in Staff recent actions.'),
+      findsOneWidget,
+    );
+    expect(find.text('Create your first mission'), findsNothing);
+    expect(find.text('Staff accepts invitation'), findsNothing);
+    expect(find.text('Done'), findsNWidgets(2));
+  });
+
+  testWidgets('owner setup checklist shows pilot task statuses', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: OwnerSetupChecklist(
+              hasMission: true,
+              hasRewardTemplate: true,
+              hasCampaign: true,
+              hasStaff: true,
+              hasActiveStaff: true,
+              hasMissionProgressActivity: false,
+              onCreateMission: () {},
+              onCreateRewardTemplate: () {},
+              onCreateCampaign: () {},
+              onInviteStaff: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Pilot tasks'), findsOneWidget);
+    expect(find.text('First setup complete'), findsOneWidget);
+    expect(find.text('Staff accepts invitation'), findsOneWidget);
+    expect(find.text('Staff registers first action'), findsOneWidget);
+    expect(find.text('Next'), findsOneWidget);
+    expect(find.text('Create your first mission'), findsNothing);
+    expect(find.text('Done'), findsNWidgets(2));
   });
 
   test('owner campaign creation defaults to repeatable unlimited', () async {

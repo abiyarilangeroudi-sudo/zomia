@@ -3,11 +3,11 @@ class AppVersion {
 
   static const name = String.fromEnvironment(
     'APP_VERSION_NAME',
-    defaultValue: '1.0.126',
+    defaultValue: '1.0.127',
   );
   static const build = String.fromEnvironment(
     'APP_VERSION_BUILD',
-    defaultValue: '127',
+    defaultValue: '128',
   );
   static const label = 'Version $name ($build)';
 }
