@@ -27,7 +27,10 @@ It is for day-to-day release, rollback, backup, and verification work after the 
 
 Before release:
 
-- Confirm worktree is clean or intentionally contains only the release change.
+- Confirm the accepted local-to-production workflow in `Docs/deployment/git-workflow-standard.md` has been followed.
+- Confirm the change passed local automated checks and local manual QA when it affects a user-facing flow.
+- Confirm the release change is committed and pushed to GitHub `main` whenever possible.
+- Confirm worktree is clean or intentionally contains only release-note documentation.
 - Confirm `frontend/pubspec.yaml` version was bumped for a Flutter change.
 - Build with `scripts/build_frontend_production.sh`.
 - Confirm the generated Login version label matches the target version.
@@ -223,6 +226,7 @@ Recommended MVP setup:
 After each release, check:
 
 - `https://zomia.eu/webapp/` opens.
+- `https://zomia.eu/webapp/version.json` returns the expected version.
 - Login page shows the expected version.
 - `https://zomia.eu/legal` returns `200` and `text/html`.
 - `https://zomia.eu/legal/privacy` returns `200` and `text/html`.

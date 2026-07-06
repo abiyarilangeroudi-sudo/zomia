@@ -1,6 +1,6 @@
 # Git Workflow Standard
 
-Date: 2026-07-05
+Date: 2026-07-06
 
 This document defines the working path and Git workflow for Zomia.
 
@@ -41,6 +41,34 @@ For every meaningful change:
 5. Deploy only from committed code whenever possible.
 
 Production should not be built from uncommitted local changes. If a small urgent production change is deployed first, it must be committed and pushed immediately after verification.
+
+## Accepted Local-To-Production Workflow
+
+The accepted private-pilot workflow is:
+
+```text
+Local change
+-> automated checks
+-> local manual QA
+-> commit
+-> push GitHub main
+-> production build
+-> deploy release directory
+-> switch production symlink
+-> production verification
+-> record release in Docs
+-> commit/push release notes if needed
+```
+
+Rules:
+
+- Make and review the change in the official local project path first.
+- Run focused automated checks before asking for manual QA.
+- Manual QA must happen locally before production deploy when the change affects a user-facing flow.
+- Commit and push the accepted change before production deployment whenever possible.
+- Production builds must be traceable to a Git commit.
+- Frontend releases must bump `frontend/pubspec.yaml` and use `scripts/build_frontend_production.sh`.
+- Production release notes should be recorded in `Docs/deployment/production-operations-checklist.md` after deploy verification.
 
 ## Branching Rule
 
@@ -98,4 +126,3 @@ After deploying:
 
 - Verify production.
 - Record or confirm the related commit.
-
