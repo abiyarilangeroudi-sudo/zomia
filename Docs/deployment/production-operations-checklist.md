@@ -511,3 +511,30 @@ Open production decisions are tracked in:
   - `https://zomia.eu/legal` returned `200`.
   - `https://zomia.eu/docs` returned `404`.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+
+## 2026-07-06 Owner Reward Template Polish
+
+- Frontend release: `/var/www/zomia/releases/202607062355_owner_reward_template_polish`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.128 (129)`.
+- Git commit deployed: `770aaae Polish owner reward template flow`.
+- Changes:
+  - Owner reward template creation now shows fixed `Template type` as `Gift`.
+  - Owner reward template creation no longer asks for a separate template name.
+  - Reward item and validity fields now use clearer examples: `Free Coffee` and `30`.
+  - Owner campaign reward template selection now shows both template type and reward item.
+  - Owner recent activity copy polish from `626501e` is included in this release.
+- Backend, database, migrations, and loyalty rules were not changed.
+- Local verification passed:
+  - `flutter test` returned `40 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.128 (129)`.
+- Manual QA passed in the local in-app browser before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/?v=1.0.128-129` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.128 (129)`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607062355_owner_reward_template_polish`.
+  - Production frontend bundle contains version marker `1.0.128`, `Template type`, `Valid for Days`, and `Recent activity`.
+  - Production frontend bundle has no `sourceMappingURL` reference.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
