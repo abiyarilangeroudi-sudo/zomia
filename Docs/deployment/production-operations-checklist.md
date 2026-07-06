@@ -483,3 +483,31 @@ Open production decisions are tracked in:
   - `https://zomia.eu/legal/` returned `200`.
   - `https://zomia.eu/docs` returned `404`.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+
+## 2026-07-06 Owner Pilot Completion Summary
+
+- Frontend release: `/var/www/zomia/releases/202607061905_owner_pilot_summary`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.127 (128)`.
+- Git commit deployed: `355af12 Refine owner pilot completion summary`.
+- Changes:
+  - Owner Home now collapses completed first setup tasks into a concise `First setup complete` status.
+  - After first setup is complete, Owner Home shows two pilot tasks: staff invitation acceptance and first staff mission action.
+  - Pilot task status is derived from active selected-business staff and owner recent activity containing `mission_progress`.
+  - After pilot tasks are complete, Owner Home shows `Pilot tasks complete` and `Loyalty is active` summary copy.
+- Backend, database, migrations, and loyalty rules were not changed.
+- Local verification passed:
+  - `flutter test` returned `40 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.127 (128)`.
+- Manual QA passed in the local in-app browser before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/?v=1.0.127-128` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.127 (128)`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607061905_owner_pilot_summary`.
+  - Production frontend bundle contains version marker `1.0.127`, `Loyalty is active`, and `Pilot tasks complete`.
+  - Production frontend bundle has no `sourceMappingURL` reference.
+  - `https://zomia.eu/legal` returned `200`.
+  - `https://zomia.eu/docs` returned `404`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
