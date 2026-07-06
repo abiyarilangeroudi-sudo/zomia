@@ -21,7 +21,7 @@ class OwnerRewardTemplateListCard extends StatelessWidget {
           items: rewardTemplates
               .map(
                 (template) => OwnerSimpleListItem(
-                  title: template.name,
+                  title: ownerRewardTemplateTypeLabel(template),
                   subtitle: ownerRewardTemplateSubtitle(template),
                 ),
               )
@@ -35,7 +35,6 @@ class OwnerRewardTemplateListCard extends StatelessWidget {
 class OwnerRewardTemplateCreateDialog extends StatelessWidget {
   const OwnerRewardTemplateCreateDialog({
     super.key,
-    required this.rewardNameController,
     required this.giftNameController,
     required this.validDaysController,
     this.errorMessage,
@@ -44,7 +43,6 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
     required this.onCreate,
   });
 
-  final TextEditingController rewardNameController;
   final TextEditingController giftNameController;
   final TextEditingController validDaysController;
   final String? errorMessage;
@@ -73,22 +71,18 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              AppTextField(
-                controller: rewardNameController,
-                label: 'Template name',
-                hint: 'e.g. Free coffee reward',
-              ),
+              const _TemplateTypeField(),
               const SizedBox(height: 12),
               AppTextField(
                 controller: giftNameController,
                 label: 'Reward item',
-                hint: 'e.g. One free coffee',
+                hint: 'Free Coffee',
               ),
               const SizedBox(height: 12),
               AppTextField(
                 controller: validDaysController,
-                label: 'Valid for days',
-                hint: 'e.g. 30',
+                label: 'Valid for Days',
+                hint: '30',
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
@@ -108,6 +102,22 @@ class OwnerRewardTemplateCreateDialog extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _TemplateTypeField extends StatelessWidget {
+  const _TemplateTypeField();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 52,
+      child: TextFormField(
+        initialValue: 'Gift',
+        enabled: false,
+        decoration: const InputDecoration(labelText: 'Template type'),
       ),
     );
   }

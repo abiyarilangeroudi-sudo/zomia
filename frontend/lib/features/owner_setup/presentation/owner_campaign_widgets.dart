@@ -122,7 +122,7 @@ class OwnerCampaignCreateDialog extends StatelessWidget {
                       .map(
                         (template) => SelectFieldOption(
                           value: template.id,
-                          label: template.name,
+                          label: ownerRewardTemplateOptionLabel(template),
                         ),
                       )
                       .toList(),

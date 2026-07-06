@@ -1244,7 +1244,7 @@ void main() {
     expect(find.text('Reward Templates'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
     expect(find.text('10 pts · non-repeatable · active'), findsOneWidget);
-    expect(find.text('Free Coffee'), findsWidgets);
+    expect(find.text('Gift'), findsWidgets);
     expect(find.text('Free coffee · 30 days'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Create loyalty item'));

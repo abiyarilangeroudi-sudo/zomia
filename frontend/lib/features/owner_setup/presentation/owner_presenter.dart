@@ -37,7 +37,22 @@ String ownerCampaignSubtitle(OwnerCampaign campaign) {
 }
 
 String ownerRewardTemplateSubtitle(OwnerRewardTemplate template) {
-  return '${template.giftName ?? template.rewardType} · ${template.validDays} days';
+  return '${ownerRewardTemplateRewardItem(template)} · ${template.validDays} days';
+}
+
+String ownerRewardTemplateTypeLabel(OwnerRewardTemplate template) {
+  return switch (template.rewardType) {
+    'gift' => 'Gift',
+    _ => template.rewardType,
+  };
+}
+
+String ownerRewardTemplateRewardItem(OwnerRewardTemplate template) {
+  return template.giftName ?? template.name;
+}
+
+String ownerRewardTemplateOptionLabel(OwnerRewardTemplate template) {
+  return '${ownerRewardTemplateTypeLabel(template)} · ${ownerRewardTemplateRewardItem(template)}';
 }
 
 String ownerStaffStatusLabel(OwnerStaffMember staffMember) {

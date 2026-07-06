@@ -175,20 +175,16 @@ class OwnerCampaignForm {
 }
 
 class OwnerRewardTemplateForm {
-  final rewardNameController = TextEditingController();
   final giftNameController = TextEditingController();
   final validDaysController = TextEditingController();
 
-  String get name => rewardNameController.text.trim();
-
   String get giftName => giftNameController.text.trim();
+
+  String get name => giftName;
 
   int? get validDays => int.tryParse(validDaysController.text.trim());
 
   String? validate() {
-    if (name.isEmpty) {
-      return 'Enter a template name.';
-    }
     if (giftName.isEmpty) {
       return 'Enter a reward item.';
     }
@@ -200,13 +196,11 @@ class OwnerRewardTemplateForm {
   }
 
   void reset() {
-    rewardNameController.clear();
     giftNameController.clear();
     validDaysController.clear();
   }
 
   void dispose() {
-    rewardNameController.dispose();
     giftNameController.dispose();
     validDaysController.dispose();
   }

@@ -95,8 +95,6 @@ Future<void> openOwnerRewardTemplateCreateDialog(
       builder: (context) => AnimatedBuilder(
         animation: controller,
         builder: (context, _) => OwnerRewardTemplateCreateDialog(
-          rewardNameController:
-              controller.rewardTemplateForm.rewardNameController,
           giftNameController: controller.rewardTemplateForm.giftNameController,
           validDaysController:
               controller.rewardTemplateForm.validDaysController,
