@@ -284,6 +284,27 @@ class IdentityService:
             staff_member=staff_member, is_active=is_active
         )
 
+    def cancel_staff_invitation(
+        self, owner: User, invitation_id: uuid.UUID
+    ) -> StaffInvitation:
+        self._require_role(owner, UserRole.OWNER)
+        invitation = self.repository.get_owner_staff_invitation(
+            invitation_id=invitation_id, owner_id=owner.id
+        )
+        if invitation is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Staff invitation not found"
+            )
+        if invitation.status != StaffInvitationStatus.PENDING:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Staff invitation is not pending",
+            )
+        return self.repository.set_staff_invitation_status(
+            invitation=invitation,
+            status=StaffInvitationStatus.CANCELLED,
+        )
+
     def get_staff_context(self, staff: User) -> StaffContextRead:
         self._require_role(staff, UserRole.STAFF)
         memberships = self.repository.list_active_staff_memberships(staff.id)

@@ -77,6 +77,7 @@ Unused endpoint policy:
 | PATCH | `/owner/businesses/{business_id}` | owner | Owner business settings | active | Update safe business profile fields owned by the current Owner. Does not change slug, status, currency, owner, transfer, or deletion policy. |
 | POST | `/owner/staff` | owner | legacy clients | deprecated | Disabled with `410`; use Staff Invitation flow. |
 | POST | `/owner/staff/invitations` | owner | Owner staff tools | active | Sends secure Staff invitation link; does not create a login-ready account. |
+| DELETE | `/owner/staff/invitations/{invitation_id}` | owner | Owner staff tools | active | Cancels a pending Staff invitation owned by the current Owner; accepted/cancelled invitations cannot be cancelled. |
 | PATCH | `/owner/staff/{staff_member_id}` | owner | Owner staff tools | active | Toggle staff active/inactive. |
 | GET | `/owner/staff` | owner | Owner staff tools | active | Lists accepted staff memberships and pending invitations. |
 

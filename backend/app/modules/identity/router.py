@@ -405,6 +405,21 @@ def update_staff(
     return staff_member
 
 
+@router.delete(
+    "/owner/staff/invitations/{invitation_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def cancel_staff_invitation(
+    invitation_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: IdentityService = Depends(get_identity_service),
+) -> Response:
+    service.cancel_staff_invitation(current_user, invitation_id)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.get("/owner/staff", response_model=list[OwnerStaffRead])
 def list_staff(
     current_user: User = Depends(get_current_user),

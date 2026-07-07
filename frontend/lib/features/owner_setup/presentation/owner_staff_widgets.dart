@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../app/ui/ui.dart';
 import '../domain/owner_setup_models.dart';
@@ -11,12 +12,14 @@ class OwnerStaffListCard extends StatelessWidget {
     required this.staffMembers,
     required this.isSaving,
     required this.onSetStaffActive,
+    required this.onCancelInvitation,
   });
 
   final List<OwnerStaffMember> staffMembers;
   final bool isSaving;
   final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
   onSetStaffActive;
+  final Future<void> Function(OwnerStaffMember staffMember) onCancelInvitation;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +30,7 @@ class OwnerStaffListCard extends StatelessWidget {
           staffMembers: staffMembers,
           isSaving: isSaving,
           onSetStaffActive: onSetStaffActive,
+          onCancelInvitation: onCancelInvitation,
         ),
       ],
     );
@@ -104,12 +108,14 @@ class OwnerStaffList extends StatelessWidget {
     required this.staffMembers,
     required this.isSaving,
     required this.onSetStaffActive,
+    required this.onCancelInvitation,
   });
 
   final List<OwnerStaffMember> staffMembers;
   final bool isSaving;
   final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
   onSetStaffActive;
+  final Future<void> Function(OwnerStaffMember staffMember) onCancelInvitation;
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +146,18 @@ class OwnerStaffList extends StatelessWidget {
                       label: ownerStaffStatusLabel(staffMember),
                       tone: ownerStaffStatusTone(staffMember),
                     ),
-                    if (!staffMember.isPending)
+                    if (staffMember.isPending)
+                      IconButton(
+                        tooltip: 'Cancel invitation',
+                        onPressed: isSaving
+                            ? null
+                            : () => _confirmCancelInvitation(
+                                context,
+                                staffMember,
+                              ),
+                        icon: const _TrashIcon(),
+                      )
+                    else
                       IconButton(
                         tooltip: staffMember.isActive
                             ? 'Deactivate staff'
@@ -180,5 +197,40 @@ class OwnerStaffList extends StatelessWidget {
       return;
     }
     await onSetStaffActive(staffMember, nextActive);
+  }
+
+  Future<void> _confirmCancelInvitation(
+    BuildContext context,
+    OwnerStaffMember staffMember,
+  ) async {
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: 'Cancel invitation?',
+      message:
+          'This pending invitation will stop working. You can send a new invitation afterward.',
+      confirmLabel: 'Cancel invitation',
+      tone: ConfirmTone.destructive,
+    );
+    if (!confirmed) {
+      return;
+    }
+    await onCancelInvitation(staffMember);
+  }
+}
+
+class _TrashIcon extends StatelessWidget {
+  const _TrashIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      'assets/icons/trash.svg',
+      width: 24,
+      height: 24,
+      colorFilter: ColorFilter.mode(
+        IconTheme.of(context).color ?? const Color(0xFF4E453A),
+        BlendMode.srcIn,
+      ),
+    );
   }
 }

@@ -30,6 +30,7 @@ class OwnerTeamView extends StatelessWidget {
             staffMembers: controller.staffForSelectedBusiness,
             isSaving: controller.isSaving,
             onSetStaffActive: controller.setStaffActive,
+            onCancelInvitation: controller.cancelStaffInvitation,
           ),
       ],
     );

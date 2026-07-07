@@ -199,6 +199,22 @@ class IdentityRepository:
             )
         )
 
+    def get_owner_staff_invitation(
+        self, *, invitation_id: uuid.UUID, owner_id: uuid.UUID
+    ) -> StaffInvitation | None:
+        return self.db.scalar(
+            select(StaffInvitation)
+            .join(StaffInvitation.business)
+            .where(StaffInvitation.id == invitation_id, Business.owner_id == owner_id)
+        )
+
+    def set_staff_invitation_status(
+        self, *, invitation: StaffInvitation, status: StaffInvitationStatus
+    ) -> StaffInvitation:
+        invitation.status = status
+        self.db.flush()
+        return invitation
+
     def get_staff_member_by_business_email(
         self, *, business_id: uuid.UUID, email: str
     ) -> StaffMember | None:

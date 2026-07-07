@@ -175,6 +175,18 @@ class OwnerSetupController extends ChangeNotifier {
     );
   }
 
+  Future<void> cancelStaffInvitation(OwnerStaffMember staffMember) async {
+    final invitationId = staffMember.invitationId;
+    if (invitationId == null) {
+      _showError('Staff invitation not found.');
+      return;
+    }
+    await _save(
+      () => repository.cancelStaffInvitation(invitationId: invitationId),
+      'Staff invitation cancelled.',
+    );
+  }
+
   Future<bool> updateBusinessProfile({
     required String name,
     required String? category,

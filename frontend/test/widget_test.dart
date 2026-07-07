@@ -94,6 +94,10 @@ void main() {
       'One or more selected missions are no longer available.',
     );
     expect(
+      mapOwnerSetupErrorDetail('Staff invitation is not pending'),
+      'This staff invitation can no longer be cancelled.',
+    );
+    expect(
       mapOwnerSetupErrorDetail('Custom owner detail'),
       'Setup action could not be completed. Please try again.',
     );
@@ -1266,7 +1270,10 @@ void main() {
     expect(find.text('Setup Staff'), findsOneWidget);
     expect(find.text('setup-staff@example.com'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
+    expect(find.text('pending-staff@example.com'), findsWidgets);
+    expect(find.text('Pending'), findsOneWidget);
     expect(find.byTooltip('Deactivate staff'), findsOneWidget);
+    expect(find.byTooltip('Cancel invitation'), findsOneWidget);
     expect(find.byTooltip('Invite staff'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Invite staff'));
@@ -1293,6 +1300,21 @@ void main() {
     expect(find.text('Staff deactivated.'), findsOneWidget);
     expect(find.text('Inactive'), findsOneWidget);
     expect(find.byTooltip('Activate staff'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.byTooltip('Cancel invitation'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byTooltip('Cancel invitation'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Cancel invitation?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Cancel invitation'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Staff invitation cancelled.'), findsOneWidget);
+    expect(find.text('pending-staff@example.com'), findsNothing);
 
     tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
     await pumpAppFrames(tester);
@@ -1776,6 +1798,7 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
   _FakeOwnerSetupRepository() : super(Dio());
 
   bool _staffIsActive = true;
+  bool _hasPendingInvitation = true;
   bool? createdCampaignIsRepeatable;
   int? createdCampaignMaxCompletions;
   DateTime? createdCampaignStartsAt;
@@ -1859,6 +1882,18 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         status: _staffIsActive ? 'active' : 'inactive',
         isActive: _staffIsActive,
       ),
+      if (_hasPendingInvitation)
+        const OwnerStaffMember(
+          id: 'staff-invitation-id',
+          businessId: 'business-id',
+          userId: null,
+          staffMemberId: null,
+          invitationId: 'staff-invitation-id',
+          email: 'pending-staff@example.com',
+          fullName: null,
+          status: 'pending',
+          isActive: false,
+        ),
     ];
   }
 
@@ -1868,6 +1903,11 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
     required bool isActive,
   }) async {
     _staffIsActive = isActive;
+  }
+
+  @override
+  Future<void> cancelStaffInvitation({required String invitationId}) async {
+    _hasPendingInvitation = false;
   }
 
   @override

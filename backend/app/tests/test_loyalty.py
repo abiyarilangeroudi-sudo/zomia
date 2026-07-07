@@ -99,6 +99,42 @@ def latest_invitation_token(client: TestClient) -> str:
     return match.group(1)
 
 
+def test_owner_can_cancel_pending_staff_invitation(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    invite_response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json={"business_id": business_id, "email": "wrong-staff@example.com"},
+        headers=auth(owner_token),
+    )
+    assert invite_response.status_code == 201
+    invitation_id = invite_response.json()["invitation_id"]
+    invitation_token = latest_invitation_token(client)
+
+    cancel_response = client.delete(
+        f"/api/v1/owner/staff/invitations/{invitation_id}",
+        headers=auth(owner_token),
+    )
+    assert cancel_response.status_code == 204
+
+    staff_response = client.get("/api/v1/owner/staff", headers=auth(owner_token))
+    assert staff_response.status_code == 200
+    assert staff_response.json() == []
+
+    accept_response = client.post(
+        "/api/v1/auth/staff-invitations/accept",
+        json={"token": invitation_token, "password": "strong-password"},
+    )
+    assert accept_response.status_code == 400
+    assert accept_response.json()["detail"] == "Invitation used"
+
+    replacement_response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json={"business_id": business_id, "email": "wrong-staff@example.com"},
+        headers=auth(owner_token),
+    )
+    assert replacement_response.status_code == 201
+
+
 def login(client: TestClient, email: str) -> str:
     response = client.post(
         "/api/v1/auth/login",

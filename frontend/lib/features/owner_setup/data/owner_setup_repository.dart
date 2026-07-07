@@ -190,6 +190,16 @@ class OwnerSetupRepository {
     }
   }
 
+  Future<void> cancelStaffInvitation({required String invitationId}) async {
+    try {
+      await _dio.delete<Map<String, dynamic>>(
+        '/owner/staff/invitations/$invitationId',
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<void> createCampaign({
     required String businessId,
     required String rewardTemplateId,
@@ -278,6 +288,10 @@ String mapOwnerSetupErrorDetail(String detail) {
     'Staff already exists' => 'This staff member already exists.',
     'Staff invitation already pending' =>
       'A staff invitation is already pending for this email.',
+    'Staff invitation not found' =>
+      'Staff invitation not found or you do not have access.',
+    'Staff invitation is not pending' =>
+      'This staff invitation can no longer be cancelled.',
     'Insufficient role' => 'You do not have access to this area.',
     _ => 'Setup action could not be completed. Please try again.',
   };
