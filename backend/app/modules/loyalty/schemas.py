@@ -28,6 +28,12 @@ class MissionCreate(BaseModel):
     point_value: int = Field(gt=0)
 
 
+class MissionUpdate(BaseModel):
+    name: str = Field(min_length=2, max_length=160)
+    description: str | None = Field(default=None, max_length=500)
+    point_value: int = Field(gt=0)
+
+
 class MissionRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

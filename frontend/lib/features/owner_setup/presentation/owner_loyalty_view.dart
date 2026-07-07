@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/ui/ui.dart';
 import 'owner_campaign_widgets.dart';
+import 'owner_loyalty_dialogs.dart';
 import 'owner_mission_widgets.dart';
 import 'owner_reward_template_widgets.dart';
 import 'owner_setup_controller.dart';
@@ -28,7 +29,13 @@ class OwnerLoyaltyView extends StatelessWidget {
         else if (controller.businesses.isEmpty)
           const OwnerNoBusinessCard()
         else ...[
-          OwnerMissionListCard(missions: controller.missions),
+          OwnerMissionListCard(
+            missions: controller.missions,
+            isSaving: controller.isSaving,
+            onEdit: (mission) =>
+                openOwnerMissionEditDialog(context, controller, mission),
+            onDelete: controller.deleteMission,
+          ),
           const SizedBox(height: 16),
           OwnerRewardTemplateListCard(
             rewardTemplates: controller.rewardTemplates,

@@ -87,6 +87,8 @@ Unused endpoint policy:
 | --- | --- | --- | --- | --- | --- |
 | POST | `/owner/missions` | owner | Owner setup | active | Create mission. |
 | GET | `/owner/missions` | owner | Owner setup | active | List missions by business. |
+| PATCH | `/owner/missions/{mission_id}` | owner | Owner loyalty tools | active | Edit an unused mission owned by the current Owner business; missions linked to campaigns or actions are rejected. |
+| DELETE | `/owner/missions/{mission_id}` | owner | Owner loyalty tools | active | Delete an unused mission owned by the current Owner business; missions linked to campaigns or actions are rejected. |
 | POST | `/owner/campaigns` | owner | Owner setup | active | Create campaign with date range and repeatable rules. |
 | GET | `/owner/campaigns` | owner | Owner setup | active | List campaigns by business. |
 | POST | `/owner/reward-templates` | owner | Owner setup | active | Create reward template. |

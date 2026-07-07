@@ -62,6 +62,7 @@ class OwnerSimpleList extends StatelessWidget {
                 title: item.title,
                 subtitle: item.subtitle,
                 leadingIcon: leadingIcon,
+                trailing: item.trailing,
               ),
             ),
           )
@@ -71,10 +72,15 @@ class OwnerSimpleList extends StatelessWidget {
 }
 
 class OwnerSimpleListItem {
-  const OwnerSimpleListItem({required this.title, this.subtitle});
+  const OwnerSimpleListItem({
+    required this.title,
+    this.subtitle,
+    this.trailing,
+  });
 
   final String title;
   final String? subtitle;
+  final Widget? trailing;
 }
 
 class OwnerStatusBanners extends StatelessWidget {

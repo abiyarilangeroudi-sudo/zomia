@@ -36,6 +36,11 @@ class OwnerMissionForm {
     return null;
   }
 
+  void setValues({required String name, required int points}) {
+    nameController.text = name;
+    pointsController.text = points.toString();
+  }
+
   void reset() {
     nameController.clear();
     pointsController.clear();

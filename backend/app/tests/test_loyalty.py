@@ -306,6 +306,86 @@ def test_owner_cannot_create_mission_for_another_owner_business(client: TestClie
     assert response.status_code == 404
 
 
+def test_owner_updates_and_deletes_unused_mission(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+
+    update_response = client.patch(
+        f"/api/v1/owner/missions/{mission['id']}?business_id={business_id}",
+        json={"name": "Buy Tea", "point_value": 2},
+        headers=auth(owner_token),
+    )
+    assert update_response.status_code == 200
+    assert update_response.json()["name"] == "Buy Tea"
+    assert update_response.json()["point_value"] == 2
+
+    delete_response = client.delete(
+        f"/api/v1/owner/missions/{mission['id']}?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert delete_response.status_code == 204
+
+    list_response = client.get(
+        f"/api/v1/owner/missions?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert list_response.status_code == 200
+    assert list_response.json() == []
+
+
+def test_owner_cannot_update_or_delete_used_mission(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
+
+    update_response = client.patch(
+        f"/api/v1/owner/missions/{mission['id']}?business_id={business_id}",
+        json={"name": "Buy Tea", "point_value": 2},
+        headers=auth(owner_token),
+    )
+    assert update_response.status_code == 409
+    assert update_response.json()["detail"] == "Mission is already used"
+
+    delete_response = client.delete(
+        f"/api/v1/owner/missions/{mission['id']}?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert delete_response.status_code == 409
+    assert delete_response.json()["detail"] == "Mission is already used"
+
+
+def test_owner_cannot_update_or_delete_mission_with_action_history(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+
+    action_response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "mission-action-history",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert action_response.status_code == 201
+
+    update_response = client.patch(
+        f"/api/v1/owner/missions/{mission['id']}?business_id={business_id}",
+        json={"name": "Buy Tea", "point_value": 2},
+        headers=auth(owner_token),
+    )
+    assert update_response.status_code == 409
+
+    delete_response = client.delete(
+        f"/api/v1/owner/missions/{mission['id']}?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert delete_response.status_code == 409
+
+
 def test_staff_registers_multi_item_action_and_customer_reads_points(
     client: TestClient, db_session: Session
 ) -> None:

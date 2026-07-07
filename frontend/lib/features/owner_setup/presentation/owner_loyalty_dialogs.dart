@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../domain/owner_setup_models.dart';
 import 'owner_campaign_widgets.dart';
 import 'owner_loyalty_actions.dart';
 import 'owner_mission_widgets.dart';
@@ -28,6 +29,7 @@ Future<void> openOwnerMissionCreateDialog(
   BuildContext context,
   OwnerSetupController controller,
 ) {
+  controller.startCreateMission();
   return Navigator.of(context).push(
     MaterialPageRoute<void>(
       fullscreenDialog: true,
@@ -36,10 +38,40 @@ Future<void> openOwnerMissionCreateDialog(
         builder: (context, _) => OwnerMissionCreateDialog(
           controller: controller.missionForm.nameController,
           pointsController: controller.missionForm.pointsController,
+          title: 'Create Mission',
+          actionLabel: 'Create Mission',
+          actionIcon: Icons.add_task_rounded,
           errorMessage: controller.error,
           onClearError: controller.clearError,
           isSaving: controller.isSaving,
           onCreate: controller.createMission,
+        ),
+      ),
+    ),
+  );
+}
+
+Future<void> openOwnerMissionEditDialog(
+  BuildContext context,
+  OwnerSetupController controller,
+  OwnerMission mission,
+) {
+  controller.startEditMission(mission);
+  return Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (context) => AnimatedBuilder(
+        animation: controller,
+        builder: (context, _) => OwnerMissionCreateDialog(
+          controller: controller.missionForm.nameController,
+          pointsController: controller.missionForm.pointsController,
+          title: 'Edit Mission',
+          actionLabel: 'Save Mission',
+          actionIcon: Icons.save_rounded,
+          errorMessage: controller.error,
+          onClearError: controller.clearError,
+          isSaving: controller.isSaving,
+          onCreate: () => controller.updateMission(mission),
         ),
       ),
     ),

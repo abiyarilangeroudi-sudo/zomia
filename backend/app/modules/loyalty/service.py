@@ -34,6 +34,7 @@ from app.modules.loyalty.schemas import (
     CustomerStatusRead,
     GeneratedRewardRead,
     MissionCreate,
+    MissionUpdate,
     OwnerActivityRead,
     RegisterActionRequest,
     RegisterActionResponse,
@@ -83,6 +84,45 @@ class LoyaltyService:
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
         return self.repository.list_business_missions(business_id)
+
+    def update_mission(
+        self, owner: User, *, business_id, mission_id, payload: MissionUpdate
+    ) -> Mission:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        mission = self.repository.get_business_mission(
+            mission_id=mission_id, business_id=business_id
+        )
+        if mission is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mission not found")
+        if self.repository.mission_has_usage(mission_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Mission is already used",
+            )
+        mission.name = payload.name
+        mission.description = payload.description
+        mission.point_value = payload.point_value
+        return mission
+
+    def delete_mission(self, owner: User, *, business_id, mission_id) -> None:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        mission = self.repository.get_business_mission(
+            mission_id=mission_id, business_id=business_id
+        )
+        if mission is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mission not found")
+        if self.repository.mission_has_usage(mission_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Mission is already used",
+            )
+        self.repository.delete_mission(mission)
 
     def list_staff_missions(self, staff: User, business_id) -> list[Mission]:
         self._require_role(staff, UserRole.STAFF)

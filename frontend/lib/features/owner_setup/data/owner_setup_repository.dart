@@ -162,6 +162,37 @@ class OwnerSetupRepository {
     }
   }
 
+  Future<void> updateMission({
+    required String businessId,
+    required String missionId,
+    required String name,
+    required int pointValue,
+  }) async {
+    try {
+      await _dio.patch<Map<String, dynamic>>(
+        '/owner/missions/$missionId',
+        queryParameters: {'business_id': businessId},
+        data: {'name': name, 'point_value': pointValue},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<void> deleteMission({
+    required String businessId,
+    required String missionId,
+  }) async {
+    try {
+      await _dio.delete<Map<String, dynamic>>(
+        '/owner/missions/$missionId',
+        queryParameters: {'business_id': businessId},
+      );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
   Future<void> sendStaffInvitation({
     required String businessId,
     required String email,
@@ -282,6 +313,9 @@ String mapOwnerSetupErrorDetail(String detail) {
   return switch (detail) {
     'Business not found' => 'Business not found or you do not have access.',
     'Campaign not found' => 'Campaign not found for this business.',
+    'Mission not found' => 'Mission not found for this business.',
+    'Mission is already used' =>
+      'This mission is already used in a campaign or customer action.',
     'One or more missions were not found' =>
       'One or more selected missions are no longer available.',
     'Email already exists' => 'This email is already registered.',

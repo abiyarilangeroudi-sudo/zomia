@@ -125,6 +125,16 @@ class OwnerSetupController extends ChangeNotifier {
     _setState(() => campaignForm.setEndDate(value));
   }
 
+  void startCreateMission() {
+    missionForm.reset();
+    clearError();
+  }
+
+  void startEditMission(OwnerMission mission) {
+    missionForm.setValues(name: mission.name, points: mission.pointValue);
+    clearError();
+  }
+
   void clearError() {
     if (error == null) {
       return;
@@ -259,6 +269,49 @@ class OwnerSetupController extends ChangeNotifier {
       missionForm.reset();
     }
     return saved;
+  }
+
+  Future<bool> updateMission(OwnerMission mission) async {
+    final business = selectedBusiness;
+    final name = missionForm.name;
+    final points = missionForm.points;
+    final validationError = missionForm.validate();
+    if (business == null) {
+      _showError('Select a business first.');
+      return false;
+    }
+    if (validationError != null || points == null) {
+      _showError(validationError ?? 'Enter points greater than 0.');
+      return false;
+    }
+    final saved = await _save(
+      () => repository.updateMission(
+        businessId: business.id,
+        missionId: mission.id,
+        name: name,
+        pointValue: points,
+      ),
+      'Mission updated.',
+    );
+    if (saved) {
+      missionForm.reset();
+    }
+    return saved;
+  }
+
+  Future<void> deleteMission(OwnerMission mission) async {
+    final business = selectedBusiness;
+    if (business == null) {
+      _showError('Select a business first.');
+      return;
+    }
+    await _save(
+      () => repository.deleteMission(
+        businessId: business.id,
+        missionId: mission.id,
+      ),
+      'Mission deleted.',
+    );
   }
 
   Future<bool> createCampaign() async {

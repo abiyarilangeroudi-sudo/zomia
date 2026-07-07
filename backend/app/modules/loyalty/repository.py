@@ -58,6 +58,28 @@ class LoyaltyRepository:
     def list_business_missions(self, business_id: uuid.UUID) -> list[Mission]:
         return list(self.db.scalars(select(Mission).where(Mission.business_id == business_id)))
 
+    def get_business_mission(
+        self, *, mission_id: uuid.UUID, business_id: uuid.UUID
+    ) -> Mission | None:
+        return self.db.scalar(
+            select(Mission).where(Mission.id == mission_id, Mission.business_id == business_id)
+        )
+
+    def mission_has_usage(self, mission_id: uuid.UUID) -> bool:
+        campaign_link_count = self.db.scalar(
+            select(func.count(CampaignMission.id)).where(CampaignMission.mission_id == mission_id)
+        )
+        action_item_count = self.db.scalar(
+            select(func.count(LoyaltyActionItem.id)).where(
+                LoyaltyActionItem.mission_id == mission_id
+            )
+        )
+        return bool(campaign_link_count or action_item_count)
+
+    def delete_mission(self, mission: Mission) -> None:
+        self.db.delete(mission)
+        self.db.flush()
+
     def get_active_missions_by_ids(
         self, *, business_id: uuid.UUID, mission_ids: set[uuid.UUID]
     ) -> dict[uuid.UUID, Mission]:

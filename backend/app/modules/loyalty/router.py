@@ -17,6 +17,7 @@ from app.modules.loyalty.schemas import (
     GeneratedRewardRead,
     MissionCreate,
     MissionRead,
+    MissionUpdate,
     OwnerActivityRead,
     RegisterActionRequest,
     RegisterActionResponse,
@@ -50,6 +51,35 @@ def list_missions(
     service: LoyaltyService = Depends(get_loyalty_service),
 ):
     return service.list_missions(current_user, business_id)
+
+
+@router.patch("/owner/missions/{mission_id}", response_model=MissionRead)
+def update_mission(
+    mission_id: uuid.UUID,
+    payload: MissionUpdate,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    mission = service.update_mission(
+        current_user, business_id=business_id, mission_id=mission_id, payload=payload
+    )
+    db.commit()
+    db.refresh(mission)
+    return mission
+
+
+@router.delete("/owner/missions/{mission_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_mission(
+    mission_id: uuid.UUID,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    service.delete_mission(current_user, business_id=business_id, mission_id=mission_id)
+    db.commit()
 
 
 @router.post("/owner/campaigns", response_model=CampaignRead, status_code=status.HTTP_201_CREATED)

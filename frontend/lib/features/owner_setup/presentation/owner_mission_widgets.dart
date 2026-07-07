@@ -5,9 +5,18 @@ import '../domain/owner_setup_models.dart';
 import 'owner_setup_shared_widgets.dart';
 
 class OwnerMissionListCard extends StatelessWidget {
-  const OwnerMissionListCard({super.key, required this.missions});
+  const OwnerMissionListCard({
+    super.key,
+    required this.missions,
+    required this.isSaving,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final List<OwnerMission> missions;
+  final bool isSaving;
+  final ValueChanged<OwnerMission> onEdit;
+  final Future<void> Function(OwnerMission mission) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +31,47 @@ class OwnerMissionListCard extends StatelessWidget {
                 (mission) => OwnerSimpleListItem(
                   title: mission.name,
                   subtitle: '${mission.pointValue} pts',
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Edit mission',
+                        onPressed: isSaving ? null : () => onEdit(mission),
+                        icon: const Icon(Icons.edit_rounded),
+                      ),
+                      IconButton(
+                        tooltip: 'Delete mission',
+                        onPressed: isSaving
+                            ? null
+                            : () => _confirmDelete(context, mission),
+                        icon: const Icon(Icons.delete_outline_rounded),
+                      ),
+                    ],
+                  ),
                 ),
               )
               .toList(),
         ),
       ],
     );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    OwnerMission mission,
+  ) async {
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: 'Delete mission?',
+      message:
+          'This only works for missions that are not used in a campaign or customer action.',
+      confirmLabel: 'Delete mission',
+      tone: ConfirmTone.destructive,
+    );
+    if (!confirmed) {
+      return;
+    }
+    await onDelete(mission);
   }
 }
 
@@ -36,6 +80,9 @@ class OwnerMissionCreateDialog extends StatelessWidget {
     super.key,
     required this.controller,
     required this.pointsController,
+    required this.title,
+    required this.actionLabel,
+    required this.actionIcon,
     this.errorMessage,
     this.onClearError,
     required this.isSaving,
@@ -44,6 +91,9 @@ class OwnerMissionCreateDialog extends StatelessWidget {
 
   final TextEditingController controller;
   final TextEditingController pointsController;
+  final String title;
+  final String actionLabel;
+  final IconData actionIcon;
   final String? errorMessage;
   final VoidCallback? onClearError;
   final bool isSaving;
@@ -52,10 +102,7 @@ class OwnerMissionCreateDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AppTopBar(
-        title: 'Create Mission',
-        variant: AppTopBarVariant.modal,
-      ),
+      appBar: AppTopBar(title: title, variant: AppTopBarVariant.modal),
       body: SafeArea(
         child: DashboardScroll(
           maxWidth: 640,
@@ -84,8 +131,8 @@ class OwnerMissionCreateDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               PrimaryButton(
-                label: 'Create Mission',
-                icon: Icons.add_task_rounded,
+                label: actionLabel,
+                icon: actionIcon,
                 isLoading: isSaving,
                 onPressed: isSaving
                     ? null
