@@ -592,3 +592,46 @@ Open production decisions are tracked in:
   - Production frontend bundle contains version marker `1.0.130`, `RefreshIndicator`, `Staff Dashboard`, `Campaign`, and `Reward`.
   - Production frontend bundle has no `sourceMappingURL` reference.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+
+## 2026-07-07 Owner Staff Invitation Cancellation
+
+- Backend release: `/opt/zomia/backend/releases/202607071345_cancel_staff_invitation`.
+- Frontend release: `/var/www/zomia/releases/202607071345_cancel_staff_invitation`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.131 (132)`.
+- Git commits deployed:
+  - `bfa9f32 Document pull to refresh surfaces`.
+  - `0615079 Allow owners to cancel staff invitations`.
+  - `d2eeeeb Bump webapp version for invitation cancel release`.
+- Changes:
+  - Owner can cancel a pending Staff invitation through `DELETE /owner/staff/invitations/{invitation_id}`.
+  - Cancelled invitations no longer appear in Owner Team and their accept links no longer work.
+  - The same email can be invited again after cancellation.
+  - Owner Team shows a destructive `Cancel invitation` action for pending invitations with the custom trash SVG icon.
+  - Pull-to-refresh surfaces are documented in `Docs/status/frontend-pull-to-refresh-inventory.md`.
+- Backend, frontend, and API docs changed.
+- Migration status:
+  - No new migration was added.
+  - Alembic current returned `0012_user_session_version (head)`.
+  - Backend `alembic upgrade head` was not run because the schema did not change.
+- Packaging note:
+  - Backend tarball was rebuilt with AppleDouble `._*` files excluded before activation so Alembic only reads real migration files.
+- Local verification passed before deploy:
+  - Backend focused pytest for cancel pending Staff invitation passed.
+  - `flutter test` returned `40 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.131 (132)`.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `zomia-backend.service` was active after restart.
+  - Backend journal showed normal startup and health checks only.
+  - `https://zomia.eu/webapp/?v=1.0.131-132-cancel-invitation` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.131 (132)`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607071345_cancel_staff_invitation`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607071345_cancel_staff_invitation`.
+  - Production frontend bundle contains version marker `1.0.131`, `Cancel invitation`, and `assets/icons/trash.svg`.
+  - Production frontend bundle has no `sourceMappingURL` reference.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `DELETE /api/v1/owner/staff/invitations/00000000-0000-0000-0000-000000000000` returned `401`, confirming the new route reaches backend auth guard.
