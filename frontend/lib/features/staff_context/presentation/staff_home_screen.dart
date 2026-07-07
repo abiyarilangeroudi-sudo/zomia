@@ -117,13 +117,17 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                 ],
               ),
             ),
-            DashboardScroll(
-              child: StaffRecentActionsCard(
-                actions: _recentActions,
-                isLoading: _isLoadingRecentActions,
-                errorMessage: _recentActionsError,
-                onClearError: _clearRecentActionsError,
-                onRetry: _loadRecentActions,
+            RefreshIndicator(
+              onRefresh: _loadRecentActions,
+              child: DashboardScroll(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: StaffRecentActionsCard(
+                  actions: _recentActions,
+                  isLoading: _isLoadingRecentActions,
+                  errorMessage: _recentActionsError,
+                  onClearError: _clearRecentActionsError,
+                  onRetry: _loadRecentActions,
+                ),
               ),
             ),
           ],

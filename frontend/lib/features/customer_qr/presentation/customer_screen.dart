@@ -106,35 +106,47 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
         child: IndexedStack(
           index: _selectedIndex,
           children: [
-            DashboardScroll(
-              child: CustomerHomeView(
-                user: widget.user,
-                status: _status,
-                campaignProgresses: _campaignProgresses,
+            RefreshIndicator(
+              onRefresh: _loadStatus,
+              child: DashboardScroll(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: CustomerHomeView(
+                  user: widget.user,
+                  status: _status,
+                  campaignProgresses: _campaignProgresses,
+                ),
               ),
             ),
-            DashboardScroll(
-              padding: EdgeInsets.zero,
-              child: CustomerCampaignView(
-                campaignProgresses: _campaignProgresses,
-                isLoadingStatus: _isLoadingStatus,
-                statusError: _statusError,
-                onClearStatusError: _clearStatusError,
-                selectedTabIndex: _campaignTabIndex,
-                onTabChanged: (index) =>
-                    setState(() => _campaignTabIndex = index),
+            RefreshIndicator(
+              onRefresh: _loadStatus,
+              child: DashboardScroll(
+                padding: EdgeInsets.zero,
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: CustomerCampaignView(
+                  campaignProgresses: _campaignProgresses,
+                  isLoadingStatus: _isLoadingStatus,
+                  statusError: _statusError,
+                  onClearStatusError: _clearStatusError,
+                  selectedTabIndex: _campaignTabIndex,
+                  onTabChanged: (index) =>
+                      setState(() => _campaignTabIndex = index),
+                ),
               ),
             ),
-            DashboardScroll(
-              padding: EdgeInsets.zero,
-              child: CustomerRewardView(
-                status: _status,
-                isLoadingStatus: _isLoadingStatus,
-                statusError: _statusError,
-                onClearStatusError: _clearStatusError,
-                selectedTabIndex: _rewardTabIndex,
-                onTabChanged: (index) =>
-                    setState(() => _rewardTabIndex = index),
+            RefreshIndicator(
+              onRefresh: _loadStatus,
+              child: DashboardScroll(
+                padding: EdgeInsets.zero,
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: CustomerRewardView(
+                  status: _status,
+                  isLoadingStatus: _isLoadingStatus,
+                  statusError: _statusError,
+                  onClearStatusError: _clearStatusError,
+                  selectedTabIndex: _rewardTabIndex,
+                  onTabChanged: (index) =>
+                      setState(() => _rewardTabIndex = index),
+                ),
               ),
             ),
           ],
