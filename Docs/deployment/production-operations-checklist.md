@@ -538,3 +538,30 @@ Open production decisions are tracked in:
   - Production frontend bundle contains version marker `1.0.128`, `Template type`, `Valid for Days`, and `Recent activity`.
   - Production frontend bundle has no `sourceMappingURL` reference.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+
+## 2026-07-07 Owner Pull To Refresh
+
+- Frontend release: `/var/www/zomia/releases/202607071210_owner_pull_to_refresh`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.129 (130)`.
+- Git commit deployed: `75a37e5 Add owner pull to refresh`.
+- Changes:
+  - Owner Home now supports drag-down refresh.
+  - Owner Recent activity fullscreen dialog now supports drag-down refresh.
+  - Shared `DashboardScroll` supports optional scroll physics so short owner pages can still be pulled to refresh.
+- Backend, database, migrations, and loyalty rules were not changed.
+- Workflow note:
+  - Manual mobile QA is being performed on production for this small gesture-only change because desktop Mac browsers do not reliably exercise pull-to-refresh and local `127.0.0.1` is not reachable from the mobile device.
+  - This is an explicit exception and not the normal Zomia release workflow.
+- Local verification passed before deploy:
+  - `flutter test` returned `40 passed`.
+  - `flutter analyze` returned no issues after rerun.
+  - `scripts/build_frontend_production.sh` built `1.0.129 (130)`.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/?v=1.0.129-130-owner-refresh` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.129 (130)`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607071210_owner_pull_to_refresh`.
+  - Production frontend bundle contains version marker `1.0.129`, `RefreshIndicator`, and `Recent activity`.
+  - Production frontend bundle has no `sourceMappingURL` reference.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
