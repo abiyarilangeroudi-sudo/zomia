@@ -33,6 +33,19 @@ class _OwnerRecentActionsDialogState
         .listRecentActivity(businessId: widget.businessId);
   }
 
+  Future<void> _refreshActivity() async {
+    final nextActivityFuture = _loadActivity();
+    setState(() {
+      _isErrorDismissed = false;
+      _activityFuture = nextActivityFuture;
+    });
+    try {
+      await nextActivityFuture;
+    } catch (_) {
+      // The FutureBuilder renders the retry state.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,78 +54,84 @@ class _OwnerRecentActionsDialogState
         variant: AppTopBarVariant.modal,
       ),
       body: SafeArea(
-        child: DashboardScroll(
-          maxWidth: 760,
-          child: FutureBuilder<List<OwnerActivity>>(
-            future: _activityFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const AppCard(
-                  child: LoadingState(label: 'Loading staff actions'),
-                );
-              }
-              if (snapshot.hasError) {
+        child: RefreshIndicator(
+          onRefresh: _refreshActivity,
+          child: DashboardScroll(
+            maxWidth: 760,
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: FutureBuilder<List<OwnerActivity>>(
+              future: _activityFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const AppCard(
+                    child: LoadingState(label: 'Loading staff actions'),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (!_isErrorDismissed) ...[
+                          InlineBanner(
+                            message: snapshot.error.toString(),
+                            tone: BannerTone.error,
+                            onClose: () =>
+                                setState(() => _isErrorDismissed = true),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        SecondaryButton(
+                          label: 'Try again',
+                          icon: Icons.refresh_rounded,
+                          onPressed: () {
+                            setState(() {
+                              _isErrorDismissed = false;
+                              _activityFuture = _loadActivity();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                final activities = snapshot.data ?? [];
+                if (activities.isEmpty) {
+                  return const AppCard(
+                    child: EmptyStateView(
+                      icon: Icons.history_rounded,
+                      title: 'No staff actions yet',
+                      message:
+                          'Staff activity will appear here after actions are registered.',
+                    ),
+                  );
+                }
                 return AppCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (!_isErrorDismissed) ...[
-                        InlineBanner(
-                          message: snapshot.error.toString(),
-                          tone: BannerTone.error,
-                          onClose: () =>
-                              setState(() => _isErrorDismissed = true),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      SecondaryButton(
-                        label: 'Try again',
-                        icon: Icons.refresh_rounded,
-                        onPressed: () {
-                          setState(() {
-                            _isErrorDismissed = false;
-                            _activityFuture = _loadActivity();
-                          });
-                        },
-                      ),
+                      ...activities.map((activity) {
+                        final presentation = ownerActivityPresentation(
+                          activity,
+                        );
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: AppListRow(
+                            title: activity.summary,
+                            subtitle: presentation.subtitle,
+                            leadingIcon: Icons.history_rounded,
+                            trailing: StatusBadge(
+                              label: presentation.badgeLabel,
+                              tone: presentation.badgeTone,
+                            ),
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 );
-              }
-              final activities = snapshot.data ?? [];
-              if (activities.isEmpty) {
-                return const AppCard(
-                  child: EmptyStateView(
-                    icon: Icons.history_rounded,
-                    title: 'No staff actions yet',
-                    message:
-                        'Staff activity will appear here after actions are registered.',
-                  ),
-                );
-              }
-              return AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ...activities.map((activity) {
-                      final presentation = ownerActivityPresentation(activity);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: AppListRow(
-                          title: activity.summary,
-                          subtitle: presentation.subtitle,
-                          leadingIcon: Icons.history_rounded,
-                          trailing: StatusBadge(
-                            label: presentation.badgeLabel,
-                            tone: presentation.badgeTone,
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              );
-            },
+              },
+            ),
           ),
         ),
       ),

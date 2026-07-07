@@ -104,20 +104,24 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
             child: IndexedStack(
               index: _selectedIndex,
               children: [
-                DashboardScroll(
-                  maxWidth: 760,
-                  child: OwnerHomeView(
-                    controller: _controller,
-                    onCreateMission: () =>
-                        openOwnerMissionCreateDialog(context, _controller),
-                    onCreateRewardTemplate: () =>
-                        openOwnerRewardTemplateCreateDialog(
-                          context,
-                          _controller,
-                        ),
-                    onCreateCampaign: () =>
-                        openOwnerCampaignCreateDialog(context, _controller),
-                    onInviteStaff: _openCreateStaffDialog,
+                RefreshIndicator(
+                  onRefresh: _controller.load,
+                  child: DashboardScroll(
+                    maxWidth: 760,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: OwnerHomeView(
+                      controller: _controller,
+                      onCreateMission: () =>
+                          openOwnerMissionCreateDialog(context, _controller),
+                      onCreateRewardTemplate: () =>
+                          openOwnerRewardTemplateCreateDialog(
+                            context,
+                            _controller,
+                          ),
+                      onCreateCampaign: () =>
+                          openOwnerCampaignCreateDialog(context, _controller),
+                      onInviteStaff: _openCreateStaffDialog,
+                    ),
                   ),
                 ),
                 DashboardScroll(
