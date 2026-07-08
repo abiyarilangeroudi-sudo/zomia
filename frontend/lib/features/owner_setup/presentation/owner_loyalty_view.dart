@@ -35,13 +35,26 @@ class OwnerLoyaltyView extends StatelessWidget {
             onEdit: (mission) =>
                 openOwnerMissionEditDialog(context, controller, mission),
             onDelete: controller.deleteMission,
+            onArchive: controller.archiveMission,
           ),
           const SizedBox(height: 16),
           OwnerRewardTemplateListCard(
             rewardTemplates: controller.rewardTemplates,
+            isSaving: controller.isSaving,
+            onEdit: (template) => openOwnerRewardTemplateEditDialog(
+              context,
+              controller,
+              template,
+            ),
+            onDelete: controller.deleteRewardTemplate,
+            onArchive: controller.archiveRewardTemplate,
           ),
           const SizedBox(height: 16),
-          OwnerCampaignListCard(campaigns: controller.campaigns),
+          OwnerCampaignListCard(
+            campaigns: controller.campaigns,
+            isSaving: controller.isSaving,
+            onStatusChanged: controller.updateCampaignStatus,
+          ),
         ],
       ],
     );

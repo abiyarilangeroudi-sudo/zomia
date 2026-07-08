@@ -132,6 +132,9 @@ class OwnerMission {
     required this.missionType,
     required this.pointValue,
     required this.isActive,
+    required this.canEdit,
+    required this.canDelete,
+    required this.canArchive,
   });
 
   factory OwnerMission.fromJson(Map<String, dynamic> json) {
@@ -141,6 +144,9 @@ class OwnerMission {
       missionType: json['mission_type'] as String,
       pointValue: json['point_value'] as int,
       isActive: json['is_active'] as bool,
+      canEdit: json['can_edit'] as bool? ?? true,
+      canDelete: json['can_delete'] as bool? ?? true,
+      canArchive: json['can_archive'] as bool? ?? false,
     );
   }
 
@@ -149,6 +155,9 @@ class OwnerMission {
   final String missionType;
   final int pointValue;
   final bool isActive;
+  final bool canEdit;
+  final bool canDelete;
+  final bool canArchive;
 }
 
 class OwnerCampaign {
@@ -197,6 +206,9 @@ class OwnerRewardTemplate {
     required this.giftName,
     required this.validDays,
     required this.isActive,
+    required this.canEdit,
+    required this.canDelete,
+    required this.canArchive,
   });
 
   factory OwnerRewardTemplate.fromJson(Map<String, dynamic> json) {
@@ -207,6 +219,9 @@ class OwnerRewardTemplate {
       giftName: json['gift_name'] as String?,
       validDays: json['valid_days'] as int,
       isActive: json['is_active'] as bool,
+      canEdit: json['can_edit'] as bool? ?? true,
+      canDelete: json['can_delete'] as bool? ?? true,
+      canArchive: json['can_archive'] as bool? ?? false,
     );
   }
 
@@ -216,6 +231,9 @@ class OwnerRewardTemplate {
   final String? giftName;
   final int validDays;
   final bool isActive;
+  final bool canEdit;
+  final bool canDelete;
+  final bool canArchive;
 }
 
 class OwnerActivity {

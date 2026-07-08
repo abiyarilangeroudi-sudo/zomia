@@ -56,7 +56,14 @@ class LoyaltyRepository:
         return mission
 
     def list_business_missions(self, business_id: uuid.UUID) -> list[Mission]:
-        return list(self.db.scalars(select(Mission).where(Mission.business_id == business_id)))
+        return list(
+            self.db.scalars(
+                select(Mission).where(
+                    Mission.business_id == business_id,
+                    Mission.is_active.is_(True),
+                )
+            )
+        )
 
     def get_business_mission(
         self, *, mission_id: uuid.UUID, business_id: uuid.UUID
@@ -76,9 +83,26 @@ class LoyaltyRepository:
         )
         return bool(campaign_link_count or action_item_count)
 
+    def mission_has_open_campaign(self, *, mission_id: uuid.UUID, now) -> bool:
+        count = self.db.scalar(
+            select(func.count(Campaign.id))
+            .join(CampaignMission, CampaignMission.campaign_id == Campaign.id)
+            .where(
+                CampaignMission.mission_id == mission_id,
+                Campaign.status != CampaignStatus.ENDED,
+                Campaign.ends_at >= now,
+            )
+        )
+        return bool(count)
+
     def delete_mission(self, mission: Mission) -> None:
         self.db.delete(mission)
         self.db.flush()
+
+    def set_mission_active(self, mission: Mission, is_active: bool) -> Mission:
+        mission.is_active = is_active
+        self.db.flush()
+        return mission
 
     def get_active_missions_by_ids(
         self, *, business_id: uuid.UUID, mission_ids: set[uuid.UUID]
@@ -259,9 +283,9 @@ class LoyaltyRepository:
         self, *, campaign_id: uuid.UUID, business_id: uuid.UUID
     ) -> Campaign | None:
         return self.db.scalar(
-                select(Campaign).where(
-                    Campaign.id == campaign_id,
-                    Campaign.creator_business_id == business_id,
+            select(Campaign).where(
+                Campaign.id == campaign_id,
+                Campaign.creator_business_id == business_id,
             )
         )
 
@@ -274,10 +298,59 @@ class LoyaltyRepository:
         return list(
             self.db.scalars(
                 select(RewardTemplate)
-                .where(RewardTemplate.business_id == business_id)
+                .where(
+                    RewardTemplate.business_id == business_id,
+                    RewardTemplate.is_active.is_(True),
+                )
                 .order_by(RewardTemplate.created_at.desc())
             )
         )
+
+    def get_reward_template_for_business(
+        self, *, reward_template_id: uuid.UUID, business_id: uuid.UUID
+    ) -> RewardTemplate | None:
+        return self.db.scalar(
+            select(RewardTemplate).where(
+                RewardTemplate.id == reward_template_id,
+                RewardTemplate.business_id == business_id,
+            )
+        )
+
+    def reward_template_has_usage(self, reward_template_id: uuid.UUID) -> bool:
+        campaign_link_count = self.db.scalar(
+            select(func.count(CampaignRewardTemplate.id)).where(
+                CampaignRewardTemplate.reward_template_id == reward_template_id
+            )
+        )
+        generated_reward_count = self.db.scalar(
+            select(func.count(GeneratedReward.id)).where(
+                GeneratedReward.reward_template_id == reward_template_id
+            )
+        )
+        return bool(campaign_link_count or generated_reward_count)
+
+    def reward_template_has_open_campaign(self, *, reward_template_id: uuid.UUID, now) -> bool:
+        count = self.db.scalar(
+            select(func.count(Campaign.id))
+            .join(CampaignRewardTemplate, CampaignRewardTemplate.campaign_id == Campaign.id)
+            .where(
+                CampaignRewardTemplate.reward_template_id == reward_template_id,
+                Campaign.status != CampaignStatus.ENDED,
+                Campaign.ends_at >= now,
+            )
+        )
+        return bool(count)
+
+    def delete_reward_template(self, template: RewardTemplate) -> None:
+        self.db.delete(template)
+        self.db.flush()
+
+    def set_reward_template_active(
+        self, template: RewardTemplate, is_active: bool
+    ) -> RewardTemplate:
+        template.is_active = is_active
+        self.db.flush()
+        return template
 
     def get_active_reward_template_for_business(
         self, *, reward_template_id: uuid.UUID, business_id: uuid.UUID

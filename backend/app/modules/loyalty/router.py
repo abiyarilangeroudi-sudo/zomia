@@ -8,11 +8,13 @@ from app.modules.identity.dependencies import get_current_user
 from app.modules.identity.models import User
 from app.modules.loyalty.dependencies import get_loyalty_service
 from app.modules.loyalty.schemas import (
+    ActiveStatusUpdate,
     CampaignCreate,
     CampaignProgressRead,
     CustomerCampaignProgressRead,
     CustomerStatusRead,
     CampaignRead,
+    CampaignStatusUpdate,
     CustomerPointsRead,
     GeneratedRewardRead,
     MissionCreate,
@@ -23,6 +25,7 @@ from app.modules.loyalty.schemas import (
     RegisterActionResponse,
     RewardTemplateCreate,
     RewardTemplateRead,
+    RewardTemplateUpdate,
     UseRewardRequest,
     UseRewardResponse,
 )
@@ -82,6 +85,23 @@ def delete_mission(
     db.commit()
 
 
+@router.patch("/owner/missions/{mission_id}/active", response_model=MissionRead)
+def set_mission_active(
+    mission_id: uuid.UUID,
+    payload: ActiveStatusUpdate,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    mission = service.set_mission_active(
+        current_user, business_id=business_id, mission_id=mission_id, payload=payload
+    )
+    db.commit()
+    db.refresh(mission)
+    return mission
+
+
 @router.post("/owner/campaigns", response_model=CampaignRead, status_code=status.HTTP_201_CREATED)
 def create_campaign(
     payload: CampaignCreate,
@@ -102,6 +122,23 @@ def list_campaigns(
     service: LoyaltyService = Depends(get_loyalty_service),
 ):
     return service.list_campaigns(current_user, business_id)
+
+
+@router.patch("/owner/campaigns/{campaign_id}/status", response_model=CampaignRead)
+def update_campaign_status(
+    campaign_id: uuid.UUID,
+    payload: CampaignStatusUpdate,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    campaign = service.update_campaign_status(
+        current_user, business_id=business_id, campaign_id=campaign_id, payload=payload
+    )
+    db.commit()
+    db.refresh(campaign)
+    return campaign
 
 
 @router.post(
@@ -128,6 +165,63 @@ def list_reward_templates(
     service: LoyaltyService = Depends(get_loyalty_service),
 ):
     return service.list_reward_templates(current_user, business_id)
+
+
+@router.patch("/owner/reward-templates/{reward_template_id}", response_model=RewardTemplateRead)
+def update_reward_template(
+    reward_template_id: uuid.UUID,
+    payload: RewardTemplateUpdate,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    template = service.update_reward_template(
+        current_user,
+        business_id=business_id,
+        reward_template_id=reward_template_id,
+        payload=payload,
+    )
+    db.commit()
+    db.refresh(template)
+    return template
+
+
+@router.delete("/owner/reward-templates/{reward_template_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_reward_template(
+    reward_template_id: uuid.UUID,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    service.delete_reward_template(
+        current_user, business_id=business_id, reward_template_id=reward_template_id
+    )
+    db.commit()
+
+
+@router.patch(
+    "/owner/reward-templates/{reward_template_id}/active",
+    response_model=RewardTemplateRead,
+)
+def set_reward_template_active(
+    reward_template_id: uuid.UUID,
+    payload: ActiveStatusUpdate,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    template = service.set_reward_template_active(
+        current_user,
+        business_id=business_id,
+        reward_template_id=reward_template_id,
+        payload=payload,
+    )
+    db.commit()
+    db.refresh(template)
+    return template
 
 
 @router.get("/owner/activity/recent", response_model=list[OwnerActivityRead])

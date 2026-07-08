@@ -89,10 +89,15 @@ Unused endpoint policy:
 | GET | `/owner/missions` | owner | Owner setup | active | List missions by business. |
 | PATCH | `/owner/missions/{mission_id}` | owner | Owner loyalty tools | active | Edit an unused mission owned by the current Owner business; missions linked to campaigns or actions are rejected. |
 | DELETE | `/owner/missions/{mission_id}` | owner | Owner loyalty tools | active | Delete an unused mission owned by the current Owner business; missions linked to campaigns or actions are rejected. |
+| PATCH | `/owner/missions/{mission_id}/active` | owner | Owner loyalty tools | active | Archive or reactivate a mission owned by the current Owner business; archived missions are hidden from active setup and staff mission lists. |
 | POST | `/owner/campaigns` | owner | Owner setup | active | Create campaign with date range and repeatable rules. |
 | GET | `/owner/campaigns` | owner | Owner setup | active | List campaigns by business. |
+| PATCH | `/owner/campaigns/{campaign_id}/status` | owner | Owner loyalty tools | active | Pause, resume, or end an Owner campaign; ended campaigns are terminal. |
 | POST | `/owner/reward-templates` | owner | Owner setup | active | Create reward template. |
 | GET | `/owner/reward-templates` | owner | Owner setup | active | List reward templates by business. |
+| PATCH | `/owner/reward-templates/{reward_template_id}` | owner | Owner loyalty tools | active | Edit an unused reward template owned by the current Owner business; templates linked to campaigns or generated rewards are rejected. |
+| DELETE | `/owner/reward-templates/{reward_template_id}` | owner | Owner loyalty tools | active | Delete an unused reward template owned by the current Owner business; templates linked to campaigns or generated rewards are rejected. |
+| PATCH | `/owner/reward-templates/{reward_template_id}/active` | owner | Owner loyalty tools | active | Archive or reactivate a reward template owned by the current Owner business; archived templates are hidden from active setup and campaign creation. |
 | GET | `/owner/activity/recent` | owner | Owner recent actions dialog | active | Business-wide staff activity for the owner. |
 | POST | `/staff/actions` | staff | API/dev and non-QR staff flow | active | Registers action by explicit customer id. Flutter staff panel uses QR endpoint instead. |
 | GET | `/customers/me/points` | customer | API/dev | internal | Customer total points are not shown in MVP UI. |

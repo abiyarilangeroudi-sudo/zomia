@@ -5,292 +5,21 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/http/api_client.dart';
 import '../domain/owner_setup_models.dart';
 
+part 'owner_setup_activity_repository.dart';
+part 'owner_setup_business_repository.dart';
+part 'owner_setup_campaign_repository.dart';
+part 'owner_setup_mission_repository.dart';
+part 'owner_setup_reward_repository.dart';
+part 'owner_setup_staff_repository.dart';
+
 final ownerSetupRepositoryProvider = Provider<OwnerSetupRepository>((ref) {
   return OwnerSetupRepository(ref.watch(dioProvider));
 });
 
-class OwnerSetupRepository {
-  const OwnerSetupRepository(this._dio);
+abstract class _OwnerSetupRepositoryBase {
+  const _OwnerSetupRepositoryBase(this._dio);
 
   final Dio _dio;
-
-  Future<List<OwnerBusiness>> listBusinesses() async {
-    try {
-      final response = await _dio.get<List<dynamic>>('/owner/businesses');
-      return (response.data ?? [])
-          .map((item) => OwnerBusiness.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<List<OwnerMission>> listMissions(String businessId) async {
-    try {
-      final response = await _dio.get<List<dynamic>>(
-        '/owner/missions',
-        queryParameters: {'business_id': businessId},
-      );
-      return (response.data ?? [])
-          .map((item) => OwnerMission.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<List<OwnerStaffMember>> listStaff() async {
-    try {
-      final response = await _dio.get<List<dynamic>>('/owner/staff');
-      return (response.data ?? [])
-          .map(
-            (item) => OwnerStaffMember.fromJson(item as Map<String, dynamic>),
-          )
-          .toList();
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<List<OwnerCampaign>> listCampaigns(String businessId) async {
-    try {
-      final response = await _dio.get<List<dynamic>>(
-        '/owner/campaigns',
-        queryParameters: {'business_id': businessId},
-      );
-      return (response.data ?? [])
-          .map((item) => OwnerCampaign.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<List<OwnerRewardTemplate>> listRewardTemplates(
-    String businessId,
-  ) async {
-    try {
-      final response = await _dio.get<List<dynamic>>(
-        '/owner/reward-templates',
-        queryParameters: {'business_id': businessId},
-      );
-      return (response.data ?? [])
-          .map(
-            (item) =>
-                OwnerRewardTemplate.fromJson(item as Map<String, dynamic>),
-          )
-          .toList();
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<List<OwnerActivity>> listRecentActivity({
-    required String businessId,
-    int limit = 20,
-  }) async {
-    try {
-      final response = await _dio.get<List<dynamic>>(
-        '/owner/activity/recent',
-        queryParameters: {'business_id': businessId, 'limit': limit},
-      );
-      return (response.data ?? [])
-          .map((item) => OwnerActivity.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<OwnerBusiness> updateBusiness({
-    required String businessId,
-    required String name,
-    required String? category,
-    required String? publicEmail,
-    required String? publicPhone,
-    required String? websiteUrl,
-    required String? addressLine1,
-    required String? addressLine2,
-    required String? city,
-    required String? region,
-    required String? postalCode,
-    required String countryCode,
-    required String timezone,
-  }) async {
-    try {
-      final response = await _dio.patch<Map<String, dynamic>>(
-        '/owner/businesses/$businessId',
-        data: {
-          'name': name,
-          'category': _blankToNull(category),
-          'public_email': _blankToNull(publicEmail),
-          'public_phone': _blankToNull(publicPhone),
-          'website_url': _blankToNull(websiteUrl),
-          'address_line1': _blankToNull(addressLine1),
-          'address_line2': _blankToNull(addressLine2),
-          'city': _blankToNull(city),
-          'region': _blankToNull(region),
-          'postal_code': _blankToNull(postalCode),
-          'country_code': countryCode,
-          'timezone': timezone,
-        },
-      );
-      return OwnerBusiness.fromJson(response.data ?? <String, dynamic>{});
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> createMission({
-    required String businessId,
-    required String name,
-    required String missionType,
-    required int pointValue,
-  }) async {
-    try {
-      await _dio.post<Map<String, dynamic>>(
-        '/owner/missions',
-        data: {
-          'business_id': businessId,
-          'name': name,
-          'mission_type': missionType,
-          'point_value': pointValue,
-        },
-      );
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> updateMission({
-    required String businessId,
-    required String missionId,
-    required String name,
-    required int pointValue,
-  }) async {
-    try {
-      await _dio.patch<Map<String, dynamic>>(
-        '/owner/missions/$missionId',
-        queryParameters: {'business_id': businessId},
-        data: {'name': name, 'point_value': pointValue},
-      );
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> deleteMission({
-    required String businessId,
-    required String missionId,
-  }) async {
-    try {
-      await _dio.delete<Map<String, dynamic>>(
-        '/owner/missions/$missionId',
-        queryParameters: {'business_id': businessId},
-      );
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> sendStaffInvitation({
-    required String businessId,
-    required String email,
-  }) async {
-    try {
-      await _dio.post<Map<String, dynamic>>(
-        '/owner/staff/invitations',
-        data: {'business_id': businessId, 'email': email},
-      );
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> setStaffActive({
-    required String staffMemberId,
-    required bool isActive,
-  }) async {
-    try {
-      await _dio.patch<Map<String, dynamic>>(
-        '/owner/staff/$staffMemberId',
-        data: {'is_active': isActive},
-      );
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> cancelStaffInvitation({required String invitationId}) async {
-    try {
-      await _dio.delete<Map<String, dynamic>>(
-        '/owner/staff/invitations/$invitationId',
-      );
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> createCampaign({
-    required String businessId,
-    required String rewardTemplateId,
-    required String name,
-    required int thresholdPoints,
-    required DateTime startsAt,
-    required DateTime endsAt,
-    required List<String> missionIds,
-    required bool isRepeatable,
-    int? maxCompletionsPerCustomer,
-  }) async {
-    final payload = <String, dynamic>{
-      'creator_business_id': businessId,
-      'reward_template_id': rewardTemplateId,
-      'name': name,
-      'threshold_points': thresholdPoints,
-      'is_repeatable': isRepeatable,
-      'starts_at': startsAt.toUtc().toIso8601String(),
-      'ends_at': endsAt.toUtc().toIso8601String(),
-      'mission_ids': missionIds,
-    };
-    if (isRepeatable) {
-      payload['max_completions_per_customer'] = maxCompletionsPerCustomer;
-    }
-    try {
-      await _dio.post<Map<String, dynamic>>('/owner/campaigns', data: payload);
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  Future<void> createGiftRewardTemplate({
-    required String businessId,
-    required String name,
-    required String giftName,
-    required int validDays,
-  }) async {
-    try {
-      await _dio.post<Map<String, dynamic>>(
-        '/owner/reward-templates',
-        data: {
-          'business_id': businessId,
-          'name': name,
-          'reward_type': 'gift',
-          'gift_name': giftName,
-          'valid_days': validDays,
-        },
-      );
-    } on DioException catch (error) {
-      throw AppException(_messageFor(error));
-    }
-  }
-
-  static String? _blankToNull(String? value) {
-    final trimmed = value?.trim();
-    if (trimmed == null || trimmed.isEmpty) {
-      return null;
-    }
-    return trimmed;
-  }
 
   String _messageFor(DioException error) {
     final data = error.response?.data;
@@ -309,13 +38,44 @@ class OwnerSetupRepository {
   }
 }
 
+String? _blankToNull(String? value) {
+  final trimmed = value?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  return trimmed;
+}
+
+class OwnerSetupRepository extends _OwnerSetupRepositoryBase
+    with
+        _OwnerSetupActivityRepository,
+        _OwnerSetupBusinessRepository,
+        _OwnerSetupCampaignRepository,
+        _OwnerSetupMissionRepository,
+        _OwnerSetupRewardRepository,
+        _OwnerSetupStaffRepository {
+  const OwnerSetupRepository(super.dio);
+}
+
 String mapOwnerSetupErrorDetail(String detail) {
   return switch (detail) {
     'Business not found' => 'Business not found or you do not have access.',
     'Campaign not found' => 'Campaign not found for this business.',
+    'Campaign is already ended' => 'This campaign is already ended.',
+    'Campaign can only resume from paused' =>
+      'Only paused campaigns can be resumed.',
+    'Unsupported campaign status' => 'This campaign status is not supported.',
     'Mission not found' => 'Mission not found for this business.',
     'Mission is already used' =>
       'This mission is already used in a campaign or customer action.',
+    'Mission is used by an active campaign' =>
+      'End the related campaign before archiving this mission.',
+    'Reward template not found' =>
+      'Reward template not found or no longer available.',
+    'Reward template is already used' =>
+      'This reward template is already used in a campaign or generated reward.',
+    'Reward template is used by an active campaign' =>
+      'End the related campaign before archiving this reward template.',
     'One or more missions were not found' =>
       'One or more selected missions are no longer available.',
     'Email already exists' => 'This email is already registered.',

@@ -11,12 +11,14 @@ class OwnerMissionListCard extends StatelessWidget {
     required this.isSaving,
     required this.onEdit,
     required this.onDelete,
+    required this.onArchive,
   });
 
   final List<OwnerMission> missions;
   final bool isSaving;
   final ValueChanged<OwnerMission> onEdit;
   final Future<void> Function(OwnerMission mission) onDelete;
+  final Future<void> Function(OwnerMission mission) onArchive;
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +36,28 @@ class OwnerMissionListCard extends StatelessWidget {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        tooltip: 'Edit mission',
-                        onPressed: isSaving ? null : () => onEdit(mission),
-                        icon: const Icon(Icons.edit_rounded),
-                      ),
-                      IconButton(
-                        tooltip: 'Delete mission',
-                        onPressed: isSaving
-                            ? null
-                            : () => _confirmDelete(context, mission),
-                        icon: const Icon(Icons.delete_outline_rounded),
-                      ),
+                      if (mission.canEdit)
+                        IconButton(
+                          tooltip: 'Edit mission',
+                          onPressed: isSaving ? null : () => onEdit(mission),
+                          icon: const Icon(Icons.edit_rounded),
+                        ),
+                      if (mission.canDelete)
+                        IconButton(
+                          tooltip: 'Delete mission',
+                          onPressed: isSaving
+                              ? null
+                              : () => _confirmDelete(context, mission),
+                          icon: const Icon(Icons.delete_outline_rounded),
+                        ),
+                      if (mission.canArchive)
+                        IconButton(
+                          tooltip: 'Archive mission',
+                          onPressed: isSaving
+                              ? null
+                              : () => _confirmArchive(context, mission),
+                          icon: const Icon(Icons.archive_outlined),
+                        ),
                     ],
                   ),
                 ),
@@ -72,6 +84,23 @@ class OwnerMissionListCard extends StatelessWidget {
       return;
     }
     await onDelete(mission);
+  }
+
+  Future<void> _confirmArchive(
+    BuildContext context,
+    OwnerMission mission,
+  ) async {
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: 'Archive mission?',
+      message:
+          'This mission will be hidden from Loyalty setup, Staff, and new Campaigns. History remains unchanged.',
+      confirmLabel: 'Archive mission',
+    );
+    if (!confirmed) {
+      return;
+    }
+    await onArchive(mission);
   }
 }
 

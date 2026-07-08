@@ -200,6 +200,11 @@ class OwnerRewardTemplateForm {
     return null;
   }
 
+  void setValues({required String giftName, required int validDays}) {
+    giftNameController.text = giftName;
+    validDaysController.text = validDays.toString();
+  }
+
   void reset() {
     giftNameController.clear();
     validDaysController.clear();

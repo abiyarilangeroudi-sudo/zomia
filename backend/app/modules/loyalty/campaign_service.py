@@ -22,6 +22,7 @@ from app.modules.loyalty.repository import LoyaltyRepository
 from app.modules.loyalty.schemas import (
     CampaignCreate,
     CampaignProgressRead,
+    CampaignStatusUpdate,
     CustomerCampaignProgressRead,
 )
 
@@ -110,6 +111,42 @@ class CampaignService:
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
         return self.repository.list_business_campaigns(business_id)
+
+    def update_campaign_status(
+        self, owner: User, *, business_id, campaign_id, payload: CampaignStatusUpdate
+    ) -> Campaign:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        campaign = self.repository.get_campaign_for_business(
+            campaign_id=campaign_id, business_id=business_id
+        )
+        if campaign is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Campaign not found")
+        if campaign.status == CampaignStatus.ENDED:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Campaign is already ended",
+            )
+        if payload.status not in {
+            CampaignStatus.ACTIVE,
+            CampaignStatus.PAUSED,
+            CampaignStatus.ENDED,
+        }:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Unsupported campaign status",
+            )
+        if payload.status == CampaignStatus.ACTIVE and campaign.status != CampaignStatus.PAUSED:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Campaign can only resume from paused",
+            )
+        if payload.status == campaign.status:
+            return campaign
+        campaign.status = payload.status
+        return campaign
 
     def get_campaign_progress(self, customer: User, campaign_id) -> CampaignProgressRead:
         self._require_role(customer, UserRole.CUSTOMER)

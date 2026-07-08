@@ -34,6 +34,10 @@ class MissionUpdate(BaseModel):
     point_value: int = Field(gt=0)
 
 
+class ActiveStatusUpdate(BaseModel):
+    is_active: bool
+
+
 class MissionRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -44,6 +48,9 @@ class MissionRead(BaseModel):
     mission_type: MissionType
     point_value: int
     is_active: bool
+    can_edit: bool = True
+    can_delete: bool = True
+    can_archive: bool = False
     created_at: datetime
 
 
@@ -129,6 +136,10 @@ class CampaignCreate(BaseModel):
         if self.starts_at >= self.ends_at:
             raise ValueError("starts_at must be before ends_at")
         return self
+
+
+class CampaignStatusUpdate(BaseModel):
+    status: CampaignStatus
 
 
 class CampaignRead(BaseModel):
@@ -229,6 +240,13 @@ class RewardTemplateCreate(BaseModel):
         return self
 
 
+class RewardTemplateUpdate(BaseModel):
+    name: str = Field(min_length=2, max_length=160)
+    description: str | None = Field(default=None, max_length=500)
+    gift_name: str = Field(min_length=1, max_length=160)
+    valid_days: int = Field(gt=0)
+
+
 class RewardTemplateRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -246,6 +264,9 @@ class RewardTemplateRead(BaseModel):
     currency_code: str | None
     valid_days: int
     is_active: bool
+    can_edit: bool = True
+    can_delete: bool = True
+    can_archive: bool = False
     created_at: datetime
 
 

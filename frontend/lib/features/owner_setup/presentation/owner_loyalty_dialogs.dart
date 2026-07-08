@@ -121,6 +121,7 @@ Future<void> openOwnerRewardTemplateCreateDialog(
   BuildContext context,
   OwnerSetupController controller,
 ) {
+  controller.startCreateRewardTemplate();
   return Navigator.of(context).push(
     MaterialPageRoute<void>(
       fullscreenDialog: true,
@@ -130,10 +131,41 @@ Future<void> openOwnerRewardTemplateCreateDialog(
           giftNameController: controller.rewardTemplateForm.giftNameController,
           validDaysController:
               controller.rewardTemplateForm.validDaysController,
+          title: 'Create Reward Template',
+          actionLabel: 'Create Template',
+          actionIcon: Icons.card_giftcard_rounded,
           errorMessage: controller.error,
           onClearError: controller.clearError,
           isSaving: controller.isSaving,
           onCreate: controller.createRewardTemplate,
+        ),
+      ),
+    ),
+  );
+}
+
+Future<void> openOwnerRewardTemplateEditDialog(
+  BuildContext context,
+  OwnerSetupController controller,
+  OwnerRewardTemplate template,
+) {
+  controller.startEditRewardTemplate(template);
+  return Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (context) => AnimatedBuilder(
+        animation: controller,
+        builder: (context, _) => OwnerRewardTemplateCreateDialog(
+          giftNameController: controller.rewardTemplateForm.giftNameController,
+          validDaysController:
+              controller.rewardTemplateForm.validDaysController,
+          title: 'Edit Reward Template',
+          actionLabel: 'Save Template',
+          actionIcon: Icons.save_rounded,
+          errorMessage: controller.error,
+          onClearError: controller.clearError,
+          isSaving: controller.isSaving,
+          onCreate: () => controller.updateRewardTemplate(template),
         ),
       ),
     ),

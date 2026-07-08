@@ -1864,6 +1864,9 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         missionType: 'purchase',
         pointValue: 1,
         isActive: true,
+        canEdit: true,
+        canDelete: true,
+        canArchive: false,
       ),
     ];
   }
@@ -1957,6 +1960,9 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         giftName: 'Free coffee',
         validDays: 30,
         isActive: true,
+        canEdit: true,
+        canDelete: true,
+        canArchive: false,
       ),
     ];
   }

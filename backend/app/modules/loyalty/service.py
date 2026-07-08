@@ -26,8 +26,10 @@ from app.modules.loyalty.models import (
 from app.modules.loyalty.campaign_service import CampaignService
 from app.modules.loyalty.repository import LoyaltyRepository
 from app.modules.loyalty.schemas import (
+    ActiveStatusUpdate,
     CampaignCreate,
     CampaignProgressRead,
+    CampaignStatusUpdate,
     CustomerCampaignProgressRead,
     CustomerPointsRead,
     CustomerBusinessStatusRead,
@@ -39,6 +41,7 @@ from app.modules.loyalty.schemas import (
     RegisterActionRequest,
     RegisterActionResponse,
     RewardTemplateCreate,
+    RewardTemplateUpdate,
     UseRewardRequest,
     UseRewardResponse,
 )
@@ -83,7 +86,17 @@ class LoyaltyService:
         business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-        return self.repository.list_business_missions(business_id)
+        missions = self.repository.list_business_missions(business_id)
+        now = datetime.now(UTC)
+        for mission in missions:
+            self._set_usage_capabilities(
+                mission,
+                is_used=self.repository.mission_has_usage(mission.id),
+                has_open_campaign=self.repository.mission_has_open_campaign(
+                    mission_id=mission.id, now=now
+                ),
+            )
+        return missions
 
     def update_mission(
         self, owner: User, *, business_id, mission_id, payload: MissionUpdate
@@ -124,6 +137,37 @@ class LoyaltyService:
             )
         self.repository.delete_mission(mission)
 
+    def set_mission_active(
+        self, owner: User, *, business_id, mission_id, payload: ActiveStatusUpdate
+    ) -> Mission:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        mission = self.repository.get_business_mission(
+            mission_id=mission_id, business_id=business_id
+        )
+        if mission is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mission not found")
+        now = datetime.now(UTC)
+        if (
+            payload.is_active is False
+            and self.repository.mission_has_open_campaign(mission_id=mission.id, now=now)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Mission is used by an active campaign",
+            )
+        self.repository.set_mission_active(mission, payload.is_active)
+        self._set_usage_capabilities(
+            mission,
+            is_used=self.repository.mission_has_usage(mission.id),
+            has_open_campaign=self.repository.mission_has_open_campaign(
+                mission_id=mission.id, now=now
+            ),
+        )
+        return mission
+
     def list_staff_missions(self, staff: User, business_id) -> list[Mission]:
         self._require_role(staff, UserRole.STAFF)
         if (
@@ -141,6 +185,13 @@ class LoyaltyService:
 
     def list_campaigns(self, owner: User, business_id) -> list[Campaign]:
         return self.campaigns.list_campaigns(owner, business_id)
+
+    def update_campaign_status(
+        self, owner: User, *, business_id, campaign_id, payload: CampaignStatusUpdate
+    ) -> Campaign:
+        return self.campaigns.update_campaign_status(
+            owner, business_id=business_id, campaign_id=campaign_id, payload=payload
+        )
 
     def create_reward_template(self, owner: User, payload: RewardTemplateCreate) -> RewardTemplate:
         self._require_role(owner, UserRole.OWNER)
@@ -186,7 +237,99 @@ class LoyaltyService:
         business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-        return self.repository.list_reward_templates(business_id)
+        templates = self.repository.list_reward_templates(business_id)
+        now = datetime.now(UTC)
+        for template in templates:
+            self._set_usage_capabilities(
+                template,
+                is_used=self.repository.reward_template_has_usage(template.id),
+                has_open_campaign=self.repository.reward_template_has_open_campaign(
+                    reward_template_id=template.id, now=now
+                ),
+            )
+        return templates
+
+    def update_reward_template(
+        self, owner: User, *, business_id, reward_template_id, payload: RewardTemplateUpdate
+    ) -> RewardTemplate:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        template = self.repository.get_reward_template_for_business(
+            reward_template_id=reward_template_id, business_id=business_id
+        )
+        if template is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reward template not found",
+            )
+        if self.repository.reward_template_has_usage(reward_template_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Reward template is already used",
+            )
+        template.name = payload.name
+        template.description = payload.description
+        template.gift_name = payload.gift_name
+        template.valid_days = payload.valid_days
+        return template
+
+    def delete_reward_template(self, owner: User, *, business_id, reward_template_id) -> None:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        template = self.repository.get_reward_template_for_business(
+            reward_template_id=reward_template_id, business_id=business_id
+        )
+        if template is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reward template not found",
+            )
+        if self.repository.reward_template_has_usage(reward_template_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Reward template is already used",
+            )
+        self.repository.delete_reward_template(template)
+
+    def set_reward_template_active(
+        self, owner: User, *, business_id, reward_template_id, payload: ActiveStatusUpdate
+    ) -> RewardTemplate:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        template = self.repository.get_reward_template_for_business(
+            reward_template_id=reward_template_id, business_id=business_id
+        )
+        if template is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reward template not found",
+            )
+        now = datetime.now(UTC)
+        if (
+            payload.is_active is False
+            and self.repository.reward_template_has_open_campaign(
+                reward_template_id=template.id, now=now
+            )
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Reward template is used by an active campaign",
+            )
+        self.repository.set_reward_template_active(template, payload.is_active)
+        self._set_usage_capabilities(
+            template,
+            is_used=self.repository.reward_template_has_usage(template.id),
+            has_open_campaign=self.repository.reward_template_has_open_campaign(
+                reward_template_id=template.id, now=now
+            ),
+        )
+        return template
 
     def list_owner_recent_activity(
         self, owner: User, business_id, *, limit: int = 20
@@ -607,6 +750,12 @@ class LoyaltyService:
                 items.append(f"{mission_name} x{item.quantity}")
             return ", ".join(items) if items else "Mission progress"
         return action.action_type.value.replace("_", " ").title()
+
+    @staticmethod
+    def _set_usage_capabilities(item, *, is_used: bool, has_open_campaign: bool) -> None:
+        item.can_edit = not is_used
+        item.can_delete = not is_used
+        item.can_archive = is_used and item.is_active and not has_open_campaign
 
     def _audit(
         self,

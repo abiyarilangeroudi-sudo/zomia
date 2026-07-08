@@ -4,6 +4,8 @@ import '../data/owner_setup_repository.dart';
 import '../domain/owner_setup_models.dart';
 import 'owner_setup_forms.dart';
 
+part 'owner_setup_controller_loyalty_actions.dart';
+
 class OwnerSetupController extends ChangeNotifier {
   OwnerSetupController({required this.repository});
 
@@ -135,6 +137,19 @@ class OwnerSetupController extends ChangeNotifier {
     clearError();
   }
 
+  void startCreateRewardTemplate() {
+    rewardTemplateForm.reset();
+    clearError();
+  }
+
+  void startEditRewardTemplate(OwnerRewardTemplate template) {
+    rewardTemplateForm.setValues(
+      giftName: template.giftName ?? template.name,
+      validDays: template.validDays,
+    );
+    clearError();
+  }
+
   void clearError() {
     if (error == null) {
       return;
@@ -243,146 +258,6 @@ class OwnerSetupController extends ChangeNotifier {
     }, 'Business updated.');
   }
 
-  Future<bool> createMission() async {
-    final business = selectedBusiness;
-    final name = missionForm.name;
-    final points = missionForm.points;
-    final validationError = missionForm.validate();
-    if (business == null) {
-      _showError('Select a business first.');
-      return false;
-    }
-    if (validationError != null || points == null) {
-      _showError(validationError ?? 'Enter points greater than 0.');
-      return false;
-    }
-    final saved = await _save(
-      () => repository.createMission(
-        businessId: business.id,
-        name: name,
-        missionType: 'purchase',
-        pointValue: points,
-      ),
-      'Mission created.',
-    );
-    if (saved) {
-      missionForm.reset();
-    }
-    return saved;
-  }
-
-  Future<bool> updateMission(OwnerMission mission) async {
-    final business = selectedBusiness;
-    final name = missionForm.name;
-    final points = missionForm.points;
-    final validationError = missionForm.validate();
-    if (business == null) {
-      _showError('Select a business first.');
-      return false;
-    }
-    if (validationError != null || points == null) {
-      _showError(validationError ?? 'Enter points greater than 0.');
-      return false;
-    }
-    final saved = await _save(
-      () => repository.updateMission(
-        businessId: business.id,
-        missionId: mission.id,
-        name: name,
-        pointValue: points,
-      ),
-      'Mission updated.',
-    );
-    if (saved) {
-      missionForm.reset();
-    }
-    return saved;
-  }
-
-  Future<void> deleteMission(OwnerMission mission) async {
-    final business = selectedBusiness;
-    if (business == null) {
-      _showError('Select a business first.');
-      return;
-    }
-    await _save(
-      () => repository.deleteMission(
-        businessId: business.id,
-        missionId: mission.id,
-      ),
-      'Mission deleted.',
-    );
-  }
-
-  Future<bool> createCampaign() async {
-    final business = selectedBusiness;
-    final rewardTemplateId = campaignForm.selectedRewardTemplateId;
-    final threshold = campaignForm.threshold;
-    final maxCompletions = campaignForm.maxCompletions;
-    final name = campaignForm.name;
-    final validationError = campaignForm.validate();
-    if (business == null) {
-      _showError('Select a business first.');
-      return false;
-    }
-    if (validationError != null ||
-        rewardTemplateId == null ||
-        threshold == null) {
-      _showError(validationError ?? 'Please check the campaign form.');
-      return false;
-    }
-    final saved = await _save(
-      () => repository.createCampaign(
-        businessId: business.id,
-        rewardTemplateId: rewardTemplateId,
-        name: name,
-        thresholdPoints: threshold,
-        startsAt: _startOfLocalDay(campaignForm.startDate),
-        endsAt: _endOfLocalDay(campaignForm.endDate),
-        missionIds: campaignForm.selectedMissionIds.toList(),
-        isRepeatable: campaignForm.isRepeatable,
-        maxCompletionsPerCustomer:
-            campaignForm.isRepeatable && campaignForm.hasCompletionLimit
-            ? maxCompletions
-            : null,
-      ),
-      'Campaign created.',
-    );
-    if (saved) {
-      campaignForm.resetAfterSave();
-    }
-    return saved;
-  }
-
-  Future<bool> createRewardTemplate() async {
-    final business = selectedBusiness;
-    final name = rewardTemplateForm.name;
-    final giftName = rewardTemplateForm.giftName;
-    final validDays = rewardTemplateForm.validDays;
-    final validationError = rewardTemplateForm.validate();
-    if (business == null) {
-      _showError('Select a business first.');
-      return false;
-    }
-    if (validationError != null || validDays == null) {
-      _showError(validationError ?? 'Enter valid days greater than 0.');
-      return false;
-    }
-    final saved = await _save(
-      () => repository.createGiftRewardTemplate(
-        businessId: business.id,
-        name: name,
-        giftName: giftName,
-        validDays: validDays,
-      ),
-      'Reward template created.',
-    );
-    if (saved) {
-      rewardTemplateForm.reset();
-    }
-    return saved;
-  }
-
   Future<bool> _save(Future<void> Function() action, String message) async {
     _setState(() {
       isSaving = true;
@@ -429,13 +304,5 @@ class OwnerSetupController extends ChangeNotifier {
     campaignForm.dispose();
     rewardTemplateForm.dispose();
     super.dispose();
-  }
-
-  static DateTime _startOfLocalDay(DateTime value) {
-    return DateTime(value.year, value.month, value.day);
-  }
-
-  static DateTime _endOfLocalDay(DateTime value) {
-    return DateTime(value.year, value.month, value.day, 23, 59, 59);
   }
 }

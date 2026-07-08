@@ -354,6 +354,85 @@ def test_owner_cannot_update_or_delete_used_mission(client: TestClient) -> None:
     assert delete_response.json()["detail"] == "Mission is already used"
 
 
+def test_owner_archives_used_mission_and_hides_it_from_active_lists(
+    client: TestClient,
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    campaign = create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
+
+    list_response = client.get(
+        f"/api/v1/owner/missions?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert list_response.status_code == 200
+    listed_mission = next(item for item in list_response.json() if item["id"] == mission["id"])
+    assert listed_mission["can_edit"] is False
+    assert listed_mission["can_delete"] is False
+    assert listed_mission["can_archive"] is False
+
+    blocked_response = client.patch(
+        f"/api/v1/owner/missions/{mission['id']}/active?business_id={business_id}",
+        json={"is_active": False},
+        headers=auth(owner_token),
+    )
+    assert blocked_response.status_code == 409
+    assert blocked_response.json()["detail"] == "Mission is used by an active campaign"
+
+    end_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "ended"},
+        headers=auth(owner_token),
+    )
+    assert end_response.status_code == 200
+
+    refreshed_response = client.get(
+        f"/api/v1/owner/missions?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert refreshed_response.status_code == 200
+    refreshed_mission = next(
+        item for item in refreshed_response.json() if item["id"] == mission["id"]
+    )
+    assert refreshed_mission["can_archive"] is True
+
+    archive_response = client.patch(
+        f"/api/v1/owner/missions/{mission['id']}/active?business_id={business_id}",
+        json={"is_active": False},
+        headers=auth(owner_token),
+    )
+    assert archive_response.status_code == 200
+    assert archive_response.json()["is_active"] is False
+
+    hidden_response = client.get(
+        f"/api/v1/owner/missions?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert hidden_response.status_code == 200
+    assert all(item["id"] != mission["id"] for item in hidden_response.json())
+
+
+def test_owner_can_archive_used_mission_after_campaign_expires(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        starts_at=datetime.now(UTC) - timedelta(days=10),
+        ends_at=datetime.now(UTC) - timedelta(days=1),
+    )
+
+    list_response = client.get(
+        f"/api/v1/owner/missions?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert list_response.status_code == 200
+    listed_mission = next(item for item in list_response.json() if item["id"] == mission["id"])
+    assert listed_mission["can_archive"] is True
+
+
 def test_owner_cannot_update_or_delete_mission_with_action_history(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
@@ -718,6 +797,80 @@ def test_owner_creates_and_lists_campaigns(client: TestClient) -> None:
     )
     assert response.status_code == 200
     assert [item["id"] for item in response.json()] == [campaign["id"]]
+
+
+def test_owner_pauses_resumes_and_ends_campaign(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    campaign = create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
+
+    pause_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "paused"},
+        headers=auth(owner_token),
+    )
+    assert pause_response.status_code == 200
+    assert pause_response.json()["status"] == "paused"
+
+    resume_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "active"},
+        headers=auth(owner_token),
+    )
+    assert resume_response.status_code == 200
+    assert resume_response.json()["status"] == "active"
+
+    end_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "ended"},
+        headers=auth(owner_token),
+    )
+    assert end_response.status_code == 200
+    assert end_response.json()["status"] == "ended"
+
+    ended_pause_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "paused"},
+        headers=auth(owner_token),
+    )
+    assert ended_pause_response.status_code == 409
+    assert ended_pause_response.json()["detail"] == "Campaign is already ended"
+
+
+def test_paused_campaign_does_not_generate_completion(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+
+    response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "paused"},
+        headers=auth(owner_token),
+    )
+    assert response.status_code == 200
+
+    action_response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "paused-campaign-action",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert action_response.status_code == 201
+    assert db_session.query(CampaignCompletion).count() == 0
 
 
 def test_owner_cannot_create_campaign_with_foreign_mission(client: TestClient) -> None:
@@ -1329,6 +1482,127 @@ def test_owner_creates_reward_templates_for_all_mvp_types(client: TestClient) ->
     assert fixed["reward_type"] == "fixed_discount"
     assert fixed["discount_amount_minor"] == 500
     assert fixed["currency_code"] == "EUR"
+
+
+def test_owner_updates_and_deletes_unused_reward_template(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    template = create_reward_template(client, owner_token, business_id)
+
+    update_response = client.patch(
+        f"/api/v1/owner/reward-templates/{template['id']}?business_id={business_id}",
+        json={"name": "Free Tea", "gift_name": "Free Tea", "valid_days": 45},
+        headers=auth(owner_token),
+    )
+    assert update_response.status_code == 200
+    assert update_response.json()["name"] == "Free Tea"
+    assert update_response.json()["gift_name"] == "Free Tea"
+    assert update_response.json()["valid_days"] == 45
+
+    delete_response = client.delete(
+        f"/api/v1/owner/reward-templates/{template['id']}?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert delete_response.status_code == 204
+
+    list_response = client.get(
+        f"/api/v1/owner/reward-templates?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert list_response.status_code == 200
+    assert list_response.json() == []
+
+
+def test_owner_cannot_update_or_delete_used_reward_template(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    template = create_reward_template(client, owner_token, business_id)
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        reward_template_id=template["id"],
+    )
+
+    update_response = client.patch(
+        f"/api/v1/owner/reward-templates/{template['id']}?business_id={business_id}",
+        json={"name": "Free Tea", "gift_name": "Free Tea", "valid_days": 45},
+        headers=auth(owner_token),
+    )
+    assert update_response.status_code == 409
+    assert update_response.json()["detail"] == "Reward template is already used"
+
+    delete_response = client.delete(
+        f"/api/v1/owner/reward-templates/{template['id']}?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert delete_response.status_code == 409
+    assert delete_response.json()["detail"] == "Reward template is already used"
+
+
+def test_owner_archives_used_reward_template_and_hides_it_from_active_lists(
+    client: TestClient,
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    template = create_reward_template(client, owner_token, business_id)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        reward_template_id=template["id"],
+    )
+
+    list_response = client.get(
+        f"/api/v1/owner/reward-templates?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert list_response.status_code == 200
+    listed_template = next(item for item in list_response.json() if item["id"] == template["id"])
+    assert listed_template["can_edit"] is False
+    assert listed_template["can_delete"] is False
+    assert listed_template["can_archive"] is False
+
+    blocked_response = client.patch(
+        f"/api/v1/owner/reward-templates/{template['id']}/active?business_id={business_id}",
+        json={"is_active": False},
+        headers=auth(owner_token),
+    )
+    assert blocked_response.status_code == 409
+    assert blocked_response.json()["detail"] == "Reward template is used by an active campaign"
+
+    end_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "ended"},
+        headers=auth(owner_token),
+    )
+    assert end_response.status_code == 200
+
+    refreshed_response = client.get(
+        f"/api/v1/owner/reward-templates?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert refreshed_response.status_code == 200
+    refreshed_template = next(
+        item for item in refreshed_response.json() if item["id"] == template["id"]
+    )
+    assert refreshed_template["can_archive"] is True
+
+    archive_response = client.patch(
+        f"/api/v1/owner/reward-templates/{template['id']}/active?business_id={business_id}",
+        json={"is_active": False},
+        headers=auth(owner_token),
+    )
+    assert archive_response.status_code == 200
+    assert archive_response.json()["is_active"] is False
+
+    hidden_response = client.get(
+        f"/api/v1/owner/reward-templates?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert hidden_response.status_code == 200
+    assert all(item["id"] != template["id"] for item in hidden_response.json())
 
 
 def test_owner_cannot_create_campaign_with_foreign_reward_template(client: TestClient) -> None:

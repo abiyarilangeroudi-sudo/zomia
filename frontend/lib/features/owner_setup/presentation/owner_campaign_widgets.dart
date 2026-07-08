@@ -6,29 +6,136 @@ import 'owner_presenter.dart';
 import 'owner_setup_shared_widgets.dart';
 
 class OwnerCampaignListCard extends StatelessWidget {
-  const OwnerCampaignListCard({super.key, required this.campaigns});
+  const OwnerCampaignListCard({
+    super.key,
+    required this.campaigns,
+    required this.isSaving,
+    required this.onStatusChanged,
+  });
 
   final List<OwnerCampaign> campaigns;
+  final bool isSaving;
+  final Future<void> Function(OwnerCampaign campaign, String status)
+  onStatusChanged;
 
   @override
   Widget build(BuildContext context) {
+    final visibleCampaigns = campaigns
+        .where((campaign) => campaign.status != 'ended')
+        .toList();
     return OwnerSetupCard(
       title: 'Campaigns',
       children: [
         OwnerSimpleList(
           emptyTitle: 'No campaigns yet',
           leadingIcon: Icons.campaign_rounded,
-          items: campaigns
+          items: visibleCampaigns
               .map(
                 (campaign) => OwnerSimpleListItem(
                   title: campaign.name,
                   subtitle: ownerCampaignSubtitle(campaign),
+                  trailing: _CampaignStatusActions(
+                    campaign: campaign,
+                    isSaving: isSaving,
+                    onStatusChanged: onStatusChanged,
+                  ),
                 ),
               )
               .toList(),
         ),
       ],
     );
+  }
+}
+
+class _CampaignStatusActions extends StatelessWidget {
+  const _CampaignStatusActions({
+    required this.campaign,
+    required this.isSaving,
+    required this.onStatusChanged,
+  });
+
+  final OwnerCampaign campaign;
+  final bool isSaving;
+  final Future<void> Function(OwnerCampaign campaign, String status)
+  onStatusChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    if (campaign.status == 'ended') {
+      return const StatusBadge(label: 'Ended', tone: BadgeTone.neutral);
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (campaign.status == 'active')
+          IconButton(
+            tooltip: 'Pause campaign',
+            onPressed: isSaving
+                ? null
+                : () => _confirmStatus(
+                    context,
+                    status: 'paused',
+                    title: 'Pause campaign?',
+                    message:
+                        'Staff will stop registering new progress for this campaign until it is resumed.',
+                    confirmLabel: 'Pause',
+                  ),
+            icon: const Icon(Icons.pause_circle_outline_rounded),
+          )
+        else if (campaign.status == 'paused')
+          IconButton(
+            tooltip: 'Resume campaign',
+            onPressed: isSaving
+                ? null
+                : () => _confirmStatus(
+                    context,
+                    status: 'active',
+                    title: 'Resume campaign?',
+                    message:
+                        'Staff can register new progress for this campaign again.',
+                    confirmLabel: 'Resume',
+                  ),
+            icon: const Icon(Icons.play_circle_outline_rounded),
+          ),
+        IconButton(
+          tooltip: 'End campaign',
+          onPressed: isSaving
+              ? null
+              : () => _confirmStatus(
+                  context,
+                  status: 'ended',
+                  title: 'End campaign?',
+                  message:
+                      'This campaign will stop permanently. Existing history remains unchanged.',
+                  confirmLabel: 'End campaign',
+                  tone: ConfirmTone.destructive,
+                ),
+          icon: const Icon(Icons.stop_circle_outlined),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmStatus(
+    BuildContext context, {
+    required String status,
+    required String title,
+    required String message,
+    required String confirmLabel,
+    ConfirmTone tone = ConfirmTone.standard,
+  }) async {
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: title,
+      message: message,
+      confirmLabel: confirmLabel,
+      tone: tone,
+    );
+    if (!confirmed) {
+      return;
+    }
+    await onStatusChanged(campaign, status);
   }
 }
 

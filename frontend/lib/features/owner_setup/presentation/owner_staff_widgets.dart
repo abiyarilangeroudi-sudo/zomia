@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../app/ui/ui.dart';
 import '../domain/owner_setup_models.dart';
@@ -155,7 +154,7 @@ class OwnerStaffList extends StatelessWidget {
                                 context,
                                 staffMember,
                               ),
-                        icon: const _TrashIcon(),
+                        icon: const Icon(Icons.delete_outline_rounded),
                       )
                     else
                       IconButton(
@@ -215,22 +214,5 @@ class OwnerStaffList extends StatelessWidget {
       return;
     }
     await onCancelInvitation(staffMember);
-  }
-}
-
-class _TrashIcon extends StatelessWidget {
-  const _TrashIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      'assets/icons/trash.svg',
-      width: 24,
-      height: 24,
-      colorFilter: ColorFilter.mode(
-        IconTheme.of(context).color ?? const Color(0xFF4E453A),
-        BlendMode.srcIn,
-      ),
-    );
   }
 }
