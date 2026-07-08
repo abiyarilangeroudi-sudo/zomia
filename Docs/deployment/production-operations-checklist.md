@@ -679,3 +679,33 @@ Open production decisions are tracked in:
 - Local post-deploy recovery:
   - `make frontend-build-local` rebuilt `1.0.134 (135)` for `http://127.0.0.1:8080/`.
   - The local static server on `127.0.0.1:8080` was restarted.
+
+## 2026-07-08 Customer Home Onboarding Polish
+
+- Frontend release: `/var/www/zomia/releases/202607081145_customer_home_onboarding`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Backend release unchanged: `/opt/zomia/backend/releases/202607081028_owner_loyalty_lifecycle`.
+- Frontend version: `1.0.135 (136)`.
+- Git commit deployed: `aa7f41b Polish customer home onboarding`.
+- Changes:
+  - Customer Home now uses a compact combined greeting and QR action card.
+  - Customer Home no longer shows active campaign/reward metric pills.
+  - Customer onboarding shows only the next loyalty step instead of a full task list.
+  - Completed customer onboarding collapses to a compact `First loyalty flow complete` summary.
+  - Customer Home UI was moved into `customer_home_view.dart` to keep `customer_views.dart` focused.
+- Backend, database, migrations, and API contracts were not changed.
+- Local verification passed before deploy:
+  - `flutter analyze` returned no issues.
+  - `flutter test` returned `41 passed`.
+  - `scripts/build_frontend_production.sh` built `1.0.135 (136)`.
+  - `git diff --check` returned clean before commit.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.135 (136)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607081145_customer_home_onboarding`.
+  - Production frontend bundle has no `sourceMappingURL` reference.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+- Local post-deploy recovery:
+  - `make frontend-build-local` rebuilt `1.0.135 (136)` for `http://127.0.0.1:8080/`.
