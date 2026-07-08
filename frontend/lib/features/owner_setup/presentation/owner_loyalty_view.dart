@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/ui/ui.dart';
 import 'owner_campaign_widgets.dart';
 import 'owner_loyalty_dialogs.dart';
-import 'owner_mission_widgets.dart';
-import 'owner_reward_template_widgets.dart';
+import 'owner_setup_assets_card.dart';
 import 'owner_setup_controller.dart';
 import 'owner_setup_shared_widgets.dart';
 
@@ -29,31 +28,28 @@ class OwnerLoyaltyView extends StatelessWidget {
         else if (controller.businesses.isEmpty)
           const OwnerNoBusinessCard()
         else ...[
-          OwnerMissionListCard(
-            missions: controller.missions,
-            isSaving: controller.isSaving,
-            onEdit: (mission) =>
-                openOwnerMissionEditDialog(context, controller, mission),
-            onDelete: controller.deleteMission,
-            onArchive: controller.archiveMission,
-          ),
-          const SizedBox(height: 16),
-          OwnerRewardTemplateListCard(
-            rewardTemplates: controller.rewardTemplates,
-            isSaving: controller.isSaving,
-            onEdit: (template) => openOwnerRewardTemplateEditDialog(
-              context,
-              controller,
-              template,
-            ),
-            onDelete: controller.deleteRewardTemplate,
-            onArchive: controller.archiveRewardTemplate,
-          ),
-          const SizedBox(height: 16),
           OwnerCampaignListCard(
             campaigns: controller.campaigns,
             isSaving: controller.isSaving,
             onStatusChanged: controller.updateCampaignStatus,
+          ),
+          const SizedBox(height: 16),
+          OwnerSetupAssetsCard(
+            missions: controller.missions,
+            rewardTemplates: controller.rewardTemplates,
+            isSaving: controller.isSaving,
+            onEditMission: (mission) =>
+                openOwnerMissionEditDialog(context, controller, mission),
+            onDeleteMission: controller.deleteMission,
+            onArchiveMission: controller.archiveMission,
+            onEditRewardTemplate: (template) =>
+                openOwnerRewardTemplateEditDialog(
+                  context,
+                  controller,
+                  template,
+                ),
+            onDeleteRewardTemplate: controller.deleteRewardTemplate,
+            onArchiveRewardTemplate: controller.archiveRewardTemplate,
           ),
         ],
       ],

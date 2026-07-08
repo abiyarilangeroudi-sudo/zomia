@@ -62,8 +62,6 @@ String mapOwnerSetupErrorDetail(String detail) {
     'Business not found' => 'Business not found or you do not have access.',
     'Campaign not found' => 'Campaign not found for this business.',
     'Campaign is already ended' => 'This campaign is already ended.',
-    'Campaign can only resume from paused' =>
-      'Only paused campaigns can be resumed.',
     'Unsupported campaign status' => 'This campaign status is not supported.',
     'Mission not found' => 'Mission not found for this business.',
     'Mission is already used' =>

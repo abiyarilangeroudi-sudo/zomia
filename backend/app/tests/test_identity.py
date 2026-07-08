@@ -942,6 +942,33 @@ def test_staff_invitation_rejects_duplicate_pending_and_existing_staff(
     assert existing_staff_response.status_code == 409
 
 
+def test_staff_invitation_rejects_existing_account_email(client: TestClient) -> None:
+    business = register_owner(
+        client,
+        email="existing-account-invite-owner@example.com",
+        business_name="Existing Account Invite Cafe",
+    )
+    owner_token = client.post(
+        "/api/v1/auth/login",
+        json={
+            "email": "existing-account-invite-owner@example.com",
+            "password": "strong-password",
+        },
+    ).json()["access_token"]
+    register_customer(client, email="existing-account@example.com")
+    sent_email_count = len(client.app.state.email_sender.sent)
+
+    response = client.post(
+        "/api/v1/owner/staff/invitations",
+        json={"business_id": business["id"], "email": "existing-account@example.com"},
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Email already exists"
+    assert len(client.app.state.email_sender.sent) == sent_email_count
+
+
 def test_staff_invitation_rejects_expired_token(
     client: TestClient, db_session: Session
 ) -> None:
@@ -1059,6 +1086,30 @@ def test_owner_register_accepts_controlled_business_category(
     )
 
     assert business["category"] == "barbershops"
+
+
+def test_owner_registration_start_rejects_duplicate_business_slug(
+    client: TestClient,
+) -> None:
+    register_owner(
+        client,
+        email="first-slug-owner@example.com",
+        full_name="First Slug Owner",
+        business_name="Slug Cafe",
+    )
+
+    response = client.post(
+        "/api/v1/auth/register/owner/start",
+        json={
+            "email": "second-slug-owner@example.com",
+            "password": "strong-password",
+            "full_name": "Second Slug Owner",
+            "business_name": "Slug Cafe",
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Business slug already exists"
 
 
 def test_owner_register_rejects_unsupported_business_category(

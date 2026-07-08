@@ -33,7 +33,24 @@ String ownerCampaignSubtitle(OwnerCampaign campaign) {
             ? 'repeatable · unlimited within dates'
             : 'repeatable · max ${campaign.maxCompletionsPerCustomer}'
       : 'non-repeatable';
-  return '${campaign.thresholdPoints} pts · $repeatableLabel · ${campaign.status}';
+  return '${campaign.thresholdPoints} pts · $repeatableLabel';
+}
+
+bool ownerCampaignIsArchived(OwnerCampaign campaign) {
+  return campaign.status == 'ended' ||
+      campaign.timeStatus == 'expired' ||
+      campaign.displayStatus == 'Ended' ||
+      campaign.displayStatus == 'Expired';
+}
+
+BadgeTone ownerCampaignBadgeTone(OwnerCampaign campaign) {
+  return switch (campaign.badgeTone) {
+    'success' => BadgeTone.success,
+    'warning' => BadgeTone.warning,
+    'error' => BadgeTone.error,
+    'info' => BadgeTone.info,
+    _ => BadgeTone.neutral,
+  };
 }
 
 String ownerRewardTemplateSubtitle(OwnerRewardTemplate template) {

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 import uuid
 from sqlalchemy.orm import Session
 
@@ -61,10 +61,11 @@ def register_customer_disabled(
 )
 def start_customer_registration(
     payload: UserCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     service: IdentityService = Depends(get_identity_service),
 ) -> PendingRegistrationRead:
-    otp = service.start_customer_registration(payload)
+    otp = service.start_customer_registration(payload, enqueue_email=background_tasks.add_task)
     db.commit()
     return PendingRegistrationRead(email=otp.email, expires_at=otp.expires_at)
 
@@ -97,10 +98,11 @@ def register_owner_disabled(
 )
 def start_owner_registration(
     payload: OwnerRegister,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     service: IdentityService = Depends(get_identity_service),
 ) -> PendingRegistrationRead:
-    otp = service.start_owner_registration(payload)
+    otp = service.start_owner_registration(payload, enqueue_email=background_tasks.add_task)
     db.commit()
     return PendingRegistrationRead(email=otp.email, expires_at=otp.expires_at)
 
@@ -350,11 +352,16 @@ def create_staff(
 )
 def invite_staff(
     payload: StaffInviteCreate,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     service: IdentityService = Depends(get_identity_service),
 ) -> OwnerStaffRead:
-    invitation = service.invite_staff(current_user, payload)
+    invitation = service.invite_staff(
+        current_user,
+        payload,
+        enqueue_email=background_tasks.add_task,
+    )
     db.commit()
     db.refresh(invitation)
     return OwnerStaffRead(

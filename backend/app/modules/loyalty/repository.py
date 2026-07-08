@@ -181,7 +181,7 @@ class LoyaltyRepository:
                     Campaign.scope_type == CampaignScopeType.SINGLE_BUSINESS,
                     Campaign.participation_mode == CampaignParticipationMode.AUTOMATIC,
                     Campaign.progress_metric == CampaignProgressMetric.POINTS,
-                    Campaign.status == CampaignStatus.ACTIVE,
+                    Campaign.status.in_([CampaignStatus.ACTIVE, CampaignStatus.ENDED]),
                 )
                 .order_by(Campaign.starts_at.asc(), Campaign.ends_at.asc())
             )

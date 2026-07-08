@@ -171,6 +171,10 @@ class OwnerCampaign {
     required this.status,
     required this.startsAt,
     required this.endsAt,
+    required this.timeStatus,
+    required this.displayStatus,
+    required this.badgeTone,
+    required this.dateRangeLabel,
   });
 
   factory OwnerCampaign.fromJson(Map<String, dynamic> json) {
@@ -184,6 +188,16 @@ class OwnerCampaign {
       status: json['status'] as String,
       startsAt: DateTime.parse(json['starts_at'] as String),
       endsAt: DateTime.parse(json['ends_at'] as String),
+      timeStatus: json['time_status'] as String? ?? 'active',
+      displayStatus:
+          json['display_status'] as String? ?? (json['status'] as String),
+      badgeTone: json['badge_tone'] as String? ?? 'info',
+      dateRangeLabel:
+          json['date_range_label'] as String? ??
+          _formatDateRange(
+            DateTime.parse(json['starts_at'] as String),
+            DateTime.parse(json['ends_at'] as String),
+          ),
     );
   }
 
@@ -196,6 +210,21 @@ class OwnerCampaign {
   final String status;
   final DateTime startsAt;
   final DateTime endsAt;
+  final String timeStatus;
+  final String displayStatus;
+  final String badgeTone;
+  final String dateRangeLabel;
+
+  static String _formatDateRange(DateTime startsAt, DateTime endsAt) {
+    String format(DateTime value) {
+      final year = value.year.toString().padLeft(4, '0');
+      final month = value.month.toString().padLeft(2, '0');
+      final day = value.day.toString().padLeft(2, '0');
+      return '$year-$month-$day';
+    }
+
+    return '${format(startsAt)} - ${format(endsAt)}';
+  }
 }
 
 class OwnerRewardTemplate {

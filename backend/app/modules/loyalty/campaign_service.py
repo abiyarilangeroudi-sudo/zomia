@@ -129,22 +129,11 @@ class CampaignService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Campaign is already ended",
             )
-        if payload.status not in {
-            CampaignStatus.ACTIVE,
-            CampaignStatus.PAUSED,
-            CampaignStatus.ENDED,
-        }:
+        if payload.status != CampaignStatus.ENDED:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Unsupported campaign status",
             )
-        if payload.status == CampaignStatus.ACTIVE and campaign.status != CampaignStatus.PAUSED:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Campaign can only resume from paused",
-            )
-        if payload.status == campaign.status:
-            return campaign
         campaign.status = payload.status
         return campaign
 
@@ -419,6 +408,8 @@ class CampaignService:
         }
 
     def _campaign_time_status(self, campaign: Campaign, now: datetime) -> str:
+        if campaign.status == CampaignStatus.ENDED:
+            return "ended"
         starts_at = self._as_utc(campaign.starts_at)
         ends_at = self._as_utc(campaign.ends_at)
         if now < starts_at:

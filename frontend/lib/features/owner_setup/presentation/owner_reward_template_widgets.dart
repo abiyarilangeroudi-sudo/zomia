@@ -26,46 +26,74 @@ class OwnerRewardTemplateListCard extends StatelessWidget {
     return OwnerSetupCard(
       title: 'Reward Templates',
       children: [
-        OwnerSimpleList(
-          emptyTitle: 'No reward templates yet',
-          leadingIcon: Icons.card_giftcard_rounded,
-          items: rewardTemplates
-              .map(
-                (template) => OwnerSimpleListItem(
-                  title: ownerRewardTemplateTypeLabel(template),
-                  subtitle: ownerRewardTemplateSubtitle(template),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (template.canEdit)
-                        IconButton(
-                          tooltip: 'Edit reward template',
-                          onPressed: isSaving ? null : () => onEdit(template),
-                          icon: const Icon(Icons.edit_rounded),
-                        ),
-                      if (template.canDelete)
-                        IconButton(
-                          tooltip: 'Delete reward template',
-                          onPressed: isSaving
-                              ? null
-                              : () => _confirmDelete(context, template),
-                          icon: const Icon(Icons.delete_outline_rounded),
-                        ),
-                      if (template.canArchive)
-                        IconButton(
-                          tooltip: 'Archive reward template',
-                          onPressed: isSaving
-                              ? null
-                              : () => _confirmArchive(context, template),
-                          icon: const Icon(Icons.archive_outlined),
-                        ),
-                    ],
-                  ),
-                ),
-              )
-              .toList(),
+        OwnerRewardTemplateListContent(
+          rewardTemplates: rewardTemplates,
+          isSaving: isSaving,
+          onEdit: onEdit,
+          onDelete: onDelete,
+          onArchive: onArchive,
         ),
       ],
+    );
+  }
+}
+
+class OwnerRewardTemplateListContent extends StatelessWidget {
+  const OwnerRewardTemplateListContent({
+    super.key,
+    required this.rewardTemplates,
+    required this.isSaving,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onArchive,
+  });
+
+  final List<OwnerRewardTemplate> rewardTemplates;
+  final bool isSaving;
+  final ValueChanged<OwnerRewardTemplate> onEdit;
+  final Future<void> Function(OwnerRewardTemplate template) onDelete;
+  final Future<void> Function(OwnerRewardTemplate template) onArchive;
+
+  @override
+  Widget build(BuildContext context) {
+    return OwnerSimpleList(
+      emptyTitle: 'No reward templates yet',
+      leadingIcon: Icons.card_giftcard_rounded,
+      items: rewardTemplates
+          .map(
+            (template) => OwnerSimpleListItem(
+              title: ownerRewardTemplateTypeLabel(template),
+              subtitle: ownerRewardTemplateSubtitle(template),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (template.canEdit)
+                    IconButton(
+                      tooltip: 'Edit reward template',
+                      onPressed: isSaving ? null : () => onEdit(template),
+                      icon: const Icon(Icons.edit_rounded),
+                    ),
+                  if (template.canDelete)
+                    IconButton(
+                      tooltip: 'Delete reward template',
+                      onPressed: isSaving
+                          ? null
+                          : () => _confirmDelete(context, template),
+                      icon: const Icon(Icons.delete_outline_rounded),
+                    ),
+                  if (template.canArchive)
+                    IconButton(
+                      tooltip: 'Archive reward template',
+                      onPressed: isSaving
+                          ? null
+                          : () => _confirmArchive(context, template),
+                      icon: const Icon(Icons.delete_outline_rounded),
+                    ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 

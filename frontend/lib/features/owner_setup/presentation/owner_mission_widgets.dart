@@ -25,46 +25,74 @@ class OwnerMissionListCard extends StatelessWidget {
     return OwnerSetupCard(
       title: 'Missions',
       children: [
-        OwnerSimpleList(
-          emptyTitle: 'No missions yet',
-          leadingIcon: Icons.task_alt_rounded,
-          items: missions
-              .map(
-                (mission) => OwnerSimpleListItem(
-                  title: mission.name,
-                  subtitle: '${mission.pointValue} pts',
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (mission.canEdit)
-                        IconButton(
-                          tooltip: 'Edit mission',
-                          onPressed: isSaving ? null : () => onEdit(mission),
-                          icon: const Icon(Icons.edit_rounded),
-                        ),
-                      if (mission.canDelete)
-                        IconButton(
-                          tooltip: 'Delete mission',
-                          onPressed: isSaving
-                              ? null
-                              : () => _confirmDelete(context, mission),
-                          icon: const Icon(Icons.delete_outline_rounded),
-                        ),
-                      if (mission.canArchive)
-                        IconButton(
-                          tooltip: 'Archive mission',
-                          onPressed: isSaving
-                              ? null
-                              : () => _confirmArchive(context, mission),
-                          icon: const Icon(Icons.archive_outlined),
-                        ),
-                    ],
-                  ),
-                ),
-              )
-              .toList(),
+        OwnerMissionListContent(
+          missions: missions,
+          isSaving: isSaving,
+          onEdit: onEdit,
+          onDelete: onDelete,
+          onArchive: onArchive,
         ),
       ],
+    );
+  }
+}
+
+class OwnerMissionListContent extends StatelessWidget {
+  const OwnerMissionListContent({
+    super.key,
+    required this.missions,
+    required this.isSaving,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onArchive,
+  });
+
+  final List<OwnerMission> missions;
+  final bool isSaving;
+  final ValueChanged<OwnerMission> onEdit;
+  final Future<void> Function(OwnerMission mission) onDelete;
+  final Future<void> Function(OwnerMission mission) onArchive;
+
+  @override
+  Widget build(BuildContext context) {
+    return OwnerSimpleList(
+      emptyTitle: 'No missions yet',
+      leadingIcon: Icons.task_alt_rounded,
+      items: missions
+          .map(
+            (mission) => OwnerSimpleListItem(
+              title: mission.name,
+              subtitle: '${mission.pointValue} pts',
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (mission.canEdit)
+                    IconButton(
+                      tooltip: 'Edit mission',
+                      onPressed: isSaving ? null : () => onEdit(mission),
+                      icon: const Icon(Icons.edit_rounded),
+                    ),
+                  if (mission.canDelete)
+                    IconButton(
+                      tooltip: 'Delete mission',
+                      onPressed: isSaving
+                          ? null
+                          : () => _confirmDelete(context, mission),
+                      icon: const Icon(Icons.delete_outline_rounded),
+                    ),
+                  if (mission.canArchive)
+                    IconButton(
+                      tooltip: 'Archive mission',
+                      onPressed: isSaving
+                          ? null
+                          : () => _confirmArchive(context, mission),
+                      icon: const Icon(Icons.delete_outline_rounded),
+                    ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 

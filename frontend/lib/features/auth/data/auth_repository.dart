@@ -334,6 +334,8 @@ String mapAuthErrorDetail(String detail) {
   return switch (detail) {
     'Incorrect email or password' => 'Incorrect email or password.',
     'Email already exists' => 'This email is already registered.',
+    'Business slug already exists' =>
+      'A business with this name already exists. Try a more specific business name.',
     'Email is not verified' => 'Verify your email before signing in.',
     'Invalid OTP' => 'Enter the correct verification code.',
     'OTP expired' => 'The verification code expired.',

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
@@ -160,7 +160,46 @@ class CampaignRead(BaseModel):
     status: CampaignStatus
     starts_at: datetime
     ends_at: datetime
+    time_status: str = ""
+    display_status: str = ""
+    badge_tone: str = ""
+    date_range_label: str = ""
     created_at: datetime
+
+    @model_validator(mode="after")
+    def populate_display_fields(self) -> "CampaignRead":
+        starts_at = self._as_utc(self.starts_at)
+        ends_at = self._as_utc(self.ends_at)
+        now = datetime.now(UTC)
+
+        if now < starts_at:
+            self.time_status = "upcoming"
+        elif now > ends_at:
+            self.time_status = "expired"
+        else:
+            self.time_status = "active"
+
+        if self.status == CampaignStatus.ENDED:
+            self.display_status = "Ended"
+            self.badge_tone = "neutral"
+        elif self.time_status == "expired":
+            self.display_status = "Expired"
+            self.badge_tone = "warning"
+        elif self.time_status == "upcoming":
+            self.display_status = "Upcoming"
+            self.badge_tone = "info"
+        else:
+            self.display_status = "Active"
+            self.badge_tone = "info"
+
+        self.date_range_label = f"{starts_at.date().isoformat()} - {ends_at.date().isoformat()}"
+        return self
+
+    @staticmethod
+    def _as_utc(value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
 
 
 class CampaignProgressRead(BaseModel):

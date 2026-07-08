@@ -113,6 +113,10 @@ void main() {
       'This email is already registered.',
     );
     expect(
+      mapAuthErrorDetail('Business slug already exists'),
+      'A business with this name already exists. Try a more specific business name.',
+    );
+    expect(
       mapAuthErrorDetail('Custom auth detail'),
       'Something went wrong. Please try again.',
     );
@@ -430,9 +434,13 @@ void main() {
           status: 'active',
           startsAt: DateTime(2026, 6, 14),
           endsAt: DateTime(2026, 9, 14),
+          timeStatus: 'active',
+          displayStatus: 'Active',
+          badgeTone: 'info',
+          dateRangeLabel: '2026-06-14 - 2026-09-14',
         ),
       ),
-      '10 pts · repeatable · unlimited within dates · active',
+      '10 pts · repeatable · unlimited within dates',
     );
   });
 
@@ -1359,11 +1367,23 @@ void main() {
     await tester.tap(find.text('Loyalty'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Missions'), findsOneWidget);
     expect(find.text('Campaigns'), findsOneWidget);
-    expect(find.text('Reward Templates'), findsOneWidget);
+    expect(find.text('Setup assets'), findsOneWidget);
+    expect(find.text('Missions'), findsOneWidget);
+    expect(find.text('Reward templates'), findsOneWidget);
+    expect(find.text('Show details'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
-    expect(find.text('10 pts · non-repeatable · active'), findsOneWidget);
+    expect(find.text('10 pts · non-repeatable'), findsOneWidget);
+    expect(find.text('Active'), findsWidgets);
+    expect(find.text('2026-01-01 - 2027-01-01'), findsOneWidget);
+    expect(find.text('Buy Coffee'), findsNothing);
+    expect(find.text('Gift'), findsNothing);
+    expect(find.text('Free coffee · 30 days'), findsNothing);
+
+    await tester.tap(find.text('Show details'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Buy Coffee'), findsOneWidget);
     expect(find.text('Gift'), findsWidgets);
     expect(find.text('Free coffee · 30 days'), findsOneWidget);
 
@@ -2042,6 +2062,10 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         status: 'active',
         startsAt: DateTime(2026),
         endsAt: DateTime(2027),
+        timeStatus: 'active',
+        displayStatus: 'Active',
+        badgeTone: 'info',
+        dateRangeLabel: '2026-01-01 - 2027-01-01',
       ),
     ];
   }

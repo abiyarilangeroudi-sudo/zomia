@@ -230,8 +230,6 @@ extension OwnerSetupControllerLoyaltyActions on OwnerSetupController {
         status: status,
       ),
       switch (status) {
-        'active' => 'Campaign resumed.',
-        'paused' => 'Campaign paused.',
         'ended' => 'Campaign ended.',
         _ => 'Campaign updated.',
       },

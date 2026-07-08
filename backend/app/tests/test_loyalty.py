@@ -790,6 +790,10 @@ def test_owner_creates_and_lists_campaigns(client: TestClient) -> None:
     assert campaign["threshold_points"] == 10
     assert campaign["is_repeatable"] is False
     assert campaign["max_completions_per_customer"] is None
+    assert campaign["time_status"] == "active"
+    assert campaign["display_status"] == "Active"
+    assert campaign["badge_tone"] == "info"
+    assert campaign["date_range_label"]
 
     response = client.get(
         f"/api/v1/owner/campaigns?business_id={business_id}",
@@ -797,28 +801,68 @@ def test_owner_creates_and_lists_campaigns(client: TestClient) -> None:
     )
     assert response.status_code == 200
     assert [item["id"] for item in response.json()] == [campaign["id"]]
+    assert response.json()[0]["display_status"] == "Active"
 
 
-def test_owner_pauses_resumes_and_ends_campaign(client: TestClient) -> None:
+def test_owner_campaigns_expose_display_statuses(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+
+    upcoming = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        starts_at=datetime.now(UTC) + timedelta(days=1),
+        ends_at=datetime.now(UTC) + timedelta(days=30),
+    )
+    expired = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        starts_at=datetime.now(UTC) - timedelta(days=30),
+        ends_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    active = create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
+
+    ended_response = client.patch(
+        f"/api/v1/owner/campaigns/{upcoming['id']}/status?business_id={business_id}",
+        json={"status": "ended"},
+        headers=auth(owner_token),
+    )
+    assert ended_response.status_code == 200
+
+    response = client.get(
+        f"/api/v1/owner/campaigns?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert response.status_code == 200
+    campaigns = {item["id"]: item for item in response.json()}
+
+    assert campaigns[upcoming["id"]]["time_status"] == "upcoming"
+    assert campaigns[upcoming["id"]]["display_status"] == "Ended"
+    assert campaigns[upcoming["id"]]["badge_tone"] == "neutral"
+    assert campaigns[expired["id"]]["time_status"] == "expired"
+    assert campaigns[expired["id"]]["display_status"] == "Expired"
+    assert campaigns[expired["id"]]["badge_tone"] == "warning"
+    assert campaigns[active["id"]]["time_status"] == "active"
+    assert campaigns[active["id"]]["display_status"] == "Active"
+    assert campaigns[active["id"]]["badge_tone"] == "info"
+
+
+def test_owner_ends_campaign_and_cannot_change_it_again(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
     mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
     campaign = create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
 
-    pause_response = client.patch(
-        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
-        json={"status": "paused"},
-        headers=auth(owner_token),
-    )
-    assert pause_response.status_code == 200
-    assert pause_response.json()["status"] == "paused"
-
-    resume_response = client.patch(
+    active_response = client.patch(
         f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
         json={"status": "active"},
         headers=auth(owner_token),
     )
-    assert resume_response.status_code == 200
-    assert resume_response.json()["status"] == "active"
+    assert active_response.status_code == 400
+    assert active_response.json()["detail"] == "Unsupported campaign status"
 
     end_response = client.patch(
         f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
@@ -828,49 +872,26 @@ def test_owner_pauses_resumes_and_ends_campaign(client: TestClient) -> None:
     assert end_response.status_code == 200
     assert end_response.json()["status"] == "ended"
 
-    ended_pause_response = client.patch(
+    ended_active_response = client.patch(
         f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
-        json={"status": "paused"},
+        json={"status": "active"},
         headers=auth(owner_token),
     )
-    assert ended_pause_response.status_code == 409
-    assert ended_pause_response.json()["detail"] == "Campaign is already ended"
+    assert ended_active_response.status_code == 409
+    assert ended_active_response.json()["detail"] == "Campaign is already ended"
 
 
-def test_paused_campaign_does_not_generate_completion(
-    client: TestClient, db_session: Session
-) -> None:
+def test_unsupported_campaign_status_is_rejected(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
-    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
-    _, customer_id = register_customer(client)
-    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
-    campaign = create_campaign(
-        client,
-        owner_token,
-        business_id,
-        mission_ids=[mission["id"]],
-        threshold_points=5,
-    )
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    campaign = create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
 
     response = client.patch(
         f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
         json={"status": "paused"},
         headers=auth(owner_token),
     )
-    assert response.status_code == 200
-
-    action_response = client.post(
-        "/api/v1/staff/actions",
-        json={
-            "business_id": business_id,
-            "customer_id": customer_id,
-            "idempotency_key": "paused-campaign-action",
-            "items": [{"mission_id": mission["id"], "quantity": 1}],
-        },
-        headers=auth(staff_token),
-    )
-    assert action_response.status_code == 201
-    assert db_session.query(CampaignCompletion).count() == 0
+    assert response.status_code == 422
 
 
 def test_owner_cannot_create_campaign_with_foreign_mission(client: TestClient) -> None:
@@ -1190,6 +1211,55 @@ def test_ended_campaign_returns_backend_owned_progress_status(
     assert progress.json()["display_label"] == "0/5 pts · Ended"
     assert progress.json()["badge_label"] == "Ended"
     assert progress.json()["badge_tone"] == "neutral"
+
+
+def test_owner_ended_campaign_remains_in_customer_campaign_archive(
+    client: TestClient,
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    customer_token, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=2)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+
+    action_response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "manual-end-before-archive",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert action_response.status_code == 201
+
+    end_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "ended"},
+        headers=auth(owner_token),
+    )
+    assert end_response.status_code == 200
+
+    progresses = client.get(
+        "/api/v1/customers/me/campaigns/progress",
+        headers=auth(customer_token),
+    )
+    assert progresses.status_code == 200
+    body = progresses.json()
+    assert len(body) == 1
+    assert body[0]["campaign_id"] == campaign["id"]
+    assert body[0]["campaign_time_status"] == "ended"
+    assert body[0]["progress_state"] == "ended"
+    assert body[0]["display_label"] == "2/5 pts · Ended"
+    assert body[0]["badge_label"] == "Ended"
+    assert body[0]["badge_tone"] == "neutral"
 
 
 def test_repeatable_campaign_does_not_create_new_cycle_after_end(

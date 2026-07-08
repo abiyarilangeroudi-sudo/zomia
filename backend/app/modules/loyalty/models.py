@@ -72,7 +72,6 @@ class CampaignProgressMetric(str, enum.Enum):
 class CampaignStatus(str, enum.Enum):
     DRAFT = "draft"
     ACTIVE = "active"
-    PAUSED = "paused"
     ENDED = "ended"
 
 

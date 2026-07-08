@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../app/ui/ui.dart';
 import '../domain/owner_setup_models.dart';
+import 'owner_campaign_list_item.dart';
 import 'owner_presenter.dart';
 import 'owner_setup_shared_widgets.dart';
 
-class OwnerCampaignListCard extends StatelessWidget {
+class OwnerCampaignListCard extends StatefulWidget {
   const OwnerCampaignListCard({
     super.key,
     required this.campaigns,
@@ -19,30 +20,51 @@ class OwnerCampaignListCard extends StatelessWidget {
   onStatusChanged;
 
   @override
+  State<OwnerCampaignListCard> createState() => _OwnerCampaignListCardState();
+}
+
+class _OwnerCampaignListCardState extends State<OwnerCampaignListCard> {
+  var _selectedTabIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
-    final visibleCampaigns = campaigns
-        .where((campaign) => campaign.status != 'ended')
+    final visibleCampaigns = widget.campaigns
+        .where(
+          (campaign) => _selectedTabIndex == 0
+              ? !ownerCampaignIsArchived(campaign)
+              : ownerCampaignIsArchived(campaign),
+        )
         .toList();
     return OwnerSetupCard(
       title: 'Campaigns',
       children: [
-        OwnerSimpleList(
-          emptyTitle: 'No campaigns yet',
-          leadingIcon: Icons.campaign_rounded,
-          items: visibleCampaigns
-              .map(
-                (campaign) => OwnerSimpleListItem(
-                  title: campaign.name,
-                  subtitle: ownerCampaignSubtitle(campaign),
-                  trailing: _CampaignStatusActions(
-                    campaign: campaign,
-                    isSaving: isSaving,
-                    onStatusChanged: onStatusChanged,
-                  ),
-                ),
-              )
-              .toList(),
+        SegmentedTabs(
+          items: const ['Active', 'Archive'],
+          selectedIndex: _selectedTabIndex,
+          onChanged: (index) => setState(() => _selectedTabIndex = index),
         ),
+        const SizedBox(height: 12),
+        if (visibleCampaigns.isEmpty)
+          EmptyStateView(
+            icon: Icons.campaign_rounded,
+            title: _selectedTabIndex == 0
+                ? 'Active campaigns will appear here after you create one.'
+                : 'Ended and expired campaigns will appear here.',
+          )
+        else
+          ...visibleCampaigns.map(
+            (campaign) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: OwnerCampaignListItem(
+                campaign: campaign,
+                trailing: _CampaignStatusActions(
+                  campaign: campaign,
+                  isSaving: widget.isSaving,
+                  onStatusChanged: widget.onStatusChanged,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -62,42 +84,12 @@ class _CampaignStatusActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (campaign.status == 'ended') {
-      return const StatusBadge(label: 'Ended', tone: BadgeTone.neutral);
+    if (ownerCampaignIsArchived(campaign)) {
+      return const SizedBox.shrink();
     }
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (campaign.status == 'active')
-          IconButton(
-            tooltip: 'Pause campaign',
-            onPressed: isSaving
-                ? null
-                : () => _confirmStatus(
-                    context,
-                    status: 'paused',
-                    title: 'Pause campaign?',
-                    message:
-                        'Staff will stop registering new progress for this campaign until it is resumed.',
-                    confirmLabel: 'Pause',
-                  ),
-            icon: const Icon(Icons.pause_circle_outline_rounded),
-          )
-        else if (campaign.status == 'paused')
-          IconButton(
-            tooltip: 'Resume campaign',
-            onPressed: isSaving
-                ? null
-                : () => _confirmStatus(
-                    context,
-                    status: 'active',
-                    title: 'Resume campaign?',
-                    message:
-                        'Staff can register new progress for this campaign again.',
-                    confirmLabel: 'Resume',
-                  ),
-            icon: const Icon(Icons.play_circle_outline_rounded),
-          ),
         IconButton(
           tooltip: 'End campaign',
           onPressed: isSaving
@@ -107,11 +99,11 @@ class _CampaignStatusActions extends StatelessWidget {
                   status: 'ended',
                   title: 'End campaign?',
                   message:
-                      'This campaign will stop permanently. Existing history remains unchanged.',
+                      'This campaign will move to Archive and staff will no longer register progress for it. Existing customer points and earned rewards will stay unchanged.',
                   confirmLabel: 'End campaign',
                   tone: ConfirmTone.destructive,
                 ),
-          icon: const Icon(Icons.stop_circle_outlined),
+          icon: const Icon(Icons.delete_outline_rounded),
         ),
       ],
     );

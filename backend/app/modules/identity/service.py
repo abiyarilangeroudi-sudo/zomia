@@ -3,6 +3,7 @@ import hmac
 import re
 import secrets
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException, status
@@ -68,11 +69,17 @@ class IdentityService:
             detail="Use email verification registration flow",
         )
 
-    def start_customer_registration(self, payload: UserCreate) -> EmailVerificationOtp:
+    def start_customer_registration(
+        self,
+        payload: UserCreate,
+        *,
+        enqueue_email: Callable[..., None] | None = None,
+    ) -> EmailVerificationOtp:
         return self._start_pending_registration(
             email=payload.email,
             purpose=CUSTOMER_REGISTRATION_PURPOSE,
             payload=payload.model_dump(mode="json"),
+            enqueue_email=enqueue_email,
         )
 
     def verify_customer_registration(self, *, email: str, code: str) -> tuple[str, str]:
@@ -89,11 +96,22 @@ class IdentityService:
         )
         return self._issue_token_pair(user)
 
-    def start_owner_registration(self, payload: OwnerRegister) -> EmailVerificationOtp:
+    def start_owner_registration(
+        self,
+        payload: OwnerRegister,
+        *,
+        enqueue_email: Callable[..., None] | None = None,
+    ) -> EmailVerificationOtp:
+        if self.repository.get_business_by_slug(self._make_slug(payload.business_name)) is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Business slug already exists",
+            )
         return self._start_pending_registration(
             email=payload.email,
             purpose=OWNER_REGISTRATION_PURPOSE,
             payload=payload.model_dump(mode="json"),
+            enqueue_email=enqueue_email,
         )
 
     def verify_owner_registration(self, *, email: str, code: str) -> tuple[str, str]:
@@ -145,7 +163,13 @@ class IdentityService:
             detail="Use staff invitation flow",
         )
 
-    def invite_staff(self, owner: User, payload: StaffInviteCreate) -> StaffInvitation:
+    def invite_staff(
+        self,
+        owner: User,
+        payload: StaffInviteCreate,
+        *,
+        enqueue_email: Callable[..., None] | None = None,
+    ) -> StaffInvitation:
         self._require_role(owner, UserRole.OWNER)
         business = self.repository.get_owner_business(
             business_id=payload.business_id, owner_id=owner.id
@@ -160,6 +184,8 @@ class IdentityService:
             is not None
         ):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Staff already exists")
+        if self.repository.get_user_by_email(normalized_email) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
         if (
             self.repository.get_pending_staff_invitation(
                 business_id=business.id, invited_email=normalized_email
@@ -186,7 +212,7 @@ class IdentityService:
             f"{self.settings.frontend_base_url.rstrip('/')}"
             f"/#/accept-staff-invitation?token={raw_token}"
         )
-        self.email_sender.send_email(
+        email_kwargs = dict(
             to_email=normalized_email,
             subject="Zomia Staff Invitation",
             body=(
@@ -202,6 +228,10 @@ class IdentityService:
                 "© 2026 Zomia. All rights reserved."
             ),
         )
+        if enqueue_email is None:
+            self.email_sender.send_email(**email_kwargs)
+        else:
+            enqueue_email(self.email_sender.send_email, **email_kwargs)
         return invitation
 
     def preview_staff_invitation(self, *, token: str) -> StaffInvitationPreviewRead:
@@ -577,7 +607,12 @@ class IdentityService:
         return value.astimezone(UTC)
 
     def _start_pending_registration(
-        self, *, email: str, purpose: str, payload: dict
+        self,
+        *,
+        email: str,
+        purpose: str,
+        payload: dict,
+        enqueue_email: Callable[..., None] | None = None,
     ) -> EmailVerificationOtp:
         normalized_email = email.lower()
         if self.repository.get_user_by_email(normalized_email) is not None:
@@ -592,7 +627,7 @@ class IdentityService:
                 expires_at=datetime.now(UTC) + timedelta(minutes=self.settings.otp_expires_minutes),
             )
         )
-        self.email_sender.send_email(
+        email_kwargs = dict(
             to_email=normalized_email,
             subject="Email Verification",
             body=(
@@ -608,6 +643,10 @@ class IdentityService:
                 "© 2026 Zomia. All rights reserved."
             ),
         )
+        if enqueue_email is None:
+            self.email_sender.send_email(**email_kwargs)
+        else:
+            enqueue_email(self.email_sender.send_email, **email_kwargs)
         return otp
 
     def _consume_registration_otp(

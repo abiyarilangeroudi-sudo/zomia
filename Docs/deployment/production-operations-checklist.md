@@ -650,8 +650,8 @@ Open production decisions are tracked in:
 - Changes:
   - Owner can edit/delete unused Missions and Reward Templates.
   - Used Missions and Reward Templates can be archived only after related campaigns are ended or expired.
-  - Active/paused/open campaigns block archiving of linked Missions and Reward Templates.
-  - Owner Campaigns can be paused, resumed, or ended instead of freely edited after launch.
+  - Active/open campaigns block archiving of linked Missions and Reward Templates.
+  - Owner Campaigns can be ended instead of freely edited after launch.
   - Ended Campaigns are hidden from the main Owner Loyalty list.
   - Owner repository and controller code were split into smaller domain-focused Dart files.
   - Staff invitation cancellation now uses the shared Material delete icon.
