@@ -635,3 +635,47 @@ Open production decisions are tracked in:
   - Production frontend bundle has no `sourceMappingURL` reference.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `DELETE /api/v1/owner/staff/invitations/00000000-0000-0000-0000-000000000000` returned `401`, confirming the new route reaches backend auth guard.
+
+## 2026-07-08 Owner Loyalty Lifecycle Controls
+
+- Backend release: `/opt/zomia/backend/releases/202607081028_owner_loyalty_lifecycle`.
+- Frontend release: `/var/www/zomia/releases/202607081028_owner_loyalty_lifecycle`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.134 (135)`.
+- Git commits deployed:
+  - `538149d Document invitation cancellation release`.
+  - `0797fb4 Allow owners to edit unused missions`.
+  - `3d9dd6c Add owner loyalty lifecycle controls`.
+- Changes:
+  - Owner can edit/delete unused Missions and Reward Templates.
+  - Used Missions and Reward Templates can be archived only after related campaigns are ended or expired.
+  - Active/paused/open campaigns block archiving of linked Missions and Reward Templates.
+  - Owner Campaigns can be paused, resumed, or ended instead of freely edited after launch.
+  - Ended Campaigns are hidden from the main Owner Loyalty list.
+  - Owner repository and controller code were split into smaller domain-focused Dart files.
+  - Staff invitation cancellation now uses the shared Material delete icon.
+- Backend, frontend, and API docs changed.
+- Migration status:
+  - No new migration was added.
+  - Alembic current returned `0012_user_session_version (head)`.
+  - Backend `alembic upgrade head` was not run because the schema did not change.
+- Local verification passed before deploy:
+  - `backend/.venv/bin/python -m pytest app/tests/test_loyalty.py` returned `45 passed`.
+  - `flutter analyze` returned no issues.
+  - `flutter test` returned `40 passed`.
+  - `scripts/build_frontend_production.sh` built `1.0.134 (135)`.
+  - `git diff --check` returned clean before commit.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `zomia-backend.service` was active after restart.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.134 (135)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607081028_owner_loyalty_lifecycle`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607081028_owner_loyalty_lifecycle`.
+  - Production frontend bundle has no `sourceMappingURL` reference.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+- Local post-deploy recovery:
+  - `make frontend-build-local` rebuilt `1.0.134 (135)` for `http://127.0.0.1:8080/`.
+  - The local static server on `127.0.0.1:8080` was restarted.
