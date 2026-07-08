@@ -709,3 +709,49 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
 - Local post-deploy recovery:
   - `make frontend-build-local` rebuilt `1.0.135 (136)` for `http://127.0.0.1:8080/`.
+
+## 2026-07-08 Owner Lifecycle Cleanup And Email Flow Fixes
+
+- Backend release: `/opt/zomia/backend/releases/202607082345_owner_lifecycle_cleanup`.
+- Frontend release: `/var/www/zomia/releases/202607082345_owner_lifecycle_cleanup`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.139 (140)`.
+- Git commit deployed: `8d1f3aa Simplify owner loyalty lifecycle`.
+- Backup before migration:
+  - Local backup: `zomia-20260708-235931.dump`.
+  - Offsite encrypted backup uploaded: `zomia-20260708-235931.dump.gpg`.
+- Changes:
+  - Removed `paused` Campaign status from backend/API/frontend.
+  - Added migration `0013_remove_paused_status`; existing paused campaigns are converted to ended.
+  - Owner Campaign lifecycle now supports ending campaigns only.
+  - Owner Campaign, Mission archive, Reward Template archive actions use the shared Material trash icon.
+  - Customer Campaign Archive keeps owner-ended campaigns visible with `Ended` status.
+  - Owner Loyalty layout groups Campaigns first and setup assets behind a details toggle.
+  - Owner registration rejects duplicate business slugs before sending OTP.
+  - Staff invitations reject already-registered emails before sending invitation email.
+  - Registration and staff invitation emails are sent after the API response to avoid SMTP timeout errors.
+- Local verification passed before deploy:
+  - `backend/.venv/bin/python -m pytest app/tests/test_loyalty.py` returned `47 passed`.
+  - `backend/.venv/bin/python -m pytest app/tests/test_identity.py` returned `38 passed`.
+  - `flutter analyze` returned no issues.
+  - `flutter test` returned `41 passed`.
+  - `alembic upgrade head` applied `0013_remove_paused_status` locally.
+  - `scripts/build_frontend_production.sh` built `1.0.139 (140)`.
+  - `git diff --check` returned clean before commit.
+- Manual QA passed locally before deploy.
+- Migration status:
+  - Production `alembic current` before migration returned `0012_user_session_version`.
+  - Production `alembic upgrade head` applied `0013_remove_paused_status`.
+  - Production `alembic current` after migration returned `0013_remove_paused_status (head)`.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `zomia-backend.service` was active after restart.
+  - `https://zomia.eu/webapp/?v=1.0.139-140-owner-lifecycle-cleanup` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.139 (140)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607082345_owner_lifecycle_cleanup`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607082345_owner_lifecycle_cleanup`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+- Local post-deploy recovery:
+  - `scripts/build_frontend_local.sh` rebuilt `1.0.139 (140)` for `http://127.0.0.1:8080/`.
