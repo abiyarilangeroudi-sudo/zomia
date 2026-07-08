@@ -308,6 +308,115 @@ void main() {
     expect(customerBadgeTone('unknown'), BadgeTone.info);
   });
 
+  test('customer presenter builds first loyalty step state', () {
+    CustomerCampaignProgress progressWithPoints(int points) {
+      return CustomerCampaignProgress(
+        businessId: 'business-id',
+        businessName: 'Zomia Cafe',
+        campaignId: 'campaign-id',
+        campaignName: 'Coffee Reward',
+        startsAt: DateTime.utc(2026, 6, 14),
+        endsAt: DateTime.utc(2026, 9, 14),
+        progressPoints: points,
+        thresholdPoints: 10,
+        remainingPoints: 10 - points,
+        isCompleted: false,
+        isRepeatable: false,
+        completedCycles: 0,
+        currentCycleNumber: 1,
+        maxCompletionsPerCustomer: null,
+        campaignTimeStatus: 'active',
+        progressState: 'in_progress',
+        displayLabel: '$points/10 pts',
+        badgeLabel: 'Active',
+        badgeTone: 'info',
+      );
+    }
+
+    CustomerReward rewardWithStatus(String status) {
+      return CustomerReward(
+        id: 'reward-$status',
+        title: 'Free Coffee',
+        description: null,
+        rewardType: 'gift',
+        status: status,
+        giftName: 'Free Coffee',
+        discountPercent: null,
+        discountAmountMinor: null,
+        currencyCode: null,
+        expiresAt: DateTime(2027),
+        usedAt: status == 'used' ? DateTime(2026) : null,
+      );
+    }
+
+    CustomerStatus statusWithRewards(List<CustomerReward> rewards) {
+      return CustomerStatus(
+        customerId: 'customer-id',
+        activeRewardsCount: rewards
+            .where((reward) => reward.status == 'active')
+            .length,
+        businesses: [
+          CustomerBusinessStatus(
+            businessId: 'business-id',
+            businessName: 'Zomia Cafe',
+            rewards: rewards,
+          ),
+        ],
+      );
+    }
+
+    final emptyState = customerLoyaltyStepsState(
+      status: const CustomerStatus(
+        customerId: 'customer-id',
+        activeRewardsCount: 0,
+        businesses: [],
+      ),
+      campaignProgresses: const [],
+    );
+
+    expect(emptyState.isComplete, isFalse);
+    expect(emptyState.completedCount, 0);
+    expect(emptyState.taskCount, 3);
+    expect(emptyState.nextStep?.title, 'Earn your first point');
+    expect(emptyState.steps.map((step) => step.isDone), [
+      isFalse,
+      isFalse,
+      isFalse,
+    ]);
+
+    final earnedPointState = customerLoyaltyStepsState(
+      status: statusWithRewards(const []),
+      campaignProgresses: [progressWithPoints(1)],
+    );
+
+    expect(earnedPointState.isComplete, isFalse);
+    expect(earnedPointState.completedCount, 1);
+    expect(earnedPointState.nextStep?.title, 'Earn your first reward');
+
+    final earnedRewardState = customerLoyaltyStepsState(
+      status: statusWithRewards([rewardWithStatus('active')]),
+      campaignProgresses: [progressWithPoints(10)],
+    );
+
+    expect(earnedRewardState.isComplete, isFalse);
+    expect(earnedRewardState.completedCount, 2);
+    expect(earnedRewardState.nextStep?.title, 'Use your first reward');
+
+    final completeState = customerLoyaltyStepsState(
+      status: statusWithRewards([rewardWithStatus('used')]),
+      campaignProgresses: [progressWithPoints(1)],
+    );
+
+    expect(completeState.isComplete, isTrue);
+    expect(completeState.completedCount, 3);
+    expect(completeState.nextStep, isNull);
+    expect(completeState.steps.map((step) => step.isDone), [
+      isTrue,
+      isTrue,
+      isTrue,
+    ]);
+  });
+
   test('owner presenter describes campaign repeatability', () {
     expect(
       ownerCampaignSubtitle(
@@ -921,9 +1030,16 @@ void main() {
     expect(find.text('Home'), findsWidgets);
     expect(find.byTooltip('Show QR code'), findsOneWidget);
     expect(find.text('Hi, Customer One'), findsOneWidget);
-    expect(find.text('1 active campaigns'), findsOneWidget);
-    expect(find.text('1 active rewards'), findsOneWidget);
     expect(find.text('Ready for your next visit'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Show QR'), findsOneWidget);
+    expect(find.text('1 active campaigns'), findsNothing);
+    expect(find.text('1 active rewards'), findsNothing);
+    expect(find.text('First loyalty flow complete'), findsOneWidget);
+    expect(
+      find.text('Keep showing your QR on each visit to earn more rewards.'),
+      findsOneWidget,
+    );
+    expect(find.text('Earn your first point'), findsNothing);
     expect(qrRepository.issueCount, 1);
 
     await tester.pumpWidget(

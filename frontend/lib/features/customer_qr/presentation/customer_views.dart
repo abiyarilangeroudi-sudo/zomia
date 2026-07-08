@@ -1,73 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
 import '../../auth/domain/current_user.dart';
 import '../domain/customer_status.dart';
 import 'customer_presenter.dart';
-
-class CustomerHomeView extends StatelessWidget {
-  const CustomerHomeView({
-    super.key,
-    required this.user,
-    required this.status,
-    required this.campaignProgresses,
-  });
-
-  final CurrentUser user;
-  final CustomerStatus? status;
-  final List<CustomerCampaignProgress> campaignProgresses;
-
-  @override
-  Widget build(BuildContext context) {
-    final activeRewardsCount = status?.activeRewardsCount ?? 0;
-    final activeCampaignCount = customerActiveCampaignCount(campaignProgresses);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hi, ${user.fullName}',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  MetricPill(
-                    icon: Icons.campaign_rounded,
-                    label: '$activeCampaignCount active campaigns',
-                    color: BrandColors.teal,
-                  ),
-                  MetricPill(
-                    icon: Icons.card_giftcard_rounded,
-                    label: '$activeRewardsCount active rewards',
-                    color: BrandColors.purple,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        AppCard(
-          child: EmptyStateView(
-            icon: Icons.qr_code_rounded,
-            title: activeCampaignCount == 0 && activeRewardsCount == 0
-                ? 'Ready to start'
-                : 'Ready for your next visit',
-            message:
-                'Use the QR button when staff asks to scan your customer account.',
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class CustomerCampaignView extends StatelessWidget {
   const CustomerCampaignView({

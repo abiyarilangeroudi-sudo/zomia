@@ -9,6 +9,7 @@ import '../../auth/presentation/auth_controller.dart';
 import '../data/customer_qr_repository.dart';
 import '../domain/customer_qr_token.dart';
 import '../domain/customer_status.dart';
+import 'customer_home_view.dart';
 import 'customer_qr_dialog.dart';
 import 'customer_views.dart';
 
@@ -114,6 +115,7 @@ class _CustomerScreenState extends ConsumerState<CustomerScreen> {
                   user: widget.user,
                   status: _status,
                   campaignProgresses: _campaignProgresses,
+                  onShowQr: _openQrDialog,
                 ),
               ),
             ),

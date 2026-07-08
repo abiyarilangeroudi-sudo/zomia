@@ -8,6 +8,75 @@ class CustomerRewardEntry {
   final CustomerReward reward;
 }
 
+class CustomerLoyaltyStep {
+  const CustomerLoyaltyStep({
+    required this.title,
+    required this.subtitle,
+    required this.isDone,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool isDone;
+}
+
+class CustomerLoyaltyStepsState {
+  const CustomerLoyaltyStepsState({required this.steps});
+
+  final List<CustomerLoyaltyStep> steps;
+
+  bool get isComplete => steps.every((step) => step.isDone);
+
+  int get completedCount => steps.where((step) => step.isDone).length;
+
+  int get taskCount => steps.length;
+
+  CustomerLoyaltyStep? get nextStep {
+    for (final step in steps) {
+      if (!step.isDone) {
+        return step;
+      }
+    }
+    return null;
+  }
+}
+
+CustomerLoyaltyStepsState customerLoyaltyStepsState({
+  required CustomerStatus? status,
+  required List<CustomerCampaignProgress> campaignProgresses,
+}) {
+  final hasEarnedPoint = campaignProgresses.any(
+    (progress) => progress.progressPoints > 0,
+  );
+  final rewards = [
+    for (final business
+        in status?.businesses ?? const <CustomerBusinessStatus>[])
+      ...business.rewards,
+  ];
+  final hasEarnedReward = rewards.isNotEmpty;
+  final hasUsedReward = rewards.any((reward) => reward.status == 'used');
+
+  return CustomerLoyaltyStepsState(
+    steps: [
+      CustomerLoyaltyStep(
+        title: 'Earn your first point',
+        subtitle: 'Ask staff to scan your QR and register your visit.',
+        isDone: hasEarnedPoint,
+      ),
+      CustomerLoyaltyStep(
+        title: 'Earn your first reward',
+        subtitle: 'Complete a campaign to unlock your first reward.',
+        isDone: hasEarnedReward,
+      ),
+      CustomerLoyaltyStep(
+        title: 'Use your first reward',
+        subtitle: 'Show your QR to staff and ask them to use your reward.',
+        isDone: hasUsedReward,
+      ),
+    ],
+  );
+}
+
 List<CustomerRewardEntry> customerActiveRewardEntries(CustomerStatus? status) {
   return customerRewardEntriesByStatus(status, isActive: true);
 }
