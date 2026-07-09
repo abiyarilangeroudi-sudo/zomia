@@ -206,7 +206,7 @@ class StaffMissionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SectionHeader(
-            title: 'Register Action',
+            title: 'Register mission action',
             trailing: MetricPill(
               icon: Icons.stars_rounded,
               label: '$selectedPoints pts',
@@ -219,8 +219,8 @@ class StaffMissionCard extends StatelessWidget {
           else if (missions.isEmpty)
             const EmptyStateView(
               icon: Icons.task_alt_rounded,
-              title: 'No missions',
-              message: 'This business has no active missions right now.',
+              title: 'No active campaign missions',
+              message: 'Only missions from active campaigns appear here.',
             )
           else
             ...missions.map(
@@ -272,8 +272,9 @@ class StaffRewardsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SectionHeader(
-            title: 'Active Rewards',
-            subtitle: 'Confirm before marking a reward as used.',
+            title: 'Use active reward',
+            subtitle:
+                'Confirm with the customer before marking a reward as used.',
           ),
           const SizedBox(height: 12),
           if (rewards.isEmpty)

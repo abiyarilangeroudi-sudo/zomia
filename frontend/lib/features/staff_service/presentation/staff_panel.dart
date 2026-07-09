@@ -96,14 +96,12 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
           StaffCustomerRecentActionsCard(actions: _summary!.recentActions),
         ],
         if (_isCustomerConfirmed) ...[
-          if ((_summary?.activeRewards ?? const []).isNotEmpty) ...[
-            const SizedBox(height: 16),
-            StaffRewardsCard(
-              rewards: _summary?.activeRewards ?? const [],
-              rewardInUseId: _rewardInUseId,
-              onUseReward: _useReward,
-            ),
-          ],
+          const SizedBox(height: 16),
+          StaffRewardsCard(
+            rewards: _summary?.activeRewards ?? const [],
+            rewardInUseId: _rewardInUseId,
+            onUseReward: _useReward,
+          ),
           const SizedBox(height: 16),
           StaffMissionCard(
             missions: _missions,
@@ -119,6 +117,8 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
             onSubmit: selectedItems.isEmpty ? null : _submitAction,
             isSubmitting: _isSubmittingAction,
           ),
+          const SizedBox(height: 16),
+          StaffCustomerRecentActionsCard(actions: _summary!.recentActions),
         ],
       ],
     );

@@ -252,7 +252,7 @@ void main() {
 
     expect(
       actionRegisteredMessage(result: result, activeRewardIdsBefore: const {}),
-      'Action registered.',
+      'Action registered. Reward unlocked.',
     );
   });
 
@@ -1197,8 +1197,8 @@ void main() {
     expect(find.text('Scan QR'), findsOneWidget);
     expect(find.text('No customer loaded'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsNothing);
-    expect(find.text('Active Rewards'), findsNothing);
-    expect(find.text('Register Action'), findsNothing);
+    expect(find.text('Use active reward'), findsNothing);
+    expect(find.text('Register mission action'), findsNothing);
 
     await tester.tap(find.text('Recent Actions'));
     await pumpAppFrames(tester);
@@ -1914,7 +1914,7 @@ void main() {
     );
     await pumpAppFrames(tester);
 
-    expect(find.text('Register Action'), findsOneWidget);
+    expect(find.text('Register mission action'), findsOneWidget);
     expect(find.text('Register'), findsOneWidget);
     expect(find.text('0 pts'), findsOneWidget);
     expect(find.text('1 point'), findsOneWidget);

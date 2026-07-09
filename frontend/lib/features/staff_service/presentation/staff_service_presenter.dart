@@ -18,11 +18,30 @@ String actionRegisteredMessage({
   required RegisterActionResult result,
   required Set<String> activeRewardIdsBefore,
 }) {
+  if (result.idempotencyReplayed) {
+    return 'Action already registered.';
+  }
+
+  final activeRewardIdsAfter = result.summary.activeRewards
+      .map((reward) => reward.id)
+      .toSet();
+  final unlockedRewardCount = activeRewardIdsAfter
+      .difference(activeRewardIdsBefore)
+      .length;
+  if (unlockedRewardCount > 0) {
+    return 'Action registered. Reward unlocked.';
+  }
+
+  if (result.pointsGranted > 0) {
+    final pointLabel = result.pointsGranted == 1 ? 'pt' : 'pts';
+    return 'Action registered. +${result.pointsGranted} $pointLabel added.';
+  }
+
   return 'Action registered.';
 }
 
 String rewardUsedMessage(GeneratedReward reward) {
-  return 'Reward used.';
+  return 'Reward marked as used.';
 }
 
 String rewardExpiresLabel(GeneratedReward reward) {
