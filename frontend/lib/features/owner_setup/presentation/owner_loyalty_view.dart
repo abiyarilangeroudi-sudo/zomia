@@ -37,12 +37,18 @@ class OwnerLoyaltyView extends StatelessWidget {
           OwnerSetupAssetsCard(
             missions: controller.missions,
             rewardTemplates: controller.rewardTemplates,
+            currentMissions: () => controller.missions,
+            currentRewardTemplates: () => controller.rewardTemplates,
+            currentError: () => controller.error,
+            currentSuccess: () => controller.success,
+            onClearError: controller.clearError,
+            onClearSuccess: controller.clearSuccess,
             isSaving: controller.isSaving,
-            onEditMission: (mission) =>
+            onEditMission: (mission) async =>
                 openOwnerMissionEditDialog(context, controller, mission),
             onDeleteMission: controller.deleteMission,
             onArchiveMission: controller.archiveMission,
-            onEditRewardTemplate: (template) =>
+            onEditRewardTemplate: (template) async =>
                 openOwnerRewardTemplateEditDialog(
                   context,
                   controller,

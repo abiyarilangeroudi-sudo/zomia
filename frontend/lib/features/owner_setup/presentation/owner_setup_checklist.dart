@@ -40,13 +40,13 @@ class OwnerSetupChecklist extends StatelessWidget {
         onPressed: onCreateRewardTemplate,
       ),
       _OwnerSetupChecklistItem(
-        title: 'Create your first campaign',
+        title: 'Activate your first campaign',
         subtitle: state.canCreateCampaign
-            ? 'Connect your mission and reward.'
+            ? 'Launch a campaign that staff and customers can use.'
             : 'Create a mission and reward template first.',
-        isDone: state.hasCampaign,
+        isDone: state.hasActiveCampaign,
         isLocked: !state.canCreateCampaign,
-        actionLabel: 'Create',
+        actionLabel: 'Activate',
         onPressed: state.canCreateCampaign ? onCreateCampaign : null,
       ),
       _OwnerSetupChecklistItem(

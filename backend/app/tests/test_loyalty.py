@@ -1292,7 +1292,10 @@ def test_ended_campaign_returns_backend_owned_progress_status(
         headers=auth(staff_token),
     )
 
-    assert response.status_code == 201
+    assert response.status_code == 409
+    assert response.json()["detail"] == "One or more missions are not available for staff action"
+    assert db_session.query(LoyaltyAction).count() == 0
+    assert db_session.query(PointsLedgerEntry).count() == 0
     assert db_session.query(CampaignCompletion).count() == 0
 
     progress = client.get(

@@ -6,11 +6,17 @@ import 'owner_mission_widgets.dart';
 import 'owner_reward_template_widgets.dart';
 import 'owner_setup_shared_widgets.dart';
 
-class OwnerSetupAssetsCard extends StatefulWidget {
+class OwnerSetupAssetsCard extends StatelessWidget {
   const OwnerSetupAssetsCard({
     super.key,
     required this.missions,
     required this.rewardTemplates,
+    required this.currentMissions,
+    required this.currentRewardTemplates,
+    required this.currentError,
+    required this.currentSuccess,
+    required this.onClearError,
+    required this.onClearSuccess,
     required this.isSaving,
     required this.onEditMission,
     required this.onDeleteMission,
@@ -22,22 +28,22 @@ class OwnerSetupAssetsCard extends StatefulWidget {
 
   final List<OwnerMission> missions;
   final List<OwnerRewardTemplate> rewardTemplates;
+  final List<OwnerMission> Function() currentMissions;
+  final List<OwnerRewardTemplate> Function() currentRewardTemplates;
+  final String? Function() currentError;
+  final String? Function() currentSuccess;
+  final VoidCallback onClearError;
+  final VoidCallback onClearSuccess;
   final bool isSaving;
-  final ValueChanged<OwnerMission> onEditMission;
+  final Future<void> Function(OwnerMission mission) onEditMission;
   final Future<void> Function(OwnerMission mission) onDeleteMission;
   final Future<void> Function(OwnerMission mission) onArchiveMission;
-  final ValueChanged<OwnerRewardTemplate> onEditRewardTemplate;
+  final Future<void> Function(OwnerRewardTemplate template)
+  onEditRewardTemplate;
   final Future<void> Function(OwnerRewardTemplate template)
   onDeleteRewardTemplate;
   final Future<void> Function(OwnerRewardTemplate template)
   onArchiveRewardTemplate;
-
-  @override
-  State<OwnerSetupAssetsCard> createState() => _OwnerSetupAssetsCardState();
-}
-
-class _OwnerSetupAssetsCardState extends State<OwnerSetupAssetsCard> {
-  var _showDetails = false;
 
   @override
   Widget build(BuildContext context) {
@@ -47,61 +53,29 @@ class _OwnerSetupAssetsCardState extends State<OwnerSetupAssetsCard> {
       children: [
         AppListRow(
           title: 'Missions',
-          subtitle: _countLabel(widget.missions.length, 'active mission'),
+          subtitle: _countLabel(missions.length, 'active mission'),
           leadingIcon: Icons.task_alt_rounded,
           trailing: StatusBadge(
-            label: widget.missions.length.toString(),
+            label: missions.length.toString(),
             tone: BadgeTone.info,
           ),
         ),
         const SizedBox(height: 8),
         AppListRow(
           title: 'Reward templates',
-          subtitle: _countLabel(
-            widget.rewardTemplates.length,
-            'active template',
-          ),
+          subtitle: _countLabel(rewardTemplates.length, 'active template'),
           leadingIcon: Icons.card_giftcard_rounded,
           trailing: StatusBadge(
-            label: widget.rewardTemplates.length.toString(),
+            label: rewardTemplates.length.toString(),
             tone: BadgeTone.info,
           ),
         ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: () => setState(() => _showDetails = !_showDetails),
-            icon: Icon(
-              _showDetails
-                  ? Icons.keyboard_arrow_up_rounded
-                  : Icons.keyboard_arrow_down_rounded,
-            ),
-            label: Text(_showDetails ? 'Hide details' : 'Show details'),
-          ),
+        const SizedBox(height: 12),
+        SecondaryButton(
+          label: 'Manage assets',
+          icon: Icons.tune_rounded,
+          onPressed: () => _openManageAssets(context),
         ),
-        if (_showDetails) ...[
-          const SizedBox(height: 8),
-          const SectionHeader(title: 'Missions'),
-          const SizedBox(height: 8),
-          OwnerMissionListContent(
-            missions: widget.missions,
-            isSaving: widget.isSaving,
-            onEdit: widget.onEditMission,
-            onDelete: widget.onDeleteMission,
-            onArchive: widget.onArchiveMission,
-          ),
-          const SizedBox(height: 16),
-          const SectionHeader(title: 'Reward Templates'),
-          const SizedBox(height: 8),
-          OwnerRewardTemplateListContent(
-            rewardTemplates: widget.rewardTemplates,
-            isSaving: widget.isSaving,
-            onEdit: widget.onEditRewardTemplate,
-            onDelete: widget.onDeleteRewardTemplate,
-            onArchive: widget.onArchiveRewardTemplate,
-          ),
-        ],
       ],
     );
   }
@@ -111,5 +85,197 @@ class _OwnerSetupAssetsCardState extends State<OwnerSetupAssetsCard> {
       return '1 $singular';
     }
     return '$count ${singular}s';
+  }
+
+  void _openManageAssets(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => OwnerSetupAssetsDialog(
+          missions: missions,
+          rewardTemplates: rewardTemplates,
+          currentMissions: currentMissions,
+          currentRewardTemplates: currentRewardTemplates,
+          currentError: currentError,
+          currentSuccess: currentSuccess,
+          onClearError: onClearError,
+          onClearSuccess: onClearSuccess,
+          isSaving: isSaving,
+          onEditMission: onEditMission,
+          onDeleteMission: onDeleteMission,
+          onArchiveMission: onArchiveMission,
+          onEditRewardTemplate: onEditRewardTemplate,
+          onDeleteRewardTemplate: onDeleteRewardTemplate,
+          onArchiveRewardTemplate: onArchiveRewardTemplate,
+        ),
+      ),
+    );
+  }
+}
+
+class OwnerSetupAssetsDialog extends StatefulWidget {
+  const OwnerSetupAssetsDialog({
+    super.key,
+    required this.missions,
+    required this.rewardTemplates,
+    required this.currentMissions,
+    required this.currentRewardTemplates,
+    required this.currentError,
+    required this.currentSuccess,
+    required this.onClearError,
+    required this.onClearSuccess,
+    required this.isSaving,
+    required this.onEditMission,
+    required this.onDeleteMission,
+    required this.onArchiveMission,
+    required this.onEditRewardTemplate,
+    required this.onDeleteRewardTemplate,
+    required this.onArchiveRewardTemplate,
+  });
+
+  final List<OwnerMission> missions;
+  final List<OwnerRewardTemplate> rewardTemplates;
+  final List<OwnerMission> Function() currentMissions;
+  final List<OwnerRewardTemplate> Function() currentRewardTemplates;
+  final String? Function() currentError;
+  final String? Function() currentSuccess;
+  final VoidCallback onClearError;
+  final VoidCallback onClearSuccess;
+  final bool isSaving;
+  final Future<void> Function(OwnerMission mission) onEditMission;
+  final Future<void> Function(OwnerMission mission) onDeleteMission;
+  final Future<void> Function(OwnerMission mission) onArchiveMission;
+  final Future<void> Function(OwnerRewardTemplate template)
+  onEditRewardTemplate;
+  final Future<void> Function(OwnerRewardTemplate template)
+  onDeleteRewardTemplate;
+  final Future<void> Function(OwnerRewardTemplate template)
+  onArchiveRewardTemplate;
+
+  @override
+  State<OwnerSetupAssetsDialog> createState() => _OwnerSetupAssetsDialogState();
+}
+
+class _OwnerSetupAssetsDialogState extends State<OwnerSetupAssetsDialog> {
+  late List<OwnerMission> _missions;
+  late List<OwnerRewardTemplate> _rewardTemplates;
+  var _isOperationRunning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _missions = widget.missions;
+    _rewardTemplates = widget.rewardTemplates;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const AppTopBar(
+        title: 'Setup assets',
+        variant: AppTopBarVariant.modal,
+      ),
+      body: SafeArea(
+        child: DashboardScroll(
+          maxWidth: 760,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OwnerStatusBanners(
+                error: widget.currentError(),
+                success: widget.currentSuccess(),
+                onClearError: _clearError,
+                onClearSuccess: _clearSuccess,
+              ),
+              OwnerSetupCard(
+                title: 'Missions',
+                children: [
+                  OwnerMissionListContent(
+                    missions: _missions,
+                    isSaving: widget.isSaving || _isOperationRunning,
+                    onEdit: _editMission,
+                    onDelete: _deleteMission,
+                    onArchive: _archiveMission,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              OwnerSetupCard(
+                title: 'Reward Templates',
+                children: [
+                  OwnerRewardTemplateListContent(
+                    rewardTemplates: _rewardTemplates,
+                    isSaving: widget.isSaving || _isOperationRunning,
+                    onEdit: _editRewardTemplate,
+                    onDelete: _deleteRewardTemplate,
+                    onArchive: _archiveRewardTemplate,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editMission(OwnerMission mission) async {
+    await _runAndSync(() => widget.onEditMission(mission));
+  }
+
+  Future<void> _deleteMission(OwnerMission mission) async {
+    await _runAndSync(() => widget.onDeleteMission(mission));
+  }
+
+  Future<void> _archiveMission(OwnerMission mission) async {
+    await _runAndSync(() => widget.onArchiveMission(mission));
+  }
+
+  Future<void> _editRewardTemplate(OwnerRewardTemplate template) async {
+    await _runAndSync(() => widget.onEditRewardTemplate(template));
+  }
+
+  Future<void> _deleteRewardTemplate(OwnerRewardTemplate template) async {
+    await _runAndSync(() => widget.onDeleteRewardTemplate(template));
+  }
+
+  Future<void> _archiveRewardTemplate(OwnerRewardTemplate template) async {
+    await _runAndSync(() => widget.onArchiveRewardTemplate(template));
+  }
+
+  Future<void> _runAndSync(Future<void> Function() action) async {
+    setState(() => _isOperationRunning = true);
+    try {
+      await action();
+    } finally {
+      if (mounted) {
+        setState(() => _isOperationRunning = false);
+      }
+    }
+    _syncAssets();
+  }
+
+  void _syncAssets() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _missions = widget.currentMissions();
+      _rewardTemplates = widget.currentRewardTemplates();
+    });
+  }
+
+  void _clearError() {
+    widget.onClearError();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _clearSuccess() {
+    widget.onClearSuccess();
+    if (mounted) {
+      setState(() {});
+    }
   }
 }

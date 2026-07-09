@@ -4,7 +4,7 @@ class OwnerOnboardingState {
   const OwnerOnboardingState({
     required this.hasMission,
     required this.hasRewardTemplate,
-    required this.hasCampaign,
+    required this.hasActiveCampaign,
     required this.hasStaff,
     required this.hasActiveStaff,
     required this.hasMissionProgressActivity,
@@ -20,7 +20,10 @@ class OwnerOnboardingState {
     return OwnerOnboardingState(
       hasMission: missions.isNotEmpty,
       hasRewardTemplate: rewardTemplates.isNotEmpty,
-      hasCampaign: campaigns.isNotEmpty,
+      hasActiveCampaign: campaigns.any(
+        (campaign) =>
+            campaign.status == 'active' && campaign.timeStatus == 'active',
+      ),
       hasStaff: staffMembers.isNotEmpty,
       hasActiveStaff: staffMembers.any(
         (staffMember) => !staffMember.isPending && staffMember.isActive,
@@ -33,7 +36,7 @@ class OwnerOnboardingState {
 
   final bool hasMission;
   final bool hasRewardTemplate;
-  final bool hasCampaign;
+  final bool hasActiveCampaign;
   final bool hasStaff;
   final bool hasActiveStaff;
   final bool hasMissionProgressActivity;
@@ -44,7 +47,7 @@ class OwnerOnboardingState {
     return [
       hasMission,
       hasRewardTemplate,
-      hasCampaign,
+      hasActiveCampaign,
       hasStaff,
     ].where((isDone) => isDone).length;
   }

@@ -26,6 +26,7 @@ import 'package:zomia_frontend/features/owner_setup/presentation/owner_onboardin
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_presenter.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_checklist.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_controller.dart';
+import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_assets_card.dart';
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_profile_widgets.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
@@ -473,6 +474,124 @@ void main() {
     expect(presentation.tone, ConfirmTone.destructive);
   });
 
+  test('owner onboarding requires an active campaign', () {
+    final inactiveState = OwnerOnboardingState.fromData(
+      missions: const [
+        OwnerMission(
+          id: 'mission-id',
+          name: 'Buy Coffee',
+          missionType: 'purchase',
+          pointValue: 1,
+          isActive: true,
+          canEdit: false,
+          canDelete: false,
+          canArchive: false,
+        ),
+      ],
+      rewardTemplates: const [
+        OwnerRewardTemplate(
+          id: 'template-id',
+          name: 'Coffee Reward',
+          rewardType: 'gift',
+          giftName: 'Free coffee',
+          validDays: 30,
+          isActive: true,
+          canEdit: false,
+          canDelete: false,
+          canArchive: false,
+        ),
+      ],
+      campaigns: [
+        OwnerCampaign(
+          id: 'expired-campaign',
+          rewardTemplateId: 'template-id',
+          name: 'Expired Campaign',
+          thresholdPoints: 10,
+          isRepeatable: true,
+          maxCompletionsPerCustomer: null,
+          status: 'active',
+          startsAt: DateTime(2026, 1, 1),
+          endsAt: DateTime(2026, 1, 31),
+          timeStatus: 'expired',
+          displayStatus: 'Expired',
+          badgeTone: 'warning',
+          dateRangeLabel: '2026-01-01 - 2026-01-31',
+        ),
+        OwnerCampaign(
+          id: 'ended-campaign',
+          rewardTemplateId: 'template-id',
+          name: 'Ended Campaign',
+          thresholdPoints: 10,
+          isRepeatable: true,
+          maxCompletionsPerCustomer: null,
+          status: 'ended',
+          startsAt: DateTime(2026, 1, 1),
+          endsAt: DateTime(2026, 12, 31),
+          timeStatus: 'ended',
+          displayStatus: 'Ended',
+          badgeTone: 'neutral',
+          dateRangeLabel: '2026-01-01 - 2026-12-31',
+        ),
+      ],
+      staffMembers: const [],
+      recentActivities: const [],
+    );
+
+    final activeState = OwnerOnboardingState.fromData(
+      missions: inactiveState.hasMission
+          ? const [
+              OwnerMission(
+                id: 'mission-id',
+                name: 'Buy Coffee',
+                missionType: 'purchase',
+                pointValue: 1,
+                isActive: true,
+                canEdit: false,
+                canDelete: false,
+                canArchive: false,
+              ),
+            ]
+          : const [],
+      rewardTemplates: const [
+        OwnerRewardTemplate(
+          id: 'template-id',
+          name: 'Coffee Reward',
+          rewardType: 'gift',
+          giftName: 'Free coffee',
+          validDays: 30,
+          isActive: true,
+          canEdit: false,
+          canDelete: false,
+          canArchive: false,
+        ),
+      ],
+      campaigns: [
+        OwnerCampaign(
+          id: 'active-campaign',
+          rewardTemplateId: 'template-id',
+          name: 'Active Campaign',
+          thresholdPoints: 10,
+          isRepeatable: true,
+          maxCompletionsPerCustomer: null,
+          status: 'active',
+          startsAt: DateTime(2026, 1, 1),
+          endsAt: DateTime(2026, 12, 31),
+          timeStatus: 'active',
+          displayStatus: 'Active',
+          badgeTone: 'info',
+          dateRangeLabel: '2026-01-01 - 2026-12-31',
+        ),
+      ],
+      staffMembers: const [],
+      recentActivities: const [],
+    );
+
+    expect(inactiveState.hasActiveCampaign, isFalse);
+    expect(inactiveState.firstSetupCompletedCount, 2);
+    expect(activeState.hasActiveCampaign, isTrue);
+    expect(activeState.firstSetupCompletedCount, 3);
+  });
+
   testWidgets(
     'owner setup checklist locks campaign until prerequisites exist',
     (tester) async {
@@ -485,7 +604,7 @@ void main() {
                 state: const OwnerOnboardingState(
                   hasMission: false,
                   hasRewardTemplate: false,
-                  hasCampaign: false,
+                  hasActiveCampaign: false,
                   hasStaff: false,
                   hasActiveStaff: false,
                   hasMissionProgressActivity: false,
@@ -502,10 +621,10 @@ void main() {
 
       expect(find.text('First setup'), findsOneWidget);
       expect(find.text('0 of 4 steps complete'), findsOneWidget);
-      expect(find.text('Create your first campaign'), findsOneWidget);
+      expect(find.text('Activate your first campaign'), findsOneWidget);
       expect(find.text('Locked'), findsOneWidget);
 
-      await tester.tap(find.text('Create your first campaign'));
+      await tester.tap(find.text('Activate your first campaign'));
       await tester.pump();
 
       expect(campaignTapCount, 0);
@@ -521,7 +640,7 @@ void main() {
               state: const OwnerOnboardingState(
                 hasMission: true,
                 hasRewardTemplate: true,
-                hasCampaign: true,
+                hasActiveCampaign: true,
                 hasStaff: true,
                 hasActiveStaff: true,
                 hasMissionProgressActivity: true,
@@ -564,7 +683,7 @@ void main() {
               state: const OwnerOnboardingState(
                 hasMission: true,
                 hasRewardTemplate: true,
-                hasCampaign: true,
+                hasActiveCampaign: true,
                 hasStaff: true,
                 hasActiveStaff: true,
                 hasMissionProgressActivity: false,
@@ -586,6 +705,88 @@ void main() {
     expect(find.text('Next'), findsOneWidget);
     expect(find.text('Create your first mission'), findsNothing);
     expect(find.text('Done'), findsNWidgets(2));
+  });
+
+  testWidgets('owner setup assets open detailed management separately', (
+    tester,
+  ) async {
+    String? error;
+    String? success;
+    var missions = const [
+      OwnerMission(
+        id: 'mission-coffee',
+        name: 'Buy Coffee',
+        missionType: 'purchase',
+        pointValue: 1,
+        isActive: true,
+        canEdit: true,
+        canDelete: true,
+        canArchive: false,
+      ),
+    ];
+    const rewardTemplates = [
+      OwnerRewardTemplate(
+        id: 'template-coffee',
+        name: 'Coffee Reward',
+        rewardType: 'gift',
+        giftName: 'Free coffee',
+        validDays: 30,
+        isActive: true,
+        canEdit: true,
+        canDelete: true,
+        canArchive: false,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: OwnerSetupAssetsCard(
+            missions: missions,
+            rewardTemplates: rewardTemplates,
+            currentMissions: () => missions,
+            currentRewardTemplates: () => rewardTemplates,
+            currentError: () => error,
+            currentSuccess: () => success,
+            onClearError: () => error = null,
+            onClearSuccess: () => success = null,
+            isSaving: false,
+            onEditMission: (_) async {},
+            onDeleteMission: (_) async {
+              missions = const [];
+              success = 'Mission deleted.';
+            },
+            onArchiveMission: (_) async {},
+            onEditRewardTemplate: (_) async {},
+            onDeleteRewardTemplate: (_) async {},
+            onArchiveRewardTemplate: (_) async {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Setup assets'), findsOneWidget);
+    expect(find.text('1 active mission'), findsOneWidget);
+    expect(find.text('1 active template'), findsOneWidget);
+    expect(find.text('Manage assets'), findsOneWidget);
+    expect(find.text('Buy Coffee'), findsNothing);
+    expect(find.text('Free coffee · 30 days'), findsNothing);
+
+    await tester.tap(find.text('Manage assets'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Buy Coffee'), findsOneWidget);
+    expect(find.text('Gift'), findsOneWidget);
+    expect(find.text('Free coffee · 30 days'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Delete mission'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete mission'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Buy Coffee'), findsNothing);
+    expect(find.text('No missions yet'), findsOneWidget);
+    expect(find.text('Mission deleted.'), findsOneWidget);
   });
 
   test('owner campaign creation defaults to repeatable unlimited', () async {
@@ -976,8 +1177,8 @@ void main() {
     expect(find.byTooltip('Edit profile'), findsOneWidget);
     expect(find.text('Account Settings'), findsNothing);
 
-    await tester.tap(find.byTooltip('Close'));
-    await pumpAppFrames(tester);
+    await tester.tap(find.byTooltip('Close').last);
+    await tester.pumpAndSettle();
     tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
     await pumpAppFrames(tester);
     await tester.tap(find.text('Setting'));
@@ -1371,7 +1572,7 @@ void main() {
     expect(find.text('Setup assets'), findsOneWidget);
     expect(find.text('Missions'), findsOneWidget);
     expect(find.text('Reward templates'), findsOneWidget);
-    expect(find.text('Show details'), findsOneWidget);
+    expect(find.text('Manage assets'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
     expect(find.text('10 pts · non-repeatable'), findsOneWidget);
     expect(find.text('Active'), findsWidgets);
@@ -1379,13 +1580,6 @@ void main() {
     expect(find.text('Buy Coffee'), findsNothing);
     expect(find.text('Gift'), findsNothing);
     expect(find.text('Free coffee · 30 days'), findsNothing);
-
-    await tester.tap(find.text('Show details'));
-    await pumpAppFrames(tester);
-
-    expect(find.text('Buy Coffee'), findsOneWidget);
-    expect(find.text('Gift'), findsWidgets);
-    expect(find.text('Free coffee · 30 days'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Create loyalty item'));
     await pumpAppFrames(tester);

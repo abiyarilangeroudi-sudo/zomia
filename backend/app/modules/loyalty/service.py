@@ -403,11 +403,12 @@ class LoyaltyService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="One or more missions were not found",
             )
-        occurred_at = payload.occurred_at or datetime.now(UTC)
+        now = datetime.now(UTC)
+        occurred_at = payload.occurred_at or now
         staff_action_missions = self.repository.get_staff_action_missions_by_ids(
             business_id=payload.business_id,
             mission_ids=mission_ids,
-            occurred_at=occurred_at,
+            occurred_at=now,
         )
         unavailable_missions = mission_ids - set(staff_action_missions)
         if unavailable_missions:
