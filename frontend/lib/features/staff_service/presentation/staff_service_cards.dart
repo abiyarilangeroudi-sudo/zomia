@@ -159,12 +159,8 @@ class StaffCustomerRecentActionsCard extends StatelessWidget {
                   subtitle: formatStaffDateTime(action.occurredAt),
                   leadingIcon: Icons.history_rounded,
                   trailing: StatusBadge(
-                    label: action.pointsGranted > 0
-                        ? '+${action.pointsGranted} pts'
-                        : formatStaffActionType(action.actionType),
-                    tone: action.pointsGranted > 0
-                        ? BadgeTone.success
-                        : BadgeTone.neutral,
+                    label: staffActionBadgeLabel(action),
+                    tone: staffActionBadgeTone(action),
                   ),
                 ),
               ),
@@ -359,12 +355,8 @@ class StaffRecentActionsCard extends StatelessWidget {
                       '${action.customerName} · ${formatStaffDateTime(action.occurredAt)}',
                   leadingIcon: Icons.history_rounded,
                   trailing: StatusBadge(
-                    label: action.pointsGranted > 0
-                        ? '+${action.pointsGranted} pts'
-                        : formatStaffActionType(action.actionType),
-                    tone: action.pointsGranted > 0
-                        ? BadgeTone.success
-                        : BadgeTone.neutral,
+                    label: staffActionBadgeLabel(action),
+                    tone: staffActionBadgeTone(action),
                   ),
                 ),
               ),

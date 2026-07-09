@@ -306,6 +306,11 @@ void main() {
       expect(entries, hasLength(1));
       expect(entries.first.businessName, 'Zomia Cafe');
       expect(entries.first.reward.id, 'reward-active');
+      expect(customerRewardBadgeLabel(entries.first.reward), 'Ready to use');
+      expect(
+        customerRewardExpiresLabel(entries.first.reward),
+        'Show your QR to staff before 2027-01-01 00:00',
+      );
     },
   );
 
@@ -484,8 +489,8 @@ void main() {
       ),
     );
 
-    expect(presentation.badgeLabel, 'reward use');
-    expect(presentation.badgeTone, BadgeTone.neutral);
+    expect(presentation.badgeLabel, 'Reward used');
+    expect(presentation.badgeTone, BadgeTone.success);
     expect(presentation.subtitle, contains('Customer One · Staff One'));
   });
 
@@ -1335,7 +1340,11 @@ void main() {
     expect(find.text('Used Coffee'), findsNothing);
     expect(find.text('Zomia Cafe'), findsOneWidget);
     expect(find.text('Free coffee'), findsOneWidget);
-    expect(find.text('Active'), findsWidgets);
+    expect(find.text('Ready to use'), findsOneWidget);
+    expect(
+      find.text('Show your QR to staff before 2027-01-01 00:00'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Archive'));
     await pumpAppFrames(tester);
@@ -1343,6 +1352,7 @@ void main() {
     expect(find.text('Free Coffee'), findsNothing);
     expect(find.text('Used Coffee'), findsOneWidget);
     expect(find.text('Used'), findsOneWidget);
+    expect(find.text('Used 2026-01-02 00:00'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await pumpAppFrames(tester);
@@ -1851,6 +1861,15 @@ void main() {
                 occurredAt: DateTime(2026, 1, 1, 10, 30),
                 createdAt: DateTime(2026, 1, 1, 10, 30),
               ),
+              StaffRecentAction(
+                id: 'reward-use-id',
+                actionType: 'reward_use',
+                customerName: 'Customer One',
+                pointsGranted: 0,
+                summary: 'Reward used',
+                occurredAt: DateTime(2026, 1, 1, 11, 30),
+                createdAt: DateTime(2026, 1, 1, 11, 30),
+              ),
             ],
           ),
         ),
@@ -1861,6 +1880,7 @@ void main() {
     expect(find.text('Customer recent actions'), findsOneWidget);
     expect(find.text('Buy Coffee x2'), findsOneWidget);
     expect(find.text('+2 pts'), findsOneWidget);
+    expect(find.text('Reward used'), findsWidgets);
   });
 
   testWidgets('renders empty staff customer recent actions card', (

@@ -137,7 +137,7 @@ class CustomerRewardView extends StatelessWidget {
                     title: 'No rewards here',
                     message: selectedTabIndex == 1
                         ? 'Used and expired rewards will appear here.'
-                        : 'Rewards you can use will appear here.',
+                        : 'Rewards ready for staff to use will appear here.',
                   ),
                 )
               else

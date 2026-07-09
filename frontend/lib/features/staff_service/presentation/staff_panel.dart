@@ -385,7 +385,8 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
     return showConfirmDialog(
       context: context,
       title: 'Use reward?',
-      message: 'Mark "${reward.title}" as used.',
+      message:
+          'Use "${reward.title}" for this customer. This moves the reward to Used.',
       confirmLabel: 'Use',
     );
   }

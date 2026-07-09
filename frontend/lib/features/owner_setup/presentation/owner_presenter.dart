@@ -98,15 +98,29 @@ OwnerStaffTogglePresentation ownerStaffTogglePresentation(bool nextActive) {
 }
 
 OwnerActivityPresentation ownerActivityPresentation(OwnerActivity activity) {
-  final hasPoints = activity.pointsGranted > 0;
   return OwnerActivityPresentation(
     subtitle:
         '${activity.customerName} · ${activity.staffName} · ${ownerFormatActivityTime(activity.createdAt)}',
-    badgeLabel: hasPoints
-        ? '+${activity.pointsGranted} pts'
-        : activity.actionType.replaceAll('_', ' '),
-    badgeTone: hasPoints ? BadgeTone.success : BadgeTone.neutral,
+    badgeLabel: ownerActivityBadgeLabel(activity),
+    badgeTone: ownerActivityBadgeTone(activity),
   );
+}
+
+String ownerActivityBadgeLabel(OwnerActivity activity) {
+  if (activity.pointsGranted > 0) {
+    return '+${activity.pointsGranted} pts';
+  }
+  if (activity.actionType == 'reward_use') {
+    return 'Reward used';
+  }
+  return activity.actionType.replaceAll('_', ' ');
+}
+
+BadgeTone ownerActivityBadgeTone(OwnerActivity activity) {
+  if (activity.pointsGranted > 0 || activity.actionType == 'reward_use') {
+    return BadgeTone.success;
+  }
+  return BadgeTone.neutral;
 }
 
 String ownerFormatActivityTime(DateTime value) {

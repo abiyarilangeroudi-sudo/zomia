@@ -59,7 +59,7 @@ CustomerLoyaltyStepsState customerLoyaltyStepsState({
       ),
       CustomerLoyaltyStep(
         title: 'Use your first reward',
-        subtitle: 'Show your QR to staff and ask them to use your reward.',
+        subtitle: 'Show your QR to staff so they can use your reward.',
         isDone: status?.hasUsedFirstReward ?? false,
       ),
     ],
@@ -97,7 +97,7 @@ List<CustomerRewardEntry> customerRewardEntriesByStatus(
 
 String customerRewardBadgeLabel(CustomerReward reward) {
   return switch (reward.status) {
-    'active' => 'Active',
+    'active' => 'Ready to use',
     'used' => 'Used',
     'expired' => 'Expired',
     _ => reward.status.replaceAll('_', ' '),
@@ -149,7 +149,13 @@ BadgeTone customerBadgeTone(String value) {
 }
 
 String customerRewardExpiresLabel(CustomerReward reward) {
-  return 'Expires ${customerFormatDateTime(reward.expiresAt)}';
+  if (reward.status == 'active') {
+    return 'Show your QR to staff before ${customerFormatDateTime(reward.expiresAt)}';
+  }
+  if (reward.status == 'used' && reward.usedAt != null) {
+    return 'Used ${customerFormatDateTime(reward.usedAt!)}';
+  }
+  return 'Expired ${customerFormatDateTime(reward.expiresAt)}';
 }
 
 String customerFormatDateTime(DateTime value) {

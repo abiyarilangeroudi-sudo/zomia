@@ -1,4 +1,5 @@
 import '../domain/staff_service_models.dart';
+import '../../../app/ui/status_badge.dart';
 
 int selectedActionPoints({
   required List<StaffServiceMission> missions,
@@ -42,6 +43,20 @@ String actionRegisteredMessage({
 
 String rewardUsedMessage(GeneratedReward reward) {
   return 'Reward marked as used.';
+}
+
+String staffActionBadgeLabel(StaffRecentAction action) {
+  if (action.pointsGranted > 0) {
+    return '+${action.pointsGranted} pts';
+  }
+  return formatStaffActionType(action.actionType);
+}
+
+BadgeTone staffActionBadgeTone(StaffRecentAction action) {
+  if (action.pointsGranted > 0 || action.actionType == 'reward_use') {
+    return BadgeTone.success;
+  }
+  return BadgeTone.neutral;
 }
 
 String rewardExpiresLabel(GeneratedReward reward) {
