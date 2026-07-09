@@ -929,3 +929,52 @@ Open production decisions are tracked in:
   - Active frontend symlink points to `/var/www/zomia/releases/202607092312_reward_use_clarity`.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
+
+## 2026-07-09 Pre-Pilot Production Data Reset
+
+- Project owner approval: yes, requested in the Codex thread on 2026-07-09.
+- Goal: remove production test data before first real-customer private pilot.
+- Scope: production server `178.104.74.107` only; local development data was intentionally not reset.
+- Runbook used: `Docs/deployment/pre-pilot-production-data-reset-runbook.md`.
+- Backend release before and after reset: `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+- Frontend release before and after reset: `/var/www/zomia/releases/202607092312_reward_use_clarity`.
+- Frontend version during reset: `1.0.144 (145)`.
+- Pre-reset health: `https://zomia.eu/health` returned `{"status":"ok"}`.
+- Pre-reset Alembic current: `0013_remove_paused_status (head)`.
+- Pre-reset local backup: `zomia-20260709-233917.dump`.
+- Pre-reset encrypted off-server backup: `zomia-20260709-233917.dump.gpg`.
+- Operational note: an earlier manual offsite attempt was mistakenly run with `sudo` and failed because root did not have the Storage Box host key; the backup/offsite step was rerun as the cron user `delopram` and passed before any reset command was executed.
+- Backend stopped before reset: yes; `zomia-backend.service` reported `inactive`.
+- Schema reset completed: yes.
+- Alembic migrations re-applied from base to head.
+- Alembic current after reset: `0013_remove_paused_status (head)`.
+- Empty-state verification passed:
+  - `users`: `0`
+  - `businesses`: `0`
+  - `staff_members`: `0`
+  - `staff_invitations`: `0`
+  - `missions`: `0`
+  - `reward_templates`: `0`
+  - `campaigns`: `0`
+  - `loyalty_actions`: `0`
+  - `generated_rewards`: `0`
+  - `reward_usages`: `0`
+  - `customer_qr_tokens`: `0`
+- Backend restarted successfully; `zomia-backend.service` reported `active`.
+- Post-reset health: `https://zomia.eu/health` returned `{"status":"ok"}`.
+- Production smoke check passed:
+  - `https://zomia.eu/health` returned status ok.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.144 (145)`.
+  - `https://zomia.eu/webapp/?v=production-smoke-20260709234256` returned `200`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`.
+- Post-reset local baseline backup: `zomia-20260709-234359.dump`.
+- Post-reset encrypted off-server baseline backup: `zomia-20260709-234359.dump.gpg`.
+- Final verification:
+  - Backend active.
+  - Health ok.
+  - Alembic head confirmed.
+  - Sum of rows across the checked application tables: `0`.
+- No seeded accounts after reset: confirmed.
+- First real Owner must register through the Business Register UI.
