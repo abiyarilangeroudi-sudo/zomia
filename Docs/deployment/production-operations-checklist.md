@@ -795,3 +795,39 @@ Open production decisions are tracked in:
   - Active frontend symlink points to `/var/www/zomia/releases/202607091522_owner_setup_assets`.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
+
+## 2026-07-09 Customer Onboarding Flags And Setup Assets Copy
+
+- Backend release: `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+- Frontend release: `/var/www/zomia/releases/202607092037_customer_onboarding_flags`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.141 (142)`.
+- Git commit deployed: `761cf7d Stabilize customer loyalty onboarding tasks`.
+- Changes:
+  - `/customers/me/status` now returns historical customer onboarding flags: `has_earned_first_point`, `has_earned_first_reward`, and `has_used_first_reward`.
+  - Customer Home loyalty tasks now use backend-owned historical flags instead of current campaign cycle progress.
+  - Repeatable campaigns can move to a new cycle without making `Earn your first point` appear incomplete again.
+  - Owner Loyalty `Setup assets` copy now labels Mission and Reward Template assets more clearly.
+- Backend, frontend, and API docs changed; database schema did not change.
+- Migration status:
+  - No new migration was added.
+  - Production `alembic current` returned `0013_remove_paused_status (head)`.
+  - Backend `alembic upgrade head` was not run because the schema did not change.
+- Local verification passed before deploy:
+  - `backend/.venv/bin/python -m pytest app/tests/test_loyalty.py` returned `49 passed`.
+  - `flutter test` returned `43 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.141 (142)`.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `zomia-backend.service` was active after restart.
+  - Backend journal showed normal restart, health checks, and expected unauthenticated `401` only.
+  - `https://zomia.eu/webapp/?v=1.0.141-142-customer-onboarding-flags` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.141 (142)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607092037_customer_onboarding_flags`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
