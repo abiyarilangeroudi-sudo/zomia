@@ -978,3 +978,46 @@ Open production decisions are tracked in:
   - Sum of rows across the checked application tables: `0`.
 - No seeded accounts after reset: confirmed.
 - First real Owner must register through the Business Register UI.
+
+## 2026-07-10 Registration And Loyalty Concurrency Hardening
+
+- Backend release: `/opt/zomia/backend/releases/202607100125_hardening`.
+- Frontend release: `/var/www/zomia/releases/202607100125_hardening`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.145 (146)`.
+- Git commit deployed: `83f6761 Harden registration and loyalty concurrency`.
+- Backup before migration:
+  - Local backup: `zomia-20260710-012244.dump`.
+  - Encrypted off-server backup: `zomia-20260710-012244.dump.gpg`.
+- Changes:
+  - Pending Customer and Owner registration records store a password hash instead of a plaintext password.
+  - Concurrent Staff action and reward-use requests have server-side locking and stable idempotency replay behavior.
+  - Concurrent frontend token refresh requests share one rotating refresh operation.
+  - Staff action timestamps are server-owned.
+  - Production configuration fails during startup when required security, HTTPS, email, or SMTP settings are invalid.
+  - Staff recent activity accepts a bounded `limit` from 1 to 50.
+  - Staff Home hides the `Use active reward` card when the scanned customer has no active rewards.
+- Local verification passed before deploy:
+  - Backend test suite returned `120 passed`.
+  - Frontend test suite returned `45 passed`.
+  - Backend lint passed.
+  - `flutter analyze` returned no issues.
+  - `git diff --check` returned clean.
+  - Manual QA passed locally.
+- Migration status:
+  - Production `alembic current` before migration returned `0013_remove_paused_status`.
+  - Production `alembic upgrade head` applied `0014_scrub_registration_password`.
+  - Production `alembic current` after migration returned `0014_scrub_registration_password (head)`.
+- Deployment note:
+  - The first validation of the inactive release detected macOS `._*` metadata in the transfer artifact and stopped before either production symlink changed.
+  - The metadata was removed from the inactive release, application import and migration validation were rerun successfully, and only then were the symlinks switched.
+- Post-release checks passed:
+  - `zomia-backend.service` is active and its restart log contains a normal shutdown/startup sequence without application errors.
+  - `https://zomia.eu/health` returned status ok.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.145 (146)`.
+  - `https://zomia.eu/webapp/?v=production-smoke-20260710013001` returned `200`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`.
+  - Active backend and frontend symlinks point to the hardening releases listed above.
