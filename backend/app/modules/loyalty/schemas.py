@@ -116,6 +116,9 @@ class CustomerBusinessStatusRead(BaseModel):
 class CustomerStatusRead(BaseModel):
     customer_id: uuid.UUID
     active_rewards_count: int
+    has_earned_first_point: bool = False
+    has_earned_first_reward: bool = False
+    has_used_first_reward: bool = False
     businesses: list[CustomerBusinessStatusRead]
 
 

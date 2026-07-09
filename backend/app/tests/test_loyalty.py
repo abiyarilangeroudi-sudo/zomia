@@ -676,6 +676,9 @@ def test_customer_reads_reward_status_history(client: TestClient) -> None:
     body = status_response.json()
     assert body["customer_id"] == customer_id
     assert body["active_rewards_count"] == 1
+    assert body["has_earned_first_point"] is True
+    assert body["has_earned_first_reward"] is True
+    assert body["has_used_first_reward"] is False
     assert len(body["businesses"]) == 1
     assert body["businesses"][0]["business_id"] == business_id
     reward = body["businesses"][0]["rewards"][0]
@@ -699,6 +702,9 @@ def test_customer_reads_reward_status_history(client: TestClient) -> None:
     assert used_status_response.status_code == 200
     used_body = used_status_response.json()
     assert used_body["active_rewards_count"] == 0
+    assert used_body["has_earned_first_point"] is True
+    assert used_body["has_earned_first_reward"] is True
+    assert used_body["has_used_first_reward"] is True
     assert len(used_body["businesses"]) == 1
     assert used_body["businesses"][0]["business_id"] == business_id
     assert used_body["businesses"][0]["rewards"][0]["id"] == reward["id"]

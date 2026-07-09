@@ -262,6 +262,9 @@ void main() {
       final status = CustomerStatus(
         customerId: 'customer-id',
         activeRewardsCount: 1,
+        hasEarnedFirstPoint: true,
+        hasEarnedFirstReward: true,
+        hasUsedFirstReward: true,
         businesses: [
           CustomerBusinessStatus(
             businessId: 'business-id',
@@ -354,12 +357,20 @@ void main() {
       );
     }
 
-    CustomerStatus statusWithRewards(List<CustomerReward> rewards) {
+    CustomerStatus statusWithRewards(
+      List<CustomerReward> rewards, {
+      bool hasEarnedFirstPoint = false,
+      bool hasEarnedFirstReward = false,
+      bool hasUsedFirstReward = false,
+    }) {
       return CustomerStatus(
         customerId: 'customer-id',
         activeRewardsCount: rewards
             .where((reward) => reward.status == 'active')
             .length,
+        hasEarnedFirstPoint: hasEarnedFirstPoint,
+        hasEarnedFirstReward: hasEarnedFirstReward,
+        hasUsedFirstReward: hasUsedFirstReward,
         businesses: [
           CustomerBusinessStatus(
             businessId: 'business-id',
@@ -374,6 +385,9 @@ void main() {
       status: const CustomerStatus(
         customerId: 'customer-id',
         activeRewardsCount: 0,
+        hasEarnedFirstPoint: false,
+        hasEarnedFirstReward: false,
+        hasUsedFirstReward: false,
         businesses: [],
       ),
       campaignProgresses: const [],
@@ -390,8 +404,8 @@ void main() {
     ]);
 
     final earnedPointState = customerLoyaltyStepsState(
-      status: statusWithRewards(const []),
-      campaignProgresses: [progressWithPoints(1)],
+      status: statusWithRewards(const [], hasEarnedFirstPoint: true),
+      campaignProgresses: [progressWithPoints(0)],
     );
 
     expect(earnedPointState.isComplete, isFalse);
@@ -399,8 +413,12 @@ void main() {
     expect(earnedPointState.nextStep?.title, 'Earn your first reward');
 
     final earnedRewardState = customerLoyaltyStepsState(
-      status: statusWithRewards([rewardWithStatus('active')]),
-      campaignProgresses: [progressWithPoints(10)],
+      status: statusWithRewards(
+        [rewardWithStatus('active')],
+        hasEarnedFirstPoint: true,
+        hasEarnedFirstReward: true,
+      ),
+      campaignProgresses: [progressWithPoints(0)],
     );
 
     expect(earnedRewardState.isComplete, isFalse);
@@ -408,8 +426,13 @@ void main() {
     expect(earnedRewardState.nextStep?.title, 'Use your first reward');
 
     final completeState = customerLoyaltyStepsState(
-      status: statusWithRewards([rewardWithStatus('used')]),
-      campaignProgresses: [progressWithPoints(1)],
+      status: statusWithRewards(
+        [rewardWithStatus('used')],
+        hasEarnedFirstPoint: true,
+        hasEarnedFirstReward: true,
+        hasUsedFirstReward: true,
+      ),
+      campaignProgresses: [progressWithPoints(0)],
     );
 
     expect(completeState.isComplete, isTrue);
@@ -766,8 +789,16 @@ void main() {
     );
 
     expect(find.text('Setup assets'), findsOneWidget);
-    expect(find.text('1 active mission'), findsOneWidget);
-    expect(find.text('1 active template'), findsOneWidget);
+    expect(find.text('Mission assets'), findsOneWidget);
+    expect(
+      find.text('1 active mission · staff actions earn points'),
+      findsOneWidget,
+    );
+    expect(find.text('Reward template assets'), findsOneWidget);
+    expect(
+      find.text('1 active template · campaigns create rewards'),
+      findsOneWidget,
+    );
     expect(find.text('Manage assets'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsNothing);
     expect(find.text('Free coffee · 30 days'), findsNothing);
@@ -776,7 +807,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Buy Coffee'), findsOneWidget);
+    expect(
+      find.text(
+        'Staff can use these only when they belong to an active campaign.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Gift'), findsOneWidget);
+    expect(
+      find.text('Campaigns use these to create customer rewards.'),
+      findsOneWidget,
+    );
     expect(find.text('Free coffee · 30 days'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Delete mission'));
@@ -1570,8 +1611,8 @@ void main() {
 
     expect(find.text('Campaigns'), findsOneWidget);
     expect(find.text('Setup assets'), findsOneWidget);
-    expect(find.text('Missions'), findsOneWidget);
-    expect(find.text('Reward templates'), findsOneWidget);
+    expect(find.text('Mission assets'), findsOneWidget);
+    expect(find.text('Reward template assets'), findsOneWidget);
     expect(find.text('Manage assets'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
     expect(find.text('10 pts · non-repeatable'), findsOneWidget);
@@ -2019,6 +2060,9 @@ class _FakeCustomerQrRepository extends CustomerQrRepository {
     return CustomerStatus(
       customerId: 'customer-id',
       activeRewardsCount: 1,
+      hasEarnedFirstPoint: true,
+      hasEarnedFirstReward: true,
+      hasUsedFirstReward: true,
       businesses: [
         CustomerBusinessStatus(
           businessId: 'business-id',

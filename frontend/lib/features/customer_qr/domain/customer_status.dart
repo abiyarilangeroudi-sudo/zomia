@@ -2,6 +2,9 @@ class CustomerStatus {
   const CustomerStatus({
     required this.customerId,
     required this.activeRewardsCount,
+    required this.hasEarnedFirstPoint,
+    required this.hasEarnedFirstReward,
+    required this.hasUsedFirstReward,
     required this.businesses,
   });
 
@@ -9,6 +12,9 @@ class CustomerStatus {
     return CustomerStatus(
       customerId: json['customer_id'] as String,
       activeRewardsCount: json['active_rewards_count'] as int,
+      hasEarnedFirstPoint: json['has_earned_first_point'] as bool? ?? false,
+      hasEarnedFirstReward: json['has_earned_first_reward'] as bool? ?? false,
+      hasUsedFirstReward: json['has_used_first_reward'] as bool? ?? false,
       businesses: (json['businesses'] as List<dynamic>? ?? [])
           .map(
             (item) =>
@@ -20,6 +26,9 @@ class CustomerStatus {
 
   final String customerId;
   final int activeRewardsCount;
+  final bool hasEarnedFirstPoint;
+  final bool hasEarnedFirstReward;
+  final bool hasUsedFirstReward;
   final List<CustomerBusinessStatus> businesses;
 }
 

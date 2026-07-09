@@ -45,33 +45,22 @@ CustomerLoyaltyStepsState customerLoyaltyStepsState({
   required CustomerStatus? status,
   required List<CustomerCampaignProgress> campaignProgresses,
 }) {
-  final hasEarnedPoint = campaignProgresses.any(
-    (progress) => progress.progressPoints > 0,
-  );
-  final rewards = [
-    for (final business
-        in status?.businesses ?? const <CustomerBusinessStatus>[])
-      ...business.rewards,
-  ];
-  final hasEarnedReward = rewards.isNotEmpty;
-  final hasUsedReward = rewards.any((reward) => reward.status == 'used');
-
   return CustomerLoyaltyStepsState(
     steps: [
       CustomerLoyaltyStep(
         title: 'Earn your first point',
         subtitle: 'Ask staff to scan your QR and register your visit.',
-        isDone: hasEarnedPoint,
+        isDone: status?.hasEarnedFirstPoint ?? false,
       ),
       CustomerLoyaltyStep(
         title: 'Earn your first reward',
         subtitle: 'Complete a campaign to unlock your first reward.',
-        isDone: hasEarnedReward,
+        isDone: status?.hasEarnedFirstReward ?? false,
       ),
       CustomerLoyaltyStep(
         title: 'Use your first reward',
         subtitle: 'Show your QR to staff and ask them to use your reward.',
-        isDone: hasUsedReward,
+        isDone: status?.hasUsedFirstReward ?? false,
       ),
     ],
   );

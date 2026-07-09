@@ -471,6 +471,39 @@ class LoyaltyRepository:
             )
         )
 
+    def customer_has_points(self, customer_id: uuid.UUID) -> bool:
+        return (
+            self.db.scalar(
+                select(PointsLedgerEntry.id)
+                .where(PointsLedgerEntry.customer_id == customer_id)
+                .limit(1)
+            )
+            is not None
+        )
+
+    def customer_has_reward(self, customer_id: uuid.UUID) -> bool:
+        return (
+            self.db.scalar(
+                select(GeneratedReward.id)
+                .where(GeneratedReward.customer_id == customer_id)
+                .limit(1)
+            )
+            is not None
+        )
+
+    def customer_has_used_reward(self, customer_id: uuid.UUID) -> bool:
+        return (
+            self.db.scalar(
+                select(GeneratedReward.id)
+                .where(
+                    GeneratedReward.customer_id == customer_id,
+                    GeneratedReward.status == RewardStatus.USED,
+                )
+                .limit(1)
+            )
+            is not None
+        )
+
     def list_businesses_by_ids(self, business_ids: set[uuid.UUID]) -> list[Business]:
         if not business_ids:
             return []

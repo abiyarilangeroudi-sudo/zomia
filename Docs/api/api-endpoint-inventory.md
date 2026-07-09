@@ -101,7 +101,7 @@ Unused endpoint policy:
 | GET | `/owner/activity/recent` | owner | Owner recent actions dialog | active | Business-wide staff activity for the owner. |
 | POST | `/staff/actions` | staff | API/dev and non-QR staff flow | active | Registers action by explicit customer id. Flutter staff panel uses QR endpoint instead. |
 | GET | `/customers/me/points` | customer | API/dev | internal | Customer total points are not shown in MVP UI. |
-| GET | `/customers/me/status` | customer | Customer rewards/profile | active | Customer reward/status summary. |
+| GET | `/customers/me/status` | customer | Customer rewards/profile | active | Customer reward/status summary. Includes backend-owned first loyalty flow flags: `has_earned_first_point`, `has_earned_first_reward`, and `has_used_first_reward`. |
 | GET | `/customers/me/campaigns/progress` | customer | Customer campaign tab | active | Backend owns campaign progress state and labels. |
 | GET | `/customers/me/campaigns/{campaign_id}/progress` | customer | API/dev | internal | Single-campaign progress lookup. |
 | GET | `/customers/me/rewards` | customer | Customer reward tab | active | Returns active/used reward records for customer UI. |

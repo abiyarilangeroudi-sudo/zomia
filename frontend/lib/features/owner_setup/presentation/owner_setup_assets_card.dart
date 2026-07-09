@@ -49,11 +49,12 @@ class OwnerSetupAssetsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return OwnerSetupCard(
       title: 'Setup assets',
-      subtitle: 'Missions and reward templates used to build campaigns.',
+      subtitle: 'Reusable pieces for building campaigns.',
       children: [
         AppListRow(
-          title: 'Missions',
-          subtitle: _countLabel(missions.length, 'active mission'),
+          title: 'Mission assets',
+          subtitle:
+              '${_countLabel(missions.length, 'active mission')} · staff actions earn points',
           leadingIcon: Icons.task_alt_rounded,
           trailing: StatusBadge(
             label: missions.length.toString(),
@@ -62,8 +63,9 @@ class OwnerSetupAssetsCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         AppListRow(
-          title: 'Reward templates',
-          subtitle: _countLabel(rewardTemplates.length, 'active template'),
+          title: 'Reward template assets',
+          subtitle:
+              '${_countLabel(rewardTemplates.length, 'active template')} · campaigns create rewards',
           leadingIcon: Icons.card_giftcard_rounded,
           trailing: StatusBadge(
             label: rewardTemplates.length.toString(),
@@ -188,7 +190,9 @@ class _OwnerSetupAssetsDialogState extends State<OwnerSetupAssetsDialog> {
                 onClearSuccess: _clearSuccess,
               ),
               OwnerSetupCard(
-                title: 'Missions',
+                title: 'Mission assets',
+                subtitle:
+                    'Staff can use these only when they belong to an active campaign.',
                 children: [
                   OwnerMissionListContent(
                     missions: _missions,
@@ -201,7 +205,8 @@ class _OwnerSetupAssetsDialogState extends State<OwnerSetupAssetsDialog> {
               ),
               const SizedBox(height: 16),
               OwnerSetupCard(
-                title: 'Reward Templates',
+                title: 'Reward template assets',
+                subtitle: 'Campaigns use these to create customer rewards.',
                 children: [
                   OwnerRewardTemplateListContent(
                     rewardTemplates: _rewardTemplates,

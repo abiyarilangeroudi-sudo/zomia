@@ -518,6 +518,9 @@ class LoyaltyService:
         return CustomerStatusRead(
             customer_id=customer.id,
             active_rewards_count=active_rewards_count,
+            has_earned_first_point=self.repository.customer_has_points(customer.id),
+            has_earned_first_reward=self.repository.customer_has_reward(customer.id),
+            has_used_first_reward=self.repository.customer_has_used_reward(customer.id),
             businesses=business_statuses,
         )
 
