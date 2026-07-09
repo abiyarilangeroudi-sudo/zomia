@@ -891,3 +891,32 @@ Open production decisions are tracked in:
   - Active frontend symlink points to `/var/www/zomia/releases/202607092211_staff_service_polish`.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
+
+## 2026-07-09 Reward Use Clarity Polish
+
+- Frontend release: `/var/www/zomia/releases/202607092312_reward_use_clarity`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Backend release unchanged: `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+- Frontend version: `1.0.144 (145)`.
+- Git commit deployed: `8f2812b Clarify reward use flow`.
+- Changes:
+  - Customer Reward active cards now show `Ready to use` instead of `Active`.
+  - Active reward expiry copy now tells the customer to show their QR to staff before expiry.
+  - Used rewards in Customer Reward Archive now show the used timestamp when available.
+  - Staff reward-use confirmation copy now explains that the reward moves to Used.
+  - Staff and Owner activity badges now show `Reward used` with success tone for reward-use actions.
+- Frontend only; backend, database schema, API contracts, and migrations did not change.
+- Local verification passed before deploy:
+  - `flutter test` returned `43 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.144 (145)`.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/?v=1.0.144-145-reward-use-clarity` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.144 (145)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607092312_reward_use_clarity`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
