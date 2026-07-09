@@ -755,3 +755,43 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
 - Local post-deploy recovery:
   - `scripts/build_frontend_local.sh` rebuilt `1.0.139 (140)` for `http://127.0.0.1:8080/`.
+
+## 2026-07-09 Owner Setup Assets Polish And Active Campaign Eligibility
+
+- Backend release: `/opt/zomia/backend/releases/202607091522_owner_setup_assets`.
+- Frontend release: `/var/www/zomia/releases/202607091522_owner_setup_assets`.
+- Active backend symlink: `/opt/zomia/backend/current`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Frontend version: `1.0.140 (141)`.
+- Git commits deployed:
+  - `6a4bfd8 Restrict staff actions to active campaigns`.
+  - `e9e3c81 Polish owner loyalty setup assets`.
+- Changes:
+  - Staff action registration is limited to missions attached to currently active campaigns.
+  - Backdated staff actions can no longer create progress for ended or expired campaigns.
+  - Owner first setup now requires an active campaign instead of only any campaign record.
+  - Owner Loyalty setup assets are managed through a compact `Manage assets` fullscreen dialog.
+  - Setup assets dialog now refreshes visible Mission and Reward Template lists after edit/delete/archive actions.
+- Backend and frontend changed; database schema did not change.
+- Migration status:
+  - No new migration was added.
+  - Production `alembic current` returned `0013_remove_paused_status (head)`.
+  - Backend `alembic upgrade head` was not run because the schema did not change.
+- Local verification passed before deploy:
+  - `backend/.venv/bin/python -m pytest app/tests/test_loyalty.py` returned `49 passed`.
+  - `backend/.venv/bin/python -m pytest` returned `108 passed`.
+  - `flutter analyze` returned no issues.
+  - `flutter test` returned `43 passed`.
+  - `scripts/build_frontend_production.sh` built `1.0.140 (141)`.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `zomia-backend.service` was active after restart.
+  - Backend journal showed normal restart, health checks, and expected unauthenticated `401` only.
+  - `https://zomia.eu/webapp/?v=1.0.140-141-owner-setup-assets` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.140 (141)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607091522_owner_setup_assets`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607091522_owner_setup_assets`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
