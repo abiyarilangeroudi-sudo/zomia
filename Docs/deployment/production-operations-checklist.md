@@ -223,6 +223,14 @@ Recommended MVP setup:
 
 ## Post-Release Check
 
+Run the repeatable smoke script after each frontend deploy:
+
+```bash
+make production-smoke
+```
+
+The script reads the expected webapp version from `frontend/pubspec.yaml` by default. Override with `EXPECTED_VERSION`, `EXPECTED_BUILD`, `BASE_URL`, or `CACHE_BUSTER` only when checking a non-standard target.
+
 After each release, check:
 
 - `https://zomia.eu/webapp/` opens.
@@ -247,6 +255,7 @@ Run role smoke tests only when the release risk requires it:
 For the first real-customer private pilot, use:
 
 - `Docs/deployment/first-private-pilot-onboarding-plan.md`
+- `Docs/deployment/pre-pilot-production-data-reset-runbook.md`
 
 ## Pre-Pilot Operational Final Pass
 

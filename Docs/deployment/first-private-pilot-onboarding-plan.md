@@ -70,6 +70,10 @@ Before the first real customer session, production test data will be fully reset
 
 This reset must not be executed during ordinary development. It is paused until the project owner explicitly requests it, expected on the day before the first real customer meeting.
 
+Detailed execution steps live in:
+
+- `Docs/deployment/pre-pilot-production-data-reset-runbook.md`
+
 ## Pre-Private-Pilot Production Data Reset Execution Text
 
 When the project owner explicitly requests the reset, execute the following flow:
