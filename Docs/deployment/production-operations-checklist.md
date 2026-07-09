@@ -863,3 +863,31 @@ Open production decisions are tracked in:
   - Active frontend symlink points to `/var/www/zomia/releases/202607092142_owner_profile_team_polish`.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
+
+## 2026-07-09 Staff Service Workflow Polish
+
+- Frontend release: `/var/www/zomia/releases/202607092211_staff_service_polish`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Backend release unchanged: `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+- Frontend version: `1.0.143 (144)`.
+- Git commit deployed: `1c5fa88 Polish staff service workflow`.
+- Changes:
+  - Staff service now shows `Use active reward` before `Register mission action` after customer confirmation.
+  - Staff service keeps customer recent actions visible after the reward and mission-action sections.
+  - Mission and reward section copy is clearer for staff service work.
+  - Staff action success messages now distinguish reward unlock, points added, and idempotent replay.
+- Frontend only; backend, database schema, API contracts, and migrations did not change.
+- Local verification passed before deploy:
+  - `flutter test` returned `43 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.143 (144)`.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/?v=1.0.143-144-staff-service-polish` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.143 (144)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607092211_staff_service_polish`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
