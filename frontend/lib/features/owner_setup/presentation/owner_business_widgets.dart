@@ -10,11 +10,13 @@ class OwnerBusinessPicker extends StatelessWidget {
     required this.businesses,
     required this.selectedBusiness,
     required this.onChanged,
+    required this.onEdit,
   });
 
   final List<OwnerBusiness> businesses;
   final OwnerBusiness? selectedBusiness;
   final ValueChanged<OwnerBusiness?> onChanged;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,12 @@ class OwnerBusinessPicker extends StatelessWidget {
                     .firstOrNull,
               );
             },
+          ),
+          const SizedBox(height: 12),
+          SecondaryButton(
+            label: 'Edit business',
+            icon: Icons.edit_rounded,
+            onPressed: selectedBusiness == null ? null : onEdit,
           ),
         ],
       ),
@@ -165,125 +173,145 @@ class _OwnerBusinessSettingsDialogState
                 ),
                 const SizedBox(height: 16),
               ],
-              AppCard(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      AppTextField(
-                        controller: _nameController,
-                        label: 'Business name',
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if ((value?.trim() ?? '').length < 2) {
-                            return 'Business name is required.';
-                          }
-                          return null;
-                        },
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionHeader(title: 'Business profile'),
+                          const SizedBox(height: 12),
+                          AppTextField(
+                            controller: _nameController,
+                            label: 'Business name',
+                            textInputAction: TextInputAction.next,
+                            validator: (value) {
+                              if ((value?.trim() ?? '').length < 2) {
+                                return 'Business name is required.';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          SelectField<String>(
+                            label: 'Category',
+                            value: _category,
+                            options: businessCategoryOptions
+                                .map(
+                                  (option) => SelectFieldOption(
+                                    value: option.value,
+                                    label: option.label,
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: widget.isSaving
+                                ? null
+                                : (value) => setState(() => _category = value),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      SelectField<String>(
-                        label: 'Category',
-                        value: _category,
-                        options: businessCategoryOptions
-                            .map(
-                              (option) => SelectFieldOption(
-                                value: option.value,
-                                label: option.label,
-                              ),
-                            )
-                            .toList(),
-                        onChanged: widget.isSaving
-                            ? null
-                            : (value) => setState(() => _category = value),
+                    ),
+                    const SizedBox(height: 16),
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionHeader(title: 'Public contact'),
+                          const SizedBox(height: 12),
+                          AppTextField(
+                            controller: _publicEmailController,
+                            label: 'Public email',
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            controller: _publicPhoneController,
+                            label: 'Public phone',
+                            keyboardType: TextInputType.phone,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            controller: _websiteController,
+                            label: 'Website',
+                            keyboardType: TextInputType.url,
+                            textInputAction: TextInputAction.next,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _publicEmailController,
-                        label: 'Public email',
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 16),
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionHeader(title: 'Address'),
+                          const SizedBox(height: 12),
+                          AppTextField(
+                            controller: _addressLine1Controller,
+                            label: 'Address line 1',
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            controller: _addressLine2Controller,
+                            label: 'Address line 2',
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            controller: _cityController,
+                            label: 'City',
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            controller: _regionController,
+                            label: 'Region',
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            controller: _postalCodeController,
+                            label: 'Postal code',
+                            textInputAction: TextInputAction.next,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _publicPhoneController,
-                        label: 'Public phone',
-                        keyboardType: TextInputType.phone,
-                        textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 16),
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SectionHeader(title: 'Advanced'),
+                          const SizedBox(height: 12),
+                          AppTextField(
+                            controller: _countryCodeController,
+                            label: 'Country code',
+                            enabled: false,
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            controller: _timezoneController,
+                            label: 'Timezone',
+                            enabled: false,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _websiteController,
-                        label: 'Website',
-                        keyboardType: TextInputType.url,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _addressLine1Controller,
-                        label: 'Address line 1',
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _addressLine2Controller,
-                        label: 'Address line 2',
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _cityController,
-                        label: 'City',
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _regionController,
-                        label: 'Region',
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _postalCodeController,
-                        label: 'Postal code',
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _countryCodeController,
-                        label: 'Country code',
-                        textCapitalization: TextCapitalization.characters,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if ((value?.trim() ?? '').length != 2) {
-                            return 'Use a 2-letter country code.';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextField(
-                        controller: _timezoneController,
-                        label: 'Timezone',
-                        textInputAction: TextInputAction.done,
-                        validator: (value) {
-                          if ((value?.trim() ?? '').isEmpty) {
-                            return 'Timezone is required.';
-                          }
-                          return null;
-                        },
-                        onSubmitted: (_) => _save(),
-                      ),
-                      const SizedBox(height: 24),
-                      PrimaryButton(
-                        label: 'Save business',
-                        icon: Icons.check_rounded,
-                        isLoading: widget.isSaving,
-                        onPressed: widget.isSaving ? null : _save,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 24),
+                    PrimaryButton(
+                      label: 'Save business',
+                      icon: Icons.check_rounded,
+                      isLoading: widget.isSaving,
+                      onPressed: widget.isSaving ? null : _save,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -298,7 +326,6 @@ class _OwnerBusinessSettingsDialogState
       return;
     }
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     final saved = await widget.onSave(
       name: _nameController.text,
       category: _category,
@@ -317,6 +344,5 @@ class _OwnerBusinessSettingsDialogState
       return;
     }
     navigator.pop();
-    messenger.showSnackBar(const SnackBar(content: Text('Business updated.')));
   }
 }

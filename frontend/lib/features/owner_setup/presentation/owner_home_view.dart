@@ -15,6 +15,7 @@ class OwnerHomeView extends StatelessWidget {
     required this.onCreateRewardTemplate,
     required this.onCreateCampaign,
     required this.onInviteStaff,
+    required this.onEditBusiness,
   });
 
   final OwnerSetupController controller;
@@ -22,6 +23,7 @@ class OwnerHomeView extends StatelessWidget {
   final VoidCallback onCreateRewardTemplate;
   final VoidCallback onCreateCampaign;
   final VoidCallback onInviteStaff;
+  final VoidCallback onEditBusiness;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class OwnerHomeView extends StatelessWidget {
             businesses: controller.businesses,
             selectedBusiness: controller.selectedBusiness,
             onChanged: controller.selectBusiness,
+            onEdit: onEditBusiness,
           ),
           const SizedBox(height: 16),
           OwnerSetupChecklist(

@@ -121,6 +121,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                       onCreateCampaign: () =>
                           openOwnerCampaignCreateDialog(context, _controller),
                       onInviteStaff: _openCreateStaffDialog,
+                      onEditBusiness: _openBusinessSettingsDialog,
                     ),
                   ),
                 ),

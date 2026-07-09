@@ -1605,6 +1605,34 @@ void main() {
     expect(find.byTooltip('Recent activity'), findsOneWidget);
     expect(find.text('Create Mission'), findsNothing);
     expect(find.text('Buy Coffee'), findsNothing);
+    expect(find.text('Edit business'), findsOneWidget);
+
+    await tester.tap(find.text('Edit business'));
+    await pumpAppFrames(tester);
+
+    expect(find.text('Business Settings'), findsOneWidget);
+    expect(find.text('Business profile'), findsOneWidget);
+    expect(find.text('Public contact'), findsOneWidget);
+    expect(find.text('Address'), findsOneWidget);
+    expect(find.text('Advanced'), findsOneWidget);
+    await _enterTextByLabel(tester, 'Business name', 'Updated Cafe');
+    await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bakery').last);
+    await tester.pumpAndSettle();
+    await _enterTextByLabel(tester, 'Public email', 'hello@updated.example');
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Save business'),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save business'));
+    await pumpAppFrames(tester);
+
+    expect(ownerRepository.businessName, 'Updated Cafe');
+    expect(ownerRepository.updatedBusinessCategory, 'bakery');
+    expect(ownerRepository.updatedBusinessPublicEmail, 'hello@updated.example');
+    expect(find.text('Business updated.'), findsOneWidget);
+    expect(find.text('Updated Cafe'), findsWidgets);
 
     await tester.tap(find.text('Loyalty'));
     await pumpAppFrames(tester);
@@ -1696,29 +1724,6 @@ void main() {
     expect(find.text('owner@example.com'), findsOneWidget);
     expect(find.text('Account Settings'), findsOneWidget);
     expect(find.text('Create Staff'), findsNothing);
-
-    await tester.tap(find.text('Zomia Cafe').last);
-    await pumpAppFrames(tester);
-
-    expect(find.text('Business Settings'), findsOneWidget);
-    await _enterTextByLabel(tester, 'Business name', 'Updated Cafe');
-    await tester.tap(find.byType(DropdownButtonFormField<String>).last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Bakery').last);
-    await tester.pumpAndSettle();
-    await _enterTextByLabel(tester, 'Public email', 'hello@updated.example');
-    await tester.ensureVisible(
-      find.widgetWithText(FilledButton, 'Save business'),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Save business'));
-    await pumpAppFrames(tester);
-
-    expect(ownerRepository.businessName, 'Updated Cafe');
-    expect(ownerRepository.updatedBusinessCategory, 'bakery');
-    expect(ownerRepository.updatedBusinessPublicEmail, 'hello@updated.example');
-    expect(find.text('Business updated.'), findsOneWidget);
-    expect(find.text('Updated Cafe'), findsWidgets);
 
     await tester.tap(find.text('Account Settings'));
     await pumpAppFrames(tester);
