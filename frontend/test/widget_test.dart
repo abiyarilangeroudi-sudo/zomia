@@ -1666,10 +1666,21 @@ void main() {
     await pumpAppFrames(tester);
 
     expect(find.text('Create Staff'), findsNothing);
+    expect(find.text('Pending invitations'), findsOneWidget);
+    expect(
+      find.text('Waiting for staff to accept the invitation email.'),
+      findsOneWidget,
+    );
+    expect(find.text('Staff members'), findsOneWidget);
+    expect(find.text('People who can scan customer QR codes.'), findsOneWidget);
     expect(find.text('Setup Staff'), findsOneWidget);
     expect(find.text('setup-staff@example.com'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('pending-staff@example.com'), findsWidgets);
+    expect(
+      find.text('Invitation sent to pending-staff@example.com'),
+      findsOneWidget,
+    );
     expect(find.text('Pending'), findsOneWidget);
     expect(find.byTooltip('Deactivate staff'), findsOneWidget);
     expect(find.byTooltip('Cancel invitation'), findsOneWidget);

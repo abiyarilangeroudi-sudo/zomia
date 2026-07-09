@@ -6,9 +6,14 @@ import 'owner_setup_shared_widgets.dart';
 import 'owner_staff_widgets.dart';
 
 class OwnerTeamView extends StatelessWidget {
-  const OwnerTeamView({super.key, required this.controller});
+  const OwnerTeamView({
+    super.key,
+    required this.controller,
+    required this.onInviteStaff,
+  });
 
   final OwnerSetupController controller;
+  final VoidCallback onInviteStaff;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +34,7 @@ class OwnerTeamView extends StatelessWidget {
           OwnerStaffListCard(
             staffMembers: controller.staffForSelectedBusiness,
             isSaving: controller.isSaving,
+            onInviteStaff: onInviteStaff,
             onSetStaffActive: controller.setStaffActive,
             onCancelInvitation: controller.cancelStaffInvitation,
           ),

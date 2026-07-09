@@ -131,7 +131,10 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 ),
                 DashboardScroll(
                   maxWidth: 760,
-                  child: OwnerTeamView(controller: _controller),
+                  child: OwnerTeamView(
+                    controller: _controller,
+                    onInviteStaff: _openCreateStaffDialog,
+                  ),
                 ),
               ],
             ),

@@ -10,12 +10,14 @@ class OwnerStaffListCard extends StatelessWidget {
     super.key,
     required this.staffMembers,
     required this.isSaving,
+    required this.onInviteStaff,
     required this.onSetStaffActive,
     required this.onCancelInvitation,
   });
 
   final List<OwnerStaffMember> staffMembers;
   final bool isSaving;
+  final VoidCallback onInviteStaff;
   final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
   onSetStaffActive;
   final Future<void> Function(OwnerStaffMember staffMember) onCancelInvitation;
@@ -28,6 +30,7 @@ class OwnerStaffListCard extends StatelessWidget {
         OwnerStaffList(
           staffMembers: staffMembers,
           isSaving: isSaving,
+          onInviteStaff: onInviteStaff,
           onSetStaffActive: onSetStaffActive,
           onCancelInvitation: onCancelInvitation,
         ),
@@ -106,12 +109,14 @@ class OwnerStaffList extends StatelessWidget {
     super.key,
     required this.staffMembers,
     required this.isSaving,
+    required this.onInviteStaff,
     required this.onSetStaffActive,
     required this.onCancelInvitation,
   });
 
   final List<OwnerStaffMember> staffMembers;
   final bool isSaving;
+  final VoidCallback onInviteStaff;
   final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
   onSetStaffActive;
   final Future<void> Function(OwnerStaffMember staffMember) onCancelInvitation;
@@ -119,63 +124,102 @@ class OwnerStaffList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (staffMembers.isEmpty) {
-      return const EmptyStateView(
-        icon: Icons.person_rounded,
-        title: 'No staff yet',
-        message: 'Staff invitations and members will appear here.',
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const EmptyStateView(
+            icon: Icons.person_add_alt_1_rounded,
+            title: 'Invite your first staff member',
+            message:
+                'Staff can scan customer QR codes and register mission actions.',
+          ),
+          const SizedBox(height: 12),
+          SecondaryButton(
+            label: 'Invite staff',
+            icon: Icons.person_add_alt_1_rounded,
+            onPressed: isSaving ? null : onInviteStaff,
+          ),
+        ],
       );
     }
 
+    final pendingInvitations = staffMembers
+        .where((staffMember) => staffMember.isPending)
+        .toList();
+    final activeStaff = staffMembers
+        .where((staffMember) => !staffMember.isPending)
+        .toList();
+
     return Column(
-      children: staffMembers
-          .map(
-            (staffMember) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: AppListRow(
-                title: staffMember.fullName ?? staffMember.email,
-                subtitle: staffMember.email,
-                leadingIcon: staffMember.isPending
-                    ? Icons.mark_email_unread_rounded
-                    : Icons.person_rounded,
-                trailing: Wrap(
-                  spacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    StatusBadge(
-                      label: ownerStaffStatusLabel(staffMember),
-                      tone: ownerStaffStatusTone(staffMember),
-                    ),
-                    if (staffMember.isPending)
-                      IconButton(
-                        tooltip: 'Cancel invitation',
-                        onPressed: isSaving
-                            ? null
-                            : () => _confirmCancelInvitation(
-                                context,
-                                staffMember,
-                              ),
-                        icon: const Icon(Icons.delete_outline_rounded),
-                      )
-                    else
-                      IconButton(
-                        tooltip: staffMember.isActive
-                            ? 'Deactivate staff'
-                            : 'Activate staff',
-                        onPressed: isSaving
-                            ? null
-                            : () => _confirmToggle(context, staffMember),
-                        icon: Icon(
-                          staffMember.isActive
-                              ? Icons.person_off_rounded
-                              : Icons.person_add_alt_1_rounded,
-                        ),
-                      ),
-                  ],
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (pendingInvitations.isNotEmpty) ...[
+          const SectionHeader(
+            title: 'Pending invitations',
+            subtitle: 'Waiting for staff to accept the invitation email.',
+          ),
+          const SizedBox(height: 8),
+          ...pendingInvitations.map(
+            (staffMember) => _staffRow(context, staffMember),
+          ),
+          if (activeStaff.isNotEmpty) const SizedBox(height: 8),
+        ],
+        if (activeStaff.isNotEmpty) ...[
+          const SectionHeader(
+            title: 'Staff members',
+            subtitle: 'People who can scan customer QR codes.',
+          ),
+          const SizedBox(height: 8),
+          ...activeStaff.map((staffMember) => _staffRow(context, staffMember)),
+        ],
+      ],
+    );
+  }
+
+  Widget _staffRow(BuildContext context, OwnerStaffMember staffMember) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: AppListRow(
+        title: staffMember.fullName ?? staffMember.email,
+        subtitle: staffMember.isPending
+            ? 'Invitation sent to ${staffMember.email}'
+            : staffMember.email,
+        leadingIcon: staffMember.isPending
+            ? Icons.mark_email_unread_rounded
+            : Icons.person_rounded,
+        trailing: Wrap(
+          spacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            StatusBadge(
+              label: ownerStaffStatusLabel(staffMember),
+              tone: ownerStaffStatusTone(staffMember),
+            ),
+            if (staffMember.isPending)
+              IconButton(
+                tooltip: 'Cancel invitation',
+                onPressed: isSaving
+                    ? null
+                    : () => _confirmCancelInvitation(context, staffMember),
+                icon: const Icon(Icons.delete_outline_rounded),
+              )
+            else
+              IconButton(
+                tooltip: staffMember.isActive
+                    ? 'Deactivate staff'
+                    : 'Activate staff',
+                onPressed: isSaving
+                    ? null
+                    : () => _confirmToggle(context, staffMember),
+                icon: Icon(
+                  staffMember.isActive
+                      ? Icons.person_off_rounded
+                      : Icons.person_add_alt_1_rounded,
                 ),
               ),
-            ),
-          )
-          .toList(),
+          ],
+        ),
+      ),
     );
   }
 
