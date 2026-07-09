@@ -831,3 +831,35 @@ Open production decisions are tracked in:
   - Active frontend symlink points to `/var/www/zomia/releases/202607092037_customer_onboarding_flags`.
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
+
+## 2026-07-09 Owner Business And Team Polish
+
+- Frontend release: `/var/www/zomia/releases/202607092142_owner_profile_team_polish`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Backend release unchanged: `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+- Frontend version: `1.0.142 (143)`.
+- Git commits deployed:
+  - `4d85939 Improve owner business profile editing`.
+  - `d956a13 Polish owner team staff invitations`.
+  - `3946cad Bump webapp version for owner polish release`.
+- Changes:
+  - Owner Home Business card now exposes a direct `Edit business` action.
+  - Business Settings dialog is grouped into Business profile, Public contact, Address, and Advanced sections.
+  - Country code and timezone are shown as read-only advanced fields for MVP.
+  - Owner Team now separates pending invitations from active/inactive staff members.
+  - Empty Owner Team state now guides the owner to invite the first staff member.
+- Frontend only; backend, database schema, API contracts, and migrations did not change.
+- Local verification passed before deploy:
+  - `flutter test` returned `43 passed`.
+  - `flutter analyze` returned no issues.
+  - `scripts/build_frontend_production.sh` built `1.0.142 (143)`.
+- Manual QA passed locally before deploy.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/?v=1.0.142-143-owner-profile-team-polish` returned `200`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.142 (143)`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - Active backend symlink points to `/opt/zomia/backend/releases/202607092037_customer_onboarding_flags`.
+  - Active frontend symlink points to `/var/www/zomia/releases/202607092142_owner_profile_team_polish`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`, confirming backend auth guard is reachable.
