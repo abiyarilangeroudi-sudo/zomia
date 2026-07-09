@@ -5,8 +5,24 @@ from app.core.config import Settings
 from app.core.monitoring import _scrub_sentry_event, setup_sentry
 
 
+def production_settings(**overrides) -> Settings:
+    values = {
+        "APP_ENV": "production",
+        "JWT_SECRET_KEY": "a-production-secret-with-more-than-32-characters",
+        "EMAIL_DELIVERY_MODE": "smtp",
+        "FRONTEND_BASE_URL": "https://zomia.eu/webapp",
+        "CORS_ALLOWED_ORIGINS": "https://zomia.eu",
+        "SMTP_HOST": "smtp.example.com",
+        "SMTP_USERNAME": "smtp-user",
+        "SMTP_PASSWORD": "smtp-password",
+        "SMTP_FROM_EMAIL": "noreply@example.com",
+    }
+    values.update(overrides)
+    return Settings(**values)
+
+
 def test_sentry_is_disabled_without_dsn() -> None:
-    settings = Settings(APP_ENV="production", SENTRY_DSN=None)
+    settings = production_settings(SENTRY_DSN=None)
 
     setup_sentry(settings)
 
@@ -25,8 +41,7 @@ def test_sentry_initializes_in_production_with_dsn(monkeypatch) -> None:
 
     monkeypatch.setattr(monitoring, "_sentry_initialized", False)
     monkeypatch.setitem(__import__("sys").modules, "sentry_sdk", SimpleNamespace(init=fake_init))
-    settings = Settings(
-        APP_ENV="production",
+    settings = production_settings(
         SENTRY_DSN="https://example@sentry.invalid/1",
         SENTRY_TRACES_SAMPLE_RATE=0.0,
     )

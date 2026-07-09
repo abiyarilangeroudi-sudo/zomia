@@ -283,6 +283,23 @@ def test_staff_lists_own_recent_service_actions(client: TestClient) -> None:
     assert body[0]["summary"] == "Visit x1"
 
 
+def test_staff_recent_actions_rejects_out_of_range_limit(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+
+    too_small = client.get(
+        f"/api/v1/staff/service/recent-actions?business_id={business_id}&limit=0",
+        headers=auth(staff_token),
+    )
+    too_large = client.get(
+        f"/api/v1/staff/service/recent-actions?business_id={business_id}&limit=51",
+        headers=auth(staff_token),
+    )
+
+    assert too_small.status_code == 422
+    assert too_large.status_code == 422
+
+
 def test_staff_uses_reward_using_qr_service_endpoint(
     client: TestClient, db_session: Session
 ) -> None:

@@ -30,6 +30,24 @@ class OwnerRegister(UserCreate):
         return normalized
 
 
+class PendingUserRegistration(BaseModel):
+    email: EmailStr
+    password_hash: str = Field(min_length=32, max_length=255)
+    full_name: str = Field(min_length=2, max_length=120)
+    phone: str | None = Field(default=None, max_length=32)
+
+
+class PendingOwnerRegistration(PendingUserRegistration):
+    business_name: str = Field(min_length=2, max_length=160)
+    business_category: str | None = Field(default=None, max_length=80)
+    public_phone: str | None = Field(default=None, max_length=32)
+
+    @field_validator("business_category")
+    @classmethod
+    def validate_business_category(cls, value: str | None) -> str | None:
+        return OwnerRegister.validate_business_category(value)
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str

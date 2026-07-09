@@ -17,7 +17,19 @@ def test_api_docs_are_available_outside_production(monkeypatch) -> None:
 
 
 def test_api_docs_are_disabled_in_production(monkeypatch) -> None:
-    monkeypatch.setenv("APP_ENV", "production")
+    production_env = {
+        "APP_ENV": "production",
+        "JWT_SECRET_KEY": "a-production-secret-with-more-than-32-characters",
+        "EMAIL_DELIVERY_MODE": "smtp",
+        "FRONTEND_BASE_URL": "https://zomia.eu/webapp",
+        "CORS_ALLOWED_ORIGINS": "https://zomia.eu",
+        "SMTP_HOST": "smtp.example.com",
+        "SMTP_USERNAME": "smtp-user",
+        "SMTP_PASSWORD": "smtp-password",
+        "SMTP_FROM_EMAIL": "noreply@example.com",
+    }
+    for key, value in production_env.items():
+        monkeypatch.setenv(key, value)
     get_settings.cache_clear()
     app = create_app()
 

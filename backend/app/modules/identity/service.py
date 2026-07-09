@@ -27,6 +27,8 @@ from app.modules.identity.schemas import (
     BusinessUpdate,
     CustomerProfileUpdate,
     OwnerRegister,
+    PendingOwnerRegistration,
+    PendingUserRegistration,
     StaffContextBusinessRead,
     StaffContextRead,
     StaffCreate,
@@ -78,7 +80,10 @@ class IdentityService:
         return self._start_pending_registration(
             email=payload.email,
             purpose=CUSTOMER_REGISTRATION_PURPOSE,
-            payload=payload.model_dump(mode="json"),
+            payload=PendingUserRegistration(
+                **payload.model_dump(mode="json", exclude={"password"}),
+                password_hash=hash_password(payload.password),
+            ).model_dump(mode="json"),
             enqueue_email=enqueue_email,
         )
 
@@ -88,10 +93,10 @@ class IdentityService:
             code=code,
             purpose=CUSTOMER_REGISTRATION_PURPOSE,
         )
-        user_payload = UserCreate.model_validate(otp.payload_json)
-        user = self._create_user(
-            user_payload,
-            UserRole.CUSTOMER,
+        pending = PendingUserRegistration.model_validate(otp.payload_json)
+        user = self._create_pending_user(
+            pending,
+            role=UserRole.CUSTOMER,
             email_verified_at=datetime.now(UTC),
         )
         return self._issue_token_pair(user)
@@ -110,7 +115,10 @@ class IdentityService:
         return self._start_pending_registration(
             email=payload.email,
             purpose=OWNER_REGISTRATION_PURPOSE,
-            payload=payload.model_dump(mode="json"),
+            payload=PendingOwnerRegistration(
+                **payload.model_dump(mode="json", exclude={"password"}),
+                password_hash=hash_password(payload.password),
+            ).model_dump(mode="json"),
             enqueue_email=enqueue_email,
         )
 
@@ -120,10 +128,10 @@ class IdentityService:
             code=code,
             purpose=OWNER_REGISTRATION_PURPOSE,
         )
-        payload = OwnerRegister.model_validate(otp.payload_json)
-        owner = self._create_user(
+        payload = PendingOwnerRegistration.model_validate(otp.payload_json)
+        owner = self._create_pending_user(
             payload,
-            UserRole.OWNER,
+            role=UserRole.OWNER,
             email_verified_at=datetime.now(UTC),
         )
         business = self._build_business(
@@ -749,6 +757,26 @@ class IdentityService:
                 email=payload.email.lower(),
                 phone=payload.phone,
                 password_hash=hash_password(payload.password),
+                full_name=payload.full_name,
+                role=role,
+                email_verified_at=email_verified_at,
+            )
+        )
+
+    def _create_pending_user(
+        self,
+        payload: PendingUserRegistration,
+        *,
+        role: UserRole,
+        email_verified_at: datetime,
+    ) -> User:
+        if self.repository.get_user_by_email(str(payload.email)) is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+        return self.repository.add_user(
+            User(
+                email=str(payload.email).lower(),
+                phone=payload.phone,
+                password_hash=payload.password_hash,
                 full_name=payload.full_name,
                 role=role,
                 email_verified_at=email_verified_at,

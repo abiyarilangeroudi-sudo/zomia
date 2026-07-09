@@ -185,6 +185,8 @@ SMTP_USE_TLS=true
 Rules:
 
 - `JWT_SECRET_KEY` must be generated with high entropy for production.
+- Backend startup fails in production when `JWT_SECRET_KEY` is shorter than 32 characters,
+  SMTP delivery is incomplete, `OTP_TEST_CODE` is set, or frontend/CORS URLs are not HTTPS.
 - `.env` files must stay outside Git.
 - SMTP sender identity must be reviewed with SPF, DKIM, and DMARC before launch.
 - Production CORS must include only the real frontend origin.

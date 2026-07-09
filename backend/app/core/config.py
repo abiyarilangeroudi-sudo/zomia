@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -40,6 +40,36 @@ class Settings(BaseSettings):
         default="http://localhost:8080,http://127.0.0.1:8080",
         alias="CORS_ALLOWED_ORIGINS",
     )
+
+    @model_validator(mode="after")
+    def validate_production_settings(self) -> "Settings":
+        if self.app_env.lower() != "production":
+            return self
+
+        errors: list[str] = []
+        if self.jwt_secret_key == "change-me-in-production" or len(self.jwt_secret_key) < 32:
+            errors.append("JWT_SECRET_KEY must contain at least 32 characters")
+        if self.otp_test_code is not None:
+            errors.append("OTP_TEST_CODE must not be set")
+        if self.email_delivery_mode != "smtp":
+            errors.append("EMAIL_DELIVERY_MODE must be smtp")
+        if not self.frontend_base_url.startswith("https://"):
+            errors.append("FRONTEND_BASE_URL must use https")
+        if any(not origin.startswith("https://") for origin in self.cors_origins):
+            errors.append("CORS_ALLOWED_ORIGINS must contain only https origins")
+        if any(
+            value is None
+            for value in (
+                self.smtp_host,
+                self.smtp_username,
+                self.smtp_password,
+                self.smtp_from_email,
+            )
+        ):
+            errors.append("SMTP settings are incomplete")
+        if errors:
+            raise ValueError("Invalid production configuration: " + "; ".join(errors))
+        return self
 
     @property
     def cors_origins(self) -> list[str]:

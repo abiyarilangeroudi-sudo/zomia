@@ -144,6 +144,67 @@ def test_customer_registration_login_and_me(client: TestClient) -> None:
     assert me_response.json()["email"] == "customer@example.com"
 
 
+def test_pending_registration_stores_only_a_password_hash(
+    client: TestClient, db_session: Session
+) -> None:
+    raw_password = "registration-secret"
+    response = client.post(
+        "/api/v1/auth/register/customer/start",
+        json={
+            "email": "hashed-pending@example.com",
+            "password": raw_password,
+            "full_name": "Hashed Pending",
+        },
+    )
+
+    assert response.status_code == 202
+    otp = db_session.query(EmailVerificationOtp).one()
+    assert "password" not in otp.payload_json
+    assert otp.payload_json["password_hash"] != raw_password
+
+    verify_response = client.post(
+        "/api/v1/auth/register/customer/verify",
+        json={"email": "hashed-pending@example.com", "code": "123456"},
+    )
+    assert verify_response.status_code == 200
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "hashed-pending@example.com", "password": raw_password},
+    )
+    assert login_response.status_code == 200
+
+
+def test_pending_owner_registration_stores_only_a_password_hash(
+    client: TestClient, db_session: Session
+) -> None:
+    raw_password = "owner-registration-secret"
+    response = client.post(
+        "/api/v1/auth/register/owner/start",
+        json={
+            "email": "hashed-owner@example.com",
+            "password": raw_password,
+            "full_name": "Hashed Owner",
+            "business_name": "Hashed Cafe",
+        },
+    )
+
+    assert response.status_code == 202
+    otp = db_session.query(EmailVerificationOtp).one()
+    assert "password" not in otp.payload_json
+    assert otp.payload_json["password_hash"] != raw_password
+
+    verify_response = client.post(
+        "/api/v1/auth/register/owner/verify",
+        json={"email": "hashed-owner@example.com", "code": "123456"},
+    )
+    assert verify_response.status_code == 200
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "hashed-owner@example.com", "password": raw_password},
+    )
+    assert login_response.status_code == 200
+
+
 def test_email_verification_message_is_branded(db_session: Session) -> None:
     email_sender = FakeEmailSender()
     service = IdentityService(

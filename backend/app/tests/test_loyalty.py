@@ -15,6 +15,7 @@ from app.modules.loyalty.models import (
     PointsLedgerEntry,
     RewardUsage,
 )
+from app.modules.loyalty.repository import LoyaltyRepository
 
 
 def register_owner(
@@ -739,6 +740,51 @@ def test_duplicate_idempotency_key_returns_previous_action_without_extra_points(
     assert db_session.query(PointsLedgerEntry).count() == 1
 
 
+def test_idempotency_conflict_recovers_as_replay(
+    client: TestClient, db_session: Session, monkeypatch
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Visit", mission_type="visit")
+    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
+    payload = {
+        "business_id": business_id,
+        "customer_id": customer_id,
+        "idempotency_key": "concurrent-request-1",
+        "items": [{"mission_id": mission["id"], "quantity": 1}],
+    }
+    first = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+    assert first.status_code == 201
+
+    original_lookup = LoyaltyRepository.get_action_by_idempotency_key
+    lookup_count = 0
+
+    def hide_existing_action_once(self, *, business_id, idempotency_key):
+        nonlocal lookup_count
+        lookup_count += 1
+        if lookup_count == 1:
+            return None
+        return original_lookup(
+            self,
+            business_id=business_id,
+            idempotency_key=idempotency_key,
+        )
+
+    monkeypatch.setattr(
+        LoyaltyRepository,
+        "get_action_by_idempotency_key",
+        hide_existing_action_once,
+    )
+    replay = client.post("/api/v1/staff/actions", json=payload, headers=auth(staff_token))
+
+    assert replay.status_code == 201
+    assert replay.json()["idempotency_replayed"] is True
+    assert replay.json()["action_id"] == first.json()["action_id"]
+    assert db_session.query(LoyaltyAction).count() == 1
+    assert db_session.query(PointsLedgerEntry).count() == 1
+
+
 def test_staff_only_sees_missions_from_active_campaigns(client: TestClient) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
@@ -1169,6 +1215,30 @@ def test_idempotency_replay_does_not_duplicate_campaign_completion(
     assert db_session.query(CampaignCompletion).count() == 1
 
 
+def test_staff_cannot_override_action_timestamp(client: TestClient, db_session: Session) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=5)
+    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "client-owned-time",
+            "occurred_at": (datetime.now(UTC) - timedelta(days=1)).isoformat(),
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 422
+    assert db_session.query(LoyaltyAction).count() == 0
+    assert db_session.query(PointsLedgerEntry).count() == 0
+
+
 def test_staff_cannot_register_action_before_campaign_window(
     client: TestClient, db_session: Session
 ) -> None:
@@ -1192,7 +1262,6 @@ def test_staff_cannot_register_action_before_campaign_window(
             "business_id": business_id,
             "customer_id": customer_id,
             "idempotency_key": "campaign-window-1",
-            "occurred_at": datetime.now(UTC).isoformat(),
             "items": [{"mission_id": mission["id"], "quantity": 1}],
         },
         headers=auth(staff_token),
@@ -1232,7 +1301,6 @@ def test_action_before_campaign_creation_does_not_count_for_progress(
             "business_id": business_id,
             "customer_id": customer_id,
             "idempotency_key": "pre-campaign-action",
-            "occurred_at": datetime.now(UTC).isoformat(),
             "items": [{"mission_id": mission["id"], "quantity": 1}],
         },
         headers=auth(staff_token),
@@ -1292,7 +1360,6 @@ def test_ended_campaign_returns_backend_owned_progress_status(
             "business_id": business_id,
             "customer_id": customer_id,
             "idempotency_key": "campaign-ended-status",
-            "occurred_at": (starts_at + timedelta(days=1)).isoformat(),
             "items": [{"mission_id": mission["id"], "quantity": 1}],
         },
         headers=auth(staff_token),
@@ -1395,7 +1462,6 @@ def test_repeatable_campaign_does_not_create_new_cycle_after_end(
             "business_id": business_id,
             "customer_id": customer_id,
             "idempotency_key": "repeatable-before-end",
-            "occurred_at": (now - timedelta(days=1)).isoformat(),
             "items": [{"mission_id": mission["id"], "quantity": 2}],
         },
         headers=auth(staff_token),
@@ -1413,7 +1479,6 @@ def test_repeatable_campaign_does_not_create_new_cycle_after_end(
             "business_id": business_id,
             "customer_id": customer_id,
             "idempotency_key": "repeatable-after-end",
-            "occurred_at": now.isoformat(),
             "items": [{"mission_id": mission["id"], "quantity": 2}],
         },
         headers=auth(staff_token),

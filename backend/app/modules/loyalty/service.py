@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 
 from app.modules.identity.models import User, UserRole
 from app.modules.loyalty.models import (
@@ -363,6 +364,28 @@ class LoyaltyService:
     def register_action(
         self, staff: User, payload: RegisterActionRequest
     ) -> RegisterActionResponse:
+        try:
+            with self.repository.begin_nested():
+                return self._register_action_once(staff, payload)
+        except IntegrityError as error:
+            existing_action = self.repository.get_action_by_idempotency_key(
+                business_id=payload.business_id,
+                idempotency_key=payload.idempotency_key,
+            )
+            if existing_action is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Concurrent loyalty update. Please retry",
+                ) from error
+            return self._replay_action(
+                staff=staff,
+                payload=payload,
+                action=existing_action,
+            )
+
+    def _register_action_once(
+        self, staff: User, payload: RegisterActionRequest
+    ) -> RegisterActionResponse:
         self._require_role(staff, UserRole.STAFF)
         if (
             self.repository.get_staff_membership(
@@ -379,15 +402,11 @@ class LoyaltyService:
             business_id=payload.business_id, idempotency_key=payload.idempotency_key
         )
         if existing_action is not None:
-            self._audit(
-                event_type=AuditEventType.IDEMPOTENCY_REPLAYED,
-                actor_user_id=staff.id,
-                business_id=payload.business_id,
-                entity_type="loyalty_action",
-                entity_id=existing_action.id,
-                metadata={"idempotency_key": payload.idempotency_key},
+            return self._replay_action(
+                staff=staff,
+                payload=payload,
+                action=existing_action,
             )
-            return self._action_response(existing_action, idempotency_replayed=True)
 
         customer = self.repository.get_user(payload.customer_id)
         if not self.repository.is_customer(customer):
@@ -404,7 +423,6 @@ class LoyaltyService:
                 detail="One or more missions were not found",
             )
         now = datetime.now(UTC)
-        occurred_at = payload.occurred_at or now
         staff_action_missions = self.repository.get_staff_action_missions_by_ids(
             business_id=payload.business_id,
             mission_ids=mission_ids,
@@ -424,7 +442,7 @@ class LoyaltyService:
                 staff_id=staff.id,
                 action_type=LoyaltyActionType.MISSION_PROGRESS,
                 idempotency_key=payload.idempotency_key,
-                occurred_at=occurred_at,
+                occurred_at=now,
                 note=payload.note,
             )
         )
@@ -479,6 +497,23 @@ class LoyaltyService:
             action=action, action_items=created_items, actor_user_id=staff.id
         )
         return self._action_response(action, idempotency_replayed=False, items=created_items)
+
+    def _replay_action(
+        self,
+        *,
+        staff: User,
+        payload: RegisterActionRequest,
+        action: LoyaltyAction,
+    ) -> RegisterActionResponse:
+        self._audit(
+            event_type=AuditEventType.IDEMPOTENCY_REPLAYED,
+            actor_user_id=staff.id,
+            business_id=payload.business_id,
+            entity_type="loyalty_action",
+            entity_id=action.id,
+            metadata={"idempotency_key": payload.idempotency_key},
+        )
+        return self._action_response(action, idempotency_replayed=True)
 
     def get_customer_points(self, customer: User, business_id) -> CustomerPointsRead:
         self._require_role(customer, UserRole.CUSTOMER)
@@ -557,30 +592,26 @@ class LoyaltyService:
             business_id=payload.business_id, idempotency_key=payload.idempotency_key
         )
         if existing_action is not None:
-            usage = self.repository.get_reward_usage_for_reward(reward_id)
-            reward = self.repository.get_generated_reward(reward_id)
-            if usage is None or reward is None or usage.action_id != existing_action.id:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail="Idempotency key is already used for another operation",
-                )
-            self._audit(
-                event_type=AuditEventType.IDEMPOTENCY_REPLAYED,
-                actor_user_id=staff.id,
-                business_id=payload.business_id,
-                entity_type="reward_usage",
-                entity_id=usage.id,
-                metadata={"idempotency_key": payload.idempotency_key},
-            )
-            return UseRewardResponse(
-                reward=self._reward_read(reward),
-                usage=usage,
-                idempotency_replayed=True,
+            return self._replay_reward_use(
+                staff=staff,
+                reward_id=reward_id,
+                payload=payload,
+                action=existing_action,
             )
 
-        reward = self.repository.get_generated_reward(reward_id)
+        reward = self.repository.get_generated_reward_for_update(reward_id)
         if reward is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reward not found")
+        existing_action = self.repository.get_action_by_idempotency_key(
+            business_id=payload.business_id, idempotency_key=payload.idempotency_key
+        )
+        if existing_action is not None:
+            return self._replay_reward_use(
+                staff=staff,
+                reward_id=reward_id,
+                payload=payload,
+                action=existing_action,
+            )
         if reward.redeem_scope != RewardRedeemScope.ISSUER_BUSINESS_ONLY:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -651,6 +682,35 @@ class LoyaltyService:
             reward=self._reward_read(reward),
             usage=usage,
             idempotency_replayed=False,
+        )
+
+    def _replay_reward_use(
+        self,
+        *,
+        staff: User,
+        reward_id,
+        payload: UseRewardRequest,
+        action: LoyaltyAction,
+    ) -> UseRewardResponse:
+        usage = self.repository.get_reward_usage_for_reward(reward_id)
+        reward = self.repository.get_generated_reward(reward_id)
+        if usage is None or reward is None or usage.action_id != action.id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Idempotency key is already used for another operation",
+            )
+        self._audit(
+            event_type=AuditEventType.IDEMPOTENCY_REPLAYED,
+            actor_user_id=staff.id,
+            business_id=payload.business_id,
+            entity_type="reward_usage",
+            entity_id=usage.id,
+            metadata={"idempotency_key": payload.idempotency_key},
+        )
+        return UseRewardResponse(
+            reward=self._reward_read(reward),
+            usage=usage,
+            idempotency_replayed=True,
         )
 
     def _evaluate_campaigns_for_action(

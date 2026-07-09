@@ -60,10 +60,11 @@ class ActionItemCreate(BaseModel):
 
 
 class RegisterActionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     business_id: uuid.UUID
     customer_id: uuid.UUID
     idempotency_key: str = Field(min_length=8, max_length=120)
-    occurred_at: datetime | None = None
     note: str | None = Field(default=None, max_length=500)
     items: list[ActionItemCreate] = Field(min_length=1)
 

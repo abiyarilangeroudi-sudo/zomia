@@ -236,7 +236,11 @@ class CampaignService:
             mission_ids=mission_ids,
             occurred_at=action.occurred_at,
         )
-        for campaign in campaigns:
+        for campaign in sorted(campaigns, key=lambda item: str(item.id)):
+            locked_campaign = self.repository.lock_campaign(campaign.id)
+            if locked_campaign is None or locked_campaign.status != CampaignStatus.ACTIVE:
+                continue
+            campaign = locked_campaign
             progress_points = self.repository.sum_campaign_points(
                 campaign=campaign, customer_id=action.customer_id
             )

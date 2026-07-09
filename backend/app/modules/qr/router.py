@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -69,7 +69,7 @@ def list_service_missions(
 @router.get("/staff/service/recent-actions", response_model=list[StaffRecentActionRead])
 def list_staff_recent_actions(
     business_id: uuid.UUID,
-    limit: int = 20,
+    limit: int = Query(default=20, ge=1, le=50),
     current_user: User = Depends(get_current_user),
     service: QrService = Depends(get_qr_service),
 ) -> list[StaffRecentActionRead]:

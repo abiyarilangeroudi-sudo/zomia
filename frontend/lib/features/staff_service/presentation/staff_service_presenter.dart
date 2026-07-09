@@ -1,6 +1,10 @@
 import '../domain/staff_service_models.dart';
 import '../../../app/ui/status_badge.dart';
 
+bool shouldShowActiveRewards(StaffServiceSummary? summary) {
+  return summary?.activeRewards.isNotEmpty ?? false;
+}
+
 int selectedActionPoints({
   required List<StaffServiceMission> missions,
   required Map<String, int> quantities,

@@ -86,7 +86,10 @@ class StaffServiceRepository {
         response.data ?? <String, dynamic>{},
       );
     } on DioException catch (error) {
-      throw AppException(_messageFor(error));
+      throw AppException(
+        _messageFor(error),
+        isAmbiguousRetry: _isAmbiguousWriteFailure(error),
+      );
     }
   }
 
@@ -107,7 +110,10 @@ class StaffServiceRepository {
       );
       return UseRewardResult.fromJson(response.data ?? <String, dynamic>{});
     } on DioException catch (error) {
-      throw AppException(_messageFor(error));
+      throw AppException(
+        _messageFor(error),
+        isAmbiguousRetry: _isAmbiguousWriteFailure(error),
+      );
     }
   }
 
@@ -123,6 +129,13 @@ class StaffServiceRepository {
     }
     return 'Something went wrong. Please try again.';
   }
+
+  bool _isAmbiguousWriteFailure(DioException error) {
+    return error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.connectionError;
+  }
 }
 
 String mapStaffServiceErrorDetail(String detail) {
@@ -137,6 +150,8 @@ String mapStaffServiceErrorDetail(String detail) {
     'Customer not found' => 'Customer not found. Please scan again.',
     'One or more missions are not available for staff action' =>
       'This mission is no longer available. Refresh the service screen.',
+    'Concurrent loyalty update. Please retry' =>
+      'Another loyalty update happened. Please try again.',
     'Reward not found' => 'Reward not found. Refresh the customer session.',
     'Reward does not belong to resolved customer' =>
       'This reward does not belong to the scanned customer.',

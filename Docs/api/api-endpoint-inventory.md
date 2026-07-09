@@ -99,7 +99,7 @@ Unused endpoint policy:
 | DELETE | `/owner/reward-templates/{reward_template_id}` | owner | Owner loyalty tools | active | Delete an unused reward template owned by the current Owner business; templates linked to campaigns or generated rewards are rejected. |
 | PATCH | `/owner/reward-templates/{reward_template_id}/active` | owner | Owner loyalty tools | active | Archive or reactivate a reward template owned by the current Owner business; archived templates are hidden from active setup and campaign creation. |
 | GET | `/owner/activity/recent` | owner | Owner recent actions dialog | active | Business-wide staff activity for the owner. |
-| POST | `/staff/actions` | staff | API/dev and non-QR staff flow | active | Registers action by explicit customer id. Flutter staff panel uses QR endpoint instead. |
+| POST | `/staff/actions` | staff | API/dev and non-QR staff flow | active | Registers action by explicit customer id using a server-owned timestamp. Client-supplied `occurred_at` is rejected. Flutter staff panel uses QR endpoint instead. |
 | GET | `/customers/me/points` | customer | API/dev | internal | Customer total points are not shown in MVP UI. |
 | GET | `/customers/me/status` | customer | Customer rewards/profile | active | Customer reward/status summary. Includes backend-owned first loyalty flow flags: `has_earned_first_point`, `has_earned_first_reward`, and `has_used_first_reward`. |
 | GET | `/customers/me/campaigns/progress` | customer | Customer campaign tab | active | Backend owns campaign progress state and labels. |
@@ -115,7 +115,7 @@ Unused endpoint policy:
 | POST | `/customers/me/qr-token/rotate` | customer | Customer QR dialog | active | Manual QR refresh. |
 | POST | `/staff/qr/resolve` | staff | Staff QR scan flow | active | Resolves QR into customer service summary. |
 | GET | `/staff/service/missions` | staff | Staff service panel | active | Lists missions staff can register for the selected business. |
-| GET | `/staff/service/recent-actions` | staff | Staff recent actions tab | active | Staff-owned recent actions, filtered by `staff_id` and business membership. Returns display-ready `summary`, `customer_name`, and `points_granted`. |
+| GET | `/staff/service/recent-actions` | staff | Staff recent actions tab | active | Staff-owned recent actions, filtered by `staff_id` and business membership. Returns display-ready `summary`, `customer_name`, and `points_granted`; `limit` defaults to 20 and accepts 1-50. |
 | POST | `/staff/service/actions` | staff | Staff service panel | active | Registers mission action using QR token. |
 | POST | `/staff/service/rewards/{reward_id}/use` | staff | Staff service panel | active | Uses reward using QR token and resolved customer. |
 

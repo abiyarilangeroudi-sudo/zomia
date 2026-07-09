@@ -273,6 +273,11 @@ attempt_count
 created_at
 ```
 
+For registration purposes, `payload_json` stores `password_hash` and never the
+raw password. Migration `0014_scrub_registration_password` invalidates
+older pending Customer and Owner registrations so plaintext registration
+passwords cannot remain in this table or future backups.
+
 Purpose enum:
 
 ```text

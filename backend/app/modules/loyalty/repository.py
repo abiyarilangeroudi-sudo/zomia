@@ -31,6 +31,9 @@ class LoyaltyRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
+    def begin_nested(self):
+        return self.db.begin_nested()
+
     def get_user(self, user_id: uuid.UUID) -> User | None:
         return self.db.get(User, user_id)
 
@@ -233,6 +236,11 @@ class LoyaltyRepository:
             select(Campaign)
             .options(selectinload(Campaign.reward_template_links))
             .where(Campaign.id == campaign_id)
+        )
+
+    def lock_campaign(self, campaign_id: uuid.UUID) -> Campaign | None:
+        return self.db.scalar(
+            select(Campaign).where(Campaign.id == campaign_id).with_for_update()
         )
 
     def get_active_individual_campaigns_for_action(
@@ -515,6 +523,13 @@ class LoyaltyRepository:
 
     def get_generated_reward(self, reward_id: uuid.UUID) -> GeneratedReward | None:
         return self.db.get(GeneratedReward, reward_id)
+
+    def get_generated_reward_for_update(self, reward_id: uuid.UUID) -> GeneratedReward | None:
+        return self.db.scalar(
+            select(GeneratedReward)
+            .where(GeneratedReward.id == reward_id)
+            .with_for_update()
+        )
 
     def get_reward_usage_for_reward(self, reward_id: uuid.UUID) -> RewardUsage | None:
         return self.db.scalar(

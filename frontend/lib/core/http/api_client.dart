@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/app_config.dart';
 import '../storage/secure_token_store.dart';
+import 'token_refresh_coordinator.dart';
 
 final sessionExpiredMessageProvider =
     NotifierProvider<SessionExpiredMessageNotifier, String?>(
@@ -29,6 +30,7 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 final dioProvider = Provider<Dio>((ref) {
   final config = ref.watch(appConfigProvider);
   final tokenStore = ref.watch(secureTokenStoreProvider);
+  final refreshCoordinator = TokenRefreshCoordinator();
 
   final dio = Dio(
     BaseOptions(
@@ -51,9 +53,12 @@ final dioProvider = Provider<Dio>((ref) {
       },
       onError: (error, handler) async {
         if (_shouldTryRefresh(error)) {
-          final refreshToken = await tokenStore.readRefreshToken();
-          if (refreshToken != null) {
-            try {
+          try {
+            final tokens = await refreshCoordinator.run(() async {
+              final refreshToken = await tokenStore.readRefreshToken();
+              if (refreshToken == null) {
+                throw StateError('Refresh token is unavailable');
+              }
               final response =
                   await Dio(
                     BaseOptions(
@@ -74,15 +79,16 @@ final dioProvider = Provider<Dio>((ref) {
                 accessToken: accessToken,
                 refreshToken: newRefreshToken,
               );
-              error.requestOptions.headers['Authorization'] =
-                  'Bearer $accessToken';
-              error.requestOptions.extra['zomia_refresh_retried'] = true;
-              return handler.resolve(await dio.fetch(error.requestOptions));
-            } on DioException {
-              await tokenStore.clear();
-              ref.read(sessionExpiredMessageProvider.notifier).setExpired();
-            }
-          } else {
+              return RefreshedTokenPair(
+                accessToken: accessToken,
+                refreshToken: newRefreshToken,
+              );
+            });
+            error.requestOptions.headers['Authorization'] =
+                'Bearer ${tokens.accessToken}';
+            error.requestOptions.extra['zomia_refresh_retried'] = true;
+            return handler.resolve(await dio.fetch(error.requestOptions));
+          } catch (_) {
             await tokenStore.clear();
             ref.read(sessionExpiredMessageProvider.notifier).setExpired();
           }

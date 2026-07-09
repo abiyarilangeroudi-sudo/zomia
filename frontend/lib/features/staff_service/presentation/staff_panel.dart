@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/ui.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../staff_context/domain/staff_context.dart';
 import '../data/staff_service_repository.dart';
 import '../domain/qr_token_input.dart';
+import '../domain/staff_service_attempt_keys.dart';
 import '../domain/staff_service_models.dart';
 import 'qr_scanner_sheet.dart';
 import 'staff_service_cards.dart';
@@ -27,6 +29,7 @@ class StaffPanel extends ConsumerStatefulWidget {
 class StaffPanelState extends ConsumerState<StaffPanel> {
   final _qrTokenController = TextEditingController();
   final Map<String, int> _quantities = {};
+  late final StaffServiceAttemptKeys _attemptKeys;
 
   List<StaffServiceMission> _missions = [];
   StaffServiceSummary? _summary;
@@ -41,6 +44,7 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
   @override
   void initState() {
     super.initState();
+    _attemptKeys = StaffServiceAttemptKeys(_newIdempotencyKey);
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadMissions());
   }
 
@@ -96,12 +100,14 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
           StaffCustomerRecentActionsCard(actions: _summary!.recentActions),
         ],
         if (_isCustomerConfirmed) ...[
-          const SizedBox(height: 16),
-          StaffRewardsCard(
-            rewards: _summary?.activeRewards ?? const [],
-            rewardInUseId: _rewardInUseId,
-            onUseReward: _useReward,
-          ),
+          if (shouldShowActiveRewards(_summary)) ...[
+            const SizedBox(height: 16),
+            StaffRewardsCard(
+              rewards: _summary!.activeRewards,
+              rewardInUseId: _rewardInUseId,
+              onUseReward: _useReward,
+            ),
+          ],
           const SizedBox(height: 16),
           StaffMissionCard(
             missions: _missions,
@@ -230,6 +236,12 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
     final activeRewardIdsBefore = _summary!.activeRewards
         .map((reward) => reward.id)
         .toSet();
+    const attemptScope = 'action';
+    final idempotencyKey = _attemptKeys.keyFor(
+      scope: attemptScope,
+      signature: _actionSignature(token, items),
+      prefix: 'action',
+    );
 
     setState(() {
       _isSubmittingAction = true;
@@ -242,13 +254,14 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
           .registerAction(
             businessId: widget.business.id,
             qrToken: token,
-            idempotencyKey: _newIdempotencyKey('action'),
+            idempotencyKey: idempotencyKey,
             items: items,
           );
       if (!mounted) {
         return;
       }
       setState(() {
+        _attemptKeys.resolve(attemptScope);
         _clearCustomerContext();
         _isSubmittingAction = false;
         _success = actionRegisteredMessage(
@@ -262,6 +275,9 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         return;
       }
       setState(() {
+        if (error is! AppException || !error.isAmbiguousRetry) {
+          _attemptKeys.resolve(attemptScope);
+        }
         _error = error.toString();
         _isSubmittingAction = false;
       });
@@ -278,6 +294,12 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
     if (!mounted || !shouldUse) {
       return;
     }
+    final attemptScope = 'reward:${reward.id}';
+    final idempotencyKey = _attemptKeys.keyFor(
+      scope: attemptScope,
+      signature: '${widget.business.id}|$token|${reward.id}',
+      prefix: 'reward',
+    );
 
     setState(() {
       _rewardInUseId = reward.id;
@@ -291,12 +313,13 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
             businessId: widget.business.id,
             qrToken: token,
             rewardId: reward.id,
-            idempotencyKey: _newIdempotencyKey('reward'),
+            idempotencyKey: idempotencyKey,
           );
       if (!mounted) {
         return;
       }
       setState(() {
+        _attemptKeys.resolve(attemptScope);
         _clearCustomerContext();
         _rewardInUseId = null;
         _success = rewardUsedMessage(reward);
@@ -307,6 +330,9 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
         return;
       }
       setState(() {
+        if (error is! AppException || !error.isAmbiguousRetry) {
+          _attemptKeys.resolve(attemptScope);
+        }
         _error = error.toString();
         _rewardInUseId = null;
       });
@@ -379,6 +405,15 @@ class StaffPanelState extends ConsumerState<StaffPanel> {
   String _newIdempotencyKey(String prefix) {
     final timestamp = DateTime.now().microsecondsSinceEpoch;
     return 'staff-${widget.business.id}-$prefix-$timestamp';
+  }
+
+  String _actionSignature(String token, List<StaffServiceActionItem> items) {
+    final normalizedItems = [...items]
+      ..sort((left, right) => left.missionId.compareTo(right.missionId));
+    final itemSignature = normalizedItems
+        .map((item) => '${item.missionId}:${item.quantity}')
+        .join(',');
+    return '${widget.business.id}|$token|$itemSignature';
   }
 
   Future<bool> _confirmRewardUse(GeneratedReward reward) async {

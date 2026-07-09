@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,7 @@ import 'package:zomia_frontend/app/ui/reward_card.dart';
 import 'package:zomia_frontend/app/ui/status_badge.dart';
 import 'package:zomia_frontend/app/zomia_app.dart';
 import 'package:zomia_frontend/core/http/api_client.dart';
+import 'package:zomia_frontend/core/http/token_refresh_coordinator.dart';
 import 'package:zomia_frontend/core/storage/secure_token_store.dart';
 import 'package:zomia_frontend/features/auth/data/auth_repository.dart';
 import 'package:zomia_frontend/features/auth/domain/current_user.dart';
@@ -30,6 +33,7 @@ import 'package:zomia_frontend/features/owner_setup/presentation/owner_setup_ass
 import 'package:zomia_frontend/features/owner_setup/presentation/owner_profile_widgets.dart';
 import 'package:zomia_frontend/features/staff_service/data/staff_service_repository.dart';
 import 'package:zomia_frontend/features/staff_service/domain/qr_token_input.dart';
+import 'package:zomia_frontend/features/staff_service/domain/staff_service_attempt_keys.dart';
 import 'package:zomia_frontend/features/staff_service/domain/staff_service_models.dart';
 import 'package:zomia_frontend/features/staff_service/presentation/staff_service_cards.dart';
 import 'package:zomia_frontend/features/staff_service/presentation/staff_service_presenter.dart';
@@ -55,6 +59,68 @@ void main() {
     );
   });
 
+  test('coalesces concurrent refresh token requests', () async {
+    final coordinator = TokenRefreshCoordinator();
+    final response = Completer<RefreshedTokenPair>();
+    var refreshCount = 0;
+
+    Future<RefreshedTokenPair> refresh() {
+      refreshCount += 1;
+      return response.future;
+    }
+
+    final first = coordinator.run(refresh);
+    final second = coordinator.run(refresh);
+    expect(refreshCount, 1);
+
+    response.complete(
+      const RefreshedTokenPair(
+        accessToken: 'next-access',
+        refreshToken: 'next-refresh',
+      ),
+    );
+    final results = await Future.wait([first, second]);
+    expect(results.map((result) => result.accessToken), [
+      'next-access',
+      'next-access',
+    ]);
+  });
+
+  test('reuses an idempotency key only for the same pending attempt', () {
+    var sequence = 0;
+    final keys = StaffServiceAttemptKeys(
+      (prefix) => '$prefix-${sequence += 1}',
+    );
+
+    final first = keys.keyFor(
+      scope: 'action',
+      signature: 'customer-a|mission-a:1',
+      prefix: 'action',
+    );
+    final retry = keys.keyFor(
+      scope: 'action',
+      signature: 'customer-a|mission-a:1',
+      prefix: 'action',
+    );
+    final changed = keys.keyFor(
+      scope: 'action',
+      signature: 'customer-a|mission-a:2',
+      prefix: 'action',
+    );
+
+    expect(retry, first);
+    expect(changed, isNot(first));
+    keys.resolve('action');
+    expect(
+      keys.keyFor(
+        scope: 'action',
+        signature: 'customer-a|mission-a:2',
+        prefix: 'action',
+      ),
+      isNot(changed),
+    );
+  });
+
   test('maps staff service backend errors to user-facing messages', () {
     expect(
       mapStaffServiceErrorDetail('QR token is not active'),
@@ -63,6 +129,10 @@ void main() {
     expect(
       mapStaffServiceErrorDetail('Reward is already used'),
       'This reward was already used.',
+    );
+    expect(
+      mapStaffServiceErrorDetail('Concurrent loyalty update. Please retry'),
+      'Another loyalty update happened. Please try again.',
     );
     expect(
       mapStaffServiceErrorDetail('Custom backend detail'),
@@ -253,6 +323,19 @@ void main() {
     expect(
       actionRegisteredMessage(result: result, activeRewardIdsBefore: const {}),
       'Action registered. Reward unlocked.',
+    );
+    expect(shouldShowActiveRewards(result.summary), isTrue);
+    expect(
+      shouldShowActiveRewards(
+        StaffServiceSummary(
+          businessId: result.summary.businessId,
+          customer: result.summary.customer,
+          points: result.summary.points,
+          activeRewards: const [],
+          recentActions: const [],
+        ),
+      ),
+      isFalse,
     );
   });
 
