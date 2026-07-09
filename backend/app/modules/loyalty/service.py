@@ -178,7 +178,9 @@ class LoyaltyService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Staff does not belong to this business",
             )
-        return self.repository.list_business_missions(business_id)
+        return self.repository.list_staff_action_missions(
+            business_id=business_id, now=datetime.now(UTC)
+        )
 
     def create_campaign(self, owner: User, payload: CampaignCreate) -> Campaign:
         return self.campaigns.create_campaign(owner, payload)
@@ -401,6 +403,18 @@ class LoyaltyService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="One or more missions were not found",
             )
+        occurred_at = payload.occurred_at or datetime.now(UTC)
+        staff_action_missions = self.repository.get_staff_action_missions_by_ids(
+            business_id=payload.business_id,
+            mission_ids=mission_ids,
+            occurred_at=occurred_at,
+        )
+        unavailable_missions = mission_ids - set(staff_action_missions)
+        if unavailable_missions:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="One or more missions are not available for staff action",
+            )
 
         action = self.repository.add_action(
             LoyaltyAction(
@@ -409,14 +423,14 @@ class LoyaltyService:
                 staff_id=staff.id,
                 action_type=LoyaltyActionType.MISSION_PROGRESS,
                 idempotency_key=payload.idempotency_key,
-                occurred_at=payload.occurred_at or datetime.now(UTC),
+                occurred_at=occurred_at,
                 note=payload.note,
             )
         )
 
         created_items: list[LoyaltyActionItem] = []
         for item_payload in payload.items:
-            mission = missions[item_payload.mission_id]
+            mission = staff_action_missions[item_payload.mission_id]
             total_points = item_payload.quantity * mission.point_value
             action_item = self.repository.add_action_item(
                 LoyaltyActionItem(

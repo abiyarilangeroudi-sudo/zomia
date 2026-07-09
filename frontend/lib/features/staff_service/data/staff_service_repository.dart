@@ -135,6 +135,8 @@ String mapStaffServiceErrorDetail(String detail) {
     'Staff does not belong to this business' =>
       'You do not have access to this business.',
     'Customer not found' => 'Customer not found. Please scan again.',
+    'One or more missions are not available for staff action' =>
+      'This mission is no longer available. Refresh the service screen.',
     'Reward not found' => 'Reward not found. Refresh the customer session.',
     'Reward does not belong to resolved customer' =>
       'This reward does not belong to the scanned customer.',

@@ -146,6 +146,13 @@ def test_staff_lists_service_missions_for_own_business(client: TestClient) -> No
     coffee = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
     cake = create_mission(client, owner_token, business_id, name="Buy Cake", point_value=5)
     create_mission(client, other_owner_token, other_business_id, name="Other Visit", point_value=2)
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[coffee["id"], cake["id"]],
+        threshold_points=99,
+    )
 
     response = client.get(
         f"/api/v1/staff/service/missions?business_id={business_id}",
@@ -235,6 +242,9 @@ def test_staff_lists_own_recent_service_actions(client: TestClient) -> None:
     )
     customer_token, _ = register_customer(client)
     mission = create_mission(client, owner_token, business_id, name="Visit", point_value=5)
+    create_campaign(
+        client, owner_token, business_id, mission_ids=[mission["id"]], threshold_points=99
+    )
     qr = issue_qr(client, customer_token)
     first = client.post(
         "/api/v1/staff/service/actions",

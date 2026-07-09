@@ -65,6 +65,25 @@ class LoyaltyRepository:
             )
         )
 
+    def list_staff_action_missions(self, *, business_id: uuid.UUID, now) -> list[Mission]:
+        return list(
+            self.db.scalars(
+                select(Mission)
+                .join(CampaignMission, CampaignMission.mission_id == Mission.id)
+                .join(Campaign, Campaign.id == CampaignMission.campaign_id)
+                .where(
+                    Mission.business_id == business_id,
+                    Mission.is_active.is_(True),
+                    Campaign.creator_business_id == business_id,
+                    Campaign.status == CampaignStatus.ACTIVE,
+                    Campaign.starts_at <= now,
+                    Campaign.ends_at >= now,
+                )
+                .distinct()
+                .order_by(Mission.created_at.asc())
+            )
+        )
+
     def get_business_mission(
         self, *, mission_id: uuid.UUID, business_id: uuid.UUID
     ) -> Mission | None:
@@ -115,6 +134,28 @@ class LoyaltyRepository:
                 Mission.id.in_(mission_ids),
                 Mission.is_active.is_(True),
             )
+        )
+        return {mission.id: mission for mission in missions}
+
+    def get_staff_action_missions_by_ids(
+        self, *, business_id: uuid.UUID, mission_ids: set[uuid.UUID], occurred_at
+    ) -> dict[uuid.UUID, Mission]:
+        if not mission_ids:
+            return {}
+        missions = self.db.scalars(
+            select(Mission)
+            .join(CampaignMission, CampaignMission.mission_id == Mission.id)
+            .join(Campaign, Campaign.id == CampaignMission.campaign_id)
+            .where(
+                Mission.business_id == business_id,
+                Mission.id.in_(mission_ids),
+                Mission.is_active.is_(True),
+                Campaign.creator_business_id == business_id,
+                Campaign.status == CampaignStatus.ACTIVE,
+                Campaign.starts_at <= occurred_at,
+                Campaign.ends_at >= occurred_at,
+            )
+            .distinct()
         )
         return {mission.id: mission for mission in missions}
 

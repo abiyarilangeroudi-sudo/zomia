@@ -438,6 +438,7 @@ def test_owner_cannot_update_or_delete_mission_with_action_history(client: TestC
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
     _, customer_id = register_customer(client)
     mission = create_mission(client, owner_token, business_id, name="Buy Coffee")
+    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
 
     action_response = client.post(
         "/api/v1/staff/actions",
@@ -473,6 +474,13 @@ def test_staff_registers_multi_item_action_and_customer_reads_points(
     customer_token, customer_id = register_customer(client)
     coffee = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
     cake = create_mission(client, owner_token, business_id, name="Buy Cake", point_value=5)
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[coffee["id"], cake["id"]],
+        threshold_points=99,
+    )
 
     response = client.post(
         "/api/v1/staff/actions",
@@ -519,6 +527,13 @@ def test_owner_reads_recent_activity_for_business(client: TestClient) -> None:
     _, customer_id = register_customer(client)
     coffee = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
     cake = create_mission(client, owner_token, business_id, name="Buy Cake", point_value=5)
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[coffee["id"], cake["id"]],
+        threshold_points=99,
+    )
 
     action_response = client.post(
         "/api/v1/staff/actions",
@@ -561,6 +576,7 @@ def test_owner_recent_activity_handles_deleted_customer(client: TestClient) -> N
     mission = create_mission(
         client, owner_token, business_id, name="Buy Coffee", point_value=1
     )
+    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
     action_response = client.post(
         "/api/v1/staff/actions",
         json={
@@ -601,6 +617,12 @@ def test_owner_cannot_read_recent_activity_for_another_owner_business(
     _, customer_id = register_customer(client)
     mission = create_mission(
         client, other_owner_token, other_business_id, name="Foreign Coffee", point_value=1
+    )
+    create_campaign(
+        client,
+        other_owner_token,
+        other_business_id,
+        mission_ids=[mission["id"]],
     )
 
     action_response = client.post(
@@ -690,6 +712,7 @@ def test_duplicate_idempotency_key_returns_previous_action_without_extra_points(
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
     _, customer_id = register_customer(client)
     mission = create_mission(client, owner_token, business_id, name="Visit", mission_type="visit")
+    create_campaign(client, owner_token, business_id, mission_ids=[mission["id"]])
 
     payload = {
         "business_id": business_id,
@@ -708,6 +731,68 @@ def test_duplicate_idempotency_key_returns_previous_action_without_extra_points(
     assert db_session.scalar(select(LoyaltyAction)) is not None
     assert db_session.query(LoyaltyAction).count() == 1
     assert db_session.query(PointsLedgerEntry).count() == 1
+
+
+def test_staff_only_sees_missions_from_active_campaigns(client: TestClient) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    active_mission = create_mission(client, owner_token, business_id, name="Active Mission")
+    unlinked_mission = create_mission(client, owner_token, business_id, name="Unlinked Mission")
+    expired_mission = create_mission(client, owner_token, business_id, name="Expired Mission")
+    ended_mission = create_mission(client, owner_token, business_id, name="Ended Mission")
+
+    create_campaign(client, owner_token, business_id, mission_ids=[active_mission["id"]])
+    create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[expired_mission["id"]],
+        starts_at=datetime.now(UTC) - timedelta(days=10),
+        ends_at=datetime.now(UTC) - timedelta(days=1),
+    )
+    ended_campaign = create_campaign(
+        client, owner_token, business_id, mission_ids=[ended_mission["id"]]
+    )
+    end_response = client.patch(
+        f"/api/v1/owner/campaigns/{ended_campaign['id']}/status?business_id={business_id}",
+        json={"status": "ended"},
+        headers=auth(owner_token),
+    )
+    assert end_response.status_code == 200
+
+    response = client.get(
+        f"/api/v1/staff/service/missions?business_id={business_id}",
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()] == [active_mission["id"]]
+    assert unlinked_mission["id"] not in {item["id"] for item in response.json()}
+
+
+def test_staff_cannot_register_action_for_unlinked_mission(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, customer_id = register_customer(client)
+    mission = create_mission(client, owner_token, business_id, name="Unlinked Mission")
+
+    response = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": customer_id,
+            "idempotency_key": "unlinked-mission-action",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "One or more missions are not available for staff action"
+    assert db_session.query(LoyaltyAction).count() == 0
+    assert db_session.query(PointsLedgerEntry).count() == 0
 
 
 def test_staff_cannot_register_action_for_another_business(client: TestClient) -> None:
@@ -1078,7 +1163,7 @@ def test_idempotency_replay_does_not_duplicate_campaign_completion(
     assert db_session.query(CampaignCompletion).count() == 1
 
 
-def test_action_outside_campaign_window_does_not_count_for_progress(
+def test_staff_cannot_register_action_before_campaign_window(
     client: TestClient, db_session: Session
 ) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
@@ -1107,7 +1192,10 @@ def test_action_outside_campaign_window_does_not_count_for_progress(
         headers=auth(staff_token),
     )
 
-    assert response.status_code == 201
+    assert response.status_code == 409
+    assert response.json()["detail"] == "One or more missions are not available for staff action"
+    assert db_session.query(LoyaltyAction).count() == 0
+    assert db_session.query(PointsLedgerEntry).count() == 0
     assert db_session.query(CampaignCompletion).count() == 0
 
     progress = client.get(
@@ -1143,7 +1231,13 @@ def test_action_before_campaign_creation_does_not_count_for_progress(
         },
         headers=auth(staff_token),
     )
-    assert earlier_action.status_code == 201
+    assert earlier_action.status_code == 409
+    assert (
+        earlier_action.json()["detail"]
+        == "One or more missions are not available for staff action"
+    )
+    assert db_session.query(LoyaltyAction).count() == 0
+    assert db_session.query(PointsLedgerEntry).count() == 0
 
     campaign = create_campaign(
         client,
@@ -1315,7 +1409,8 @@ def test_repeatable_campaign_does_not_create_new_cycle_after_end(
         },
         headers=auth(staff_token),
     )
-    assert second.status_code == 201
+    assert second.status_code == 409
+    assert second.json()["detail"] == "One or more missions are not available for staff action"
     assert db_session.query(CampaignCompletion).count() == 1
     assert db_session.query(GeneratedReward).count() == 1
 
