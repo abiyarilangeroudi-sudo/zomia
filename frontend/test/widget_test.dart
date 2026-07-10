@@ -60,7 +60,7 @@ void main() {
     );
   });
 
-  testWidgets('bottom navigation uses the taller shared height', (
+  testWidgets('bottom navigation keeps clearance below its content', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -88,7 +88,45 @@ void main() {
 
     expect(
       tester.getSize(find.byType(BottomNavBar)).height,
-      BottomNavBar.contentHeight,
+      BottomNavBar.contentHeight + BottomNavBar.minimumBottomClearance,
+    );
+  });
+
+  testWidgets('bottom navigation honors a reported device safe area', (
+    tester,
+  ) async {
+    const deviceBottomInset = 28.0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: const MediaQueryData(
+            padding: EdgeInsets.only(bottom: deviceBottomInset),
+          ),
+          child: Scaffold(
+            bottomNavigationBar: BottomNavBar(
+              items: const [
+                NavItem(
+                  label: 'Home',
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home_rounded,
+                ),
+                NavItem(
+                  label: 'Rewards',
+                  icon: Icons.card_giftcard_outlined,
+                  activeIcon: Icons.card_giftcard_rounded,
+                ),
+              ],
+              selectedIndex: 0,
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSize(find.byType(BottomNavBar)).height,
+      BottomNavBar.contentHeight + deviceBottomInset,
     );
   });
 

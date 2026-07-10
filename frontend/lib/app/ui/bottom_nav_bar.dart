@@ -27,37 +27,48 @@ class BottomNavBar extends StatelessWidget {
   final ValueChanged<int>? onChanged;
 
   static const double contentHeight = 72;
+  static const double minimumBottomClearance = 16;
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final reportedBottomInset = MediaQuery.paddingOf(context).bottom;
+    final bottomClearance = reportedBottomInset > 0
+        ? reportedBottomInset
+        : minimumBottomClearance;
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: BrandColors.surface,
         border: Border(top: BorderSide(color: BrandColors.line)),
       ),
       child: SizedBox(
-        height: contentHeight + bottomInset,
-        child: BottomNavigationBar(
-          elevation: 0,
-          currentIndex: selectedIndex,
-          onTap: onChanged,
-          backgroundColor: BrandColors.surface,
-          selectedItemColor: BrandColors.orange,
-          unselectedItemColor: BrandColors.textSecondary,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          type: BottomNavigationBarType.fixed,
-          items: items
-              .map(
-                (item) => BottomNavigationBarItem(
-                  icon: Icon(item.icon, size: 24),
-                  activeIcon: Icon(item.activeIcon, size: 32),
-                  label: item.label,
-                  tooltip: item.label,
-                ),
-              )
-              .toList(),
+        height: contentHeight + bottomClearance,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomClearance),
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: BottomNavigationBar(
+              elevation: 0,
+              currentIndex: selectedIndex,
+              onTap: onChanged,
+              backgroundColor: BrandColors.surface,
+              selectedItemColor: BrandColors.orange,
+              unselectedItemColor: BrandColors.textSecondary,
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              type: BottomNavigationBarType.fixed,
+              items: items
+                  .map(
+                    (item) => BottomNavigationBarItem(
+                      icon: Icon(item.icon, size: 24),
+                      activeIcon: Icon(item.activeIcon, size: 32),
+                      label: item.label,
+                      tooltip: item.label,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
         ),
       ),
     );
