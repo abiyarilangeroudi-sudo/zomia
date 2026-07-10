@@ -1021,3 +1021,27 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`.
   - Active backend and frontend symlinks point to the hardening releases listed above.
+
+## 2026-07-10 Shared Navigation Bar Height Polish
+
+- Frontend release: `/var/www/zomia/releases/202607100202_navigation_height`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Backend release unchanged: `/opt/zomia/backend/releases/202607100125_hardening`.
+- Frontend version: `1.0.146 (147)`.
+- Git commit deployed: `e224d58 Increase shared navigation bar height`.
+- Changes:
+  - Increased the shared Owner, Staff, and Customer bottom navigation content height from the Flutter default to 72 logical pixels.
+  - Preserved the device bottom safe-area inset independently from the navigation content height.
+- Frontend only; backend, API contracts, database schema, and migrations did not change.
+- Verification passed before deploy:
+  - Frontend test suite returned `46 passed`.
+  - `flutter analyze` returned no issues.
+  - Local WebApp build `1.0.146 (147)` was available for manual review.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned status ok.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.146 (147)`.
+  - `https://zomia.eu/webapp/?v=production-smoke-20260710020245` returned `200`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`.
+  - Active frontend symlink points to the navigation-height release listed above.
