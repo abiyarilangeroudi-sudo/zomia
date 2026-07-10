@@ -1045,3 +1045,30 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`.
   - Active frontend symlink points to the navigation-height release listed above.
+
+## 2026-07-10 Bottom Navigation Safe-Area Clearance
+
+- Frontend release: `/var/www/zomia/releases/202607100221_navigation_safe_area`.
+- Active frontend symlink: `/var/www/zomia/webapp`.
+- Backend release unchanged: `/opt/zomia/backend/releases/202607100125_hardening`.
+- Frontend version: `1.0.147 (148)`.
+- Git commit deployed: `3d47657 Add bottom navigation safe area clearance`.
+- Changes:
+  - Kept the 72-pixel navigation content area required by the larger selected icon.
+  - Added a separate bottom clearance equal to the reported device safe-area inset.
+  - Added a 16-pixel fallback clearance for mobile browsers that report a zero bottom inset.
+  - Removed the inset from the nested Material navigation component to prevent double application.
+- Frontend only; backend, API contracts, database schema, and migrations did not change.
+- Verification passed before deploy:
+  - Frontend test suite returned `47 passed`.
+  - Dedicated tests cover both the fallback clearance and a reported device safe area.
+  - `flutter analyze` returned no issues.
+  - Manual QA passed locally on version `1.0.147 (148)`.
+- Post-release checks passed:
+  - `https://zomia.eu/health` returned status ok.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.147 (148)`.
+  - `https://zomia.eu/webapp/?v=production-smoke-20260710022844` returned `200`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`.
+  - Active frontend symlink points to the safe-area release listed above.
