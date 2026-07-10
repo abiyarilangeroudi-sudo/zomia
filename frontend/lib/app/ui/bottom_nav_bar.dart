@@ -26,33 +26,39 @@ class BottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int>? onChanged;
 
+  static const double contentHeight = 72;
+
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: BrandColors.surface,
         border: Border(top: BorderSide(color: BrandColors.line)),
       ),
-      child: BottomNavigationBar(
-        elevation: 0,
-        currentIndex: selectedIndex,
-        onTap: onChanged,
-        backgroundColor: BrandColors.surface,
-        selectedItemColor: BrandColors.orange,
-        unselectedItemColor: BrandColors.textSecondary,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        type: BottomNavigationBarType.fixed,
-        items: items
-            .map(
-              (item) => BottomNavigationBarItem(
-                icon: Icon(item.icon, size: 24),
-                activeIcon: Icon(item.activeIcon, size: 32),
-                label: item.label,
-                tooltip: item.label,
-              ),
-            )
-            .toList(),
+      child: SizedBox(
+        height: contentHeight + bottomInset,
+        child: BottomNavigationBar(
+          elevation: 0,
+          currentIndex: selectedIndex,
+          onTap: onChanged,
+          backgroundColor: BrandColors.surface,
+          selectedItemColor: BrandColors.orange,
+          unselectedItemColor: BrandColors.textSecondary,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          type: BottomNavigationBarType.fixed,
+          items: items
+              .map(
+                (item) => BottomNavigationBarItem(
+                  icon: Icon(item.icon, size: 24),
+                  activeIcon: Icon(item.activeIcon, size: 32),
+                  label: item.label,
+                  tooltip: item.label,
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }

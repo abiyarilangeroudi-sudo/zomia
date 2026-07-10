@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zomia_frontend/app/app_version.dart';
 import 'package:zomia_frontend/app/router.dart';
 import 'package:zomia_frontend/app/ui/app_text_field.dart';
+import 'package:zomia_frontend/app/ui/bottom_nav_bar.dart';
 import 'package:zomia_frontend/app/ui/confirm_dialog.dart';
 import 'package:zomia_frontend/app/ui/reward_card.dart';
 import 'package:zomia_frontend/app/ui/status_badge.dart';
@@ -56,6 +57,38 @@ void main() {
     expect(
       normalizeQrTokenInput('  zomia://customer/raw-token  '),
       'raw-token',
+    );
+  });
+
+  testWidgets('bottom navigation uses the taller shared height', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          bottomNavigationBar: BottomNavBar(
+            items: const [
+              NavItem(
+                label: 'Home',
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
+              ),
+              NavItem(
+                label: 'Rewards',
+                icon: Icons.card_giftcard_outlined,
+                activeIcon: Icons.card_giftcard_rounded,
+              ),
+            ],
+            selectedIndex: 0,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSize(find.byType(BottomNavBar)).height,
+      BottomNavBar.contentHeight,
     );
   });
 
