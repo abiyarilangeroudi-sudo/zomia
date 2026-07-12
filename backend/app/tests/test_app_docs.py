@@ -17,6 +17,7 @@ def test_api_docs_are_available_outside_production(monkeypatch) -> None:
 
 
 def test_api_docs_are_disabled_in_production(monkeypatch) -> None:
+    monkeypatch.delenv("OTP_TEST_CODE", raising=False)
     production_env = {
         "APP_ENV": "production",
         "JWT_SECRET_KEY": "a-production-secret-with-more-than-32-characters",

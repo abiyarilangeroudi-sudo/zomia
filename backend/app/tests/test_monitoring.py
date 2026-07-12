@@ -8,6 +8,7 @@ from app.core.monitoring import _scrub_sentry_event, setup_sentry
 def production_settings(**overrides) -> Settings:
     values = {
         "APP_ENV": "production",
+        "OTP_TEST_CODE": None,
         "JWT_SECRET_KEY": "a-production-secret-with-more-than-32-characters",
         "EMAIL_DELIVERY_MODE": "smtp",
         "FRONTEND_BASE_URL": "https://zomia.eu/webapp",
