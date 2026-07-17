@@ -1335,7 +1335,7 @@ def test_action_before_campaign_creation_does_not_count_for_progress(
     assert db_session.query(CampaignCompletion).count() == 0
 
 
-def test_ended_campaign_returns_backend_owned_progress_status(
+def test_expired_campaign_returns_backend_owned_progress_status(
     client: TestClient, db_session: Session
 ) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
@@ -1359,7 +1359,7 @@ def test_ended_campaign_returns_backend_owned_progress_status(
         json={
             "business_id": business_id,
             "customer_id": customer_id,
-            "idempotency_key": "campaign-ended-status",
+            "idempotency_key": "campaign-expired-status",
             "items": [{"mission_id": mission["id"], "quantity": 1}],
         },
         headers=auth(staff_token),
@@ -1376,15 +1376,16 @@ def test_ended_campaign_returns_backend_owned_progress_status(
         headers=auth(customer_token),
     )
     assert progress.status_code == 200
-    assert progress.json()["campaign_time_status"] == "ended"
-    assert progress.json()["progress_state"] == "ended"
-    assert progress.json()["display_label"] == "0/5 pts · Ended"
-    assert progress.json()["badge_label"] == "Ended"
-    assert progress.json()["badge_tone"] == "neutral"
+    assert progress.json()["campaign_time_status"] == "expired"
+    assert progress.json()["progress_state"] == "expired"
+    assert progress.json()["display_label"] == "0/5 pts · Expired"
+    assert progress.json()["badge_label"] == "Expired"
+    assert progress.json()["badge_tone"] == "warning"
 
 
 def test_owner_ended_campaign_remains_in_customer_campaign_archive(
     client: TestClient,
+    db_session: Session,
 ) -> None:
     owner_token, business_id = register_owner(client, "owner@example.com")
     staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
@@ -1430,6 +1431,71 @@ def test_owner_ended_campaign_remains_in_customer_campaign_archive(
     assert body[0]["display_label"] == "2/5 pts · Ended"
     assert body[0]["badge_label"] == "Ended"
     assert body[0]["badge_tone"] == "neutral"
+    reward = db_session.scalar(select(GeneratedReward))
+    assert reward is not None
+    assert reward.source_type.value == "early_end_settlement"
+
+
+def test_owner_early_end_preview_and_settlement_reward(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, partial_customer_id = register_customer(client, "partial@example.com")
+    _, completed_customer_id = register_customer(client, "completed@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+
+    for customer_id, quantity, key in [
+        (partial_customer_id, 2, "early-end-partial"),
+        (completed_customer_id, 5, "early-end-completed"),
+    ]:
+        response = client.post(
+            "/api/v1/staff/actions",
+            json={
+                "business_id": business_id,
+                "customer_id": customer_id,
+                "idempotency_key": key,
+                "items": [{"mission_id": mission["id"], "quantity": quantity}],
+            },
+            headers=auth(staff_token),
+        )
+        assert response.status_code == 201
+
+    preview = client.get(
+        f"/api/v1/owner/campaigns/{campaign['id']}/end-preview?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert preview.status_code == 200
+    assert preview.json() == {
+        "campaign_id": campaign["id"],
+        "settlement_customer_count": 1,
+    }
+
+    end_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "ended", "expected_settlement_customer_count": 1},
+        headers=auth(owner_token),
+    )
+    assert end_response.status_code == 200
+    assert end_response.json()["status"] == "ended"
+
+    rewards = list(db_session.scalars(select(GeneratedReward)))
+    assert len(rewards) == 2
+    settlement = next(
+        reward
+        for reward in rewards
+        if reward.source_type.value == "early_end_settlement"
+    )
+    assert str(settlement.customer_id) == partial_customer_id
+    assert settlement.campaign_completion_id is None
+    assert all(str(reward.customer_id) != completed_customer_id or reward != settlement for reward in rewards)
 
 
 def test_repeatable_campaign_does_not_create_new_cycle_after_end(
@@ -1493,13 +1559,13 @@ def test_repeatable_campaign_does_not_create_new_cycle_after_end(
         headers=auth(customer_token),
     )
     assert progress.status_code == 200
-    assert progress.json()["campaign_time_status"] == "ended"
-    assert progress.json()["progress_state"] == "ended"
+    assert progress.json()["campaign_time_status"] == "expired"
+    assert progress.json()["progress_state"] == "expired"
     assert progress.json()["completed_cycles"] == 1
     assert progress.json()["current_cycle_number"] == 2
     assert progress.json()["progress_points"] == 0
     assert progress.json()["remaining_points"] == 2
-    assert progress.json()["display_label"] == "Cycle 2 · 0/2 pts · Ended"
+    assert progress.json()["display_label"] == "Cycle 2 · 0/2 pts · Expired"
 
 
 def test_non_repeatable_campaign_creates_only_one_completion(

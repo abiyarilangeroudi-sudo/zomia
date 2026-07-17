@@ -10,6 +10,7 @@ from app.modules.loyalty.dependencies import get_loyalty_service
 from app.modules.loyalty.schemas import (
     ActiveStatusUpdate,
     CampaignCreate,
+    CampaignEndPreview,
     CampaignProgressRead,
     CustomerCampaignProgressRead,
     CustomerStatusRead,
@@ -139,6 +140,20 @@ def update_campaign_status(
     db.commit()
     db.refresh(campaign)
     return campaign
+
+
+@router.get("/owner/campaigns/{campaign_id}/end-preview", response_model=CampaignEndPreview)
+def preview_campaign_end(
+    campaign_id: uuid.UUID,
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    service: LoyaltyService = Depends(get_loyalty_service),
+):
+    return service.preview_campaign_end(
+        current_user,
+        business_id=business_id,
+        campaign_id=campaign_id,
+    )
 
 
 @router.post(

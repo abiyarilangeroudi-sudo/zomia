@@ -50,13 +50,34 @@ mixin _OwnerSetupCampaignRepository on _OwnerSetupRepositoryBase {
     required String businessId,
     required String campaignId,
     required String status,
+    int? expectedSettlementCustomerCount,
   }) async {
     try {
+      final data = <String, dynamic>{'status': status};
+      if (expectedSettlementCustomerCount != null) {
+        data['expected_settlement_customer_count'] =
+            expectedSettlementCustomerCount;
+      }
       await _dio.patch<Map<String, dynamic>>(
         '/owner/campaigns/$campaignId/status',
         queryParameters: {'business_id': businessId},
-        data: {'status': status},
+        data: data,
       );
+    } on DioException catch (error) {
+      throw AppException(_messageFor(error));
+    }
+  }
+
+  Future<OwnerCampaignEndPreview> previewCampaignEnd({
+    required String businessId,
+    required String campaignId,
+  }) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/owner/campaigns/$campaignId/end-preview',
+        queryParameters: {'business_id': businessId},
+      );
+      return OwnerCampaignEndPreview.fromJson(response.data!);
     } on DioException catch (error) {
       throw AppException(_messageFor(error));
     }

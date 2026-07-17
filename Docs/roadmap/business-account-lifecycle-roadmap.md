@@ -46,6 +46,23 @@ Every release below follows the same safeguards:
 6. Production data is never used to test closure. Use local fixtures or a
    designated non-production test Business.
 
+## Implemented Campaign End Policy
+
+Business closure work must preserve the distinction between natural Campaign
+expiry and manual early termination:
+
+- **Expired** is the natural time-based result after `ends_at`. It freezes
+  incomplete progress in Customer Archive and creates no new Reward.
+- **Ended** is a manual Owner action before `ends_at`. It requires an **Early
+  End Settlement**: every Customer with non-zero incomplete progress in the
+  current cycle receives one final Reward before the Campaign becomes ended.
+- Customers with zero progress receive no settlement Reward. Previously issued
+  Rewards stay governed by their own validity period.
+- The backend previews the affected Customer count, issues each settlement
+  Reward idempotently, and makes the Campaign terminal only after the whole
+  settlement succeeds. Flutter displays the preview and confirmation; it never
+  determines eligibility.
+
 ## Release 1: Staff Deactivation Hardening
 
 ### Goal

@@ -11,13 +11,18 @@ class OwnerCampaignListCard extends StatefulWidget {
     super.key,
     required this.campaigns,
     required this.isSaving,
-    required this.onStatusChanged,
+    required this.onPreviewEnd,
+    required this.onEndCampaign,
   });
 
   final List<OwnerCampaign> campaigns;
   final bool isSaving;
-  final Future<void> Function(OwnerCampaign campaign, String status)
-  onStatusChanged;
+  final Future<int?> Function(OwnerCampaign campaign) onPreviewEnd;
+  final Future<void> Function(
+    OwnerCampaign campaign,
+    int settlementCustomerCount,
+  )
+  onEndCampaign;
 
   @override
   State<OwnerCampaignListCard> createState() => _OwnerCampaignListCardState();
@@ -60,7 +65,8 @@ class _OwnerCampaignListCardState extends State<OwnerCampaignListCard> {
                 trailing: _CampaignStatusActions(
                   campaign: campaign,
                   isSaving: widget.isSaving,
-                  onStatusChanged: widget.onStatusChanged,
+                  onPreviewEnd: widget.onPreviewEnd,
+                  onEndCampaign: widget.onEndCampaign,
                 ),
               ),
             ),
@@ -74,13 +80,18 @@ class _CampaignStatusActions extends StatelessWidget {
   const _CampaignStatusActions({
     required this.campaign,
     required this.isSaving,
-    required this.onStatusChanged,
+    required this.onPreviewEnd,
+    required this.onEndCampaign,
   });
 
   final OwnerCampaign campaign;
   final bool isSaving;
-  final Future<void> Function(OwnerCampaign campaign, String status)
-  onStatusChanged;
+  final Future<int?> Function(OwnerCampaign campaign) onPreviewEnd;
+  final Future<void> Function(
+    OwnerCampaign campaign,
+    int settlementCustomerCount,
+  )
+  onEndCampaign;
 
   @override
   Widget build(BuildContext context) {
@@ -92,42 +103,32 @@ class _CampaignStatusActions extends StatelessWidget {
       children: [
         IconButton(
           tooltip: 'End campaign',
-          onPressed: isSaving
-              ? null
-              : () => _confirmStatus(
-                  context,
-                  status: 'ended',
-                  title: 'End campaign?',
-                  message:
-                      'This campaign will move to Archive and staff will no longer register progress for it. Existing customer points and earned rewards will stay unchanged.',
-                  confirmLabel: 'End campaign',
-                  tone: ConfirmTone.destructive,
-                ),
+          onPressed: isSaving ? null : () => _confirmEnd(context),
           icon: const Icon(Icons.delete_outline_rounded),
         ),
       ],
     );
   }
 
-  Future<void> _confirmStatus(
-    BuildContext context, {
-    required String status,
-    required String title,
-    required String message,
-    required String confirmLabel,
-    ConfirmTone tone = ConfirmTone.standard,
-  }) async {
+  Future<void> _confirmEnd(BuildContext context) async {
+    final settlementCustomerCount = await onPreviewEnd(campaign);
+    if (settlementCustomerCount == null || !context.mounted) {
+      return;
+    }
+    final settlementMessage = settlementCustomerCount == 0
+        ? 'No customers have incomplete progress. This campaign will move to Archive and staff will no longer register progress for it.'
+        : '$settlementCustomerCount customer${settlementCustomerCount == 1 ? '' : 's'} with incomplete progress will receive this campaign reward. This campaign will then move to Archive and staff will no longer register progress for it.';
     final confirmed = await showConfirmDialog(
       context: context,
-      title: title,
-      message: message,
-      confirmLabel: confirmLabel,
-      tone: tone,
+      title: 'End campaign?',
+      message: settlementMessage,
+      confirmLabel: 'End campaign',
+      tone: ConfirmTone.destructive,
     );
     if (!confirmed) {
       return;
     }
-    await onStatusChanged(campaign, status);
+    await onEndCampaign(campaign, settlementCustomerCount);
   }
 }
 

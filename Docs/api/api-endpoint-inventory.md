@@ -92,7 +92,8 @@ Unused endpoint policy:
 | PATCH | `/owner/missions/{mission_id}/active` | owner | Owner loyalty tools | active | Archive or reactivate a mission owned by the current Owner business; archived missions are hidden from active setup and staff mission lists. |
 | POST | `/owner/campaigns` | owner | Owner setup | active | Create campaign with date range and repeatable rules. Response includes Owner display fields: `time_status`, `display_status`, `badge_tone`, and `date_range_label`. |
 | GET | `/owner/campaigns` | owner | Owner setup | active | List campaigns by business with backend-owned Owner display fields for Active/Archive grouping. |
-| PATCH | `/owner/campaigns/{campaign_id}/status` | owner | Owner loyalty tools | active | End an Owner campaign; ended campaigns are terminal. Response includes refreshed Owner display fields. |
+| GET | `/owner/campaigns/{campaign_id}/end-preview` | owner | Owner loyalty tools | active | Returns the number of Customers with non-zero incomplete current-cycle progress who will receive an Early End Settlement Reward. |
+| PATCH | `/owner/campaigns/{campaign_id}/status` | owner | Owner loyalty tools | active | End an Owner campaign before `ends_at`. Requires the preview count when confirmed; atomically issues an Early End Settlement Reward for each affected Customer, then marks the Campaign terminal. Response includes refreshed Owner display fields. |
 | POST | `/owner/reward-templates` | owner | Owner setup | active | Create reward template. |
 | GET | `/owner/reward-templates` | owner | Owner setup | active | List reward templates by business. |
 | PATCH | `/owner/reward-templates/{reward_template_id}` | owner | Owner loyalty tools | active | Edit an unused reward template owned by the current Owner business; templates linked to campaigns or generated rewards are rejected. |

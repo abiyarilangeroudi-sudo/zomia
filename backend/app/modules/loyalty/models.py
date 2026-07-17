@@ -39,6 +39,7 @@ class AuditEventType(str, enum.Enum):
     IDEMPOTENCY_REPLAYED = "idempotency_replayed"
     CAMPAIGN_CREATED = "campaign_created"
     CAMPAIGN_COMPLETED = "campaign_completed"
+    CAMPAIGN_ENDED = "campaign_ended"
     REWARD_TEMPLATE_CREATED = "reward_template_created"
     REWARD_GENERATED = "reward_generated"
     REWARD_USED = "reward_used"
@@ -109,6 +110,7 @@ class RewardSettlementStatus(str, enum.Enum):
 class RewardGenerationSourceType(str, enum.Enum):
     INDIVIDUAL_CAMPAIGN_COMPLETION = "individual_campaign_completion"
     GROUP_CAMPAIGN_COMPLETION = "group_campaign_completion"
+    EARLY_END_SETTLEMENT = "early_end_settlement"
 
 
 def new_uuid() -> uuid.UUID:

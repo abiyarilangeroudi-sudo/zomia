@@ -31,7 +31,8 @@ class OwnerLoyaltyView extends StatelessWidget {
           OwnerCampaignListCard(
             campaigns: controller.campaigns,
             isSaving: controller.isSaving,
-            onStatusChanged: controller.updateCampaignStatus,
+            onPreviewEnd: controller.previewCampaignEnd,
+            onEndCampaign: controller.endCampaign,
           ),
           const SizedBox(height: 16),
           OwnerSetupAssetsCard(

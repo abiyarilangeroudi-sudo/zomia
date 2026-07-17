@@ -278,8 +278,17 @@ F10.10 progress:
 - UI labels unlimited repeatable campaigns as `Unlimited within campaign dates`; backend `null` is not shown as a product concept.
 - Backend now returns campaign time status, progress state, display label, badge label, and badge tone for Customer campaign progress.
 - Flutter renders backend-owned progress labels and badges instead of deriving completed/active/upcoming/ended locally.
-- Campaign time status is backend-owned: `upcoming`, `active`, and `ended` are produced by CampaignService.
+- Campaign time status is backend-owned: `upcoming`, `active`, `expired`, and `ended` are produced by CampaignService.
 - Repeatable campaigns do not create new cycles or rewards after `ends_at`, even if Staff records a later Action for the same Mission.
+
+F16 campaign-end settlement progress:
+
+- `Expired` is the natural, time-based outcome after `ends_at`. Incomplete progress remains in Customer Archive as `Expired`; no new Reward is issued.
+- `Ended` is an Owner-initiated early termination before `ends_at`, not another name for natural expiry.
+- Before an early end completes, the backend issues one idempotent Early End Settlement Reward for each Customer with non-zero incomplete progress in the current cycle. Customers at zero progress receive nothing; already-issued Rewards remain unchanged.
+- The settlement and terminal Campaign status change occur in one transaction: if any required Reward cannot be issued, the Campaign remains active.
+- `GET /owner/campaigns/{campaign_id}/end-preview` returns the affected Customer count. Owner UI shows this consequence before confirmation and sends the expected count when ending; if new progress changes the count, the backend rejects the end for a fresh review.
+- Flutter does not calculate eligibility or issue settlement Rewards.
 
 ### 10. Authentication Flow Completeness
 

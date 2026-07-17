@@ -87,6 +87,13 @@ Campaign همیشه بازه زمانی `starts_at` و `ends_at` دارد. Actio
 
 وضعیت زمانی Campaign و متن قابل نمایش progress برای Customer توسط Backend محاسبه می‌شود، نه Frontend.
 
+Campaign lifecycle دو نوع پایان متفاوت دارد:
+
+- **Expired:** پایان طبیعی و زمان‌محور، زمانی که `ends_at` می‌گذرد. Progress ناقص در Archive با وضعیت `Expired` باقی می‌ماند و Reward جدیدی صادر نمی‌شود.
+- **Ended:** پایان دستی پیش از `ends_at` توسط Owner. این وضعیت با **Early End Settlement** همراه است: برای هر Customer با progress ناقص و بیشتر از صفر در cycle فعلی، یک Reward نهایی صادر می‌شود و سپس Campaign پایان می‌یابد. Customer با progress صفر Reward نمی‌گیرد.
+
+`Expired` یک time status محاسبه‌شده از بازه زمانی است؛ `Ended` یک status صریح و terminal است. این تفکیک و settlement دستی در Backend اجرا می‌شود، نه در Flutter.
+
 ### Individual Campaign
 
 Campaignی که هر Customer به صورت مستقل در آن پیشرفت می‌کند.

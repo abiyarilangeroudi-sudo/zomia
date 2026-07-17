@@ -112,16 +112,16 @@ class CampaignService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
         return self.repository.list_business_campaigns(business_id)
 
-    def update_campaign_status(
+    def get_campaign_for_early_end(
         self, owner: User, *, business_id, campaign_id, payload: CampaignStatusUpdate
     ) -> Campaign:
         self._require_role(owner, UserRole.OWNER)
         business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-        campaign = self.repository.get_campaign_for_business(
-            campaign_id=campaign_id, business_id=business_id
-        )
+        campaign = self.repository.lock_campaign(campaign_id)
+        if campaign is not None and campaign.creator_business_id != business_id:
+            campaign = None
         if campaign is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Campaign not found")
         if campaign.status == CampaignStatus.ENDED:
@@ -134,8 +134,22 @@ class CampaignService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Unsupported campaign status",
             )
-        campaign.status = payload.status
+        if self._as_utc(campaign.ends_at) < datetime.now(UTC):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Campaign is already expired",
+            )
         return campaign
+
+    def early_end_settlement_customer_ids(self, campaign: Campaign) -> list:
+        customer_ids = []
+        for customer_id, total_points in self.repository.list_campaign_customer_point_totals(
+            campaign=campaign
+        ):
+            progress = self._campaign_cycle_progress(campaign, total_points, customer_id)
+            if progress["progress_points"] > 0 and progress["remaining_points"] > 0:
+                customer_ids.append(customer_id)
+        return customer_ids
 
     def get_campaign_progress(self, customer: User, campaign_id) -> CampaignProgressRead:
         self._require_role(customer, UserRole.CUSTOMER)
@@ -346,19 +360,20 @@ class CampaignService:
                 "badge_tone": "warning",
             }
 
-        if time_status == "ended":
+        if time_status in {"ended", "expired"}:
+            label = "Ended" if time_status == "ended" else "Expired"
             return {
-                "campaign_time_status": "ended",
-                "progress_state": "ended",
+                "campaign_time_status": time_status,
+                "progress_state": time_status,
                 "display_label": self._display_label(
                     campaign=campaign,
                     current_cycle_number=current_cycle_number,
                     progress_points=progress_points,
                     threshold_points=threshold_points,
-                    suffix="Ended",
+                    suffix=label,
                 ),
-                "badge_label": "Ended",
-                "badge_tone": "neutral",
+                "badge_label": label,
+                "badge_tone": "neutral" if time_status == "ended" else "warning",
             }
 
         if not campaign.is_repeatable and completed_cycles > 0:
@@ -419,7 +434,7 @@ class CampaignService:
         if now < starts_at:
             return "upcoming"
         if now > ends_at:
-            return "ended"
+            return "expired"
         return "active"
 
     @staticmethod

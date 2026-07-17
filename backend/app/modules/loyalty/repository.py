@@ -294,6 +294,28 @@ class LoyaltyRepository:
         )
         return int(total or 0)
 
+    def list_campaign_customer_point_totals(self, *, campaign: Campaign) -> list[tuple[uuid.UUID, int]]:
+        campaign_mission_ids = self.get_campaign_mission_ids(campaign.id)
+        if not campaign_mission_ids:
+            return []
+        effective_starts_at = max(campaign.starts_at, campaign.created_at)
+        rows = self.db.execute(
+            select(
+                PointsLedgerEntry.customer_id,
+                func.coalesce(func.sum(PointsLedgerEntry.points), 0),
+            )
+            .join(LoyaltyAction, LoyaltyAction.id == PointsLedgerEntry.action_id)
+            .join(LoyaltyActionItem, LoyaltyActionItem.id == PointsLedgerEntry.action_item_id)
+            .where(
+                PointsLedgerEntry.business_id == campaign.creator_business_id,
+                LoyaltyAction.occurred_at >= effective_starts_at,
+                LoyaltyAction.occurred_at <= campaign.ends_at,
+                LoyaltyActionItem.mission_id.in_(campaign_mission_ids),
+            )
+            .group_by(PointsLedgerEntry.customer_id)
+        ).all()
+        return [(customer_id, int(points)) for customer_id, points in rows]
+
     def get_campaign_completion(
         self, *, campaign_id: uuid.UUID, customer_id: uuid.UUID
     ) -> CampaignCompletion | None:

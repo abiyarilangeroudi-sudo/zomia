@@ -29,6 +29,7 @@ from app.modules.loyalty.repository import LoyaltyRepository
 from app.modules.loyalty.schemas import (
     ActiveStatusUpdate,
     CampaignCreate,
+    CampaignEndPreview,
     CampaignProgressRead,
     CampaignStatusUpdate,
     CustomerCampaignProgressRead,
@@ -192,8 +193,58 @@ class LoyaltyService:
     def update_campaign_status(
         self, owner: User, *, business_id, campaign_id, payload: CampaignStatusUpdate
     ) -> Campaign:
-        return self.campaigns.update_campaign_status(
+        campaign = self.campaigns.get_campaign_for_early_end(
             owner, business_id=business_id, campaign_id=campaign_id, payload=payload
+        )
+        customer_ids = self.campaigns.early_end_settlement_customer_ids(campaign)
+        if (
+            payload.expected_settlement_customer_count is not None
+            and payload.expected_settlement_customer_count != len(customer_ids)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Campaign settlement changed. Review it again",
+            )
+        template = self.repository.get_active_reward_template_for_campaign(campaign.id)
+        if template is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Campaign reward template is no longer active",
+            )
+        now = datetime.now(UTC)
+        for customer_id in customer_ids:
+            self._generate_early_end_settlement_reward(
+                campaign=campaign,
+                template=template,
+                customer_id=customer_id,
+                actor_user_id=owner.id,
+                issued_at=now,
+            )
+        campaign.status = payload.status
+        self._audit(
+            event_type=AuditEventType.CAMPAIGN_ENDED,
+            actor_user_id=owner.id,
+            business_id=business_id,
+            entity_type="campaign",
+            entity_id=campaign.id,
+            metadata={"early_end_settlement_count": len(customer_ids)},
+        )
+        return campaign
+
+    def preview_campaign_end(
+        self, owner: User, *, business_id, campaign_id
+    ) -> CampaignEndPreview:
+        campaign = self.campaigns.get_campaign_for_early_end(
+            owner,
+            business_id=business_id,
+            campaign_id=campaign_id,
+            payload=CampaignStatusUpdate(status="ended"),
+        )
+        return CampaignEndPreview(
+            campaign_id=campaign.id,
+            settlement_customer_count=len(
+                self.campaigns.early_end_settlement_customer_ids(campaign)
+            ),
         )
 
     def create_reward_template(self, owner: User, payload: RewardTemplateCreate) -> RewardTemplate:
@@ -789,6 +840,64 @@ class LoyaltyService:
                 "customer_id": str(completion.customer_id),
                 "reward_template_id": str(template.id),
                 "reward_type": template.reward_type.value,
+            },
+        )
+        return reward
+
+    def _generate_early_end_settlement_reward(
+        self,
+        *,
+        campaign: Campaign,
+        template: RewardTemplate,
+        customer_id,
+        actor_user_id,
+        issued_at: datetime,
+    ) -> GeneratedReward:
+        source_type = RewardGenerationSourceType.EARLY_END_SETTLEMENT
+        existing_reward = self.repository.get_generated_reward_for_source(
+            source_type=source_type,
+            source_id=campaign.id,
+            customer_id=customer_id,
+        )
+        if existing_reward is not None:
+            return existing_reward
+
+        reward = self.repository.add_generated_reward(
+            GeneratedReward(
+                reward_template_id=template.id,
+                campaign_id=campaign.id,
+                campaign_completion_id=None,
+                source_type=source_type,
+                source_id=campaign.id,
+                business_id=template.business_id,
+                issuer_business_id=template.issuer_business_id,
+                customer_id=customer_id,
+                reward_type=template.reward_type,
+                redeem_scope=template.redeem_scope,
+                settlement_policy=template.settlement_policy,
+                title=template.name,
+                description=template.description,
+                status=RewardStatus.ACTIVE,
+                gift_name=template.gift_name,
+                discount_percent=template.discount_percent,
+                discount_amount_minor=template.discount_amount_minor,
+                currency_code=template.currency_code,
+                issued_at=issued_at,
+                expires_at=issued_at + timedelta(days=template.valid_days),
+            )
+        )
+        self._audit(
+            event_type=AuditEventType.REWARD_GENERATED,
+            actor_user_id=actor_user_id,
+            business_id=template.business_id,
+            entity_type="generated_reward",
+            entity_id=reward.id,
+            metadata={
+                "campaign_id": str(campaign.id),
+                "customer_id": str(customer_id),
+                "reward_template_id": str(template.id),
+                "reward_type": template.reward_type.value,
+                "source_type": source_type.value,
             },
         )
         return reward

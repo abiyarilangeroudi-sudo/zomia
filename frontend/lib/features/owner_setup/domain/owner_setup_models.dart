@@ -227,6 +227,23 @@ class OwnerCampaign {
   }
 }
 
+class OwnerCampaignEndPreview {
+  const OwnerCampaignEndPreview({
+    required this.campaignId,
+    required this.settlementCustomerCount,
+  });
+
+  factory OwnerCampaignEndPreview.fromJson(Map<String, dynamic> json) {
+    return OwnerCampaignEndPreview(
+      campaignId: json['campaign_id'] as String,
+      settlementCustomerCount: json['settlement_customer_count'] as int,
+    );
+  }
+
+  final String campaignId;
+  final int settlementCustomerCount;
+}
+
 class OwnerRewardTemplate {
   const OwnerRewardTemplate({
     required this.id,

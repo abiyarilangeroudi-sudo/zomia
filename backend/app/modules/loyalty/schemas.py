@@ -144,6 +144,12 @@ class CampaignCreate(BaseModel):
 
 class CampaignStatusUpdate(BaseModel):
     status: CampaignStatus
+    expected_settlement_customer_count: int | None = Field(default=None, ge=0)
+
+
+class CampaignEndPreview(BaseModel):
+    campaign_id: uuid.UUID
+    settlement_customer_count: int
 
 
 class CampaignRead(BaseModel):

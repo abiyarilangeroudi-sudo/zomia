@@ -235,6 +235,44 @@ extension OwnerSetupControllerLoyaltyActions on OwnerSetupController {
       },
     );
   }
+
+  Future<int?> previewCampaignEnd(OwnerCampaign campaign) async {
+    final business = selectedBusiness;
+    if (business == null) {
+      _showError('Select a business first.');
+      return null;
+    }
+    try {
+      final preview = await repository.previewCampaignEnd(
+        businessId: business.id,
+        campaignId: campaign.id,
+      );
+      return preview.settlementCustomerCount;
+    } catch (previewError) {
+      _showError(previewError.toString());
+      return null;
+    }
+  }
+
+  Future<void> endCampaign(
+    OwnerCampaign campaign,
+    int expectedSettlementCustomerCount,
+  ) async {
+    final business = selectedBusiness;
+    if (business == null) {
+      _showError('Select a business first.');
+      return;
+    }
+    await _save(
+      () => repository.updateCampaignStatus(
+        businessId: business.id,
+        campaignId: campaign.id,
+        status: 'ended',
+        expectedSettlementCustomerCount: expectedSettlementCustomerCount,
+      ),
+      'Campaign ended.',
+    );
+  }
 }
 
 DateTime _startOfLocalDay(DateTime value) {
