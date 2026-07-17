@@ -1072,3 +1072,32 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`.
   - Active frontend symlink points to the safe-area release listed above.
+
+## 2026-07-17 Early End Campaign Settlement
+
+- Backend release: `/opt/zomia/backend/releases/202607172100_early_end_settlement`.
+- Frontend release: `/var/www/zomia/releases/202607172100_early_end_settlement`.
+- Frontend version: `1.0.148 (149)`.
+- Git commit deployed: `fa8dc3f Settle rewards when campaigns end early`.
+- Changes:
+  - Ending a campaign early now settles each eligible customer's incomplete current-cycle progress by issuing the campaign reward before the campaign moves to Archive.
+  - Natural end at `ends_at` remains an expiry and does not perform early-end settlement.
+  - Owner confirmation displays the reviewed settlement count and the backend rejects a changed count before ending.
+- Migration status:
+  - Fresh encrypted production backup completed before migration: `zomia-20260717-211137.dump.gpg`.
+  - Production migration advanced from `0014_scrub_registration_password` to `0015_early_end_settlement (head)`.
+- Deployment note:
+  - Initial inactive-release validation found macOS `._*` metadata and stopped before either active symlink changed.
+  - The metadata was removed, the staged application import and migration status were validated again, and only then were the backend and frontend symlinks switched.
+- Verification passed before deploy:
+  - Backend test suite returned `120 passed`.
+  - Frontend test suite returned `47 passed`.
+  - Backend lint, `flutter analyze`, and `git diff --check` passed.
+  - Manual QA passed locally.
+- Post-release checks passed:
+  - `zomia-backend.service` is active.
+  - `https://zomia.eu/health` returned `{"status":"ok"}`.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.148 (149)`.
+  - `https://zomia.eu/webapp/?v=production-smoke-202607172100` returned `200`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`.
+  - Active backend and frontend symlinks point to the releases listed above.
