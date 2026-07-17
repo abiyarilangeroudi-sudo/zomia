@@ -66,6 +66,7 @@ These endpoints intentionally serve multiple roles:
 
 - Owner account removal is not implemented because it affects business ownership, staff membership, loyalty configuration, rewards, and audit history.
 - Staff account removal is not self-service. Owner manages staff availability through Active/Inactive membership.
+- Business suspension is not an Owner self-service action in the private-pilot MVP. The retained `BusinessStatus` field is reserved for future operational/Admin policy.
 - Staff email change is not self-service until product policy decides whether staff email is a personal account identity or an owner-managed workplace credential.
 - Staff invitation resend/cancel controls are not part of F13. Pending, accepted, and inactive states are visible.
 - Admin identity is not part of current MVP UI.

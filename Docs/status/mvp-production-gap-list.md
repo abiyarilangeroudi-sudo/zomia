@@ -628,8 +628,8 @@ F15.14 Staff profile and business suspension decision:
 - Staff Profile no longer repeats Account Settings because Settings already lives in the Drawer.
 - Staff can update only their display name through `PATCH /api/v1/staff/me/profile`.
 - Staff profile editing intentionally does not change email, password, role, or business membership.
-- Business deactivation is intentionally not implemented as a quick UI toggle.
-- The database already has `BusinessStatus` with `active` and `suspended`, but the product policy still needs to define Staff access, QR/service blocking, campaign/reward visibility, reactivation, and historical audit behavior before exposing it.
+- Business suspension is intentionally not exposed in Owner UI or public APIs during the private-pilot MVP.
+- The database retains `BusinessStatus` with `active` and `suspended` for future operational/Admin use. Do not add an Owner-facing suspension control unless a real temporary-closure need is validated and its Staff access, QR/service blocking, campaign/reward visibility, reactivation, and audit policy are approved.
 
 F15.11 OpenAPI exposure:
 

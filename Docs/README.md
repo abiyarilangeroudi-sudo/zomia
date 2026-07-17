@@ -35,6 +35,7 @@ Customer QR
 - [Auth Recovery and Email Verification Contract](./status/auth-recovery-verification-contract.md)
 - [Flutter MVP Phase](./roadmap/flutter-mvp-phase.md)
 - [Flutter Branding Extraction](./roadmap/flutter-branding-extraction.md)
+- [Business And Account Lifecycle Roadmap](./roadmap/business-account-lifecycle-roadmap.md)
 - [Sprint 1: Identity Engine](./sprints/sprint-1-identity.md)
 - [Sprint 2: Loyalty Foundation](./sprints/sprint-2-loyalty-foundation.md)
 - [Sprint 3: Individual Campaign](./sprints/sprint-3-individual-campaign.md)

@@ -237,3 +237,7 @@ Roadmap جدید اول یک loyalty workflow کامل را می‌سازد، ب
 - Gamification
 - Marketplace
 - Production Observability
+- Business suspension for Operations/Admin only, if a real temporary-closure
+  need is validated
+- Controlled Business closure and Owner deactivation, after retention and
+  operational policy approval; see [Business And Account Lifecycle Roadmap](./roadmap/business-account-lifecycle-roadmap.md)
