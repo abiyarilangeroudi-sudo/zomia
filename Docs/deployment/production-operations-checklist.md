@@ -1260,3 +1260,16 @@ Open production decisions are tracked in:
   - Privacy, Cookies, and Impressum links returned `200`.
   - Browser verification found no Wistia player or scripts before interaction; the player and required scripts appeared after one click with no console error.
   - Standard production smoke passed; WebApp remained at `1.0.155 (156)` and Backend health remained ok.
+
+## 2026-07-21 Public Landing Page Design Rollback
+
+- Git commit deployed: `17928c6 Revert public landing page redesign`.
+- Scope was limited to `/var/www/zomia/root/index.html` and `/var/www/zomia/root/assets/site.css`.
+- The design introduced by commit `7803511` was rejected during manual review and the two files were restored to their previous accepted state.
+- Backup of the rejected production design: `/var/backups/zomia/root-site/202607211919_before_landing_rollback`.
+- Backend, database, migrations, Flutter WebApp, and `pubspec.yaml` were unchanged.
+- Post-rollback checks passed:
+  - `https://zomia.eu/`, `/assets/site.css`, and `/legal/` returned `200`.
+  - The previous `Open WebApp`, `Register your business`, and `Zomia in action` content is present.
+  - The rejected workflow section and lazy-load trigger are no longer present.
+  - Standard production smoke passed; WebApp remained at `1.0.155 (156)` and Backend health remained ok.
