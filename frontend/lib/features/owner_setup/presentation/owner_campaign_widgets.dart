@@ -93,6 +93,7 @@ class _CampaignStatusActions extends StatelessWidget {
       children: [
         IconButton(
           tooltip: 'End campaign',
+          constraints: const BoxConstraints.tightFor(width: 48, height: 48),
           onPressed: isSaving ? null : () => _confirmEnd(context),
           icon: const Icon(Icons.delete_outline_rounded),
         ),

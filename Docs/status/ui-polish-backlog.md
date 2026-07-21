@@ -30,6 +30,16 @@ This document tracks UI items that are acceptable for the current MVP but should
 - Source map warnings should stay suppressed in production builds.
 - Unexpected `4xx` or `5xx` console errors during normal user flows should be investigated and either mapped to clear UI feedback or fixed.
 
+## 2026-07-21 Responsive And Accessibility Verification
+
+- Added focused widget coverage for Login, Customer Home, Staff service controls, Owner Campaign cards, and the live Owner loyalty summary.
+- The covered surfaces run at a 320-pixel viewport width with 1.6x text scaling and long representative content.
+- Tests verify that critical command buttons remain at least 48 logical pixels high and that the covered layouts produce no Flutter overflow exception.
+- The review found one confirmed gap: the Owner `End campaign` icon action was 40 logical pixels on compact-density platforms.
+- The action now has an explicit 48-by-48 logical-pixel touch target without changing its icon, card composition, or Campaign behavior.
+- Login, Customer Home, and Staff service surfaces required no product layout change after the scaled-text verification.
+- Full frontend verification after this addition: `53` tests passed and `flutter analyze` returned no issues.
+
 ## Final UI Pass Reminder
 
 Before calling the UI production-ready, re-check:
