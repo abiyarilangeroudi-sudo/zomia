@@ -61,4 +61,6 @@ class OwnerOnboardingState {
   bool get isPilotComplete {
     return hasActiveStaff && hasMissionProgressActivity;
   }
+
+  bool get isLoyaltyLive => isFirstSetupComplete && isPilotComplete;
 }

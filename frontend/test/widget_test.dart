@@ -813,6 +813,41 @@ void main() {
     },
   );
 
+  testWidgets(
+    'owner setup checklist keeps card padding when historical pilot tasks are complete',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: OwnerSetupChecklist(
+                state: const OwnerOnboardingState(
+                  hasMission: true,
+                  hasRewardTemplate: false,
+                  hasActiveCampaign: false,
+                  hasStaff: true,
+                  hasActiveStaff: true,
+                  hasMissionProgressActivity: true,
+                ),
+                onCreateMission: () {},
+                onCreateRewardTemplate: () {},
+                onCreateCampaign: () {},
+                onInviteStaff: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('First setup'), findsOneWidget);
+      expect(find.text('2 of 4 steps complete'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('First setup')).dx,
+        greaterThanOrEqualTo(16),
+      );
+    },
+  );
+
   testWidgets('owner setup checklist shows completion state', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

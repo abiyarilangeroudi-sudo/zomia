@@ -25,7 +25,7 @@ class OwnerSetupChecklist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLoyaltyLive = state.isPilotComplete;
+    final isLoyaltyLive = state.isLoyaltyLive;
     final items = [
       _OwnerSetupChecklistItem(
         title: 'Create your first mission',
