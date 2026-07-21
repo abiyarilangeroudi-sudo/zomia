@@ -67,9 +67,7 @@ jobs:
         run: python -m pytest
 
       - name: Apply migrations on CI PostgreSQL
-        run: |
-          alembic upgrade head
-          alembic current
+        run: python scripts/check_migrations.py
 
   frontend:
     name: Frontend

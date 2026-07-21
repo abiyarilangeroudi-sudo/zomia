@@ -65,7 +65,12 @@ PORT=8010 make backend-run
 make verify
 ```
 
-این دستور تست‌ها، lint و تولید SQL migration را اجرا می‌کند.
+`make verify` runs backend tests and lint, then creates a temporary PostgreSQL
+database, applies every Alembic migration from base to head, verifies the head
+revision, and removes the temporary database. It never uses the application
+database for migration verification and refuses to run with `APP_ENV=production`.
+
+این دستور تست‌ها، lint و اجرای واقعی migrationها روی دیتابیس موقت را بررسی می‌کند.
 
 ## Demo / QA Seed
 
