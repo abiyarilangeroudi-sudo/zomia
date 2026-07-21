@@ -1,0 +1,10 @@
+# Development and test-only versions used with constraints-runtime.txt.
+httpcore2==2.7.0
+httpx2==2.7.0
+iniconfig==2.3.0
+packaging==26.2
+pluggy==1.6.0
+pytest==9.0.3
+pytest-asyncio==1.4.0
+ruff==0.15.16
+truststore==0.10.4

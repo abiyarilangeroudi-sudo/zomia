@@ -62,11 +62,26 @@ Before release:
 Release:
 
 - Publish backend code into a new backend release directory.
-- Install/update the backend virtual environment for that release.
+- Install the backend virtual environment with the committed runtime constraints:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -c constraints-runtime.txt .
+```
+
+- Do not install production dependencies without `constraints-runtime.txt`.
 - Run `alembic current`.
 - Run `alembic upgrade head` only after backup is confirmed.
 - Restart `zomia-backend.service`.
 - Check `https://zomia.eu/health`.
+
+Dependency constraint updates:
+
+- Treat `backend/pyproject.toml` as the supported dependency ranges.
+- Treat `backend/constraints-runtime.txt` and `backend/constraints-dev.txt` as the exact tested resolution.
+- Refresh constraints deliberately; never regenerate them during a production deploy.
+- Verify a refreshed resolution with `pip check`, backend lint, the full backend test suite, and an inactive Python 3.12 release before switching production symlinks.
 
 Production Alembic command note:
 
