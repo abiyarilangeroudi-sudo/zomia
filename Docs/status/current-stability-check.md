@@ -1,6 +1,6 @@
 # Current Stability Check
 
-Date: 2026-07-05
+Date: 2026-07-21
 
 This document is the short checkpoint before the next feature phase.
 
@@ -17,6 +17,10 @@ This document is the short checkpoint before the next feature phase.
 - Staff can scan Customer QR, resolve the customer, register actions, and use active rewards.
 - Customer can view QR, campaign progress, active rewards, and profile basics.
 - Manual release-candidate QA passed on 2026-06-24.
+- Owner can cancel pending Staff invitations and deactivate/reactivate accepted Staff memberships without deleting historical activity.
+- Owner can edit or archive unused Missions and Reward Templates; assets used by an active Campaign remain protected.
+- Campaigns distinguish natural `Expired` status from Owner-initiated `Ended` status; an early end settles eligible non-zero incomplete Customer progress before ending.
+- Owner Campaign cards and the completed onboarding summary expose backend-owned participating-Customer and Reward status counts.
 - F14 aligned Owner Sign out styling with Customer and Staff.
 - Private-pilot production deployment is active at `https://zomia.eu/webapp/`.
 - Root `https://zomia.eu/` is served by the lightweight Landing Page v1 from `site/index.html`, with the Wistia explainer video and section-separated white layout.
@@ -30,10 +34,13 @@ This document is the short checkpoint before the next feature phase.
 
 ## Last Recorded Verification Snapshot
 
-- Backend tests: `80 passed`
-- Frontend tests: `39 passed`
+- Backend tests: `122 passed`
+- Frontend tests: `49 passed`
 - Flutter analyze: no issues
-- Current production Flutter version: `1.0.126 (127)`
+- Current production Flutter version: `1.0.153 (154)`
+- Production Alembic revision: `0015_early_end_settlement (head)`
+- GitHub Actions CI passed on commit `a4d017f` after migration and Action-runtime maintenance.
+- Isolated restore of the 2026-07-21 scheduled production backup passed and left no temporary database or dump behind.
 - Production smoke passes have covered registration, login, Staff service flow, reward generation/use, Owner activity, legal routing, and console hygiene.
 
 ## Current Frontend Structure

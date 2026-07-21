@@ -1149,3 +1149,32 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`.
   - Active backend and frontend symlinks point to the releases listed above.
+
+## 2026-07-21 Isolated Production Backup Restore Test
+
+- Goal: repeat the required restore test before onboarding the first real Business.
+- Production database was not stopped, modified, or replaced.
+- Selected scheduled backup: `zomia-20260721-031501.dump`.
+- Backup timestamp: 2026-07-21 03:15 Europe/Berlin.
+- Local backup size: `82160` bytes (`84K` in the backup log).
+- Matching encrypted off-server upload was confirmed in `postgres-offsite-backup.log` as `zomia-20260721-031501.dump.gpg`.
+- Restore target: temporary database `zomia_restore_check_20260721`.
+- The protected backup file was copied temporarily with owner `postgres` and mode `0600`; the temporary copy was removed after verification.
+- `pg_restore --exit-on-error --no-owner` completed successfully.
+- Restored Alembic revision: `0015_early_end_settlement`.
+- Restored public table count: `20`.
+- Invalid restored indexes: `0`.
+- Aggregate restored counts matched the live production database at verification time:
+  - `users`: `1`
+  - `businesses`: `0`
+  - `staff_members`: `0`
+  - `campaigns`: `0`
+  - `loyalty_actions`: `0`
+  - `generated_rewards`: `0`
+- No personal fields, emails, tokens, or other row content were read or recorded.
+- Cleanup confirmed:
+  - temporary restore database count: `0`
+  - temporary dump count: `0`
+- Post-test backend service state: `active`.
+- Post-test `https://zomia.eu/health`: `{"status":"ok"}`.
+- Result: passed; the latest scheduled local backup is restore-capable and matches the current first-Customer pilot state.

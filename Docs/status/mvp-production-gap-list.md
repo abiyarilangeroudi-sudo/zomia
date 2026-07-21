@@ -1,6 +1,6 @@
 # MVP Production Gap List
 
-Date: 2026-06-27
+Date: 2026-07-21
 
 This document lists the remaining gaps before calling Zomia a production-ready MVP.
 
@@ -13,7 +13,10 @@ The MVP has moved beyond local-only readiness and is running as a private-pilot 
 - Production web app: `https://zomia.eu/webapp/`
 - Root domain: `https://zomia.eu/` is served by the lightweight Landing Page v1 from `site/index.html`, including the Wistia explainer video and section-separated white layout.
 - Public legal draft pages: `https://zomia.eu/legal/...`
-- Current Flutter version: `1.0.125 (126)`
+- Current production Flutter version: `1.0.153 (154)`
+- Current production Alembic revision: `0015_early_end_settlement (head)`
+- Latest verification snapshot: `122` backend tests, `49` frontend tests, clean backend lint and Flutter analyze.
+- The first real Customer is registered; onboarding the first real Business remains the active pilot validation step.
 - Mobile distribution decision: keep `https://zomia.eu/webapp/` as the private-pilot app surface. Do not create `/download` until native Android/iOS distribution is intentionally started.
 
 Confirmed manually across local and production smoke passes:
@@ -23,7 +26,7 @@ Confirmed manually across local and production smoke passes:
 - Customer QR fullscreen dialog
 - QR refresh changes the QR/token only when explicitly requested
 - Page refresh does not rotate the Customer QR token
-- Owner dashboard can manage Staff, Mission, Campaign, and Reward Template
+- Owner dashboard can manage Staff, Mission, Campaign, and Reward Template lifecycle within current MVP policies
 - Staff can scan QR, resolve customer, register action, generate/check reward, use reward, and see recent actions
 - Production registration/login, Staff scan/action, reward generation/use, Owner activity, account settings, legal link routing, and major UI polish flows have passed manual checks.
 
@@ -248,7 +251,7 @@ F13 progress:
 - Staff email is locked by the invitation; Staff sets password only during accept.
 - Staff membership becomes active only after invitation accept.
 - Owner Staff list includes pending invitations alongside active/inactive memberships.
-- Resend/cancel invitation controls remain future work.
+- Owner can cancel a pending invitation; resend remains future work and should be added only if pilot evidence shows it is needed.
 
 ### 9. Repeatable Campaign Cycles
 
