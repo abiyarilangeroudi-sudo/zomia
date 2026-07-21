@@ -1101,3 +1101,36 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/?v=production-smoke-202607172100` returned `200`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`.
   - Active backend and frontend symlinks point to the releases listed above.
+
+## 2026-07-21 Owner Loyalty Reporting And UI Polish
+
+- Backend release: `/opt/zomia/backend/releases/202607211034_owner_loyalty_reporting`.
+- Frontend release: `/var/www/zomia/releases/202607211034_owner_loyalty_reporting`.
+- Frontend version: `1.0.153 (154)`.
+- Git commit deployed: `6e9d842 Add owner loyalty reporting and polish`.
+- Changes:
+  - Owner Campaign cards expose participating-customer and reward-status metrics.
+  - Owner Home shows a compact live-loyalty summary after onboarding is complete.
+  - Owner Loyalty navigation and Setup assets were compacted for clearer campaign focus.
+  - Independent Owner data requests load concurrently and summary failures no longer block the dashboard.
+  - Loyalty reporting queries now live in a dedicated repository and Campaign API responses no longer use transient ORM state.
+- Database schema and Alembic head were unchanged at `0015_early_end_settlement`.
+- Verification passed before deploy:
+  - Backend test suite returned `122 passed`.
+  - Frontend test suite returned `49 passed`.
+  - Backend lint, `flutter analyze`, and `git diff --check` passed.
+  - Responsive widget coverage passed at 320-pixel width with 1.6x text scaling.
+- Staged release validation passed before symlink switching:
+  - Backend application import succeeded.
+  - Alembic reported `0015_early_end_settlement (head)`.
+  - Backend runtime dependency versions matched the previous active release.
+  - No `._*` macOS metadata files were present.
+- Post-release checks passed:
+  - `zomia-backend.service` is active with a normal shutdown/startup sequence.
+  - `https://zomia.eu/health` returned status ok.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.153 (154)`.
+  - `https://zomia.eu/webapp/?v=production-smoke-20260721103646` returned `200`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`.
+  - Active backend and frontend symlinks point to the releases listed above.
