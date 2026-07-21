@@ -1237,3 +1237,26 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
   - Unauthenticated `GET /api/v1/auth/me` returned `401`.
   - Active Backend and Frontend symlinks point to the releases listed above.
+
+## 2026-07-21 Public Landing Page Improvement
+
+- Git commit deployed: `7803511 Improve public landing page`.
+- Scope was limited to:
+  - `/var/www/zomia/root/index.html` from `site/index.html`;
+  - `/var/www/zomia/root/assets/site.css` from `site/assets/site.css`.
+- Rollback copy: `/var/backups/zomia/root-site/202607211840_landing_page`.
+- Changes:
+  - Business registration is the primary call to action.
+  - A three-step product workflow, video summary, and third-party privacy note were added.
+  - Wistia assets load only after the visitor presses the video play control.
+  - Focus, hover, contrast, SEO, canonical, social metadata, legal footer links, copyright text, and logo dimensions were improved.
+- Backend, database, migrations, Flutter WebApp, and `pubspec.yaml` were unchanged.
+- Cache verification:
+  - The stylesheet has no long-lived `Cache-Control` or `Expires` header.
+  - Replacing it changed both `Last-Modified` and `ETag`, so conditional browser requests revalidate against the new file.
+- Post-release checks passed:
+  - `https://zomia.eu/` and `https://zomia.eu/assets/site.css` returned `200`.
+  - The deployed page contains `Register your business`, `From visit to reward in three steps`, and `Zomia in action`.
+  - Privacy, Cookies, and Impressum links returned `200`.
+  - Browser verification found no Wistia player or scripts before interaction; the player and required scripts appeared after one click with no console error.
+  - Standard production smoke passed; WebApp remained at `1.0.155 (156)` and Backend health remained ok.
