@@ -10,6 +10,7 @@ part 'owner_setup_business_repository.dart';
 part 'owner_setup_campaign_repository.dart';
 part 'owner_setup_mission_repository.dart';
 part 'owner_setup_reward_repository.dart';
+part 'owner_setup_summary_repository.dart';
 part 'owner_setup_staff_repository.dart';
 
 final ownerSetupRepositoryProvider = Provider<OwnerSetupRepository>((ref) {
@@ -53,6 +54,7 @@ class OwnerSetupRepository extends _OwnerSetupRepositoryBase
         _OwnerSetupCampaignRepository,
         _OwnerSetupMissionRepository,
         _OwnerSetupRewardRepository,
+        _OwnerSetupSummaryRepository,
         _OwnerSetupStaffRepository {
   const OwnerSetupRepository(super.dio);
 }

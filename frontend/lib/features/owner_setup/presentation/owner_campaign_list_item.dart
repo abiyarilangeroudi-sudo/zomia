@@ -9,10 +9,12 @@ class OwnerCampaignListItem extends StatelessWidget {
   const OwnerCampaignListItem({
     super.key,
     required this.campaign,
+    required this.showStatusBadge,
     required this.trailing,
   });
 
   final OwnerCampaign campaign;
+  final bool showStatusBadge;
   final Widget trailing;
 
   @override
@@ -49,11 +51,13 @@ class OwnerCampaignListItem extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      StatusBadge(
-                        label: campaign.displayStatus,
-                        tone: ownerCampaignBadgeTone(campaign),
-                      ),
+                      if (showStatusBadge) ...[
+                        const SizedBox(width: 8),
+                        StatusBadge(
+                          label: campaign.displayStatus,
+                          tone: ownerCampaignBadgeTone(campaign),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -65,6 +69,11 @@ class OwnerCampaignListItem extends StatelessWidget {
                       color: BrandColors.textSecondary,
                     ),
                   ),
+                  if (campaign.activitySummary.participatingCustomerCount > 0 ||
+                      campaign.activitySummary.rewardsIssuedCount > 0) ...[
+                    const SizedBox(height: 8),
+                    _CampaignActivitySummary(campaign: campaign),
+                  ],
                   const SizedBox(height: 6),
                   Row(
                     children: [
@@ -93,6 +102,40 @@ class OwnerCampaignListItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CampaignActivitySummary extends StatelessWidget {
+  const _CampaignActivitySummary({required this.campaign});
+
+  final OwnerCampaign campaign;
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = campaign.activitySummary;
+    final hasIssuedRewards = summary.rewardsIssuedCount > 0;
+    final rewardStates = <String>[
+      '${summary.rewardsReadyToUseCount} ready',
+      '${summary.rewardsUsedCount} used',
+      if (summary.rewardsExpiredCount > 0)
+        '${summary.rewardsExpiredCount} expired',
+    ];
+    final style = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: BrandColors.textSecondary);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${summary.participatingCustomerCount} customer${summary.participatingCustomerCount == 1 ? '' : 's'} · ${summary.rewardsIssuedCount} reward${summary.rewardsIssuedCount == 1 ? '' : 's'}',
+          style: style,
+        ),
+        if (hasIssuedRewards) ...[
+          const SizedBox(height: 2),
+          Text(rewardStates.join(' · '), style: style),
+        ],
+      ],
     );
   }
 }

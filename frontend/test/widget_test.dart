@@ -827,6 +827,13 @@ void main() {
                 hasActiveStaff: true,
                 hasMissionProgressActivity: true,
               ),
+              loyaltySummary: const OwnerLoyaltySummary(
+                participatingCustomerCount: 2,
+                rewardsIssuedCount: 5,
+                rewardsReadyToUseCount: 1,
+                rewardsUsedCount: 4,
+                rewardsExpiredCount: 0,
+              ),
               onCreateMission: () {},
               onCreateRewardTemplate: () {},
               onCreateCampaign: () {},
@@ -837,21 +844,95 @@ void main() {
       ),
     );
 
-    expect(find.text('First setup complete'), findsOneWidget);
-    expect(find.text('Setup tasks are done.'), findsOneWidget);
-    expect(find.text('Pilot tasks complete'), findsOneWidget);
-    expect(
-      find.text('The first staff action has been registered.'),
-      findsOneWidget,
-    );
     expect(find.text('Loyalty is active'), findsOneWidget);
-    expect(
-      find.text('You can review the full flow in Recent activity.'),
-      findsOneWidget,
-    );
+    expect(find.text('Your first workflow is live.'), findsOneWidget);
+    expect(find.text('Customers'), findsOneWidget);
+    expect(find.text('Rewards issued'), findsOneWidget);
+    expect(find.text('Ready to use'), findsOneWidget);
+    expect(find.text('Used'), findsOneWidget);
     expect(find.text('Create your first mission'), findsNothing);
     expect(find.text('Staff accepts invitation'), findsNothing);
-    expect(find.text('Done'), findsNWidgets(2));
+    expect(find.text('First setup complete'), findsNothing);
+    expect(find.text('Pilot tasks complete'), findsNothing);
+  });
+
+  testWidgets('owner loyalty summary handles narrow scaled text', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(320, 640),
+            textScaler: TextScaler.linear(1.6),
+          ),
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: OwnerSetupChecklist(
+                state: const OwnerOnboardingState(
+                  hasMission: true,
+                  hasRewardTemplate: true,
+                  hasActiveCampaign: true,
+                  hasStaff: true,
+                  hasActiveStaff: true,
+                  hasMissionProgressActivity: true,
+                ),
+                loyaltySummary: const OwnerLoyaltySummary(
+                  participatingCustomerCount: 12,
+                  rewardsIssuedCount: 10,
+                  rewardsReadyToUseCount: 4,
+                  rewardsUsedCount: 6,
+                  rewardsExpiredCount: 0,
+                ),
+                onCreateMission: () {},
+                onCreateRewardTemplate: () {},
+                onCreateCampaign: () {},
+                onInviteStaff: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Rewards issued'), findsOneWidget);
+    expect(find.text('Ready to use'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('owner loyalty summary reports temporary unavailability', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: OwnerSetupChecklist(
+              state: const OwnerOnboardingState(
+                hasMission: true,
+                hasRewardTemplate: true,
+                hasActiveCampaign: true,
+                hasStaff: true,
+                hasActiveStaff: true,
+                hasMissionProgressActivity: true,
+              ),
+              onCreateMission: () {},
+              onCreateRewardTemplate: () {},
+              onCreateCampaign: () {},
+              onInviteStaff: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      find.text(
+        'Activity summary is temporarily unavailable. Pull to refresh.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Rewards issued'), findsNothing);
   });
 
   testWidgets('owner setup checklist shows pilot task statuses', (
@@ -948,21 +1029,11 @@ void main() {
     );
 
     expect(find.text('Setup assets'), findsOneWidget);
-    expect(find.text('Mission assets'), findsOneWidget);
-    expect(
-      find.text('1 active mission · staff actions earn points'),
-      findsOneWidget,
-    );
-    expect(find.text('Reward template assets'), findsOneWidget);
-    expect(
-      find.text('1 active template · campaigns create rewards'),
-      findsOneWidget,
-    );
-    expect(find.text('Manage assets'), findsOneWidget);
+    expect(find.text('1 mission · 1 reward template'), findsOneWidget);
     expect(find.text('Buy Coffee'), findsNothing);
     expect(find.text('Free coffee · 30 days'), findsNothing);
 
-    await tester.tap(find.text('Manage assets'));
+    await tester.tap(find.text('Setup assets'));
     await tester.pumpAndSettle();
 
     expect(find.text('Buy Coffee'), findsOneWidget);
@@ -1801,11 +1872,10 @@ void main() {
     await tester.tap(find.text('Loyalty'));
     await pumpAppFrames(tester);
 
-    expect(find.text('Campaigns'), findsOneWidget);
+    expect(find.text('Active'), findsWidgets);
+    expect(find.text('Archive'), findsOneWidget);
     expect(find.text('Setup assets'), findsOneWidget);
-    expect(find.text('Mission assets'), findsOneWidget);
-    expect(find.text('Reward template assets'), findsOneWidget);
-    expect(find.text('Manage assets'), findsOneWidget);
+    expect(find.text('1 mission · 1 reward template'), findsOneWidget);
     expect(find.text('Coffee Reward'), findsWidgets);
     expect(find.text('10 pts · non-repeatable'), findsOneWidget);
     expect(find.text('Active'), findsWidgets);
@@ -2496,6 +2566,17 @@ class _FakeOwnerSetupRepository extends OwnerSetupRepository {
         dateRangeLabel: '2026-01-01 - 2027-01-01',
       ),
     ];
+  }
+
+  @override
+  Future<OwnerLoyaltySummary> getLoyaltySummary(String businessId) async {
+    return const OwnerLoyaltySummary(
+      participatingCustomerCount: 1,
+      rewardsIssuedCount: 0,
+      rewardsReadyToUseCount: 0,
+      rewardsUsedCount: 0,
+      rewardsExpiredCount: 0,
+    );
   }
 
   @override

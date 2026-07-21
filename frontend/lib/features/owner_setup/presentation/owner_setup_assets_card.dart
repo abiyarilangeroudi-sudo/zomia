@@ -47,46 +47,17 @@ class OwnerSetupAssetsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OwnerSetupCard(
+    return AppListRow(
       title: 'Setup assets',
-      subtitle: 'Reusable pieces for building campaigns.',
-      children: [
-        AppListRow(
-          title: 'Mission assets',
-          subtitle:
-              '${_countLabel(missions.length, 'active mission')} · staff actions earn points',
-          leadingIcon: Icons.task_alt_rounded,
-          trailing: StatusBadge(
-            label: missions.length.toString(),
-            tone: BadgeTone.info,
-          ),
-        ),
-        const SizedBox(height: 8),
-        AppListRow(
-          title: 'Reward template assets',
-          subtitle:
-              '${_countLabel(rewardTemplates.length, 'active template')} · campaigns create rewards',
-          leadingIcon: Icons.card_giftcard_rounded,
-          trailing: StatusBadge(
-            label: rewardTemplates.length.toString(),
-            tone: BadgeTone.info,
-          ),
-        ),
-        const SizedBox(height: 12),
-        SecondaryButton(
-          label: 'Manage assets',
-          icon: Icons.tune_rounded,
-          onPressed: () => _openManageAssets(context),
-        ),
-      ],
+      subtitle:
+          '${_countLabel(missions.length, 'mission')} · ${_countLabel(rewardTemplates.length, 'reward template')}',
+      leadingIcon: Icons.tune_rounded,
+      onTap: () => _openManageAssets(context),
     );
   }
 
-  String _countLabel(int count, String singular) {
-    if (count == 1) {
-      return '1 $singular';
-    }
-    return '$count ${singular}s';
+  String _countLabel(int count, String label) {
+    return '$count $label${count == 1 ? '' : 's'}';
   }
 
   void _openManageAssets(BuildContext context) {

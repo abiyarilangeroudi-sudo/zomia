@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.modules.loyalty.repository import LoyaltyRepository
+from app.modules.loyalty.reporting_repository import LoyaltyReportingRepository
 from app.modules.loyalty.service import LoyaltyService
 
 
@@ -10,7 +11,16 @@ def get_loyalty_repository(db: Session = Depends(get_db)) -> LoyaltyRepository:
     return LoyaltyRepository(db)
 
 
+def get_loyalty_reporting_repository(
+    db: Session = Depends(get_db),
+) -> LoyaltyReportingRepository:
+    return LoyaltyReportingRepository(db)
+
+
 def get_loyalty_service(
     repository: LoyaltyRepository = Depends(get_loyalty_repository),
+    reporting_repository: LoyaltyReportingRepository = Depends(
+        get_loyalty_reporting_repository
+    ),
 ) -> LoyaltyService:
-    return LoyaltyService(repository)
+    return LoyaltyService(repository, reporting_repository)

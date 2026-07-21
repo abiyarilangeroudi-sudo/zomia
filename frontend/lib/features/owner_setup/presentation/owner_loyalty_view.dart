@@ -8,9 +8,14 @@ import 'owner_setup_controller.dart';
 import 'owner_setup_shared_widgets.dart';
 
 class OwnerLoyaltyView extends StatelessWidget {
-  const OwnerLoyaltyView({super.key, required this.controller});
+  const OwnerLoyaltyView({
+    super.key,
+    required this.controller,
+    required this.campaignTabIndex,
+  });
 
   final OwnerSetupController controller;
+  final int campaignTabIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +35,7 @@ class OwnerLoyaltyView extends StatelessWidget {
         else ...[
           OwnerCampaignListCard(
             campaigns: controller.campaigns,
+            selectedTabIndex: campaignTabIndex,
             isSaving: controller.isSaving,
             onPreviewEnd: controller.previewCampaignEnd,
             onEndCampaign: controller.endCampaign,

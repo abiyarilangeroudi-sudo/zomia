@@ -175,6 +175,13 @@ class OwnerCampaign {
     required this.displayStatus,
     required this.badgeTone,
     required this.dateRangeLabel,
+    this.activitySummary = const OwnerCampaignActivitySummary(
+      participatingCustomerCount: 0,
+      rewardsIssuedCount: 0,
+      rewardsReadyToUseCount: 0,
+      rewardsUsedCount: 0,
+      rewardsExpiredCount: 0,
+    ),
   });
 
   factory OwnerCampaign.fromJson(Map<String, dynamic> json) {
@@ -198,6 +205,9 @@ class OwnerCampaign {
             DateTime.parse(json['starts_at'] as String),
             DateTime.parse(json['ends_at'] as String),
           ),
+      activitySummary: OwnerCampaignActivitySummary.fromJson(
+        json['activity_summary'] as Map<String, dynamic>? ?? const {},
+      ),
     );
   }
 
@@ -214,6 +224,7 @@ class OwnerCampaign {
   final String displayStatus;
   final String badgeTone;
   final String dateRangeLabel;
+  final OwnerCampaignActivitySummary activitySummary;
 
   static String _formatDateRange(DateTime startsAt, DateTime endsAt) {
     String format(DateTime value) {
@@ -225,6 +236,60 @@ class OwnerCampaign {
 
     return '${format(startsAt)} - ${format(endsAt)}';
   }
+}
+
+class OwnerCampaignActivitySummary {
+  const OwnerCampaignActivitySummary({
+    required this.participatingCustomerCount,
+    required this.rewardsIssuedCount,
+    required this.rewardsReadyToUseCount,
+    required this.rewardsUsedCount,
+    required this.rewardsExpiredCount,
+  });
+
+  factory OwnerCampaignActivitySummary.fromJson(Map<String, dynamic> json) {
+    return OwnerCampaignActivitySummary(
+      participatingCustomerCount:
+          json['participating_customer_count'] as int? ?? 0,
+      rewardsIssuedCount: json['rewards_issued_count'] as int? ?? 0,
+      rewardsReadyToUseCount: json['rewards_ready_to_use_count'] as int? ?? 0,
+      rewardsUsedCount: json['rewards_used_count'] as int? ?? 0,
+      rewardsExpiredCount: json['rewards_expired_count'] as int? ?? 0,
+    );
+  }
+
+  final int participatingCustomerCount;
+  final int rewardsIssuedCount;
+  final int rewardsReadyToUseCount;
+  final int rewardsUsedCount;
+  final int rewardsExpiredCount;
+}
+
+class OwnerLoyaltySummary {
+  const OwnerLoyaltySummary({
+    required this.participatingCustomerCount,
+    required this.rewardsIssuedCount,
+    required this.rewardsReadyToUseCount,
+    required this.rewardsUsedCount,
+    required this.rewardsExpiredCount,
+  });
+
+  factory OwnerLoyaltySummary.fromJson(Map<String, dynamic> json) {
+    return OwnerLoyaltySummary(
+      participatingCustomerCount:
+          json['participating_customer_count'] as int? ?? 0,
+      rewardsIssuedCount: json['rewards_issued_count'] as int? ?? 0,
+      rewardsReadyToUseCount: json['rewards_ready_to_use_count'] as int? ?? 0,
+      rewardsUsedCount: json['rewards_used_count'] as int? ?? 0,
+      rewardsExpiredCount: json['rewards_expired_count'] as int? ?? 0,
+    );
+  }
+
+  final int participatingCustomerCount;
+  final int rewardsIssuedCount;
+  final int rewardsReadyToUseCount;
+  final int rewardsUsedCount;
+  final int rewardsExpiredCount;
 }
 
 class OwnerCampaignEndPreview {

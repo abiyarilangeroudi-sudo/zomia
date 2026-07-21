@@ -56,6 +56,7 @@ class OwnerHomeView extends StatelessWidget {
               staffMembers: controller.staffForSelectedBusiness,
               recentActivities: controller.recentActivities,
             ),
+            loyaltySummary: controller.loyaltySummary,
             onCreateMission: onCreateMission,
             onCreateRewardTemplate: onCreateRewardTemplate,
             onCreateCampaign: onCreateCampaign,

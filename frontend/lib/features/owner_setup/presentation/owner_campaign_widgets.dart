@@ -6,16 +6,18 @@ import 'owner_campaign_list_item.dart';
 import 'owner_presenter.dart';
 import 'owner_setup_shared_widgets.dart';
 
-class OwnerCampaignListCard extends StatefulWidget {
+class OwnerCampaignListCard extends StatelessWidget {
   const OwnerCampaignListCard({
     super.key,
     required this.campaigns,
+    required this.selectedTabIndex,
     required this.isSaving,
     required this.onPreviewEnd,
     required this.onEndCampaign,
   });
 
   final List<OwnerCampaign> campaigns;
+  final int selectedTabIndex;
   final bool isSaving;
   final Future<int?> Function(OwnerCampaign campaign) onPreviewEnd;
   final Future<void> Function(
@@ -25,34 +27,21 @@ class OwnerCampaignListCard extends StatefulWidget {
   onEndCampaign;
 
   @override
-  State<OwnerCampaignListCard> createState() => _OwnerCampaignListCardState();
-}
-
-class _OwnerCampaignListCardState extends State<OwnerCampaignListCard> {
-  var _selectedTabIndex = 0;
-
-  @override
   Widget build(BuildContext context) {
-    final visibleCampaigns = widget.campaigns
+    final visibleCampaigns = campaigns
         .where(
-          (campaign) => _selectedTabIndex == 0
+          (campaign) => selectedTabIndex == 0
               ? !ownerCampaignIsArchived(campaign)
               : ownerCampaignIsArchived(campaign),
         )
         .toList();
-    return OwnerSetupCard(
-      title: 'Campaigns',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SegmentedTabs(
-          items: const ['Active', 'Archive'],
-          selectedIndex: _selectedTabIndex,
-          onChanged: (index) => setState(() => _selectedTabIndex = index),
-        ),
-        const SizedBox(height: 12),
         if (visibleCampaigns.isEmpty)
           EmptyStateView(
             icon: Icons.campaign_rounded,
-            title: _selectedTabIndex == 0
+            title: selectedTabIndex == 0
                 ? 'Active campaigns will appear here after you create one.'
                 : 'Ended and expired campaigns will appear here.',
           )
@@ -62,11 +51,12 @@ class _OwnerCampaignListCardState extends State<OwnerCampaignListCard> {
               padding: const EdgeInsets.only(bottom: 8),
               child: OwnerCampaignListItem(
                 campaign: campaign,
+                showStatusBadge: campaign.displayStatus != 'Active',
                 trailing: _CampaignStatusActions(
                   campaign: campaign,
-                  isSaving: widget.isSaving,
-                  onPreviewEnd: widget.onPreviewEnd,
-                  onEndCampaign: widget.onEndCampaign,
+                  isSaving: isSaving,
+                  onPreviewEnd: onPreviewEnd,
+                  onEndCampaign: onEndCampaign,
                 ),
               ),
             ),

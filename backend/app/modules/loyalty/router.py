@@ -15,6 +15,7 @@ from app.modules.loyalty.schemas import (
     CustomerCampaignProgressRead,
     CustomerStatusRead,
     CampaignRead,
+    OwnerLoyaltySummaryRead,
     CampaignStatusUpdate,
     CustomerPointsRead,
     GeneratedRewardRead,
@@ -247,6 +248,17 @@ def list_owner_recent_activity(
     service: LoyaltyService = Depends(get_loyalty_service),
 ) -> list[OwnerActivityRead]:
     return service.list_owner_recent_activity(current_user, business_id, limit=limit)
+
+
+@router.get("/owner/loyalty-summary", response_model=OwnerLoyaltySummaryRead)
+def get_owner_loyalty_summary(
+    business_id: uuid.UUID = Query(...),
+    current_user: User = Depends(get_current_user),
+    service: LoyaltyService = Depends(get_loyalty_service),
+) -> OwnerLoyaltySummaryRead:
+    return OwnerLoyaltySummaryRead(
+        **service.get_owner_loyalty_summary(current_user, business_id)
+    )
 
 
 @router.post(

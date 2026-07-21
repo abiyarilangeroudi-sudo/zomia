@@ -22,6 +22,7 @@ class OwnerSetupController extends ChangeNotifier {
   List<OwnerCampaign> campaigns = [];
   List<OwnerRewardTemplate> rewardTemplates = [];
   List<OwnerActivity> recentActivities = [];
+  OwnerLoyaltySummary? loyaltySummary;
   OwnerBusiness? selectedBusiness;
   String? error;
   String? success;
@@ -57,18 +58,22 @@ class OwnerSetupController extends ChangeNotifier {
       List<OwnerRewardTemplate> nextTemplates = [];
       List<OwnerStaffMember> nextStaffMembers = [];
       List<OwnerActivity> nextRecentActivities = [];
+      OwnerLoyaltySummary? nextLoyaltySummary;
       if (selected != null) {
-        nextStaffMembers = await repository.listStaff();
-        nextMissions = await repository.listMissions(selected.id);
-        nextCampaigns = await repository.listCampaigns(selected.id);
-        nextTemplates = await repository.listRewardTemplates(selected.id);
-        try {
-          nextRecentActivities = await repository.listRecentActivity(
-            businessId: selected.id,
-          );
-        } catch (_) {
-          nextRecentActivities = [];
-        }
+        final results = await Future.wait<Object?>([
+          repository.listStaff(),
+          repository.listMissions(selected.id),
+          repository.listCampaigns(selected.id),
+          repository.listRewardTemplates(selected.id),
+          _optional(repository.getLoyaltySummary(selected.id)),
+          _optional(repository.listRecentActivity(businessId: selected.id)),
+        ]);
+        nextStaffMembers = results[0] as List<OwnerStaffMember>;
+        nextMissions = results[1] as List<OwnerMission>;
+        nextCampaigns = results[2] as List<OwnerCampaign>;
+        nextTemplates = results[3] as List<OwnerRewardTemplate>;
+        nextLoyaltySummary = results[4] as OwnerLoyaltySummary?;
+        nextRecentActivities = results[5] as List<OwnerActivity>? ?? const [];
       }
 
       _setState(() {
@@ -79,6 +84,7 @@ class OwnerSetupController extends ChangeNotifier {
         campaigns = nextCampaigns;
         rewardTemplates = nextTemplates;
         recentActivities = nextRecentActivities;
+        loyaltySummary = nextLoyaltySummary;
         campaignForm.syncOptions(
           missionIds: nextMissions.map((mission) => mission.id).toList(),
           rewardTemplateIds: nextTemplates
@@ -92,6 +98,14 @@ class OwnerSetupController extends ChangeNotifier {
         error = loadError.toString();
         isLoading = false;
       });
+    }
+  }
+
+  Future<T?> _optional<T>(Future<T> request) async {
+    try {
+      return await request;
+    } catch (_) {
+      return null;
     }
   }
 

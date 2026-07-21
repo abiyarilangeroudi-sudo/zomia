@@ -26,11 +26,13 @@ from app.modules.loyalty.models import (
 )
 from app.modules.loyalty.campaign_service import CampaignService
 from app.modules.loyalty.repository import LoyaltyRepository
+from app.modules.loyalty.reporting_repository import LoyaltyReportingRepository
 from app.modules.loyalty.schemas import (
     ActiveStatusUpdate,
     CampaignCreate,
     CampaignEndPreview,
     CampaignProgressRead,
+    CampaignRead,
     CampaignStatusUpdate,
     CustomerCampaignProgressRead,
     CustomerPointsRead,
@@ -50,9 +52,18 @@ from app.modules.loyalty.schemas import (
 
 
 class LoyaltyService:
-    def __init__(self, repository: LoyaltyRepository) -> None:
+    def __init__(
+        self,
+        repository: LoyaltyRepository,
+        reporting_repository: LoyaltyReportingRepository,
+    ) -> None:
         self.repository = repository
-        self.campaigns = CampaignService(repository, audit=self._audit)
+        self.reporting_repository = reporting_repository
+        self.campaigns = CampaignService(
+            repository,
+            reporting_repository,
+            audit=self._audit,
+        )
 
     def create_mission(self, owner: User, payload: MissionCreate) -> Mission:
         self._require_role(owner, UserRole.OWNER)
@@ -187,7 +198,7 @@ class LoyaltyService:
     def create_campaign(self, owner: User, payload: CampaignCreate) -> Campaign:
         return self.campaigns.create_campaign(owner, payload)
 
-    def list_campaigns(self, owner: User, business_id) -> list[Campaign]:
+    def list_campaigns(self, owner: User, business_id) -> list[CampaignRead]:
         return self.campaigns.list_campaigns(owner, business_id)
 
     def update_campaign_status(
@@ -411,6 +422,16 @@ class LoyaltyService:
             )
             for action, staff, customer in rows
         ]
+
+    def get_owner_loyalty_summary(self, owner: User, business_id) -> dict[str, int]:
+        self._require_role(owner, UserRole.OWNER)
+        business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
+        if business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+        return self.reporting_repository.get_business_loyalty_summary(
+            business_id=business_id,
+            now=datetime.now(UTC),
+        )
 
     def register_action(
         self, staff: User, payload: RegisterActionRequest

@@ -13,6 +13,7 @@ from app.modules.loyalty.models import (
     GeneratedReward,
     LoyaltyAction,
     PointsLedgerEntry,
+    RewardStatus,
     RewardUsage,
 )
 from app.modules.loyalty.repository import LoyaltyRepository
@@ -939,6 +940,43 @@ def test_owner_creates_and_lists_campaigns(client: TestClient) -> None:
     assert response.status_code == 200
     assert [item["id"] for item in response.json()] == [campaign["id"]]
     assert response.json()[0]["display_status"] == "Active"
+    assert response.json()[0]["activity_summary"] == {
+        "participating_customer_count": 0,
+        "rewards_issued_count": 0,
+        "rewards_ready_to_use_count": 0,
+        "rewards_used_count": 0,
+        "rewards_expired_count": 0,
+    }
+
+    summary_response = client.get(
+        f"/api/v1/owner/loyalty-summary?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert summary_response.status_code == 200
+    assert summary_response.json() == {
+        "participating_customer_count": 0,
+        "rewards_issued_count": 0,
+        "rewards_ready_to_use_count": 0,
+        "rewards_used_count": 0,
+        "rewards_expired_count": 0,
+    }
+
+
+def test_owner_loyalty_summary_is_scoped_to_owned_business(client: TestClient) -> None:
+    owner_token, _ = register_owner(client, "summary-owner@example.com")
+    _, other_business_id = register_owner(
+        client,
+        "other-summary-owner@example.com",
+        business_name="Other Summary Business",
+    )
+
+    response = client.get(
+        f"/api/v1/owner/loyalty-summary?business_id={other_business_id}",
+        headers=auth(owner_token),
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Business not found"
 
 
 def test_owner_campaigns_expose_display_statuses(client: TestClient) -> None:
@@ -1986,6 +2024,65 @@ def test_campaign_completion_generates_reward_when_template_exists(
     )
     assert rewards_response.status_code == 200
     assert [item["id"] for item in rewards_response.json()] == [str(reward.id)]
+
+    campaigns_response = client.get(
+        f"/api/v1/owner/campaigns?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert campaigns_response.status_code == 200
+    assert campaigns_response.json()[0]["activity_summary"] == {
+        "participating_customer_count": 1,
+        "rewards_issued_count": 1,
+        "rewards_ready_to_use_count": 1,
+        "rewards_used_count": 0,
+        "rewards_expired_count": 0,
+    }
+
+    summary_response = client.get(
+        f"/api/v1/owner/loyalty-summary?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert summary_response.status_code == 200
+    assert summary_response.json() == {
+        "participating_customer_count": 1,
+        "rewards_issued_count": 1,
+        "rewards_ready_to_use_count": 1,
+        "rewards_used_count": 0,
+        "rewards_expired_count": 0,
+    }
+    assert summary_response.json()["rewards_issued_count"] == sum(
+        summary_response.json()[key]
+        for key in (
+            "rewards_ready_to_use_count",
+            "rewards_used_count",
+            "rewards_expired_count",
+        )
+    )
+
+    reward.status = RewardStatus.USED
+    reward.used_at = datetime.now(UTC)
+    db_session.commit()
+    used_summary = client.get(
+        f"/api/v1/owner/loyalty-summary?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert used_summary.status_code == 200
+    assert used_summary.json()["rewards_ready_to_use_count"] == 0
+    assert used_summary.json()["rewards_used_count"] == 1
+    assert used_summary.json()["rewards_expired_count"] == 0
+
+    reward.status = RewardStatus.ACTIVE
+    reward.used_at = None
+    reward.expires_at = datetime.now(UTC) - timedelta(minutes=1)
+    db_session.commit()
+    expired_summary = client.get(
+        f"/api/v1/owner/loyalty-summary?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert expired_summary.status_code == 200
+    assert expired_summary.json()["rewards_ready_to_use_count"] == 0
+    assert expired_summary.json()["rewards_used_count"] == 0
+    assert expired_summary.json()["rewards_expired_count"] == 1
 
 
 def test_owner_cannot_create_campaign_without_reward_template(client: TestClient) -> None:

@@ -23,6 +23,7 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   late final OwnerSetupController _controller;
   int _selectedIndex = 0;
+  int _campaignTabIndex = 0;
 
   static const _tabs = [
     NavItem(
@@ -99,6 +100,17 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 icon: const Icon(Icons.history_rounded),
               ),
             ],
+            bottom: _selectedIndex == 1
+                ? PreferredSize(
+                    preferredSize: const Size.fromHeight(51),
+                    child: SegmentedTabs(
+                      items: const ['Active', 'Archive'],
+                      selectedIndex: _campaignTabIndex,
+                      onChanged: (index) =>
+                          setState(() => _campaignTabIndex = index),
+                    ),
+                  )
+                : null,
           ),
           body: SafeArea(
             child: IndexedStack(
@@ -127,7 +139,10 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 ),
                 DashboardScroll(
                   maxWidth: 760,
-                  child: OwnerLoyaltyView(controller: _controller),
+                  child: OwnerLoyaltyView(
+                    controller: _controller,
+                    campaignTabIndex: _campaignTabIndex,
+                  ),
                 ),
                 DashboardScroll(
                   maxWidth: 760,

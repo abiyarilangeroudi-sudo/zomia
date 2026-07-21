@@ -152,6 +152,22 @@ class CampaignEndPreview(BaseModel):
     settlement_customer_count: int
 
 
+class CampaignActivitySummary(BaseModel):
+    participating_customer_count: int = Field(default=0, ge=0)
+    rewards_issued_count: int = Field(default=0, ge=0)
+    rewards_ready_to_use_count: int = Field(default=0, ge=0)
+    rewards_used_count: int = Field(default=0, ge=0)
+    rewards_expired_count: int = Field(default=0, ge=0)
+
+
+class OwnerLoyaltySummaryRead(BaseModel):
+    participating_customer_count: int = Field(default=0, ge=0)
+    rewards_issued_count: int = Field(default=0, ge=0)
+    rewards_ready_to_use_count: int = Field(default=0, ge=0)
+    rewards_used_count: int = Field(default=0, ge=0)
+    rewards_expired_count: int = Field(default=0, ge=0)
+
+
 class CampaignRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -174,6 +190,7 @@ class CampaignRead(BaseModel):
     display_status: str = ""
     badge_tone: str = ""
     date_range_label: str = ""
+    activity_summary: CampaignActivitySummary = Field(default_factory=CampaignActivitySummary)
     created_at: datetime
 
     @model_validator(mode="after")

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/brand/brand_colors.dart';
 import '../../../app/ui/ui.dart';
+import '../domain/owner_setup_models.dart';
 import 'owner_onboarding_presenter.dart';
+import 'owner_loyalty_summary_card.dart';
 
 class OwnerSetupChecklist extends StatelessWidget {
   const OwnerSetupChecklist({
     super.key,
     required this.state,
+    this.loyaltySummary,
     required this.onCreateMission,
     required this.onCreateRewardTemplate,
     required this.onCreateCampaign,
@@ -15,6 +17,7 @@ class OwnerSetupChecklist extends StatelessWidget {
   });
 
   final OwnerOnboardingState state;
+  final OwnerLoyaltySummary? loyaltySummary;
   final VoidCallback onCreateMission;
   final VoidCallback onCreateRewardTemplate;
   final VoidCallback onCreateCampaign;
@@ -22,6 +25,7 @@ class OwnerSetupChecklist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLoyaltyLive = state.isPilotComplete;
     final items = [
       _OwnerSetupChecklistItem(
         title: 'Create your first mission',
@@ -60,6 +64,8 @@ class OwnerSetupChecklist extends StatelessWidget {
     ];
 
     return AppCard(
+      variant: isLoyaltyLive ? AppCardVariant.highlight : AppCardVariant.normal,
+      padding: isLoyaltyLive ? EdgeInsets.zero : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -76,38 +82,31 @@ class OwnerSetupChecklist extends StatelessWidget {
                 child: item,
               ),
             ),
-          ] else ...[
+          ] else if (!state.isPilotComplete) ...[
             const _OwnerMilestoneSummary(
               title: 'First setup complete',
               subtitle: 'Setup tasks are done.',
             ),
             const SizedBox(height: 16),
-            if (!state.isPilotComplete) ...[
-              const SectionHeader(
-                title: 'Pilot tasks',
-                subtitle: 'Complete these steps during the first pilot flow.',
-              ),
-              const SizedBox(height: 12),
-              _OwnerPilotTaskItem(
-                title: 'Staff accepts invitation',
-                subtitle: 'Open the email, set a password, and sign in.',
-                isDone: state.hasActiveStaff,
-              ),
-              const SizedBox(height: 8),
-              _OwnerPilotTaskItem(
-                title: 'Staff registers first action',
-                subtitle:
-                    'Serve the first customer and register a mission action.',
-                isDone: state.hasMissionProgressActivity,
-              ),
-            ] else ...[
-              const _OwnerMilestoneSummary(
-                title: 'Pilot tasks complete',
-                subtitle: 'The first staff action has been registered.',
-              ),
-              const SizedBox(height: 16),
-              const _OwnerActiveLoyaltySummary(),
-            ],
+            const SectionHeader(
+              title: 'Pilot tasks',
+              subtitle: 'Complete these steps during the first pilot flow.',
+            ),
+            const SizedBox(height: 12),
+            _OwnerPilotTaskItem(
+              title: 'Staff accepts invitation',
+              subtitle: 'Open the email, set a password, and sign in.',
+              isDone: state.hasActiveStaff,
+            ),
+            const SizedBox(height: 8),
+            _OwnerPilotTaskItem(
+              title: 'Staff registers first action',
+              subtitle:
+                  'Serve the first customer and register a mission action.',
+              isDone: state.hasMissionProgressActivity,
+            ),
+          ] else ...[
+            OwnerLoyaltySummaryCard(summary: loyaltySummary),
           ],
         ],
       ),
@@ -128,62 +127,6 @@ class _OwnerMilestoneSummary extends StatelessWidget {
       subtitle: subtitle,
       leadingIcon: Icons.check_circle_rounded,
       trailing: const StatusBadge(label: 'Done', tone: BadgeTone.success),
-    );
-  }
-}
-
-class _OwnerActiveLoyaltySummary extends StatelessWidget {
-  const _OwnerActiveLoyaltySummary();
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: BrandColors.teal.withValues(alpha: 0.08),
-        border: Border.all(color: BrandColors.teal.withValues(alpha: 0.24)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const CircleAvatar(
-                  backgroundColor: BrandColors.teal,
-                  foregroundColor: Colors.white,
-                  child: Icon(Icons.verified_rounded),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Loyalty is active',
-                    style: textTheme.titleMedium,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Customers can now earn points from mission actions and receive rewards when they reach the campaign target. Staff can use rewards by scanning the customer QR code.',
-              style: textTheme.bodyMedium?.copyWith(
-                color: BrandColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'You can review the full flow in Recent activity.',
-              style: textTheme.bodyMedium?.copyWith(
-                color: BrandColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

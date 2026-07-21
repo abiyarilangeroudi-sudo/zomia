@@ -19,9 +19,12 @@ from app.modules.loyalty.models import (
     LoyaltyActionItem,
 )
 from app.modules.loyalty.repository import LoyaltyRepository
+from app.modules.loyalty.reporting_repository import LoyaltyReportingRepository
 from app.modules.loyalty.schemas import (
+    CampaignActivitySummary,
     CampaignCreate,
     CampaignProgressRead,
+    CampaignRead,
     CampaignStatusUpdate,
     CustomerCampaignProgressRead,
 )
@@ -30,8 +33,14 @@ AuditRecorder = Callable[..., None]
 
 
 class CampaignService:
-    def __init__(self, repository: LoyaltyRepository, audit: AuditRecorder) -> None:
+    def __init__(
+        self,
+        repository: LoyaltyRepository,
+        reporting_repository: LoyaltyReportingRepository,
+        audit: AuditRecorder,
+    ) -> None:
         self.repository = repository
+        self.reporting_repository = reporting_repository
         self._audit = audit
 
     def create_campaign(self, owner: User, payload: CampaignCreate) -> Campaign:
@@ -105,12 +114,23 @@ class CampaignService:
         )
         return campaign
 
-    def list_campaigns(self, owner: User, business_id) -> list[Campaign]:
+    def list_campaigns(self, owner: User, business_id) -> list[CampaignRead]:
         self._require_role(owner, UserRole.OWNER)
         business = self.repository.get_owner_business(business_id=business_id, owner_id=owner.id)
         if business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-        return self.repository.list_business_campaigns(business_id)
+        campaigns = self.repository.list_business_campaigns(business_id)
+        summaries = self.reporting_repository.list_campaign_activity_summaries(
+            campaign_ids=[campaign.id for campaign in campaigns], now=datetime.now(UTC)
+        )
+        campaign_reads = []
+        for campaign in campaigns:
+            campaign_read = CampaignRead.model_validate(campaign)
+            campaign_read.activity_summary = CampaignActivitySummary(
+                **summaries[campaign.id]
+            )
+            campaign_reads.append(campaign_read)
+        return campaign_reads
 
     def get_campaign_for_early_end(
         self, owner: User, *, business_id, campaign_id, payload: CampaignStatusUpdate

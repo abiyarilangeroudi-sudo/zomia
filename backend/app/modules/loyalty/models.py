@@ -212,7 +212,6 @@ class Campaign(Base, TimestampMixin):
             return None
         return self.reward_template_links[0].reward_template_id
 
-
 class CampaignMission(Base):
     __tablename__ = "campaign_missions"
     __table_args__ = (UniqueConstraint("campaign_id", "mission_id"),)
