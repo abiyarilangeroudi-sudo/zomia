@@ -1209,3 +1209,31 @@ Open production decisions are tracked in:
   - `https://zomia.eu/webapp/main.dart.js` returned `200`;
   - `https://zomia.eu/webapp/flutter.js.map` returned `404`;
   - unauthenticated `GET /api/v1/auth/me` returned `401`.
+
+## 2026-07-21 Loyalty Catalog Refactor And Setup Card Fix
+
+- Backend release: `/opt/zomia/backend/releases/202607211746_catalog_setup_fix`.
+- Frontend release: `/var/www/zomia/releases/202607211746_catalog_setup_fix`.
+- Frontend version: `1.0.155 (156)`.
+- Git commit deployed: `30d4504 Extract loyalty catalog service and fix setup card`.
+- Changes:
+  - Mission and Reward Template owner workflows now live in a focused loyalty catalog service while existing API contracts remain unchanged.
+  - Characterization coverage protects cross-owner catalog access and archive behavior after Campaign expiry.
+  - Owner First Setup uses the complete loyalty-live state before applying its compact completed presentation, preventing missing card padding when historical pilot activity exists but setup assets are incomplete.
+- Database schema and migrations were unchanged. Production Alembic remained at `0015_early_end_settlement (head)`; no migration was run.
+- Verification before deploy:
+  - GitHub Actions passed for commit `30d4504`.
+  - Backend test suite returned `126 passed` and backend lint passed.
+  - Frontend test suite returned `54 passed` and `flutter analyze` returned no issues.
+  - Manual QA and local log review passed.
+  - The inactive Backend release imported successfully and Alembic reported the expected head before activation.
+  - The inactive Frontend release reported version `1.0.155 (156)` and contained no `._*` or `.DS_Store` files.
+- Post-release checks passed:
+  - `zomia-backend.service` is active with a normal shutdown/startup sequence and no application errors.
+  - `https://zomia.eu/health` returned status ok.
+  - `https://zomia.eu/webapp/version.json` returned `1.0.155 (156)`.
+  - `https://zomia.eu/webapp/?v=production-smoke-20260721175917` returned `200`.
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`.
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`.
+  - Unauthenticated `GET /api/v1/auth/me` returned `401`.
+  - Active Backend and Frontend symlinks point to the releases listed above.
