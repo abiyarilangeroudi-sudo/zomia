@@ -1,11 +1,21 @@
 # First Private Pilot Onboarding Plan
 
-Date: 2026-06-28
+Date: 2026-07-21
 
-Status: `Ready to run with one real business`
+Status: `Ready to onboard the first real business`
 
 This document defines the smallest safe onboarding path for the first real-customer private pilot.
-The goal is to validate the production system with real usage while keeping scope, support, and risk controlled.
+The goal is to validate the production system with real usage while keeping scope, support, and risk controlled. The production reset is complete and the first real Customer account now exists; the next session starts with the first real Business Owner.
+
+## Current Pilot State
+
+- The production data reset completed successfully on 2026-07-09.
+- Pre-reset and post-reset local and encrypted off-server backups were created.
+- The clean database state and production smoke checks passed after the reset.
+- No demo account was seeded after the reset.
+- The first real Customer registered through the normal production flow and must be retained.
+- The first real Owner, Business, and Staff are not yet recorded as onboarded in this plan.
+- Current production deployment details remain tracked in `production-operations-checklist.md`.
 
 ## Scope
 
@@ -14,7 +24,7 @@ Start with exactly one real business:
 - 1 owner account.
 - 1 business.
 - 1 staff account.
-- 1 customer account.
+- 1 existing real customer account.
 - 1 mission.
 - 1 campaign.
 - 1 reward template.
@@ -26,11 +36,10 @@ Owner Home includes a first setup checklist for the Mission, Reward Template, Ca
 
 Before the session starts, confirm:
 
-- The production data reset has been explicitly requested by the project owner the day before the real customer session.
-- A fresh local backup and encrypted off-server backup have been created before the reset.
-- Production test data has been fully reset.
-- No account is seeded after reset; the first real Business Owner must register through the normal Business Register UI.
-- A fresh post-reset baseline backup has been created after the clean database state is confirmed.
+- The completed production reset record remains available in `production-operations-checklist.md`.
+- The existing real Customer is present and no demo Owner, Business, Staff, Mission, Reward Template, or Campaign has been introduced after the reset.
+- The first real Business Owner will register through the normal Business Register UI.
+- A recent scheduled local backup and encrypted off-server backup are available.
 - `https://zomia.eu/health` returns `{"status":"ok"}`.
 - UptimeRobot monitor for `https://zomia.eu/health` is operational.
 - UptimeRobot public status page is reachable: `https://stats.uptimerobot.com/nxgv77u55I`.
@@ -56,45 +65,16 @@ Before the session starts, confirm:
 
 ## Production Data Reset Decision
 
-Status: `Approved but intentionally paused`
+Status: `Completed on 2026-07-09`
 
-Before the first real customer session, production test data will be fully reset using a controlled runbook:
+The one-time production reset completed on server `178.104.74.107`. Backups, migration replay, empty-state verification, health checks, production smoke checks, and post-reset baseline backups all passed. The local development database was intentionally not reset.
 
-- Take a fresh local PostgreSQL backup.
-- Take a fresh encrypted off-server backup.
-- Reset production data.
-- Re-apply migrations to the current head.
-- Do not seed any account, owner, business, customer, staff, mission, campaign, or reward template.
-- Let the first real Business Owner register through the normal UI flow.
-- Take a fresh post-reset baseline backup.
+Do not repeat this reset before onboarding the first Business. Production now contains the first real Customer, and the reset runbook remains destructive and approval-gated.
 
-This reset must not be executed during ordinary development. It is paused until the project owner explicitly requests it, expected on the day before the first real customer meeting.
+The reset runbook and historical execution record live in:
 
-Detailed execution steps live in:
-
+- `Docs/deployment/production-operations-checklist.md`
 - `Docs/deployment/pre-pilot-production-data-reset-runbook.md`
-
-## Pre-Private-Pilot Production Data Reset Execution Text
-
-When the project owner explicitly requests the reset, execute the following flow:
-
-- Goal: fully remove production test data before the first real customer onboarding.
-- No backend or frontend code changes are part of this reset.
-- Before reset:
-  - Create a complete local PostgreSQL backup.
-  - Create a complete encrypted off-server backup.
-  - Record both backup names and timestamps in the operations checklist.
-- Reset production database data:
-  - Remove all test data.
-  - Recreate the schema through the current Alembic migration head.
-  - Keep the database in a clean state with no seeded accounts.
-- After reset:
-  - Do not create any owner, business, customer, staff, mission, campaign, reward template, action, or reward manually.
-  - The first real Business Owner registers through the normal Business Register UI.
-  - Run the private-pilot smoke checks.
-  - Create a fresh post-reset baseline local backup.
-  - Create a fresh post-reset baseline encrypted off-server backup.
-  - Record the reset result, smoke-check result, and backup names in the operations checklist.
 
 ## Recommended Test Business Setup
 
@@ -104,7 +84,7 @@ Use a small, understandable loyalty setup:
   - Name: `Buy Coffee`
   - Points: `1`
 - Reward Template:
-  - Template name: `Free Coffee`
+  - Template type: `Gift`
   - Reward item: `Free coffee`
   - Valid days: `30`
 - Campaign:
@@ -136,16 +116,15 @@ Run the session in this order:
 9. Owner invites one staff member.
 10. Staff accepts the invitation.
 11. Staff signs in.
-12. Customer registers.
-13. Customer verifies email.
-14. Customer signs in and opens QR.
-15. Staff scans QR.
-16. Staff confirms customer.
-17. Staff registers the mission action.
-18. Customer campaign progress updates.
-19. Repeat action registration until reward is issued.
-20. Staff uses the reward with confirmation.
-21. Owner checks staff recent actions.
+12. The existing real Customer signs in.
+13. Customer opens QR.
+14. Staff scans QR.
+15. Staff confirms customer.
+16. Staff registers the mission action.
+17. Customer campaign progress updates.
+18. Repeat action registration until reward is issued.
+19. Staff uses the reward with confirmation.
+20. Owner checks recent activity and campaign reporting.
 
 ## Pass Criteria
 
@@ -155,7 +134,7 @@ The first private-pilot onboarding is considered passed when:
 - Business setup is visible to the owner.
 - Mission, reward template, and campaign are created successfully.
 - Staff invitation and staff login work.
-- Customer registration, verification, login, and QR display work.
+- Existing Customer login and QR display work.
 - Staff can scan customer QR.
 - Staff can register an action.
 - Customer progress changes after action registration.
@@ -163,6 +142,32 @@ The first private-pilot onboarding is considered passed when:
 - Reward can be used once.
 - Owner can see relevant staff activity.
 - Browser console shows no unexpected `4xx` or `5xx` errors during the tested flow.
+
+## Session Observation Checklist
+
+Record the session without changing production during the workflow:
+
+- [ ] Session date, start time, and end time recorded.
+- [ ] Owner, Business, Staff, and Customer roles identified without recording passwords, OTPs, or tokens.
+- [ ] Pre-session production health and latest backup status confirmed.
+- [ ] Owner completed registration and email verification without operator intervention.
+- [ ] Owner completed the in-app setup tasks.
+- [ ] Staff invitation, acceptance, and sign-in completed.
+- [ ] Customer QR, Staff scan, action registration, progress, reward issue, and reward use completed.
+- [ ] Owner verified Recent activity and Campaign customer/reward counts.
+- [ ] Any confusing text, unexpected navigation, delay, retry, or support prompt recorded at the step where it occurred.
+- [ ] Any unexpected browser, backend, Nginx, or Sentry error recorded with timestamp and workflow step, without sensitive data.
+- [ ] Post-session health and scheduled backup status confirmed.
+- [ ] Session outcome marked `passed`, `passed with friction`, or `stopped`.
+
+Classify each finding as one of:
+
+- `Blocker`: prevents or corrupts the loyalty workflow; stop and investigate.
+- `High`: workflow completes only with operator help or repeated retries.
+- `Medium`: real confusion or avoidable friction, but the workflow completes.
+- `Low`: cosmetic polish with no workflow impact.
+
+Do not implement findings during the session unless a Blocker makes continued use unsafe. Record the evidence first, then prioritize a separate coherent change.
 
 ## Stop Conditions
 
