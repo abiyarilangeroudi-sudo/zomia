@@ -1536,6 +1536,67 @@ def test_owner_early_end_preview_and_settlement_reward(
     assert all(str(reward.customer_id) != completed_customer_id or reward != settlement for reward in rewards)
 
 
+def test_owner_early_end_rejects_stale_preview_without_issuing_rewards(
+    client: TestClient, db_session: Session
+) -> None:
+    owner_token, business_id = register_owner(client, "owner@example.com")
+    staff_token, _ = create_staff(client, owner_token, business_id, "staff@example.com")
+    _, first_customer_id = register_customer(client, "first@example.com")
+    _, second_customer_id = register_customer(client, "second@example.com")
+    mission = create_mission(client, owner_token, business_id, name="Buy Coffee", point_value=1)
+    campaign = create_campaign(
+        client,
+        owner_token,
+        business_id,
+        mission_ids=[mission["id"]],
+        threshold_points=5,
+    )
+
+    first_action = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": first_customer_id,
+            "idempotency_key": "stale-preview-first",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert first_action.status_code == 201
+
+    preview = client.get(
+        f"/api/v1/owner/campaigns/{campaign['id']}/end-preview?business_id={business_id}",
+        headers=auth(owner_token),
+    )
+    assert preview.status_code == 200
+    assert preview.json()["settlement_customer_count"] == 1
+
+    second_action = client.post(
+        "/api/v1/staff/actions",
+        json={
+            "business_id": business_id,
+            "customer_id": second_customer_id,
+            "idempotency_key": "stale-preview-second",
+            "items": [{"mission_id": mission["id"], "quantity": 1}],
+        },
+        headers=auth(staff_token),
+    )
+    assert second_action.status_code == 201
+
+    end_response = client.patch(
+        f"/api/v1/owner/campaigns/{campaign['id']}/status?business_id={business_id}",
+        json={"status": "ended", "expected_settlement_customer_count": 1},
+        headers=auth(owner_token),
+    )
+
+    assert end_response.status_code == 409
+    assert end_response.json()["detail"] == "Campaign settlement changed. Review it again"
+    stored_campaign = db_session.get(Campaign, UUID(campaign["id"]))
+    assert stored_campaign is not None
+    assert stored_campaign.status.value == "active"
+    assert db_session.query(GeneratedReward).count() == 0
+
+
 def test_repeatable_campaign_does_not_create_new_cycle_after_end(
     client: TestClient, db_session: Session
 ) -> None:
@@ -2017,6 +2078,10 @@ def test_campaign_completion_generates_reward_when_template_exists(
     assert completion is not None
     assert reward.source_id == completion.id
     assert completion.reward_generated_at is not None
+    audit_event_types = {
+        event.event_type.value for event in db_session.scalars(select(AuditEvent)).all()
+    }
+    assert "reward_generated" in audit_event_types
 
     rewards_response = client.get(
         f"/api/v1/customers/me/rewards?business_id={business_id}",
@@ -2183,6 +2248,10 @@ def test_staff_uses_reward_without_creating_points_entry(
     assert action is not None
     assert action.action_type.value == "reward_use"
     assert action.items == []
+    audit_event_types = {
+        event.event_type.value for event in db_session.scalars(select(AuditEvent)).all()
+    }
+    assert "reward_used" in audit_event_types
 
 
 def test_reward_use_idempotency_replay_returns_existing_usage(client: TestClient) -> None:
@@ -2333,3 +2402,8 @@ def test_staff_cannot_use_expired_reward(client: TestClient, db_session: Session
     assert response.status_code == 400
     db_session.refresh(reward)
     assert reward.status.value == "expired"
+    assert db_session.query(RewardUsage).count() == 0
+    audit_event_types = {
+        event.event_type.value for event in db_session.scalars(select(AuditEvent)).all()
+    }
+    assert "reward_expired" in audit_event_types

@@ -120,14 +120,7 @@ class QrService:
             business_id=payload.business_id,
             raw_token=payload.qr_token,
         )
-        reward = self.loyalty_service.repository.get_generated_reward(reward_id)
-        if reward is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reward not found")
-        if reward.customer_id != customer.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Reward does not belong to resolved customer",
-            )
+        self.loyalty_service.validate_reward_customer(reward_id, customer.id)
 
         reward_use = self.loyalty_service.use_reward(
             staff,
