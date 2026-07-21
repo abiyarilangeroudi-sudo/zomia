@@ -1178,3 +1178,34 @@ Open production decisions are tracked in:
 - Post-test backend service state: `active`.
 - Post-test `https://zomia.eu/health`: `{"status":"ok"}`.
 - Result: passed; the latest scheduled local backup is restore-capable and matches the current first-Customer pilot state.
+
+## 2026-07-21 Responsive Touch Target Frontend Release
+
+- Frontend release: `/var/www/zomia/releases/202607211453_responsive_accessibility`.
+- Previous rollback target: `/var/www/zomia/releases/202607211034_owner_loyalty_reporting`.
+- Frontend version: `1.0.154 (155)`.
+- Git commit deployed: `b14c799 Harden responsive touch targets`.
+- Scope was limited to Frontend:
+  - added 320-pixel/1.6x-text widget coverage for Login, Customer Home, Staff service controls, Owner Campaign cards, and the Owner loyalty summary;
+  - increased the Owner `End campaign` action touch target from 40 to 48 logical pixels;
+  - backend code, backend release, database schema, and migrations were unchanged.
+- Verification before deploy:
+  - manual QA passed locally;
+  - `53` frontend tests passed;
+  - `flutter analyze` returned no issues;
+  - production Flutter build generated version `1.0.154 (155)` with `/webapp/` base href and no source-map references.
+- Staging safety note:
+  - the first inactive archive validation detected generated `._*` macOS metadata and stopped before the active symlink changed;
+  - the failed inactive release was removed;
+  - the artifact was repackaged with macOS metadata disabled, validated again, and only then activated;
+  - the active release contains zero `._*` or `.DS_Store` files.
+- Post-release checks passed:
+  - active frontend symlink points to the release listed above;
+  - backend symlink remained `/opt/zomia/backend/releases/202607211034_owner_loyalty_reporting`;
+  - `zomia-backend.service` remained active;
+  - `https://zomia.eu/health` returned `{"status":"ok"}`;
+  - `https://zomia.eu/webapp/version.json` returned `1.0.154 (155)`;
+  - `https://zomia.eu/webapp/?v=1.0.154-155-responsive` returned `200`;
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`;
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`;
+  - unauthenticated `GET /api/v1/auth/me` returned `401`.
