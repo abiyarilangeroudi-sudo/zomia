@@ -1229,30 +1229,6 @@ void main() {
     );
   });
 
-  testWidgets('keeps the UI component catalog hidden by default', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          secureTokenStoreProvider.overrideWithValue(_MemoryTokenStore()),
-          staffServiceRepositoryProvider.overrideWithValue(
-            _FakeStaffServiceRepository(),
-          ),
-          customerQrRepositoryProvider.overrideWithValue(
-            _FakeCustomerQrRepository(),
-          ),
-        ],
-        child: const ZomiaApp(),
-      ),
-    );
-    await pumpAppFrames(tester);
-
-    expect(find.text(AppVersion.label), findsOneWidget);
-    expect(find.text('UI Component Catalog'), findsNothing);
-    expect(find.text('Zomia Design System'), findsNothing);
-  });
-
   testWidgets('recovers password and returns to login', (tester) async {
     final authRepository = _FakeAuthRepository(role: 'customer');
 
@@ -2002,10 +1978,14 @@ void main() {
 
     expect(find.text('Profile'), findsWidgets);
     expect(find.text('owner@example.com'), findsOneWidget);
-    expect(find.text('Account Settings'), findsOneWidget);
+    expect(find.text('Account Settings'), findsNothing);
     expect(find.text('Create Staff'), findsNothing);
 
-    await tester.tap(find.text('Account Settings'));
+    await tester.tap(find.byTooltip('Close').last);
+    await tester.pumpAndSettle();
+    tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
+    await pumpAppFrames(tester);
+    await tester.tap(find.text('Setting'));
     await pumpAppFrames(tester);
 
     expect(find.text('Settings'), findsOneWidget);
@@ -2027,8 +2007,6 @@ void main() {
     expect(authRepository.verifiedEmailChange, isTrue);
     expect(authRepository.emailChangeNewEmail, 'owner-new@example.com');
 
-    await tester.tap(find.byTooltip('Close').last);
-    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Close').last);
     await tester.pumpAndSettle();
 

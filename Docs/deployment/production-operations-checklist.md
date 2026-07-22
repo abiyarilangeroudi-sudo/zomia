@@ -390,7 +390,7 @@ Open production decisions are tracked in:
 - Changes:
   - Staff QR scan action moved from AppBar to the Home empty state.
   - Staff can cancel/clear a confirmed customer service session before registering an action or using a reward.
-  - UI Component Catalog is hidden by default and not linked from the production Login version label.
+  - The temporary UI Component Catalog and its Login route were removed after the shared UI patterns stabilized.
   - Staff invitation acceptance requires Terms and Privacy acceptance before the account is accepted.
 - Backend, database, and loyalty logic were not changed.
 - Post-release checks passed:

@@ -32,6 +32,10 @@ https://zomia.eu/webapp/
 
 Native mobile distribution is deferred until there is a clear product need after private-pilot usage.
 
+Customer NFC card identification is recorded as a possible post-pilot product
+need in `Docs/roadmap/customer-nfc-card-roadmap.md`. Recording that feature does
+not start native distribution or add NFC to the current private-pilot scope.
+
 ## Current Mobile Direction
 
 - WebApp remains the primary app experience for Customer, Staff, and Owner.

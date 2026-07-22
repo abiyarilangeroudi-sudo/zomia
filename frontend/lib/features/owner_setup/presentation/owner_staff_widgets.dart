@@ -5,40 +5,6 @@ import '../domain/owner_setup_models.dart';
 import 'owner_presenter.dart';
 import 'owner_setup_shared_widgets.dart';
 
-class OwnerStaffListCard extends StatelessWidget {
-  const OwnerStaffListCard({
-    super.key,
-    required this.staffMembers,
-    required this.isSaving,
-    required this.onInviteStaff,
-    required this.onSetStaffActive,
-    required this.onCancelInvitation,
-  });
-
-  final List<OwnerStaffMember> staffMembers;
-  final bool isSaving;
-  final VoidCallback onInviteStaff;
-  final Future<void> Function(OwnerStaffMember staffMember, bool isActive)
-  onSetStaffActive;
-  final Future<void> Function(OwnerStaffMember staffMember) onCancelInvitation;
-
-  @override
-  Widget build(BuildContext context) {
-    return OwnerSetupCard(
-      title: 'Staff',
-      children: [
-        OwnerStaffList(
-          staffMembers: staffMembers,
-          isSaving: isSaving,
-          onInviteStaff: onInviteStaff,
-          onSetStaffActive: onSetStaffActive,
-          onCancelInvitation: onCancelInvitation,
-        ),
-      ],
-    );
-  }
-}
-
 class OwnerInviteStaffDialog extends StatelessWidget {
   const OwnerInviteStaffDialog({
     super.key,

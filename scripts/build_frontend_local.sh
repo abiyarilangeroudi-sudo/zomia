@@ -18,8 +18,12 @@ cd "$FRONTEND_DIR"
 
 flutter build web \
   --base-href / \
+  --pwa-strategy=none \
   --dart-define=API_BASE_URL=http://127.0.0.1:8000/api/v1 \
   --dart-define=APP_VERSION_NAME="$version_name" \
   --dart-define=APP_VERSION_BUILD="$version_build"
+
+cp "$ROOT_DIR/scripts/assets/clear_local_web_cache.html" \
+  "$FRONTEND_DIR/build/web/clear-local-cache.html"
 
 echo "Built local Zomia webapp $version_name ($version_build) for http://127.0.0.1:8080/."

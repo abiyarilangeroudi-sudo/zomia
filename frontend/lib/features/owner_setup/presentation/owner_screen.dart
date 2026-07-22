@@ -289,7 +289,6 @@ class _OwnerScreenState extends ConsumerState<OwnerScreen> {
                 onOpenBusinessSettings: _controller.selectedBusiness == null
                     ? null
                     : _openBusinessSettingsDialog,
-                onOpenAccountSettings: _openAccountSettingsDialog,
               ),
             ),
           ),

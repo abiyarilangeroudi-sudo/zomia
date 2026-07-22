@@ -10,13 +10,11 @@ class OwnerProfileCard extends StatelessWidget {
     required this.user,
     required this.selectedBusiness,
     required this.onOpenBusinessSettings,
-    required this.onOpenAccountSettings,
   });
 
   final CurrentUser user;
   final OwnerBusiness? selectedBusiness;
   final VoidCallback? onOpenBusinessSettings;
-  final VoidCallback onOpenAccountSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +39,6 @@ class OwnerProfileCard extends StatelessWidget {
               onTap: onOpenBusinessSettings,
             ),
           ],
-          const SizedBox(height: 12),
-          AppListRow(
-            title: 'Account Settings',
-            leadingIcon: Icons.manage_accounts_rounded,
-            onTap: onOpenAccountSettings,
-          ),
         ],
       ),
     );

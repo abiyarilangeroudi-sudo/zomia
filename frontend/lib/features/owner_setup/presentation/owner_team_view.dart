@@ -31,7 +31,7 @@ class OwnerTeamView extends StatelessWidget {
         else if (controller.businesses.isEmpty)
           const OwnerNoBusinessCard()
         else
-          OwnerStaffListCard(
+          OwnerStaffList(
             staffMembers: controller.staffForSelectedBusiness,
             isSaving: controller.isSaving,
             onInviteStaff: onInviteStaff,

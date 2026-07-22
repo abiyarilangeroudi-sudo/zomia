@@ -263,7 +263,7 @@ Edit source files instead:
 4. Implement repository/service/router changes in that order when practical.
 5. Add backend tests for role protection and business rules.
 6. Implement frontend models/repositories/controllers/presenters/screens.
-7. Use approved UI components; if a new reusable component is needed, add it to the UI catalog and get approval before product usage.
+7. Use approved shared UI components; if a new reusable component is needed, add it to `frontend/lib/app/ui/` and get visual approval before broader product usage.
 8. Update docs that represent current status or API contracts.
 9. Run relevant tests, lint, analyze, and build checks.
 

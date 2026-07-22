@@ -164,7 +164,7 @@ UI/Branding recovery reduced chaos, but production MVP still needs a final consi
 
 Required:
 
-- Re-check Login, Register, Customer, Staff, Owner, dialogs, empty states, and error states against the component catalog.
+- Re-check Login, Register, Customer, Staff, Owner, dialogs, empty states, and error states against the approved shared UI patterns.
 - Avoid new one-off cards, forms, dialogs, or navigation patterns.
 - Keep frontend text in English.
 
@@ -416,6 +416,8 @@ Customer Profile completion:
 
 - Group Campaign implementation
 - Cross-Network Campaign implementation
+- Customer NFC card identification; deferred until after the private pilot and
+  tracked in `Docs/roadmap/customer-nfc-card-roadmap.md`
 - Analytics dashboard
 - Gamification
 - Push notifications
