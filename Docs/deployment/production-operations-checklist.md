@@ -1273,3 +1273,43 @@ Open production decisions are tracked in:
   - The previous `Open WebApp`, `Register your business`, and `Zomia in action` content is present.
   - The rejected workflow section and lazy-load trigger are no longer present.
   - Standard production smoke passed; WebApp remained at `1.0.155 (156)` and Backend health remained ok.
+
+## 2026-07-22 Owner UI And Catalog Cleanup Frontend Release
+
+- Frontend release: `/var/www/zomia/releases/202607221745_owner_ui_cleanup`.
+- Previous rollback target: `/var/www/zomia/releases/202607211746_catalog_setup_fix`.
+- Frontend version: `1.0.156 (157)`.
+- Git commits deployed:
+  - `6cb90aa Polish owner UI and remove catalog`;
+  - `2bf9c23 Keep local cache helper out of releases`.
+- Scope was limited to Frontend, local build tooling, and documentation:
+  - removed the redundant Owner Team `Staff` wrapper card;
+  - removed the duplicate Account Settings row from Owner Profile while keeping
+    Settings available from the Drawer;
+  - removed the temporary UI Component Catalog, route, feature flag, and test;
+  - disabled Flutter Service Worker generation for local builds and added a
+    local-only cache reset helper;
+  - recorded Customer NFC cards as a post-pilot roadmap feature.
+- Backend code, backend release, database schema, and migrations were unchanged.
+- Verification before deploy:
+  - local manual QA passed after clearing the stale local Flutter Service Worker;
+  - `53` frontend tests passed and `flutter analyze` returned no issues;
+  - production build reported version `1.0.156 (157)`, `/webapp/` base href,
+    production API base, no source-map references, no macOS metadata, and no
+    local cache helper;
+  - GitHub `main` was pushed through `2bf9c23`; CI status was not readable from
+    the unauthenticated local GitHub tooling during this deployment.
+- The inactive release was validated before activation. An initial archive
+  emitted ignored macOS xattr warnings, so it was repackaged without xattrs and
+  the inactive release was replaced and revalidated before the symlink changed.
+- Post-release checks passed:
+  - active Frontend symlink points to the release listed above;
+  - Backend symlink remained
+    `/opt/zomia/backend/releases/202607211746_catalog_setup_fix` and
+    `zomia-backend.service` remained active;
+  - `https://zomia.eu/health` returned status ok;
+  - `https://zomia.eu/webapp/version.json` returned `1.0.156 (157)`;
+  - `https://zomia.eu/webapp/?v=production-smoke-20260722175038` returned `200`;
+  - `https://zomia.eu/webapp/main.dart.js` returned `200`;
+  - `https://zomia.eu/webapp/flutter.js.map` returned `404`;
+  - unauthenticated `GET /api/v1/auth/me` returned `401`.
