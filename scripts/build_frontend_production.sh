@@ -25,6 +25,9 @@ flutter build web \
 
 cd "$FRONTEND_DIR/build/web"
 
+rm -f clear-local-cache.html .DS_Store
+find . -name '._*' -delete
+
 perl -0pi -e 's/\n?\/\/# sourceMappingURL=.*//g' \
   flutter_bootstrap.js flutter.js main.dart.js
 
