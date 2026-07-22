@@ -32,16 +32,20 @@ Before release:
 - Confirm the release change is committed and pushed to GitHub `main` whenever possible.
 - Confirm worktree is clean or intentionally contains only release-note documentation.
 - Confirm `frontend/pubspec.yaml` version was bumped for a Flutter change.
-- Build with `scripts/build_frontend_production.sh`.
-- Confirm the generated Login version label matches the target version.
-- Confirm generated source-map references are not present in production web files.
+- Run `./scripts/deploy_frontend_production.sh` from the pushed `main` commit.
+- Do not manually build, archive, upload, extract, or switch the Frontend
+  symlink during a normal release.
 
 Release:
 
-- Create a new directory under `/var/www/zomia/releases/<release-id>`.
-- Copy `frontend/build/web/` into the new release directory.
-- Switch `/var/www/zomia/webapp` to the new release.
-- Keep at least the previous release available for rollback.
+- The deployment script runs Flutter analyze/tests, builds in a temporary
+  worktree, validates the artifact, creates and validates an inactive release,
+  switches `/var/www/zomia/webapp` atomically, and runs production smoke.
+- A failed post-activation smoke automatically restores the previous symlink.
+- The script leaves the previous release available for rollback and does not
+  modify Backend, database, migrations, or the local Flutter build.
+- After success, append the reported commit, version, release, rollback target,
+  and checks to this document, then commit/push the release note.
 
 Rollback:
 

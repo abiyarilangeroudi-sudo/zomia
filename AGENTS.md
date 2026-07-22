@@ -189,6 +189,15 @@ Static site changes under `site/` do not require rebuilding the Flutter WebApp.
 
 Production deployment is currently manual for the private pilot. GitHub Actions is CI-only unless a later manual-approval deploy workflow is explicitly introduced.
 
+Every Flutter production deployment must run through
+`./scripts/deploy_frontend_production.sh`. Do not manually build, archive, copy,
+or switch the Frontend symlink. The deployment script builds the exact pushed
+`main` commit in a temporary worktree, validates and publishes an inactive
+release, switches the symlink atomically, runs production smoke checks, and
+rolls back automatically when post-activation verification fails. After a
+successful deployment, record the release in
+`Docs/deployment/production-operations-checklist.md` and commit/push that note.
+
 ## 12. Pull Request Expectations
 
 A PR or commit summary should include:

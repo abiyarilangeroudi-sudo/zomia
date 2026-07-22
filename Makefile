@@ -1,4 +1,4 @@
-.PHONY: backend-install backend-test backend-lint backend-run frontend-build-local frontend-build-production production-smoke db-up db-down db-logs migrate migration-check verify
+.PHONY: backend-install backend-test backend-lint backend-run frontend-build-local frontend-build-production frontend-deploy-production production-smoke db-up db-down db-logs migrate migration-check verify
 
 backend-install:
 	cd backend && python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip && .venv/bin/python -m pip install -c constraints-runtime.txt -c constraints-dev.txt -e ".[dev]"
@@ -14,6 +14,9 @@ backend-run:
 
 frontend-build-production:
 	./scripts/build_frontend_production.sh
+
+frontend-deploy-production:
+	./scripts/deploy_frontend_production.sh
 
 production-smoke:
 	./scripts/check_production_smoke.sh

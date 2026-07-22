@@ -67,8 +67,15 @@ Rules:
 - Manual QA must happen locally before production deploy when the change affects a user-facing flow.
 - Commit and push the accepted change before production deployment whenever possible.
 - Production builds must be traceable to a Git commit.
-- Frontend releases must bump `frontend/pubspec.yaml` and use `scripts/build_frontend_production.sh`.
-- `scripts/build_frontend_production.sh` writes a production build with `base-href /webapp/`. If local `http://127.0.0.1:8080/` should remain usable after a deploy, rebuild the local bundle with `scripts/build_frontend_local.sh` or `make frontend-build-local`.
+- Frontend releases must bump `frontend/pubspec.yaml` and deploy only through
+  `scripts/deploy_frontend_production.sh` (or `make frontend-deploy-production`).
+- Do not replace the Frontend release with ad hoc build, archive, `scp`, or
+  symlink commands. The deployment script uses a temporary worktree at the
+  exact pushed `main` commit, so it does not overwrite the local
+  `frontend/build/web` bundle or require a local rebuild after deployment.
+- `scripts/build_frontend_production.sh` remains the build-only primitive used
+  internally by the deployment script; it is not the normal deployment entry
+  point.
 - Production release notes should be recorded in `Docs/deployment/production-operations-checklist.md` after deploy verification.
 
 ## Branching Rule
