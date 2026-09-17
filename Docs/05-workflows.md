@@ -1,4 +1,4 @@
-# Workflowها
+# Workflows
 
 ## Main MVP Workflow
 
@@ -61,7 +61,7 @@ Staff selects active reward
 -> Audit event is recorded
 ```
 
-Reward Use باعث کم شدن Point نمی‌شود. Points در Zomia progress/earned points هستند، نه wallet credit.
+Reward Use does not decrease Points. Points in Zomia represent progress/earned points, not wallet credit.
 
 ## Reward Generation Workflow
 
@@ -73,11 +73,11 @@ Campaign completion created
 -> Record audit event
 ```
 
-در MVP، Campaign هنگام ساخت باید Reward Template داشته باشد. بنابراین completion یک Campaign معتبر می‌تواند Reward بسازد.
+In the MVP, a Campaign must have a Reward Template when it is created. Therefore, a valid Campaign completion can generate a Reward.
 
 ## Future Group Campaign Workflow
 
-این workflow عمداً خارج از MVP است:
+This workflow is intentionally out of scope for the MVP:
 
 ```text
 Fans group joins campaign
@@ -89,7 +89,7 @@ Fans group joins campaign
 
 ## Future Cross-Network Campaign Workflow
 
-این workflow عمداً خارج از MVP است:
+This workflow is intentionally out of scope for the MVP:
 
 ```text
 Business club creates shared campaign
