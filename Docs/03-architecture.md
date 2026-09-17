@@ -1,8 +1,8 @@
-# معماری
+# Architecture
 
-Zomia باید modular ساخته شود. MVP کوچک شروع می‌شود، اما مرزهای معماری باید از ابتدا با محصول نهایی هماهنگ باشند.
+Zomia should be built as a modular system. The MVP starts small, but the architectural boundaries must be aligned with the final product from the beginning.
 
-## لایه‌های سیستم
+## System Layers
 
 ```text
 Presentation Layer
@@ -26,146 +26,146 @@ Operations Layer
 
 ## Backend Stack
 
-- Python 3.12+
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Alembic
-- Pytest
-- JWT Authentication
-- OpenAPI Documentation
+* Python 3.12+
+* FastAPI
+* SQLAlchemy
+* PostgreSQL
+* Alembic
+* Pytest
+* JWT Authentication
+* OpenAPI Documentation
 
 ## Frontend Stack
 
-- Flutter هدف اصلی Frontend است.
-- Frontend بعد از تکمیل core backend وارد فاز implementation می‌شود.
-- برای validation سریع MVP، اگر لازم شد می‌توان قبل از Flutter یک UI حداقلی موقت ساخت؛ اما frontend اصلی محصول Flutter است.
+* Flutter is the primary frontend target.
+* Frontend implementation begins after the core backend is completed.
+* For rapid MVP validation, a minimal temporary UI may be built before Flutter if necessary; however, Flutter is the primary product frontend.
 
 ## Local MVP Stack
 
-برای MVP لوکال فقط این موارد لازم‌اند:
+Only the following components are required for the local MVP:
 
 ### Backend
 
-- Python 3.12+
-- FastAPI
-- SQLAlchemy
-- Alembic
-- PostgreSQL
-- Pydantic
-- Pytest
-- Ruff
+* Python 3.12+
+* FastAPI
+* SQLAlchemy
+* Alembic
+* PostgreSQL
+* Pydantic
+* Pytest
+* Ruff
 
 ### Local Infrastructure
 
-- Docker
-- Docker Compose
-- PostgreSQL container
-- `.env`
-- `.env.example`
+* Docker
+* Docker Compose
+* PostgreSQL container
+* `.env`
+* `.env.example`
 
 ### Authentication
 
-- JWT
-- Password hashing
-- Role-based access control
+* JWT
+* Password hashing
+* Role-based access control
 
 ### Frontend
 
-- بعد از تکمیل core backend
-- Flutter
+* After the core backend is completed
+* Flutter
 
 ## Infrastructure Stack
 
-- Ubuntu 24.04
-- Nginx
-- Systemd
-- GitHub Actions
-- Docker برای dependencyهای local مثل PostgreSQL
+* Ubuntu 24.04
+* Nginx
+* Systemd
+* GitHub Actions
+* Docker for local dependencies such as PostgreSQL
 
-Nginx، Systemd، GitHub Actions، Certbot، Prometheus و Grafana برای MVP لوکال ضروری نیستند. این‌ها در فاز production readiness وارد می‌شوند.
+Nginx, Systemd, GitHub Actions, Certbot, Prometheus, and Grafana are not required for the local MVP. They will be introduced during the production-readiness phase.
 
-## مرز ماژول‌ها
+## Module Boundaries
 
 ### Identity Module
 
-مسئول:
+Responsible for:
 
-- User
-- Role
-- Password
-- JWT
-- Current User Resolution
+* User
+* Role
+* Password
+* JWT
+* Current User Resolution
 
-مسئول نیست:
+Not responsible for:
 
-- Point
-- Campaign
-- Reward
+* Point
+* Campaign
+* Reward
 
 ### Business Module
 
-مسئول:
+Responsible for:
 
-- Business Profile
-- Owner Relationship
-- Staff Membership
+* Business Profile
+* Owner Relationship
+* Staff Membership
 
-در Sprint 1 مدل Business داخل Identity قرار گرفته تا سریع‌تر و ساده‌تر شروع کنیم. وقتی محصول بزرگ‌تر شد، می‌توان آن را به ماژول مستقل Business منتقل کرد.
+In Sprint 1, the Business model was placed inside Identity to allow for a faster and simpler start. As the product grows, it can be moved into an independent Business module.
 
 ### Loyalty Module
 
-مسئول:
+Responsible for:
 
-- Mission
-- Action
-- Points Ledger
-- Campaign Evaluation
-- Participation
+* Mission
+* Action
+* Points Ledger
+* Campaign Evaluation
+* Participation
 
 ### Reward Module
 
-مسئول:
+Responsible for:
 
-- Reward Template
-- Generated Reward
-- Reward Lifecycle
+* Reward Template
+* Generated Reward
+* Reward Lifecycle
 
 ### QR Module
 
-مسئول:
+Responsible for:
 
-- Customer QR Token
-- Scan Resolution
-- Staff-facing Scan Response
+* Customer QR Token
+* Scan Resolution
+* Staff-facing Scan Response
 
 ### Audit Module
 
-مسئول:
+Responsible for:
 
-- ثبت رویدادهای مهم تجاری
-- Action Registered
-- Reward Created
-- Reward Used
+* Recording important business events
+* Action Registered
+* Reward Created
+* Reward Used
 
-Audit باید append-only باشد.
+Audit must be append-only.
 
-## اصول Database Design
+## Database Design Principles
 
-- Primary Keyها UUID باشند.
-- Points Ledger append-only باشد.
-- Reward Template از Generated Reward جدا باشد.
-- Action Registration باید idempotent باشد.
-- Entityهایی که lifecycle دارند باید status صریح داشته باشند.
-- enumهای آینده‌نگر فقط وقتی اضافه شوند که implementation زودهنگام تحمیل نکنند.
+* Primary Keys should use UUIDs.
+* The Points Ledger must be append-only.
+* Reward Template must be separate from Generated Reward.
+* Action Registration must be idempotent.
+* Entities with a lifecycle must have an explicit status.
+* Future-oriented enums should only be added when they do not impose premature implementation complexity.
 
-## اصول API Design
+## API Design Principles
 
-- Router فقط input را validate کند و response بدهد.
-- Service منطق تجاری را اجرا کند.
-- Repository دسترسی دیتابیس را جدا کند.
-- OpenAPI بعد از هر Sprint باید قابل استفاده باشد.
-- هر endpoint دارای role protection باید تست داشته باشد.
-- قبل از ساخت endpoint جدید، [API Endpoint Inventory](./api/api-endpoint-inventory.md) و OpenAPI بررسی شود.
-- اگر endpoint موجود همان role، permission boundary و product meaning را پوشش می‌دهد، endpoint جدید ساخته نشود.
-- endpointهای بدون مصرف باید در inventory با وضعیت `deprecated` یا `candidate for removal` مشخص شوند.
+* The Router should only validate input and return the response.
+* The Service should execute business logic.
+* Repository access to the database should be kept separate.
+* OpenAPI must remain usable after every Sprint.
+* Every endpoint with role protection must have tests.
+* Before creating a new endpoint, review the [API Endpoint Inventory](./api/api-endpoint-inventory.md) and OpenAPI.
+* If an existing endpoint already covers the same role, permission boundary, and product meaning, a new endpoint should not be created.
+* Unused endpoints must be marked in the inventory as `deprecated` or `candidate for removal`.
