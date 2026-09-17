@@ -1,118 +1,118 @@
-# واژه‌نامه دامنه
+# Domain Glossary
 
 ## Identity
 
 ### User
 
-رکورد حساب کاربری برای authentication. همه نقش‌ها مثل Customer، Owner، Staff و Admin در اصل User هستند.
+The user account record used for authentication. All roles, such as Customer, Owner, Staff, and Admin, are fundamentally Users.
 
 ### Customer
 
-مشتری نهایی که QR نمایش می‌دهد، Action برایش ثبت می‌شود، Point می‌گیرد و Reward دریافت می‌کند.
+The end customer who displays a QR code, has Actions registered for them, earns Points, and receives Rewards.
 
 ### Owner
 
-مالک کسب‌وکار که Business، Staff، Mission، Campaign و Rewardها را مدیریت می‌کند.
+The business owner who manages the Business, Staff, Missions, Campaigns, and Rewards.
 
 ### Staff
 
-کارمند کسب‌وکار که QR مشتری را scan می‌کند، Action ثبت می‌کند و Reward را Use می‌کند.
+A business employee who scans the customer's QR code, registers Actions, and Uses Rewards.
 
 ### Admin
 
-مدیر پلتفرم. در MVP فقط role آن وجود دارد.
+A platform administrator. In the MVP, only the role exists.
 
 ## Business
 
 ### Business
 
-کسب‌وکار یا merchant که برنامه وفاداری اجرا می‌کند.
+A business or merchant that operates a loyalty program.
 
 ### Staff Membership
 
-رابطه بین یک Staff User و یک Business.
+The relationship between a Staff User and a Business.
 
 ### Business Partner Club
 
-جامعه‌ای از کسب‌وکارها برای Cross-Network Campaign. خارج از MVP.
+A community of businesses for Cross-Network Campaigns. Out of scope for the MVP.
 
 ## Loyalty
 
 ### Mission
 
-رفتار تعریف‌شده‌ای که می‌تواند Point تولید کند؛ مثل خرید، مراجعه، check-in، معرفی دوست یا ثبت نظر.
+A defined behavior that can generate Points, such as a purchase, visit, check-in, friend referral, or review.
 
 ### Action
 
-ثبت یک عملیات واقعی برای یک Customer. یک Action می‌تواند چند Mission را همزمان ثبت کند.
+A record of a real-world operation performed for a Customer. A single Action can register multiple Missions simultaneously.
 
-مثال:
+Example:
 
-```text
+```text id="l0n1m2"
 Ali bought 2 coffees and 1 cake
 ```
 
-این یک Action است، اما چند Action Item دارد.
+This is one Action, but it contains multiple Action Items.
 
-در آینده Action می‌تواند Reward Usage هم داشته باشد. Reward Usage مصرف پاداش را ثبت می‌کند و Point ایجاد یا کم نمی‌کند.
+In the future, an Action can also contain Reward Usage. Reward Usage records the consumption of a Reward and does not create or remove Points.
 
 ### Action Item
 
-یک ردیف داخل Action که به یک Mission وصل است.
+A row within an Action that is linked to a Mission.
 
-مثال:
+Example:
 
-```text
+```text id="a1b2c3"
 Buy Coffee x 2
 Buy Cake x 1
 ```
 
 ### Reward Usage
 
-ثبت مصرف یک Reward داخل یک Action. Reward Usage به Mission وصل نیست و Points Ledger entry نمی‌سازد.
+A record of a Reward being consumed as part of an Action. Reward Usage is not linked to a Mission and does not create a Points Ledger entry.
 
 ### Point
 
-واحد پیشرفت مشتری. Point باید در Points Ledger ذخیره شود.
+A unit representing customer progress. Points must be stored in the Points Ledger.
 
 ### Points Ledger
 
-دفتر append-only برای امتیازهای کسب‌شده. این ledger کیف پول یا credit economy نیست و Reward Use باعث کم شدن Point نمی‌شود.
+An append-only ledger of earned Points. The ledger is not a wallet or credit economy, and using a Reward does not decrease Points.
 
 ### Campaign
 
-مجموعه‌ای از قوانین که progress مشتری را بررسی می‌کند و تصمیم می‌گیرد Reward صادر شود یا نه.
+A set of rules that evaluates customer progress and determines whether a Reward should be issued.
 
-Campaign همیشه بازه زمانی `starts_at` و `ends_at` دارد. Actionهای خارج از این بازه برای progress همان Campaign حساب نمی‌شوند.
+A Campaign always has a `starts_at` and `ends_at` time range. Actions outside this range do not count toward the progress of that Campaign.
 
-وضعیت زمانی Campaign و متن قابل نمایش progress برای Customer توسط Backend محاسبه می‌شود، نه Frontend.
+The Campaign's temporal status and the progress text displayed to the Customer are calculated by the Backend, not the Frontend.
 
-Campaign lifecycle دو نوع پایان متفاوت دارد:
+A Campaign has two different types of ending:
 
-- **Expired:** پایان طبیعی و زمان‌محور، زمانی که `ends_at` می‌گذرد. Progress ناقص در Archive با وضعیت `Expired` باقی می‌ماند و Reward جدیدی صادر نمی‌شود.
-- **Ended:** پایان دستی پیش از `ends_at` توسط Owner. این وضعیت با **Early End Settlement** همراه است: برای هر Customer با progress ناقص و بیشتر از صفر در cycle فعلی، یک Reward نهایی صادر می‌شود و سپس Campaign پایان می‌یابد. Customer با progress صفر Reward نمی‌گیرد.
+* **Expired:** A natural, time-based ending that occurs when `ends_at` has passed. Incomplete progress remains archived with an `Expired` status, and no new Reward is issued.
+* **Ended:** A manual ending performed by the Owner before `ends_at`. This status is accompanied by **Early End Settlement**: for every Customer with incomplete progress greater than zero in the current cycle, a final Reward is issued and the Campaign then ends. Customers with zero progress do not receive a Reward.
 
-`Expired` یک time status محاسبه‌شده از بازه زمانی است؛ `Ended` یک status صریح و terminal است. این تفکیک و settlement دستی در Backend اجرا می‌شود، نه در Flutter.
+`Expired` is a calculated time status based on the time range; `Ended` is an explicit terminal status. This distinction and manual settlement are implemented in the Backend, not in Flutter.
 
 ### Individual Campaign
 
-Campaignی که هر Customer به صورت مستقل در آن پیشرفت می‌کند.
+A Campaign in which each Customer progresses independently.
 
-مثال:
+Example:
 
-```text
+```text id="x7y8z9"
 10 purchases -> 1 free coffee
 ```
 
 ### Repeatable Campaign Cycle
 
-چرخه‌ای که در آن یک Individual Campaign می‌تواند بعد از هر بار رسیدن Customer به threshold، یک Campaign Completion و در نتیجه یک Reward جدید بسازد.
+A cycle in which an Individual Campaign can create a Campaign Completion and consequently a new Reward each time the Customer reaches the threshold.
 
-در MVP، `max_completions_per_customer = null` یعنی تعداد چرخه‌ها در بازه زمانی Campaign نامحدود است. اگر عدد مثبت باشد، همان عدد سقف تعداد completion برای هر Customer است.
+In the MVP, `max_completions_per_customer = null` means that the number of cycles is unlimited within the Campaign's time range. If a positive number is specified, that number becomes the maximum number of completions for each Customer.
 
-مثال:
+Example:
 
-```text
+```text id="r1s2t3"
 threshold = 10 points
 20 points -> 2 completed cycles -> 2 rewards
 23 points -> current cycle progress is 3/10
@@ -120,59 +120,59 @@ threshold = 10 points
 
 ### Group Campaign
 
-Campaign آینده که اعضای یک Fans Group برای هدف مشترک همکاری می‌کنند. خارج از MVP.
+A future Campaign in which members of a Fans Group collaborate toward a shared goal. Out of scope for the MVP.
 
 ### Cross-Network Campaign
 
-Campaign آینده که بین چند Business اجرا می‌شود. خارج از MVP.
+A future Campaign that runs across multiple Businesses. Out of scope for the MVP.
 
 ## Rewards
 
 ### Reward Template
 
-تعریف Owner از نوع، مقدار، مدت اعتبار، صادرکننده، محدوده مصرف و سیاست هزینه پاداش.
+The Owner's definition of the Reward type, value, validity period, issuer, redemption scope, and settlement policy.
 
-Reward Template مستقل از Campaign است. Campaign از طریق رابطه `campaign_reward_templates` یک Template را برای صدور Reward انتخاب می‌کند.
+A Reward Template is independent of a Campaign. A Campaign selects a Template for Reward issuance through the `campaign_reward_templates` relationship.
 
-در MVP هر Campaign دقیقاً یک Reward Template دارد. این محدودیت برای ساده نگه داشتن MVP است و بعداً برای multi-reward Campaign قابل گسترش است.
+In the MVP, each Campaign has exactly one Reward Template. This limitation keeps the MVP simple and can later be expanded to support multi-reward Campaigns.
 
 ### Generated Reward
 
-Reward واقعی که برای یک Customer بعد از Campaign Completion صادر شده است. این رکورد snapshot اطلاعات Template را نگه می‌دارد تا تغییر Template در آینده پاداش‌های قدیمی را خراب نکند.
+The actual Reward issued to a Customer after a Campaign Completion. This record stores a snapshot of the Template information so that future changes to the Template do not affect previously issued Rewards.
 
 ### Reward Generation Source
 
-منبعی که باعث صدور Generated Reward شده است.
+The source that caused a Generated Reward to be issued.
 
-در MVP:
+In the MVP:
 
-```text
+```text id="u4v5w6"
 individual_campaign_completion
 ```
 
-در آینده:
+In the future:
 
-```text
+```text id="g7h8i9"
 group_campaign_completion
 ```
 
-Generated Reward همیشه برای یک Customer صادر می‌شود، اما source می‌تواند فردی یا گروهی باشد.
+A Generated Reward is always issued to a Customer, but its source can be individual or group-based.
 
-برای جلوگیری از صدور تکراری:
+To prevent duplicate issuance:
 
-```text
+```text id="j1k2l3"
 source_type + source_id + customer_id
 ```
 
-باید unique باشد.
+must be unique.
 
 ### Reward Recipient Policy
 
-قانونی که در Group Campaign مشخص می‌کند بعد از کامل شدن هدف گروهی چه کسانی Generated Reward می‌گیرند.
+A rule used by a Group Campaign to determine who receives Generated Rewards after the group goal is completed.
 
-گزینه‌های آینده:
+Future options:
 
-```text
+```text id="m4n5o6"
 all_group_members
 contributors_only
 contributors_above_minimum
@@ -181,42 +181,42 @@ selected_members
 
 ### Reward Issuer
 
-کسب‌وکاری که Reward را صادر می‌کند و در MVP مسئول هزینه آن است.
+The Business that issues the Reward and, in the MVP, is responsible for its cost.
 
 ### Redeem Scope
 
-قانونی که مشخص می‌کند Reward در کدام Businessها قابل مصرف است.
+A rule that determines which Businesses can be used to redeem a Reward.
 
-در MVP:
+In the MVP:
 
-```text
+```text id="p7q8r9"
 issuer_business_only
 ```
 
-در آینده:
+In the future:
 
-```text
+```text id="s1t2u3"
 campaign_participants
 selected_businesses
 ```
 
 ### Settlement Policy
 
-قانونی که مشخص می‌کند هزینه Reward بعد از مصرف بر عهده چه کسی است.
+A rule that determines who is responsible for the cost of a Reward after it is redeemed.
 
-در MVP:
+In the MVP:
 
-```text
+```text id="v4w5x6"
 issuer_pays
 ```
 
 ### Reward Status
 
-وضعیت lifecycle یک Generated Reward.
+The lifecycle status of a Generated Reward.
 
-در MVP:
+In the MVP:
 
-```text
+```text id="y7z8a9"
 active
 used
 expired
@@ -224,51 +224,51 @@ expired
 
 ### Gift
 
-دریافت یک محصول یا خدمت مشخص به عنوان جایزه.
+Receiving a specific product or service as a Reward.
 
 ### Percentage Discount
 
-تخفیف درصدی برای خرید بعدی.
+A percentage-based discount on a future purchase.
 
 ### Fixed Discount
 
-تخفیف مبلغ ثابت برای خرید بعدی.
+A fixed-amount discount on a future purchase.
 
 ### Reward Lifecycle
 
-جریان وضعیت Reward:
+The Reward status flow:
 
-```text
+```text id="b1c2d3"
 active -> used
 active -> expired
 ```
 
-در آینده ممکن است `pending` هم اضافه شود، مخصوصاً برای Group Campaign و Settlement.
+In the future, `pending` may also be added, especially for Group Campaigns and Settlement.
 
 ### Reward Engine
 
-بخش دامنه‌ای که از Campaign Completion و Reward Template، Generated Reward می‌سازد و مصرف Reward را مدیریت می‌کند.
+The domain component that creates Generated Rewards from Campaign Completions and Reward Templates and manages Reward usage.
 
-Reward Engine به Points Ledger امتیاز منفی اضافه نمی‌کند و Wallet/Credit Economy نیست.
+The Reward Engine does not add negative Points to the Points Ledger and is not a Wallet/Credit Economy.
 
 ## Operations
 
 ### QR Scan
 
-عملیات staff برای resolve کردن token مشتری و باز کردن صفحه service.
+A Staff operation that resolves a Customer token and opens the service screen.
 
 ### Customer QR Token
 
-توکن تصادفی و قابل rotate/revoke که Customer آن را به صورت QR نمایش می‌دهد.
+A random, rotatable/revocable token that the Customer displays as a QR code.
 
-QR Token جای JWT نیست و فقط برای resolve کردن Customer در Staff Workflow استفاده می‌شود.
+The QR Token is not a JWT and is used only to resolve the Customer within the Staff Workflow.
 
-در database فقط `token_hash` ذخیره می‌شود، نه token خام.
+Only `token_hash` is stored in the database; the raw token is not stored.
 
 ### Action Registration
 
-ثبت یک عملیات برای Customer. این عملیات می‌تواند یک یا چند Mission را شامل شود.
+The process of registering an operation for a Customer. The operation can include one or multiple Missions.
 
 ### Idempotency
 
-مکانیزمی برای جلوگیری از ثبت دوباره یک Action وقتی request تکرار می‌شود.
+A mechanism that prevents the same Action from being registered more than once when a request is repeated.
