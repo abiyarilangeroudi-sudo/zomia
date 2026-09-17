@@ -1,8 +1,8 @@
-# مستندات Zomia
+# Zomia Documentation
 
-این پوشه منبع اصلی تصمیم‌ها، محدوده MVP، معماری و برنامه ساخت Zomia است.
+This folder is the primary source of truth for Zomia's decisions, MVP scope, architecture, and development plan.
 
-Zomia یک پلتفرم وفاداری است که جریان اصلی آن این است:
+Zomia is a loyalty platform whose main flow is:
 
 ```text
 Customer QR
@@ -15,232 +15,233 @@ Customer QR
 -> Reward Use
 ```
 
-## فهرست سندها
+## Document Index
 
-- [نمای کلی محصول](./01-product-overview.md)
-- [محدوده MVP](./02-mvp-scope.md)
-- [معماری](./03-architecture.md)
-- [واژه‌نامه دامنه](./04-domain-glossary.md)
-- [Workflowها](./05-workflows.md)
-- [Roadmap](./06-roadmap.md)
-- [Local Development](./07-local-development.md)
-- [Production Deployment Plan](./deployment/production-deployment-plan.md)
-- [Server Hardening Checklist](./deployment/server-hardening-checklist.md)
-- [First Private Pilot Onboarding Plan](./deployment/first-private-pilot-onboarding-plan.md)
-- [API Endpoint Inventory](./api/api-endpoint-inventory.md)
-- [Current Stability Check](./status/current-stability-check.md)
-- [MVP Production Gap List](./status/mvp-production-gap-list.md)
-- [Production Workflow Validation - 2026-07-01](./status/production-workflow-validation-2026-07-01.md)
-- [Manual QA Release Candidate Checklist](./status/manual-qa-release-candidate-checklist.md)
-- [Auth Recovery and Email Verification Contract](./status/auth-recovery-verification-contract.md)
-- [Flutter MVP Phase](./roadmap/flutter-mvp-phase.md)
-- [Flutter Branding Extraction](./roadmap/flutter-branding-extraction.md)
-- [Business And Account Lifecycle Roadmap](./roadmap/business-account-lifecycle-roadmap.md)
-- [Sprint 1: Identity Engine](./sprints/sprint-1-identity.md)
-- [Sprint 2: Loyalty Foundation](./sprints/sprint-2-loyalty-foundation.md)
-- [Sprint 3: Individual Campaign](./sprints/sprint-3-individual-campaign.md)
-- [Sprint 4: Reward Engine](./sprints/sprint-4-reward-engine.md)
-- [Sprint 5: QR Staff Workflow](./sprints/sprint-5-qr-staff-workflow.md)
-- [Sprint 5.5: Staff Panel API Contract](./sprints/sprint-5-5-staff-panel-contract.md)
-- [Sprint 5.6: Staff Context Endpoint](./sprints/sprint-5-6-staff-context.md)
-- [Flutter F0: Project Setup](./sprints/flutter-f0-project-setup.md)
-- [Flutter F1: Auth And Staff Context](./sprints/flutter-f1-auth-staff-context.md)
-- [Flutter F2: Staff Service Panel MVP](./sprints/flutter-f2-staff-service-panel.md)
-- [Flutter F2.5: Staff And Customer QR UX Polish](./sprints/flutter-f2-5-staff-customer-ux-polish.md)
-- [Flutter F2.6: Manual End-to-End QA](./sprints/flutter-f2-6-manual-end-to-end-qa.md)
-- [Flutter F2.7: Staff Panel UX Polish](./sprints/flutter-f2-7-staff-panel-ux-polish.md)
-- [Flutter F2.8: Customer Minimal Status](./sprints/flutter-f2-8-customer-minimal-status.md)
-- [Flutter F2.9: MVP Demo Readiness](./sprints/flutter-f2-9-mvp-demo-readiness.md)
-- [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
-- [Flutter F5: Owner Minimal Setup Screens](./sprints/flutter-f5-owner-minimal-setup-screens.md)
-- [Flutter F6: Customer Campaign Progress](./sprints/flutter-f6-customer-campaign-progress.md)
-- [Flutter F7: UI / Branding Recovery](./sprints/flutter-f7-ui-branding-recovery.md)
-- [تصمیم 0001: محدوده MVP](./decisions/0001-mvp-scope.md)
-- [تصمیم 0002: تکنولوژی‌های MVP لوکال](./decisions/0002-local-mvp-stack.md)
-- [تصمیم 0004: مسیر دیتابیس Production](./decisions/0004-production-database-direction.md)
-- [تصمیم 0005: سرور Private Pilot](./decisions/0005-private-pilot-server.md)
+* [Product Overview](./01-product-overview.md)
+* [MVP Scope](./02-mvp-scope.md)
+* [Architecture](./03-architecture.md)
+* [Domain Glossary](./04-domain-glossary.md)
+* [Workflows](./05-workflows.md)
+* [Roadmap](./06-roadmap.md)
+* [Local Development](./07-local-development.md)
+* [Production Deployment Plan](./deployment/production-deployment-plan.md)
+* [Server Hardening Checklist](./deployment/server-hardening-checklist.md)
+* [First Private Pilot Onboarding Plan](./deployment/first-private-pilot-onboarding-plan.md)
+* [API Endpoint Inventory](./api/api-endpoint-inventory.md)
+* [Current Stability Check](./status/current-stability-check.md)
+* [MVP Production Gap List](./status/mvp-production-gap-list.md)
+* [Production Workflow Validation - 2026-07-01](./status/production-workflow-validation-2026-07-01.md)
+* [Manual QA Release Candidate Checklist](./status/manual-qa-release-candidate-checklist.md)
+* [Auth Recovery and Email Verification Contract](./status/auth-recovery-verification-contract.md)
+* [Flutter MVP Phase](./roadmap/flutter-mvp-phase.md)
+* [Flutter Branding Extraction](./roadmap/flutter-branding-extraction.md)
+* [Business And Account Lifecycle Roadmap](./roadmap/business-account-lifecycle-roadmap.md)
+* [Sprint 1: Identity Engine](./sprints/sprint-1-identity.md)
+* [Sprint 2: Loyalty Foundation](./sprints/sprint-2-loyalty-foundation.md)
+* [Sprint 3: Individual Campaign](./sprints/sprint-3-individual-campaign.md)
+* [Sprint 4: Reward Engine](./sprints/sprint-4-reward-engine.md)
+* [Sprint 5: QR Staff Workflow](./sprints/sprint-5-qr-staff-workflow.md)
+* [Sprint 5.5: Staff Panel API Contract](./sprints/sprint-5-5-staff-panel-contract.md)
+* [Sprint 5.6: Staff Context Endpoint](./sprints/sprint-5-6-staff-context.md)
+* [Flutter F0: Project Setup](./sprints/flutter-f0-project-setup.md)
+* [Flutter F1: Auth And Staff Context](./sprints/flutter-f1-auth-staff-context.md)
+* [Flutter F2: Staff Service Panel MVP](./sprints/flutter-f2-staff-service-panel.md)
+* [Flutter F2.5: Staff And Customer QR UX Polish](./sprints/flutter-f2-5-staff-customer-ux-polish.md)
+* [Flutter F2.6: Manual End-to-End QA](./sprints/flutter-f2-6-manual-end-to-end-qa.md)
+* [Flutter F2.7: Staff Panel UX Polish](./sprints/flutter-f2-7-staff-panel-ux-polish.md)
+* [Flutter F2.8: Customer Minimal Status](./sprints/flutter-f2-8-customer-minimal-status.md)
+* [Flutter F2.9: MVP Demo Readiness](./sprints/flutter-f2-9-mvp-demo-readiness.md)
+* [Flutter F3: Customer QR Display](./sprints/flutter-f3-customer-qr-display.md)
+* [Flutter F5: Owner Minimal Setup Screens](./sprints/flutter-f5-owner-minimal-setup-screens.md)
+* [Flutter F6: Customer Campaign Progress](./sprints/flutter-f6-customer-campaign-progress.md)
+* [Flutter F7: UI / Branding Recovery](./sprints/flutter-f7-ui-branding-recovery.md)
+* [Decision 0001: MVP Scope](./decisions/0001-mvp-scope.md)
+* [Decision 0002: Local MVP Stack](./decisions/0002-local-mvp-stack.md)
+* [Decision 0004: Production Database Direction](./decisions/0004-production-database-direction.md)
+* [Decision 0005: Private Pilot Server](./decisions/0005-private-pilot-server.md)
 
-## وضعیت فعلی
+## Current Status
 
-Sprint 1 کامل شده و به عنوان baseline امن ثبت شده است.
+Sprint 1 has been completed and recorded as a secure baseline.
 
-انجام شده:
+Completed:
 
-- اسکلت Backend
-- مدل‌های Identity
-- مدل Business Profile
-- مدل Staff Membership
-- JWT Authentication
-- APIهای Owner برای مدیریت Business و Staff
-- Alembic migration اولیه
-- تست‌های API
+* Backend skeleton
+* Identity models
+* Business Profile model
+* Staff Membership model
+* JWT Authentication
+* Owner APIs for managing Business and Staff
+* Initial Alembic migration
+* API tests
 
-Sprint 2 پیاده‌سازی و با PostgreSQL واقعی smoke test شده است.
+Sprint 2 has been implemented and smoke-tested against a real PostgreSQL database.
 
-تأیید شده:
+Confirmed:
 
-- PostgreSQL با Docker Compose اجرا شد
-- Alembic migration روی PostgreSQL واقعی اجرا شد
-- API با دیتابیس واقعی smoke test شد
-- OpenAPI روی backend در حال اجرا بررسی شد
-- Git baseline commit ساخته شد
+* PostgreSQL was run with Docker Compose
+* Alembic migration was executed against real PostgreSQL
+* API was smoke-tested against the real database
+* OpenAPI was reviewed on the running backend
+* Git baseline commit was created
 
 Sprint 2:
 
-- Mission API اضافه شد
-- Action چندآیتمی اضافه شد
-- Points Ledger اضافه شد
-- Idempotency برای Action Registration اضافه شد
-- Basic Audit اضافه شد
-- Migration روی PostgreSQL واقعی اجرا شد
-- API با دیتابیس واقعی smoke test شد
+* Mission API added
+* Multi-item Action added
+* Points Ledger added
+* Idempotency for Action Registration added
+* Basic Audit added
+* Migration executed against real PostgreSQL
+* API smoke-tested against the real database
 
-Sprint 3 پیاده‌سازی و با PostgreSQL واقعی smoke test شده است.
+Sprint 3 has been implemented and smoke-tested against a real PostgreSQL database.
 
 Sprint 3:
 
-- Individual Campaign API اضافه شد
-- Campaign به Missionها از طریق `campaign_missions` وصل شد
-- Campaign Evaluation بعد از Action Registration اضافه شد
-- Campaign Completion اضافه شد
-- Progress مشتری از Points Ledger محاسبه می‌شود
-- Reward در Sprint 3 ساخته نمی‌شود
-- Migration روی PostgreSQL واقعی اجرا شد
-- تست‌های Campaign و idempotency پاس شدند
+* Individual Campaign API added
+* Campaigns connected to Missions through `campaign_missions`
+* Campaign Evaluation added after Action Registration
+* Campaign Completion added
+* Customer progress is calculated from the Points Ledger
+* Rewards are not created in Sprint 3
+* Migration executed against real PostgreSQL
+* Campaign and idempotency tests passed
 
-Sprint 4 پیاده‌سازی و با PostgreSQL واقعی smoke test شده است.
+Sprint 4 has been implemented and smoke-tested against a real PostgreSQL database.
 
 Sprint 4:
 
-- Reward Template API اضافه شد
-- Generated Reward بعد از Campaign Completion ساخته می‌شود
-- Customer می‌تواند Rewardهای خودش را ببیند
-- Staff می‌تواند Reward فعال را use کند
-- Reward Use یک Action از نوع `reward_use` می‌سازد
-- Reward Use باعث تغییر Points Ledger نمی‌شود
-- Reward برای Cross آینده `issuer_business_id`, `redeem_scope`, `settlement_policy` دارد
-- Generated Reward برای Group آینده `source_type`, `source_id`, `customer_id` دارد
-- Reward Usage محل مصرف را با `redeemed_business_id` ثبت می‌کند
-- Migration روی PostgreSQL واقعی اجرا شد
-- تست‌های Reward Engine و idempotency پاس شدند
+* Reward Template API added
+* Generated Reward is created after Campaign Completion
+* Customer can view their own Rewards
+* Staff can use an active Reward
+* Reward Use creates an Action of type `reward_use`
+* Reward Use does not modify the Points Ledger
+* Reward includes `issuer_business_id`, `redeem_scope`, and `settlement_policy` for future Cross functionality
+* Generated Reward includes `source_type`, `source_id`, and `customer_id` for future Group functionality
+* Reward usage records the redemption location through `redeemed_business_id`
+* Migration executed against real PostgreSQL
+* Reward Engine and idempotency tests passed
 
-Sprint 5 پیاده‌سازی و با PostgreSQL واقعی smoke test شده است.
+Sprint 5 has been implemented and smoke-tested against a real PostgreSQL database.
 
 Sprint 5:
 
-- Customer QR Token اضافه شد
-- QR Token خام در database ذخیره نمی‌شود و فقط `token_hash` ذخیره می‌شود
-- Customer می‌تواند QR خودش را issue/rotate کند
-- Staff می‌تواند QR را برای Business خودش resolve کند
-- Staff Service Summary شامل customer، points، active rewards و recent actions است
-- Staff می‌تواند Action را با QR ثبت کند
-- Staff می‌تواند Reward را با QR use کند
-- Reward Use با QR همچنان Points Ledger را تغییر نمی‌دهد
-- Migration روی PostgreSQL واقعی اجرا شد
-- تست‌های QR Staff Workflow پاس شدند
+* Customer QR Token added
+* Raw QR Tokens are not stored in the database; only `token_hash` is stored
+* Customer can issue/rotate their own QR
+* Staff can resolve a QR for their Business
+* Staff Service Summary includes customer, points, active rewards, and recent actions
+* Staff can register an Action using a QR
+* Staff can use a Reward using a QR
+* Reward Use via QR still does not modify the Points Ledger
+* Migration executed against real PostgreSQL
+* QR Staff Workflow tests passed
 
-Sprint 5.5 پیاده‌سازی شده است.
+Sprint 5.5 has been implemented.
 
 Sprint 5.5:
 
-- قرارداد API برای Staff Service Panel روشن‌تر شد
-- endpoint مخصوص Staff برای دیدن Missionهای قابل ثبت اضافه شد
-- `recent_actions` در Staff Service Summary typed شد
-- تست‌های Staff Panel API Contract اضافه شد
+* API contract for the Staff Service Panel was clarified
+* A Staff-specific endpoint for viewing registrable Missions was added
+* `recent_actions` in the Staff Service Summary was strongly typed
+* Staff Panel API Contract tests were added
 
-Sprint 5.6 پیاده‌سازی شده است.
+Sprint 5.6 has been implemented.
 
 Sprint 5.6:
 
-- endpoint مخصوص Staff Context اضافه شد
-- Flutter بعد از login می‌تواند Businessهای Staff را دریافت کند
-- response برای چند Business آینده به صورت آرایه طراحی شد
-- تست‌های Staff Context اضافه شد
+* A Staff-specific Context endpoint was added
+* After login, Flutter can retrieve the Businesses associated with the Staff member
+* The response is designed as an array to support multiple Businesses in the future
+* Staff Context tests were added
 
-Flutter F0 پیاده‌سازی شده است.
+Flutter F0 has been implemented.
 
 Flutter F0:
 
-- پروژه Flutter در `frontend/` ساخته شد
-- dependencyهای پایه اضافه شد
-- app shell و theme و router پایه ساخته شد
-- API config و Dio client و secure token storage آماده شد
-- `flutter analyze`, `flutter test` و `flutter build web` پاس شدند
+* Flutter project created in `frontend/`
+* Base dependencies added
+* Basic app shell, theme, and router created
+* API config, Dio client, and secure token storage prepared
+* `flutter analyze`, `flutter test`, and `flutter build web` passed
 
-Flutter F1 پیاده‌سازی شده است.
+Flutter F1 has been implemented.
 
 Flutter F1:
 
-- Login screen اضافه شد
-- JWT در secure storage ذخیره می‌شود
-- Staff Context از backend خوانده می‌شود
-- Business selection برای چند Business آماده شد
-- Sign out اضافه شد
-- `flutter analyze`, `flutter test` و `flutter build web` پاس شدند
+* Login screen added
+* JWT is stored in secure storage
+* Staff Context is loaded from the backend
+* Business selection for multiple Businesses is ready
+* Sign out added
+* `flutter analyze`, `flutter test`, and `flutter build web` passed
 
-Flutter F2 و F3 پیاده‌سازی شده‌اند.
+Flutter F2 and F3 have been implemented.
 
 Flutter F2/F3:
 
-- Staff Service Panel به backend وصل شد
-- Customer QR Display اضافه شد
-- Customer QR rotate اضافه شد
-- Staff می‌تواند Customer QR را resolve کند
-- Staff می‌تواند Action ثبت کند و Reward فعال را use کند
+* Staff Service Panel connected to the backend
+* Customer QR Display added
+* Customer QR rotation added
+* Staff can resolve a Customer QR
+* Staff can register an Action and use an active Reward
 
 Flutter F2.5:
 
-- Staff camera QR scan اضافه شد
-- manual token input در آن مرحله به‌عنوان fallback باقی ماند؛ در وضعیت فعلی UI مسیر اصلی فقط camera scan است
-- Customer QR و Staff QR entry polish اولیه شدند
-- نسخه Flutter برای تشخیص build جدید در Login افزایش یافت
+* Staff camera QR scanning added
+* Manual token input remained as a fallback at that stage; in the current state, the primary UI path is camera scanning only
+* Initial polish applied to Customer QR and Staff QR entry
+* Flutter version was incremented so that Login can detect a new build
 
 Flutter F2.6:
 
-- تست دستی end-to-end انجام شد
-- Customer login، Customer QR، Staff login، camera scan، resolve customer، ثبت Action، points، reward generation، reward use و recent actions پاس شدند
-- core Staff/Customer MVP loop برای ادامه UX polish قابل اتکا شد
+* Manual end-to-end testing completed
+* Customer login, Customer QR, Staff login, camera scan, customer resolution, Action registration, points, reward generation, reward use, and recent actions all passed
+* The core Staff/Customer MVP loop became reliable enough for continued UX polish
 
 Flutter F2.7:
 
-- confirmation قبل از `Use Reward` اضافه شد
-- پیام ثبت Action وقتی reward جدید صادر نمی‌شود واضح‌تر شد
-- کارت customer loaded و mission row برای استفاده عملی Staff polish شدند
-- local dev seed برای ساخت reward فعال تستی اضافه شد
+* Confirmation before `Use Reward` added
+* Action registration messaging was made clearer when no new reward is issued
+* Customer loaded card and mission row were polished for practical Staff usage
+* Local development seed for creating a test active reward was added
 
 Flutter F2.8:
 
-- endpoint `GET /customers/me/status` اضافه شد
-- Customer Dashboard وضعیت active rewards را نشان می‌دهد
-- Customer می‌تواند status را بعد از عملیات Staff دستی refresh کند
-- نمایش total points برای Customer حذف شد؛ در آن زمان Campaign Progress به‌عنوان فاز جداگانه برنامه‌ریزی شد
+* `GET /customers/me/status` endpoint added
+* Customer Dashboard displays active reward status
+* Customer can manually refresh the status after Staff operations
+* Total points display was removed for Customer; at that time, Campaign Progress was planned as a separate phase
 
 Flutter F2.9:
 
-- مسیر demo رسمی مستند شد
-- seed strategy برای reward-use QA مستند شد
-- known product gaps و UI/Brand debt ثبت شدند
-- پروژه برای تصمیم‌گیری مرحله بعد آماده شد، بدون اضافه کردن feature جدید
+* Official demo flow documented
+* Seed strategy for reward-use QA documented
+* Known product gaps and UI/Brand debt recorded
+* Project prepared for the next-stage decision without adding new features
 
-Flutter F5 تا F8:
+Flutter F5 through F8:
 
-- Owner Dashboard حداقلی برای دعوت Staff و ساخت Mission, Campaign و Reward Template اضافه شد
-- Customer Campaign Progress طراحی و پیاده‌سازی شد، بدون نمایش `total points` عمومی
-- UI/Branding Recovery انجام شد و component catalog به‌عنوان مرجع UI اضافه شد
-- صفحه‌های اصلی Flutter به ساختار فعلی منتقل شدند:
-  - `customer_screen.dart`
-  - `staff_panel.dart`
-  - `owner_screen.dart`
-- Customer Registration اضافه شد و Customer می‌تواند از Login صفحه ثبت‌نام را باز کند
-- Customer Registration فعلاً فقط `name`, `email`, `password`, `confirm password` و `Term Accept` دارد
-- `phone` خارج از registration است و بعداً به‌عنوان profile completion اضافه می‌شود
+* A minimal Owner Dashboard was added for inviting Staff and creating Missions, Campaigns, and Reward Templates
+* Customer Campaign Progress was designed and implemented without publicly displaying `total points`
+* UI/Branding Recovery was completed, and the component catalog was added as the UI reference
+* Main Flutter screens were migrated to the current structure:
 
-## وضعیت فعلی برای ادامه
+  * `customer_screen.dart`
+  * `staff_panel.dart`
+  * `owner_screen.dart`
+* Customer Registration was added, and Customers can open the registration page from Login
+* Customer Registration currently includes only `name`, `email`, `password`, `confirm password`, and `Term Accept`
+* `phone` is excluded from registration and will later be added as part of profile completion
 
-منبع حقیقت کوتاه برای ادامه پروژه:
+## Current Status for Continuation
 
-- سند [Current Stability Check](./status/current-stability-check.md)
-- کد فعلی backend و frontend
-- این README به‌عنوان snapshot کلی
+The short-form sources of truth for continuing the project are:
 
-سندهای sprint قدیمی‌تر، تاریخچه تصمیم‌ها را نگه می‌دارند. اگر در آن‌ها عباراتی مثل manual token fallback یا نام فایل‌های قدیمی دیده شد، باید با یادداشت تاریخی همان مرحله خوانده شوند، نه به‌عنوان وضعیت فعلی محصول.
+* [Current Stability Check](./status/current-stability-check.md)
+* Current backend and frontend code
+* This README as the overall snapshot
+
+Older sprint documents preserve the history of decisions. If they contain statements such as the manual token fallback or references to old file names, they should be read as historical notes from that stage, not as the current product state.
