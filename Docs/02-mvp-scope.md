@@ -1,98 +1,98 @@
-# محدوده MVP
+# MVP Scope
 
-MVP باید کوچک باشد، اما معماری نهایی را خراب نکند.
+The MVP should be small, but it must not compromise the final architecture.
 
-کوچک یعنی:
+**Small** means:
 
-- فقط یک workflow کامل وفاداری ساخته شود
-- تعداد نقش‌ها و صفحه‌ها حداقلی باشد
-- Campaign و Reward با ساده‌ترین حالت شروع شوند
-- فقط زیرساخت لازم برای اجرا و verification ساخته شود
+* Build only one complete loyalty workflow
+* Keep the number of roles and screens to a minimum
+* Start with the simplest possible implementation of Campaigns and Rewards
+* Build only the infrastructure required for execution and verification
 
-آینده‌نگر یعنی:
+**Future-proof** means:
 
-- مرز دامنه‌ها از ابتدا روشن باشد
-- schema جلوی Group و Cross-Network Campaign آینده را نگیرد
-- Points به شکل append-only ledger ذخیره شود
-- Reward lifecycle داشته باشد
-- Actionها قابل audit و idempotent باشند
-- منطق تجاری در Service باشد، نه داخل Router
+* Domain boundaries are clearly defined from the beginning
+* The schema does not prevent future Group and Cross-Network Campaigns
+* Points are stored as an append-only ledger
+* Rewards have a lifecycle
+* Actions are auditable and idempotent
+* Business logic lives in Services, not inside Routers
 
-## داخل MVP
+## Included in MVP
 
 ### Identity
 
-- ثبت‌نام Customer
-- ثبت‌نام Owner
-- دعوت Staff توسط Owner با لینک امن ایمیلی
-- JWT Authentication
-- Role-based access control
+* Customer registration
+* Owner registration
+* Staff invitation by Owner through a secure email link
+* JWT Authentication
+* Role-based access control
 
 ### Business
 
-- Business Profile
-- Staff Membership
-- مدیریت Business توسط Owner
+* Business Profile
+* Staff Membership
+* Business management by Owner
 
 ### Loyalty Foundation
 
-- Mission
-- Action
-- Points Ledger
-- Individual Campaign
+* Mission
+* Action
+* Points Ledger
+* Individual Campaign
 
 ### Reward Engine
 
-- Reward Template
-- Generated Reward
-- Reward lifecycle: `active`, `used`, `expired`
+* Reward Template
+* Generated Reward
+* Reward lifecycle: `active`, `used`, `expired`
 
 ### QR Staff Workflow
 
-- Customer QR Token
-- Scan Resolve Endpoint
-- Register Action Endpoint
-- Use Reward Endpoint
+* Customer QR Token
+* Scan Resolve Endpoint
+* Register Action Endpoint
+* Use Reward Endpoint
 
 ### Minimal UI
 
-MVP به کوچک‌ترین UI عملی برای تست workflow واقعی نیاز دارد. اگر Flutter سریع آماده شود، Flutter؛ اگر نه، یک UI ساده‌تر برای validation اولیه قابل قبول است.
+The MVP needs the smallest practical UI for testing the real workflow. If Flutter is ready quickly, Flutter should be used; otherwise, a simpler UI for initial validation is acceptable.
 
-برای شروع Flutter، محدوده UI به صورت Staff-first تعریف می‌شود:
+For the initial Flutter implementation, the UI scope is defined as **Staff-first**:
 
-- Staff Login
-- Staff Context
-- Staff Service Panel
-- QR input/scan
-- Action Registration
-- Reward Use
+* Staff Login
+* Staff Context
+* Staff Service Panel
+* QR input/scan
+* Action Registration
+* Reward Use
 
-Owner و Customer UI در فاز Flutter اضافه می‌شوند، اما شروع MVP frontend با Staff workflow است.
+Owner and Customer UIs will be added during the Flutter phase, but the MVP frontend starts with the Staff workflow.
 
-Frontend نهایی به زبان انگلیسی ساخته می‌شود. متن‌های قابل مشاهده در Flutter، شامل عنوان‌ها، دکمه‌ها، labelها، پیام‌های خطا و empty stateها، باید انگلیسی باشند.
+The final frontend will be built in English. All user-visible text in Flutter, including titles, buttons, labels, error messages, and empty states, must be in English.
 
-## خارج از MVP
+## Out of Scope for MVP
 
-- Group Campaign execution
-- Cross-Network Campaign execution
-- Fans Group management
-- Business Club management
-- Settlement Engine
-- Full Analytics
-- Gamification
-- Marketplace
-- Production CI/CD کامل
+* Group Campaign execution
+* Cross-Network Campaign execution
+* Fans Group management
+* Business Club management
+* Settlement Engine
+* Full Analytics
+* Gamification
+* Marketplace
+* Full Production CI/CD
 
-## معیار پایان MVP
+## MVP Completion Criteria
 
-MVP وقتی کامل است که:
+The MVP is complete when:
 
-- Owner بتواند Staff بسازد
-- Customer با QR شناسایی شود
-- Staff بتواند Action ثبت کند
-- Points در ledger ثبت شود
-- Individual Campaign بتواند Reward تولید کند
-- Staff بتواند Reward را Use کند
-- APIهای اصلی تست داشته باشند
-- Migrationها روی PostgreSQL اجرا شوند
-- OpenAPI قابل استفاده باشد
+* Owner can create Staff
+* Customer can be identified through a QR
+* Staff can register an Action
+* Points are recorded in the ledger
+* An Individual Campaign can generate a Reward
+* Staff can Use the Reward
+* Core APIs have tests
+* Migrations run successfully on PostgreSQL
+* OpenAPI is usable
