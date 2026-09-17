@@ -1,8 +1,8 @@
-# نمای کلی محصول
+# Product Overview
 
-Zomia یک پلتفرم وفاداری برای کسب‌وکارهاست. هدف آن این است که رفتارهای تکرارشونده مشتری مثل خرید، مراجعه، check-in یا معرفی دوست را به امتیاز و پاداش تبدیل کند.
+Zomia is a loyalty platform for businesses. Its goal is to turn recurring customer behaviors such as purchases, visits, check-ins, or referrals into points and rewards.
 
-## جریان اصلی محصول
+## Core Product Flow
 
 ```text
 Customer QR
@@ -15,52 +15,51 @@ Customer QR
 -> Reward Use
 ```
 
-## نقش‌ها
+## Roles
 
 ### Customer
 
-مشتری نهایی که در برنامه وفاداری شرکت می‌کند، QR خود را نمایش می‌دهد، امتیاز می‌گیرد و پاداش دریافت می‌کند.
+The end customer who participates in the loyalty program, displays their QR code, earns points, and receives rewards.
 
 ### Owner
 
-مالک کسب‌وکار که Business، Staff، Mission، Campaign و Rewardها را مدیریت می‌کند.
+The business owner who manages the Business, Staff, Missions, Campaigns, and Rewards.
 
 ### Staff
 
-کارمند یا اپراتور کسب‌وکار که QR مشتری را اسکن می‌کند، Action ثبت می‌کند، Rewardهای فعال را می‌بیند و Reward را مصرف‌شده می‌کند.
+A business employee or operator who scans the customer's QR code, registers Actions, views active Rewards, and marks Rewards as used.
 
 ### Admin
 
-مدیر سطح پلتفرم. در MVP فقط role آن وجود دارد؛ پنل و عملیات کامل Admin بعداً ساخته می‌شود.
+A platform-level administrator. In the MVP, only the role exists; the full Admin panel and operations will be built later.
 
-## هدف MVP
+## MVP Goal
 
-MVP نباید همه ایده‌های Zomia را بسازد. MVP باید فقط یک چرخه واقعی وفاداری را end-to-end ثابت کند:
+The MVP should not build every Zomia idea. The MVP should only prove one real end-to-end loyalty cycle:
 
 ```text
-Owner یک Business می‌سازد
-Owner یک Staff می‌سازد
-Customer قابل شناسایی می‌شود
-Staff QR مشتری را اسکن می‌کند
-Staff یک Action ثبت می‌کند
-سیستم Point ثبت می‌کند
-سیستم یک Individual Campaign را بررسی می‌کند
-در صورت تکمیل شرط، Reward ساخته می‌شود
-Staff می‌تواند Reward را Use کند
+Owner creates a Business
+Owner creates a Staff member
+Customer becomes identifiable
+Staff scans the customer's QR
+Staff registers an Action
+The system records Points
+The system evaluates an Individual Campaign
+If the condition is completed, a Reward is generated
+Staff can Use the Reward
 ```
 
-## خارج از MVP
+## Out of Scope for MVP
 
-این موارد برای آینده مهم‌اند، اما در MVP اول ساخته نمی‌شوند:
+These features are important for the future, but will not be built in the first MVP:
 
-- Group Campaign
-- Cross-Network Campaign
-- Fans Group
-- Business Partner Club
-- Marketplace
-- Gamification
-- Advanced Analytics
-- Full Admin Panel
-- OAuth
-- Multi-branch operations
-
+* Group Campaign
+* Cross-Network Campaign
+* Fans Group
+* Business Partner Club
+* Marketplace
+* Gamification
+* Advanced Analytics
+* Full Admin Panel
+* OAuth
+* Multi-branch operations
